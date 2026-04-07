@@ -69,6 +69,7 @@ jobs:
       # --allow-unauthenticated means the website is public and anyone on the internet can hit your API endpoints.
       # --memory=512Mi explicitly limits the container RAM. Since we are using a GraalVM native image,
       #   512 MB is more than enough to handle thousands of requests.
+      # env_vars This injects the Aiven DB credentials into the Cloud Run container. Local server will work as before.
       - name: Deploy to Cloud Run
         id: deploy
         uses: google-github-actions/deploy-cloudrun@v3
@@ -77,6 +78,10 @@ jobs:
           region: ${{ env.GAR_LOCATION }}
           image: ${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.DASHBOARD_NAME }}:${{ github.sha }}
           flags: '--allow-unauthenticated --memory=512Mi'
+          env_vars: |-
+            SPRING_DATASOURCE_URL=${{ secrets.DB_URL }}
+            SPRING_DATASOURCE_USERNAME=${{ secrets.DB_USERNAME }}
+            SPRING_DATASOURCE_PASSWORD=${{ secrets.DB_PASSWORD }}
 
       # Prints out URL of backend.
       - name: Show Live URL
