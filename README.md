@@ -1,14 +1,23 @@
 # USERLAND-BACKEND-JAVA
 
-This is very simple backend project demonstrating basics of Java and Spring Boot. It is intended to be used with frontend project that I will write later.
+This is very simple **backend project** demonstrating basics of Java and Spring Boot. It is intended to be used with **frontend project** that I will write later.
 
 Project is in early stages. Description below sums up planned functionality, features etc.
 
 ## Functionality
 
-This project fully handles user. This is where name UserLand comes from.
+This project fully handles user. This is where name **UserLand** comes from.
 
 You can think of it as baseline for any other project, as almost anything will need user account.
+
+## Deployment
+
+This app uses:
+- **Google Cloud Run** for backend.
+- **Aiven** for PostgreSQL.
+
+**UserLand** app is deployed via **GitHub Actions**.
+
 
 ### Features
 
@@ -27,10 +36,10 @@ You can think of it as baseline for any other project, as almost anything will n
 
 ### Main
 
-- Java 25
-- Spring Boot 4.0.5
+- **Java** 25
+- **Spring Boot** 4.0.5
 
-### Uses
+### Dependencies
 
 - Spring:
   - Web

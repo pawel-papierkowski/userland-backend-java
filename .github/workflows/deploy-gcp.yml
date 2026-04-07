@@ -49,6 +49,7 @@ jobs:
 
         # Core of the pipeline!
         # Compiles the app directly into a Docker image and pushes it to Google Artifact Registry.
+        # chmod +x mvnw grants execution permissions to the Maven wrapper.
         # -Pnative flag instructs Spring to compile your application into a GraalVM native binary.
         #   This strips away the JVM and compiles your Java directly into machine code,
         #   creating that tiny ~80 MB image that starts in milliseconds.
@@ -56,7 +57,9 @@ jobs:
         #   to your Google Artifact Registry using the unique commit hash (${{ github.sha }}) as the version tag.
       - name: Build and Push GraalVM Native Image
         run: |
-          IMAGE_URL="${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ secrets.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.DASHBOARD_NAME }}:${{ github.sha }}"
+          chmod +x mvnw
+          
+          IMAGE_URL="${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.DASHBOARD_NAME }}:${{ github.sha }}"
           
           ./mvnw spring-boot:build-image -Pnative \
             -Dspring-boot.build-image.imageName=$IMAGE_URL \
