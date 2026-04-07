@@ -1,3 +1,6 @@
 spring:
   application:
     name: userland-backend
+  jackson:
+    serialization:
+      fail-on-empty-beans: false # prevent crashing of Flyway when it tries to serialize stuff in GraalVM
