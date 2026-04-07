@@ -1,0 +1,33 @@
+name: Test GCP Authentication
+on:
+  # This allows you to click a "Run workflow" button manually in GitHub
+  # without needing to push new code every time you want to test it.
+  workflow_dispatch:
+
+env:
+  SERVICE_ACC: srv-userland # name of service account for GCP project
+
+jobs:
+  test-auth:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: 'read'
+      id-token: 'write' # Required for Workload Identity Federation
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v6
+
+      - name: Authenticate to Google Cloud
+        id: auth
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: '${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}'
+          service_account: '${{ env.SERVICE_ACC }}@${{ secrets.GCP_PROJECT_ID }}.iam.gserviceaccount.com'
+
+      - name: Verify Authentication
+        # If the previous step fails, this won't run.
+        # If this runs, it safely prints the active authenticated account.
+        run: |
+          echo "Success! We are authenticated to Google Cloud."
+          gcloud auth list
