@@ -1,0 +1,80 @@
+# What we do?
+# 1. Compile GraalVM native image on GitHub.
+# 2. Upload image as artifact to Google Cloud.
+# 3.
+name: Deploy GraalVM Native Image to Cloud Run
+
+on:
+  # This allows you to click a "Run workflow" button manually in GitHub
+  # without needing to push new code every time you want to test it.
+  workflow_dispatch:
+
+env: # Environment variables.
+  SERVICE_ACC: srv-userland # Name of service account for GCP project.
+  GAR_LOCATION: europe-central2 # Data center region in Warsaw, Poland.
+  REPOSITORY: userland-backend-java-repo # GCP Artifact Registry Repository.
+  DASHBOARD_NAME: userland-backend-java # Name that backend will have in the Google Cloud Run dashboard.
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: 'read'
+      id-token: 'write' # This is required for requesting the OIDC JWT.
+    steps:
+      # Clone repo to temporary Ubuntu build server provided by GitHub.
+      - name: Checkout Code
+        uses: actions/checkout@v6
+
+      # Install Java 25 JDK (Temurin distribution).
+      - name: Set up Java 25
+        uses: actions/setup-java@v5
+        with:
+          java-version: '25'
+          distribution: 'temurin'
+          cache: 'maven' # save downloaded dependencies for next time
+
+      # Authenticate to Google Cloud using WIF. You can test it separately (test-gcp-auth.yml).
+      - name: Authenticate to Google Cloud
+        id: auth
+        uses: google-github-actions/auth@v3
+        with:
+          workload_identity_provider: '${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}'
+          service_account: '${{ env.SERVICE_ACC }}@${{ secrets.GCP_PROJECT_ID }}.iam.gserviceaccount.com'
+
+# Note: currently we should be logged into Google Cloud.
+
+      - name: Authenticate Docker to Artifact Registry
+        run: gcloud auth configure-docker ${{ env.GAR_LOCATION }}-docker.pkg.dev --quiet
+
+        # Core of the pipeline!
+        # Compiles the app directly into a Docker image and pushes it to Google Artifact Registry.
+        # -Pnative flag instructs Spring to compile your application into a GraalVM native binary.
+        #   This strips away the JVM and compiles your Java directly into machine code,
+        #   creating that tiny ~80 MB image that starts in milliseconds.
+        # The -D...publish=true flag tells Maven to immediately upload that finished Docker image
+        #   to your Google Artifact Registry using the unique commit hash (${{ github.sha }}) as the version tag.
+      - name: Build and Push GraalVM Native Image
+        run: |
+          IMAGE_URL="${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ secrets.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.DASHBOARD_NAME }}:${{ github.sha }}"
+          
+          ./mvnw spring-boot:build-image -Pnative \
+            -Dspring-boot.build-image.imageName=$IMAGE_URL \
+            -Dspring-boot.build-image.publish=true
+
+      # Launch a new container using the image that was just uploaded.
+      # --allow-unauthenticated means the website is public and anyone on the internet can hit your API endpoints.
+      # --memory=512Mi explicitly limits the container RAM. Since we are using a GraalVM native image,
+      #   512 MB is more than enough to handle thousands of requests.
+      - name: Deploy to Cloud Run
+        id: deploy
+        uses: google-github-actions/deploy-cloudrun@v3
+        with:
+          service: ${{ env.DASHBOARD_NAME }}
+          region: ${{ env.GAR_LOCATION }}
+          image: ${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ secrets.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.DASHBOARD_NAME }}:${{ github.sha }}
+          flags: '--allow-unauthenticated --memory=512Mi'
+
+      # Prints out URL of backend.
+      - name: Show Live URL
+        run: echo "App deployed at ${{ steps.deploy.outputs.url }}"
