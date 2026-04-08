@@ -12,11 +12,14 @@ You can think of it as baseline for any other project, as almost anything will n
 
 ## Local startup
 
-Ensure Java 25 GraalVM is selected.
+Ensure Java 25 Temurin is selected.
 
-For GraalVM agent trace you will need separate run configuration with additional options:
-- **VM options**: -agentlib:native-image-agent=config-merge-dir=src/main/resources/META-INF/native-image 
-- **Environment variables**: SPRING_DATASOURCE_URL, SPRING_DATASOURCE_USERNAME, SPRING_DATASOURCE_PASSWORD (to ensure you use real database instead of container)
+If you want to use real database instead of container, add in run config:
+- **Environment variables**:
+  - SPRING_DATASOURCE_URL=jdbc:postgresql://[URL]
+  - SPRING_DATASOURCE_USERNAME=[NAME OF POSTGRESQL ACCOUNT]
+  - SPRING_DATASOURCE_PASSWORD=[YOUR PASSWORD]
+  - SPRING_DOCKER_COMPOSE_ENABLED=false
 
 
 ## Deployment
@@ -44,7 +47,7 @@ This app uses:
 
 ### Main
 
-- **Java** 25 (GraalVM)
+- **Java** 25 (Temurin)
 - **Spring Boot** 4.0.5
 - **PostgreSQL** 17.9 (Aiven)
 
