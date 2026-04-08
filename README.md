@@ -10,14 +10,22 @@ This project fully handles user. This is where name **UserLand** comes from.
 
 You can think of it as baseline for any other project, as almost anything will need user account.
 
+## Local startup
+
+Ensure Java 25 GraalVM is selected.
+
+For GraalVM agent trace you will need separate run configuration with additional options:
+- **VM options**: -agentlib:native-image-agent=config-merge-dir=src/main/resources/META-INF/native-image 
+- **Environment variables**: SPRING_DATASOURCE_URL, SPRING_DATASOURCE_USERNAME, SPRING_DATASOURCE_PASSWORD (to ensure you use real database instead of container)
+
+
 ## Deployment
 
 This app uses:
-- **Google Cloud Run** for backend.
+- **Google Cloud Run** for backend hosting.
 - **Aiven** for PostgreSQL.
 
 **UserLand** app is deployed via **GitHub Actions**.
-
 
 ### Features
 
@@ -36,8 +44,9 @@ This app uses:
 
 ### Main
 
-- **Java** 25
+- **Java** 25 (GraalVM)
 - **Spring Boot** 4.0.5
+- **PostgreSQL** 17.9 (Aiven)
 
 ### Dependencies
 
