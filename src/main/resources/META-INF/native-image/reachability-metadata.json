@@ -149,7 +149,90 @@
       "type": "com.rometools.rome.feed.WireFeed"
     },
     {
+      "type": "com.sun.crypto.provider.AESCipher$General",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "com.sun.crypto.provider.ARCFOURCipher",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "com.sun.crypto.provider.ChaCha20Cipher$ChaCha20Poly1305",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "com.sun.crypto.provider.DESCipher",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "com.sun.crypto.provider.DESedeCipher",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "com.sun.crypto.provider.DHParameters",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "com.sun.crypto.provider.GaloisCounterMode$AESGCM",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "com.sun.crypto.provider.HKDFKeyDerivation$HKDFSHA384",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": [
+            "javax.crypto.KDFParameters"
+          ]
+        }
+      ]
+    },
+    {
       "type": "com.sun.crypto.provider.HmacCore$HmacSHA256",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "com.sun.crypto.provider.HmacCore$HmacSHA384",
       "methods": [
         {
           "name": "<init>",
@@ -195,6 +278,15 @@
     },
     {
       "type": "com.sun.crypto.provider.PBKDF2Core$HmacSHA512",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "com.sun.crypto.provider.TlsMasterSecretGenerator",
       "methods": [
         {
           "name": "<init>",
@@ -341,6 +433,9 @@
       ]
     },
     {
+      "type": "com.zaxxer.hikari.pool.HikariPool"
+    },
+    {
       "type": "com.zaxxer.hikari.pool.PoolBase"
     },
     {
@@ -351,6 +446,9 @@
     },
     {
       "type": "com.zaxxer.hikari.util.Credentials"
+    },
+    {
+      "type": "com.zaxxer.hikari.util.DriverDataSource"
     },
     {
       "type": "double[]"
@@ -1557,6 +1655,12 @@
       "type": "java.math.BigInteger"
     },
     {
+      "type": "java.net.Socket"
+    },
+    {
+      "type": "java.net.SocksSocketImpl"
+    },
+    {
       "type": "java.net.URL"
     },
     {
@@ -1603,6 +1707,21 @@
       ]
     },
     {
+      "type": "java.security.AlgorithmParametersSpi"
+    },
+    {
+      "type": "java.security.interfaces.ECPrivateKey"
+    },
+    {
+      "type": "java.security.interfaces.ECPublicKey"
+    },
+    {
+      "type": "java.security.interfaces.RSAPrivateKey"
+    },
+    {
+      "type": "java.security.interfaces.RSAPublicKey"
+    },
+    {
       "type": "java.sql.Blob"
     },
     {
@@ -1634,6 +1753,9 @@
     },
     {
       "type": "java.sql.NClob"
+    },
+    {
+      "type": "java.sql.SQLException"
     },
     {
       "type": "java.sql.Statement[]"
@@ -2685,6 +2807,9 @@
       "type": "org.flywaydb.core.Flyway"
     },
     {
+      "type": "org.flywaydb.core.FlywayExecutor"
+    },
+    {
       "type": "org.flywaydb.core.api.migration.baseline.BaselineAppliedMigration"
     },
     {
@@ -2813,7 +2938,46 @@
       "type": "org.flywaydb.core.internal.database.sqlite.SQLiteDatabaseType"
     },
     {
+      "type": "org.flywaydb.core.internal.exception.sqlExceptions.FlywaySqlNoDriversForInteractiveAuthException",
+      "methods": [
+        {
+          "name": "isFlywaySpecificVersionOf",
+          "parameterTypes": [
+            "java.sql.SQLException"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "org.flywaydb.core.internal.exception.sqlExceptions.FlywaySqlNoIntegratedAuthException",
+      "methods": [
+        {
+          "name": "isFlywaySpecificVersionOf",
+          "parameterTypes": [
+            "java.sql.SQLException"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "org.flywaydb.core.internal.exception.sqlExceptions.FlywaySqlServerUntrustedCertificateSqlException",
+      "methods": [
+        {
+          "name": "isFlywaySpecificVersionOf",
+          "parameterTypes": [
+            "java.sql.SQLException"
+          ]
+        }
+      ]
+    },
+    {
       "type": "org.flywaydb.core.internal.jdbc.ErrorOverrideInitializerStub"
+    },
+    {
+      "type": "org.flywaydb.core.internal.jdbc.JdbcConnectionFactory"
+    },
+    {
+      "type": "org.flywaydb.core.internal.jdbc.JdbcUtils"
     },
     {
       "type": "org.flywaydb.core.internal.logging.slf4j.Slf4jLogCreator",
@@ -5515,7 +5679,19 @@
       ]
     },
     {
+      "type": "org.postgresql.core.ConnectionFactory"
+    },
+    {
+      "type": "org.postgresql.core.PGStream"
+    },
+    {
       "type": "org.postgresql.core.QueryExecutorCloseAction"
+    },
+    {
+      "type": "org.postgresql.core.v3.ConnectionFactoryImpl"
+    },
+    {
+      "type": "org.postgresql.jdbc.PgConnection"
     },
     {
       "type": "org.postgresql.jdbc.PgStatement"
@@ -6405,7 +6581,16 @@
       "type": "org.springframework.beans.factory.config.SmartInstantiationAwareBeanPostProcessor"
     },
     {
+      "type": "org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory"
+    },
+    {
+      "type": "org.springframework.beans.factory.support.AbstractBeanFactory"
+    },
+    {
       "type": "org.springframework.beans.factory.support.BeanDefinitionRegistryPostProcessor"
+    },
+    {
+      "type": "org.springframework.beans.factory.support.DefaultSingletonBeanRegistry"
     },
     {
       "type": "org.springframework.beans.factory.support.NullBean"
@@ -9134,6 +9319,12 @@
         {
           "name": "getReadiness",
           "parameterTypes": []
+        },
+        {
+          "name": "setEnabled",
+          "parameterTypes": [
+            "boolean"
+          ]
         }
       ]
     },
@@ -9238,6 +9429,10 @@
           ]
         },
         {
+          "name": "flywayConnectionDetails",
+          "parameterTypes": []
+        },
+        {
           "name": "flywayInitializer",
           "parameterTypes": [
             "org.flywaydb.core.Flyway",
@@ -9276,6 +9471,9 @@
     },
     {
       "type": "org.springframework.boot.flyway.autoconfigure.FlywayAutoConfiguration$PostgresqlFlywayConfigurationCustomizer"
+    },
+    {
+      "type": "org.springframework.boot.flyway.autoconfigure.FlywayAutoConfiguration$PropertiesFlywayConnectionDetails"
     },
     {
       "type": "org.springframework.boot.flyway.autoconfigure.FlywayAutoConfiguration$StringOrNumberToMigrationVersionConverter"
@@ -10131,6 +10329,12 @@
         {
           "name": "<init>",
           "parameterTypes": []
+        },
+        {
+          "name": "jdbcConnectionDetails",
+          "parameterTypes": [
+            "org.springframework.boot.jdbc.autoconfigure.DataSourceProperties"
+          ]
         }
       ]
     },
@@ -10251,6 +10455,24 @@
         {
           "name": "<init>",
           "parameterTypes": []
+        },
+        {
+          "name": "setPassword",
+          "parameterTypes": [
+            "java.lang.String"
+          ]
+        },
+        {
+          "name": "setUrl",
+          "parameterTypes": [
+            "java.lang.String"
+          ]
+        },
+        {
+          "name": "setUsername",
+          "parameterTypes": [
+            "java.lang.String"
+          ]
         }
       ]
     },
@@ -10351,6 +10573,9 @@
           ]
         }
       ]
+    },
+    {
+      "type": "org.springframework.boot.jdbc.autoconfigure.PropertiesJdbcConnectionDetails"
     },
     {
       "type": "org.springframework.boot.jdbc.autoconfigure.health.DataSourceHealthContributorAutoConfiguration",
@@ -12786,6 +13011,9 @@
       "type": "org.springframework.context.event.SmartApplicationListener"
     },
     {
+      "type": "org.springframework.context.support.AbstractApplicationContext"
+    },
+    {
       "type": "org.springframework.context.support.ApplicationObjectSupport"
     },
     {
@@ -14712,6 +14940,9 @@
       ]
     },
     {
+      "type": "sun.nio.ch.NioSocketImpl"
+    },
+    {
       "type": "sun.reflect.misc.Trampoline",
       "methods": [
         {
@@ -14755,6 +14986,24 @@
           "parameterTypes": [
             "java.security.SecureRandomParameters"
           ]
+        }
+      ]
+    },
+    {
+      "type": "sun.security.provider.DSA$SHA224withDSA",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "sun.security.provider.DSA$SHA256withDSA",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
         }
       ]
     },
@@ -14813,11 +15062,107 @@
       ]
     },
     {
+      "type": "sun.security.rsa.PSSParameters",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
       "type": "sun.security.rsa.RSAKeyFactory$Legacy",
       "methods": [
         {
           "name": "<init>",
           "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "sun.security.rsa.RSAPSSSignature",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "sun.security.rsa.RSASignature$SHA224withRSA",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "sun.security.ssl.SSLContextImpl$TLSContext",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "sun.security.x509.AuthorityKeyIdentifierExtension",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": [
+            "java.lang.Boolean",
+            "java.lang.Object"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "sun.security.x509.BasicConstraintsExtension",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": [
+            "java.lang.Boolean",
+            "java.lang.Object"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "sun.security.x509.KeyUsageExtension",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": [
+            "java.lang.Boolean",
+            "java.lang.Object"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "sun.security.x509.SubjectAlternativeNameExtension",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": [
+            "java.lang.Boolean",
+            "java.lang.Object"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "sun.security.x509.SubjectKeyIdentifierExtension",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": [
+            "java.lang.Boolean",
+            "java.lang.Object"
+          ]
         }
       ]
     },
@@ -15829,6 +16174,12 @@
     },
     {
       "glob": "org/postgresql/driverconfig.properties"
+    },
+    {
+      "glob": "org/postgresql/translation/messages.properties"
+    },
+    {
+      "glob": "org/postgresql/translation/messages_pl_PL.properties"
     },
     {
       "glob": "org/springdoc/core/conditions/CacheOrGroupedOpenApiCondition$OnCacheDisabled.class"
@@ -17254,6 +17605,14 @@
       "glob": "jdk/internal/icu/impl/data/icudt76b/nfkc.nrm"
     },
     {
+      "module": "java.base",
+      "glob": "jdk/internal/icu/impl/data/icudt76b/uprops.icu"
+    },
+    {
+      "module": "java.base",
+      "glob": "sun/net/idn/uidna.spp"
+    },
+    {
       "module": "jdk.jfr",
       "glob": "jdk/jfr/internal/query/view.ini"
     },
@@ -17343,6 +17702,9 @@
     },
     {
       "bundle": "org.apache.tomcat.websocket.server.LocalStrings"
+    },
+    {
+      "bundle": "org.postgresql.translation.messages"
     }
   ]
 }
