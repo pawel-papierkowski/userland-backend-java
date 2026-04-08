@@ -1,7 +1,0 @@
-{
-  "rules": [
-    {"excludeClasses": "org.hibernate.bytecode.internal.bytebuddy.**"},
-    {"excludeClasses": "org.hibernate.bytecode.enhance.internal.bytebuddy.**"},
-    {"excludeClasses": "net.bytebuddy.**"}
-  ]
-}
