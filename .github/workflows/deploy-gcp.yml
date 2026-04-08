@@ -68,6 +68,8 @@ jobs:
       # env_vars:
       #   SPRING_DATASOURCE_*: This injects the Aiven DB credentials into the Cloud Run container.
       #     Local server will work as before.
+      #   BPL_JVM_THREAD_COUNT: Paketo has 250 by default, cut it down.
+      #   BPL_JVM_HEAD_ROOM: Tells Paketo how much % of container memory should be reserved for non-Java things like OS.
       #   JAVA_TOOL_OPTIONS: Use JVM arguments that will make JVM behave better in constrained environment.
       - name: Deploy to Cloud Run
         id: deploy
@@ -81,7 +83,9 @@ jobs:
             SPRING_DATASOURCE_URL=${{ secrets.DB_URL }}
             SPRING_DATASOURCE_USERNAME=${{ secrets.DB_USERNAME }}
             SPRING_DATASOURCE_PASSWORD=${{ secrets.DB_PASSWORD }}
-            JAVA_TOOL_OPTIONS=-XX:+UseSerialGC -XX:MaxRAMPercentage=75.0 -Xss512k -XX:TieredStopAtLevel=1
+            BPL_JVM_THREAD_COUNT=50
+            BPL_JVM_HEAD_ROOM=25
+            JAVA_TOOL_OPTIONS=-XX:+UseSerialGC -Xss512k -XX:TieredStopAtLevel=1 -XX:ReservedCodeCacheSize=128M
 
       # Prints out URL of backend.
       - name: Show Live URL
