@@ -1,5 +1,15 @@
 # Configuration specific to Spring.
 
+spring:
+  main:
+    banner-mode: off # will screw with gcp logging
+  cloud:
+    gcp: # disable gcp stuff locally, it will be enabled on gcp profile
+      core:
+        enabled: false
+      logging:
+        enabled: false
+
 # Since it is portfolio project, it is fine to expose some Actuator endpoints.
 management:
   endpoints:
@@ -10,11 +20,4 @@ management:
     env:
       enabled: true   # Allows the /actuator/info endpoint to show environment details
 
-spring:
-  cloud:
-    gcp: # disable gcp stuff locally, it will be enabled on gcp profile
-      core:
-        enabled: false
-      logging:
-        enabled: false
 
