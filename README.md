@@ -2,13 +2,23 @@
 
 This is very simple **backend project** demonstrating basics of Java and Spring Boot. It is intended to be used with **frontend project** that I will write later.
 
-Project is in early stages. Description below sums up planned functionality, features etc.
+Project is in early stages. Description below sums up planned functionality, future features etc.
 
 ## Functionality
 
 This project fully handles user. This is where name **UserLand** comes from.
 
 You can think of it as baseline for any other project, as almost anything will need user account.
+
+## Endpoints
+
+Server address on Google Cloud: https://userland-backend-java-299988087135.europe-central2.run.app
+
+System has endpoints available to use by frontend, PostMan etc.
+- Spring Actuator: certain selected endpoints are available, like health, metrics etc.
+- UserLand: info about endpoints available via Swagger.
+  - https://userland-backend-java-299988087135.europe-central2.run.app/v3/api-docs (via PostMan)
+  - https://userland-backend-java-299988087135.europe-central2.run.app/swagger-ui.html (can be used in browser)
 
 ## Local startup
 
