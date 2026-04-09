@@ -14,9 +14,12 @@ You can think of it as baseline for any other project, as almost anything will n
 
 Server address on Google Cloud: https://userland-backend-java-299988087135.europe-central2.run.app
 
-System has endpoints available to use by frontend, PostMan etc.
-- Spring Actuator: certain selected endpoints are available, like health, metrics etc.
-- UserLand: info about endpoints available via Swagger.
+Important: due to use of free tier, first access might need a minute or so because everything needs to be spin up
+(backed is zeroed out if not used for too long). 
+
+System has endpoints available publicly to use by frontend, PostMan etc.
+- Spring Actuator: certain selected endpoints are available publicly, like health, metrics etc.
+- UserLand: info about endpoints available publicly via Swagger.
   - https://userland-backend-java-299988087135.europe-central2.run.app/v3/api-docs (via PostMan)
   - https://userland-backend-java-299988087135.europe-central2.run.app/swagger-ui.html (can be used in browser)
 

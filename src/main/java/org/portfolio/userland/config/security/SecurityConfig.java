@@ -6,6 +6,12 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 
 /**
@@ -13,6 +19,25 @@ import org.springframework.security.web.SecurityFilterChain;
  */
 @Configuration
 public class SecurityConfig {
+  @Bean
+  public PasswordEncoder passwordEncoder() {
+    return new BCryptPasswordEncoder(); // we can safely hash passwords with this
+  }
+
+  @Bean
+  public UserDetailsService userDetailsService(PasswordEncoder passwordEncoder) {
+    // Create a hardcoded test user with a fixed password (not a random UUID).
+    // This is temporary - we will use users from database later.
+    UserDetails testUser = User.builder()
+        .username("admin")
+        .password(passwordEncoder.encode("password123"))
+        .roles("ADMIN")
+        .build();
+    return new InMemoryUserDetailsManager(testUser);
+  }
+
+  //
+
   /**
    * This specific filter chain only applies to /actuator/** endpoints.
    * Since it is portfolio project, we can open it to everyone.

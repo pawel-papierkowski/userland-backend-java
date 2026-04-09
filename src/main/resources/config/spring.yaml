@@ -3,6 +3,8 @@
 spring:
   main:
     banner-mode: off # will screw with gcp logging
+  jpa:
+    open-in-view: false # disable Open-In-View
   cloud:
     gcp: # disable gcp stuff locally, it will be enabled on gcp profile
       core:
