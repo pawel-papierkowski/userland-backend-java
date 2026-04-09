@@ -5,14 +5,14 @@
   <!-- If the GCP profile is active, CREATE and USE the JSON appender -->
   <springProfile name="gcp">
     <!-- Google Cloud Logging JSON Appender -->
-    <appender name="CONSOLE_JSON" class="ch.qos.logback.core.ConsoleAppender">
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
       <encoder class="ch.qos.logback.core.encoder.LayoutWrappingEncoder">
         <layout class="com.google.cloud.spring.logging.StackdriverJsonLayout" />
       </encoder>
     </appender>
 
     <root level="INFO">
-      <appender-ref ref="CONSOLE_JSON" />
+      <appender-ref ref="CONSOLE" />
     </root>
   </springProfile>
 
