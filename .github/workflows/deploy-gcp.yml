@@ -73,6 +73,8 @@ jobs:
       #     Local server will work as before.
       #   BPL_JVM_THREAD_COUNT: Paketo has 250 by default, cut it down.
       #   BPL_JVM_HEAD_ROOM: Tells Paketo how much % of container memory should be reserved for non-Java things like OS.
+      #   BPL_JAVA_NMT_ENABLED: Disable Paketo's memory tracking. Mainly for clean logs.
+      #   BPL_SPRING_CLOUD_BINDINGS_DISABLED: Disable Paketo's scanner for Kubernet stuff. Not needed, as we do not use Kubernet.
       #   JAVA_TOOL_OPTIONS: Use JVM arguments that will make JVM behave better in constrained environment.
       - name: Deploy to Cloud Run
         id: deploy
@@ -89,4 +91,6 @@ jobs:
             SPRING_DATASOURCE_PASSWORD=${{ secrets.DB_PASSWORD }}
             BPL_JVM_THREAD_COUNT=50
             BPL_JVM_HEAD_ROOM=25
+            BPL_JAVA_NMT_ENABLED=false
+            BPL_SPRING_CLOUD_BINDINGS_DISABLED=true
             JAVA_TOOL_OPTIONS=-XX:+UseSerialGC -Xss512k -XX:TieredStopAtLevel=1 -XX:ReservedCodeCacheSize=128M
