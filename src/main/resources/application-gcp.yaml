@@ -1,3 +1,8 @@
 # Configuration specific to Google Cloud.
-
-# For now, it is placeholder.
+spring:
+  cloud:
+    gcp:
+      core:
+        enabled: true
+      logging:
+        enabled: true
