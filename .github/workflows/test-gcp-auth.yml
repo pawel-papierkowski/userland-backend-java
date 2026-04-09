@@ -1,4 +1,6 @@
+# Simple workflow to test GCP access.
 name: Test GCP Authentication
+
 on:
   # This allows you to click a "Run workflow" button manually in GitHub
   # without needing to push new code every time you want to test it.

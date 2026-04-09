@@ -21,28 +21,41 @@ public class SecurityConfig {
    * @return Security filter chain.
    */
   @Bean
-  @Order(1) // High priority so it catches Actuator requests first
+  @Order(1)
   public SecurityFilterChain actuatorSecurityFilterChain(HttpSecurity http) {
     // EndpointRequest knows where actuator endpoints are.
-    http.securityMatcher(EndpointRequest.toAnyEndpoint())
-        .authorizeHttpRequests(requests -> requests.anyRequest().permitAll())
-        .csrf(AbstractHttpConfigurer::disable);
+    http.csrf(AbstractHttpConfigurer::disable)
+        .securityMatcher(EndpointRequest.toAnyEndpoint())
+        .authorizeHttpRequests(requests -> requests.anyRequest().permitAll());
     return http.build();
   }
 
   /**
-   * This is standard security chain for actual application API.
+   * This specific filter chain only applies to Swagger/OpenAPI endpoints.
+   * Since it is portfolio project, we can open it to everyone.
    * @param http HTTP security data.
    * @return Security filter chain.
    */
   @Bean
   @Order(2)
-  public SecurityFilterChain apiSecurityFilterChain(HttpSecurity http) {
-    http.authorizeHttpRequests(requests -> requests
-            // Later, we will configure user registration/login/etc here!
-            .anyRequest().authenticated()
-        )
-        .csrf(AbstractHttpConfigurer::disable);
+  public SecurityFilterChain swaggerSecurityFilterChain(HttpSecurity http) {
+    http.csrf(AbstractHttpConfigurer::disable)
+        .securityMatcher("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html")
+        .authorizeHttpRequests(requests -> requests.anyRequest().permitAll());
+    return http.build();
+  }
+
+  /**
+   * This is default security chain. API of actual application and other stuff is handled above.
+   * @param http HTTP security data.
+   * @return Security filter chain.
+   */
+  @Bean
+  @Order(100) // make sure it is last
+  public SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) {
+    // Anything that was not caught by security filter chains above will require authentication.
+    http.csrf(AbstractHttpConfigurer::disable)
+        .authorizeHttpRequests(requests -> requests.anyRequest().authenticated());
     return http.build();
   }
 }

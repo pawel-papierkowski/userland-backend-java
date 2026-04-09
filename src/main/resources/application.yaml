@@ -1,13 +1,8 @@
+# Main configuration file.
 spring:
   application:
     name: userland-backend
-
-# Since it is portfolio project, it is fine to expose some Actuator endpoints.
-management:
-  endpoints:
-    web:
-      exposure: # ONLY expose these specific, safe endpoints
-        include: "health,info,metrics,prometheus,mappings"
-  info:
-    env:
-      enabled: true   # Allows the /actuator/info endpoint to show environment details
+  config:
+    import:
+      - classpath:config/spring.yaml
+      - classpath:config/userland.yaml

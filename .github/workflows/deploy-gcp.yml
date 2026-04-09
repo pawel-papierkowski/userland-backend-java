@@ -3,6 +3,9 @@
 # - Set up Java 25 Temurin.
 # - Compile docker image on GitHub.
 # - Upload image as artifact to Google Cloud. It will be automatically run once deployed.
+# In real project, we would have versions of this workflow for production, development, staging etc.
+# They would be almost same, just with different variables and secrets.
+# And, of course, SPRING_PROFILES_ACTIVE would be different.
 name: Deploy Docker Image to Cloud
 
 on:
@@ -80,13 +83,10 @@ jobs:
           image: ${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.DASHBOARD_NAME }}:${{ github.sha }}
           flags: '--allow-unauthenticated --memory=512Mi'
           env_vars: |-
+            SPRING_PROFILES_ACTIVE=gcp
             SPRING_DATASOURCE_URL=${{ secrets.DB_URL }}
             SPRING_DATASOURCE_USERNAME=${{ secrets.DB_USERNAME }}
             SPRING_DATASOURCE_PASSWORD=${{ secrets.DB_PASSWORD }}
             BPL_JVM_THREAD_COUNT=50
             BPL_JVM_HEAD_ROOM=25
             JAVA_TOOL_OPTIONS=-XX:+UseSerialGC -Xss512k -XX:TieredStopAtLevel=1 -XX:ReservedCodeCacheSize=128M
-
-      # Prints out URL of backend.
-      - name: Show Live URL
-        run: echo "App deployed at ${{ steps.deploy.outputs.url }}"
