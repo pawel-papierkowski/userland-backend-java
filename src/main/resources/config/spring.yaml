@@ -3,7 +3,12 @@
 spring:
   main:
     banner-mode: off # will screw with gcp logging
+  mvc:
+    problemdetails:
+      enabled: true
   jpa:
+    hibernate:
+      ddl-auto: validate # never use 'update' or 'create'
     open-in-view: false # disable Open-In-View
   cloud:
     gcp: # disable gcp stuff locally, it will be enabled on gcp profile

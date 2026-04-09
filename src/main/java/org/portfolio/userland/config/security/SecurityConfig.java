@@ -71,6 +71,21 @@ public class SecurityConfig {
   }
 
   /**
+   * This specific filter chain only applies to user endpoints.
+   * By nature of register or login endpoints, these must be available publicly to everyone.
+   * @param http HTTP security data.
+   * @return Security filter chain.
+   */
+  @Bean
+  @Order(3)
+  public SecurityFilterChain userSecurityFilterChain(HttpSecurity http) {
+    http.csrf(AbstractHttpConfigurer::disable)
+        .securityMatcher("/api/user/register","/api/user/login")
+        .authorizeHttpRequests(requests -> requests.anyRequest().permitAll());
+    return http.build();
+  }
+
+  /**
    * This is default security chain. API of actual application and other stuff is handled above.
    * @param http HTTP security data.
    * @return Security filter chain.
