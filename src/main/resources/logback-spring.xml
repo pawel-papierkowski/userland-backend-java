@@ -1,12 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
   <include resource="org/springframework/boot/logging/logback/defaults.xml" />
-  <include resource="org/springframework/boot/logging/logback/console-appender.xml" />
 
   <!-- If the GCP profile is active, CREATE and USE the JSON appender -->
   <springProfile name="gcp">
+    <!-- Google Cloud Logging JSON Appender -->
     <appender name="CONSOLE_JSON" class="ch.qos.logback.core.ConsoleAppender">
-      <encoder class="com.google.cloud.spring.logging.StackdriverJsonLayoutEncoder"/>
+      <encoder class="ch.qos.logback.core.encoder.LayoutWrappingEncoder">
+        <layout class="com.google.cloud.spring.logging.StackdriverJsonLayout" />
+      </encoder>
     </appender>
 
     <root level="INFO">
@@ -16,6 +18,7 @@
 
   <!-- If we are running locally (NOT GCP), use the standard Spring console -->
   <springProfile name="!gcp">
+    <include resource="org/springframework/boot/logging/logback/console-appender.xml" />
     <root level="INFO">
       <appender-ref ref="CONSOLE" />
     </root>
