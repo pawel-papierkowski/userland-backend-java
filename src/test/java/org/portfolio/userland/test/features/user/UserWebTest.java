@@ -3,7 +3,7 @@ package org.portfolio.userland.test.features.user;
 import org.junit.jupiter.api.Test;
 import org.portfolio.userland.base.BaseWebTest;
 import org.portfolio.userland.features.user.dto.UserRegisterReq;
-import org.portfolio.userland.features.user.service.UserRegisterService;
+import org.portfolio.userland.features.user.services.UserRegisterService;
 import org.portfolio.userland.utils.problemDetail.ProblemDetailBox;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;

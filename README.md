@@ -10,18 +10,29 @@ This project fully handles user. This is where name **UserLand** comes from.
 
 You can think of it as baseline for any other project, as almost anything will need user account.
 
-## Endpoints
+### Features
 
-Server address on Google Cloud: https://userland-backend-java-299988087135.europe-central2.run.app
+- Standard user:
+  - User registration (with e-mail confirmation)
+  - User login
+  - User logout
+  - Password reset
+  - User account deletion
+- Different rights (standard user vs panel admin operator)
+- Admin user:
+  - Viewing list of users, including pagination and filtration
+  - User block/unblock
 
-Important: due to use of free tier, first access might need a minute or so because everything needs to be spin up
-(backed is zeroed out if not used for too long). 
+## GitHub config
 
-System has endpoints available publicly to use by frontend, PostMan etc.
-- Spring Actuator: certain selected endpoints are available publicly, like health, metrics etc.
-- UserLand: info about endpoints available publicly via Swagger.
-  - https://userland-backend-java-299988087135.europe-central2.run.app/v3/api-docs (via PostMan)
-  - https://userland-backend-java-299988087135.europe-central2.run.app/swagger-ui.html (can be used in browser)
+You need to add these Repository Secrets:
+- **DB_USERNAME**: Name of database user.
+- **DB_PASSWORD**: Password for database user
+- **DB_URL**: Address of database, for example jdbc:postgresql://some.host.com:5432/userland?sslmode=require .
+- **GCP_PROJECT_ID**: Identificator of project on Google Cloud. Used for deploying project.
+- **GCP_WORKLOAD_IDENTITY_PROVIDER**: For WIF login on Google Cloud.
+- **JWT_SECRET**: JWT token secret. Must have 256 bits and be encoded in BASE64.
+  - Best way to generate: in Linux/macOD/Git Bash terminal execute *openssl rand -base64 32*.
 
 ## Local startup
 
@@ -45,18 +56,18 @@ This app uses:
 
 **UserLand** app is deployed via **GitHub Actions**.
 
-### Features
+## Endpoints
 
-- Standard user:
-  - User registration (with e-mail confirmation)
-  - User login
-  - User logout
-  - Password reset
-  - User account deletion
-- Different rights (standard user vs panel admin operator)
-- Admin user:
-  - Viewing list of users, including pagination and filtration
-  - User block/unblock
+Server address on Google Cloud: https://userland-backend-java-299988087135.europe-central2.run.app
+
+Important: due to use of free tier, first access might need a minute or so because everything needs to be spin up
+(backed is zeroed out if not used for too long).
+
+System has endpoints available publicly to use by frontend, PostMan etc.
+- Spring Actuator: certain selected endpoints are available publicly, like health, metrics etc.
+- UserLand: info about endpoints available publicly via Swagger.
+  - https://userland-backend-java-299988087135.europe-central2.run.app/v3/api-docs (via PostMan)
+  - https://userland-backend-java-299988087135.europe-central2.run.app/swagger-ui.html (can be used in browser)
 
 ## Tech stack
 

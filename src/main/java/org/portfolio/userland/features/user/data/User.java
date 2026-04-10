@@ -7,6 +7,8 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -58,6 +60,11 @@ public class User {
   /** Is user blocked? */
   @Column(nullable = false)
   private Boolean blocked = false;
+
+  //
+
+  @OneToMany(mappedBy = "user")
+  private List<UserToken> tokens = new ArrayList<>();
 
   // //////////////////////////////////////////////////////////////////////////
 

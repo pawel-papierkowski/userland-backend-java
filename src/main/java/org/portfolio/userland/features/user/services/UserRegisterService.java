@@ -1,12 +1,12 @@
-package org.portfolio.userland.features.user.service;
+package org.portfolio.userland.features.user.services;
 
 import lombok.RequiredArgsConstructor;
 import org.portfolio.userland.common.services.clock.ClockService;
-import org.portfolio.userland.features.user.UserRepository;
 import org.portfolio.userland.features.user.data.User;
 import org.portfolio.userland.features.user.dto.UserRegisterReq;
 import org.portfolio.userland.features.user.exception.UserEmailAlreadyExistsException;
 import org.portfolio.userland.features.user.mapper.UserRegisterMapper;
+import org.portfolio.userland.features.user.repositories.UserRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;

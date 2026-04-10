@@ -1,4 +1,4 @@
-package org.portfolio.userland.features.user;
+package org.portfolio.userland.features.user.controllers;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -11,7 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.portfolio.userland.features.user.data.User;
 import org.portfolio.userland.features.user.dto.UserRegisterReq;
 import org.portfolio.userland.features.user.dto.UserRegisterResp;
-import org.portfolio.userland.features.user.service.UserRegisterService;
+import org.portfolio.userland.features.user.services.UserRegisterService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
