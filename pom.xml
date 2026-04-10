@@ -12,7 +12,7 @@
 
 	<groupId>org.portfolio.userland</groupId>
 	<artifactId>userland-backend</artifactId>
-	<version>0.0.3</version>
+	<version>0.1.0</version>
 	<name/>
 	<description/>
 	<url/>
@@ -205,6 +205,28 @@
 
 	<build>
 		<plugins>
+			<!-- Fix for annoying JVM warning message during tests. -->
+			<!-- Find the Mockito jar in your local maven repo... -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<executions>
+					<execution>
+						<goals>
+							<goal>properties</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<!-- ...and pass it as a static javaagent and disable CDS. -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<configuration>
+					<argLine>-javaagent:${org.mockito:mockito-core:jar} -Xshare:off</argLine> <!-- IDE might mark it red, but it works. -->
+				</configuration>
+			</plugin>
+
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
@@ -217,6 +239,7 @@
 					</excludes>
 				</configuration>
 			</plugin>
+
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
@@ -227,26 +250,47 @@
 						<goals>
 							<goal>compile</goal>
 						</goals>
-						<configuration>
+						<configuration> <!-- It says: "when you compile code, run these processors" -->
 							<annotationProcessorPaths>
-								<path>
+								<path> <!-- Lombok (Version managed by Spring Boot) -->
 									<groupId>org.projectlombok</groupId>
 									<artifactId>lombok</artifactId>
+								</path>
+								<path> <!-- MapStruct Processor -->
+									<groupId>org.mapstruct</groupId>
+									<artifactId>mapstruct-processor</artifactId>
+									<version>1.6.3</version>
+								</path>
+								<path> <!-- Binding so MapStruct can read Lombok's generated getters/setters -->
+									<groupId>org.projectlombok</groupId>
+									<artifactId>lombok-mapstruct-binding</artifactId>
+									<version>0.2.0</version>
 								</path>
 							</annotationProcessorPaths>
 						</configuration>
 					</execution>
+
 					<execution>
 						<id>default-testCompile</id>
 						<phase>test-compile</phase>
 						<goals>
 							<goal>testCompile</goal>
 						</goals>
-						<configuration>
+						<configuration> <!-- It says: "when you compile code for tests, run these processors" -->
 							<annotationProcessorPaths>
-								<path>
+								<path> <!-- Lombok (Version managed by Spring Boot) -->
 									<groupId>org.projectlombok</groupId>
 									<artifactId>lombok</artifactId>
+								</path>
+								<path> <!-- MapStruct Processor -->
+									<groupId>org.mapstruct</groupId>
+									<artifactId>mapstruct-processor</artifactId>
+									<version>1.6.3</version>
+								</path>
+								<path> <!-- Binding so MapStruct can read Lombok's generated getters/setters -->
+									<groupId>org.projectlombok</groupId>
+									<artifactId>lombok-mapstruct-binding</artifactId>
+									<version>0.2.0</version>
 								</path>
 							</annotationProcessorPaths>
 						</configuration>

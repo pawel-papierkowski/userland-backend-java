@@ -1,4 +1,4 @@
-package org.portfolio.userland.config.security;
+package org.portfolio.userland.config;
 
 import org.springframework.boot.security.autoconfigure.actuate.web.servlet.EndpointRequest;
 import org.springframework.context.annotation.Bean;
@@ -80,7 +80,7 @@ public class SecurityConfig {
   @Order(3)
   public SecurityFilterChain userSecurityFilterChain(HttpSecurity http) {
     http.csrf(AbstractHttpConfigurer::disable)
-        .securityMatcher("/api/user/register","/api/user/login")
+        .securityMatcher("/api/users/register","/api/users/login")
         .authorizeHttpRequests(requests -> requests.anyRequest().permitAll());
     return http.build();
   }

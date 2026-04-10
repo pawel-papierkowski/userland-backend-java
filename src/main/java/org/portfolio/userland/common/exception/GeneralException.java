@@ -35,4 +35,12 @@ public abstract class GeneralException extends RuntimeException {
   public String getDetail() {
     return getMessage();
   }
+
+  /**
+   * Type of Problem Detail. It should be URI. Does not have to be real.
+   * @return Type.
+   */
+  public String getType() {
+    return "https://api.general.org/errors/general";
+  }
 }

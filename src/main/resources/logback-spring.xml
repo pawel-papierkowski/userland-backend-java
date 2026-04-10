@@ -11,7 +11,7 @@
       </encoder>
     </appender>
 
-    <root level="INFO">
+    <root level="WARN">
       <appender-ref ref="CONSOLE" />
     </root>
   </springProfile>
@@ -19,8 +19,11 @@
   <!-- If we are running locally (NOT GCP), use the standard Spring console -->
   <springProfile name="!gcp">
     <include resource="org/springframework/boot/logging/logback/console-appender.xml" />
-    <root level="INFO">
+    <root level="WARN">
       <appender-ref ref="CONSOLE" />
     </root>
   </springProfile>
+
+  <!-- Keep application's logs at INFO. -->
+  <logger name="org.portfolio.userland" level="INFO"/>
 </configuration>

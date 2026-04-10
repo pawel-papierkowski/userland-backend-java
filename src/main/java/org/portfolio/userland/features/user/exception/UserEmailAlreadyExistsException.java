@@ -21,6 +21,16 @@ public class UserEmailAlreadyExistsException extends GeneralException {
 
   @Override
   public String getTitle() {
-    return "User with email '"+email+"' already exists.";
+    return "User with given email already exists.";
+  }
+
+  @Override
+  public String getDetail() {
+    return "Email '"+email+"' already exists.";
+  }
+
+  @Override
+  public String getType() {
+    return "https://api.userland.org/errors/general";
   }
 }

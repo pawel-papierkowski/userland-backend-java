@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+  <!-- Include Spring Boot's default console appender setup -->
+  <include resource="org/springframework/boot/logging/logback/defaults.xml" />
+  <include resource="org/springframework/boot/logging/logback/console-appender.xml" />
+
+  <!-- Set the global level to WARN to hide INFO logs -->
+  <root level="WARN">
+    <appender-ref ref="CONSOLE" />
+  </root>
+
+  <!-- Keep application's logs at INFO. -->
+  <logger name="org.portfolio.userland" level="INFO"/>
+</configuration>
