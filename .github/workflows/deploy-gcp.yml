@@ -56,6 +56,8 @@ jobs:
       # The -D...publish=true flag tells Maven to immediately upload that finished Docker image
       # to your Google Artifact Registry using the unique commit hash (${{ github.sha }}) as the version tag.
       - name: Build and Push Docker Image
+        env:
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
         run: |
           chmod +x mvnw
           
@@ -71,6 +73,7 @@ jobs:
       # env_vars:
       #   SPRING_DATASOURCE_*: This injects the Aiven DB credentials into the Cloud Run container.
       #     Local server will work as before.
+      #   JWT_SECRET: for signing JWT.
       #   BPL_JVM_THREAD_COUNT: Paketo has 250 by default, cut it down.
       #   BPL_JVM_HEAD_ROOM: Tells Paketo how much % of container memory should be reserved for non-Java things like OS.
       #   BPL_JAVA_NMT_ENABLED: Disable Paketo's memory tracking. Mainly for clean logs.
@@ -89,6 +92,7 @@ jobs:
             SPRING_DATASOURCE_URL=${{ secrets.DB_URL }}
             SPRING_DATASOURCE_USERNAME=${{ secrets.DB_USERNAME }}
             SPRING_DATASOURCE_PASSWORD=${{ secrets.DB_PASSWORD }}
+            JWT_SECRET=${{ secrets.JWT_SECRET }}
             BPL_JVM_THREAD_COUNT=50
             BPL_JVM_HEAD_ROOM=25
             BPL_JAVA_NMT_ENABLED=false

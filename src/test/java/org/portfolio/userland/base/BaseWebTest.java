@@ -1,7 +1,7 @@
 package org.portfolio.userland.base;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.portfolio.userland.features.user.UserController;
+import org.portfolio.userland.features.user.controllers.UserController;
 import org.portfolio.userland.utils.problemDetail.ProblemDetailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;

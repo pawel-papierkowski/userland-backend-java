@@ -27,4 +27,8 @@ management:
     env:
       enabled: true   # Allows the /actuator/info endpoint to show environment details
 
-
+# Secrets are defined in GitHub (Repository Secrets).
+security:
+  jwt:
+    secret-key: ${JWT_SECRET:qXqyG/cXonpbJY7zfChA/XoatblyieXumWmRg3mYjUc=} # this is default in case JWT_SECRET is missing, we can use whatever locally
+    expiration-time: 86400000 # 24 hours

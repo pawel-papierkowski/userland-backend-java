@@ -1,4 +1,4 @@
-package org.portfolio.userland.features.user;
+package org.portfolio.userland.features.user.repositories;
 
 import org.portfolio.userland.features.user.data.User;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -11,6 +11,12 @@ import java.util.Optional;
  */
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
+  /**
+   * Helpful for registration validation.
+   * @param email Email.
+   * @return True if user with that email already exists, otherwise false.
+   */
+  boolean existsByEmail(String email);
 
   /**
    * Find user by email.
@@ -18,11 +24,4 @@ public interface UserRepository extends JpaRepository<User, Long> {
    * @return User or empty optional.
    */
   Optional<User> findByEmail(String email);
-
-  /**
-   * Helpful for registration validation.
-   * @param email Email.
-   * @return True if user with that email already exists, otherwise false.
-   */
-  boolean existsByEmail(String email);
 }
