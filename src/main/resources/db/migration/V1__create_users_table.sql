@@ -19,8 +19,8 @@ CREATE TABLE users (
     password VARCHAR(255) NOT NULL,
 
     -- Status of user.
-    status VARCHAR(50) NOT NULL CHECK (status IN ('PENDING', 'ACTIVE')),
+    status VARCHAR(50) NOT NULL DEFAULT 'PENDING' CHECK (status IN ('PENDING', 'ACTIVE')),
 
     -- Is user blocked?
-    blocked BOOLEAN NOT NULL DEFAULT FALSE,
+    blocked BOOLEAN NOT NULL DEFAULT FALSE
 );

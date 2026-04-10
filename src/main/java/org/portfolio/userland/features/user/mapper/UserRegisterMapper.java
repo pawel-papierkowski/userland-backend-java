@@ -16,11 +16,11 @@ public abstract class UserRegisterMapper {
   @Autowired
   protected PasswordEncoder passwordEncoder;
 
-  @Mapping(target = "password", expression = "java(passwordEncoder.encode(req.password()))")
   @Mapping(target = "id", ignore = true)
   @Mapping(target = "createdAt", ignore = true)
   @Mapping(target = "modifiedAt", ignore = true)
   @Mapping(target = "status", ignore = true)
   @Mapping(target = "blocked", ignore = true)
+  @Mapping(target = "password", expression = "java(passwordEncoder.encode(req.password()))")
   public abstract User toEntity(UserRegisterReq req);
 }

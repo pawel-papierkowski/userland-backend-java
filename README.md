@@ -34,6 +34,8 @@ If you want to use real database instead of container, add in run config:
   - SPRING_DATASOURCE_PASSWORD=[YOUR PASSWORD]
   - SPRING_DOCKER_COMPOSE_ENABLED=false
 
+If you run test deployment locally via TestUserLandApplication, you need Docker engine running on your computer.
+Same with running tests in general.
 
 ## Deployment
 

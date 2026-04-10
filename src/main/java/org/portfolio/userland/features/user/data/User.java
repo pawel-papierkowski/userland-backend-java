@@ -5,8 +5,6 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
 import java.util.Objects;
@@ -26,12 +24,10 @@ public class User {
 
   /** Date&time of account creation. */
   @Column(nullable = false, updatable = false)
-  @CreationTimestamp
   private LocalDateTime createdAt;
 
   /** Date&time of account last modification. */
   @Column(nullable = false)
-  @UpdateTimestamp
   private LocalDateTime modifiedAt;
 
   //
@@ -61,7 +57,7 @@ public class User {
 
   /** Is user blocked? */
   @Column(nullable = false)
-  private Boolean blocked = true;
+  private Boolean blocked = false;
 
   // //////////////////////////////////////////////////////////////////////////
 
