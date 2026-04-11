@@ -5,6 +5,7 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.Setter;
+import org.portfolio.userland.common.constants.ValidConst;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -12,10 +13,10 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * JPA entity: user.
+ * User account.
  */
 @Entity
-@Table(name = "users") // "user" is a reserved keyword in PostgreSQL, always use "users"
+@Table(name = "users", schema = "iam") // "user" is a reserved keyword in PostgreSQL, always use "users"
 @Getter
 @Setter
 public class User {
@@ -40,9 +41,9 @@ public class User {
   private String username;
 
   /** E-mail. Also acts as login. Unique and cannot be changed. Serves as business key. */
-  @Column(unique = true, nullable = false)
+  @Column(unique = true, nullable = false, updatable = false)
   @NotBlank(message = "Email cannot be empty")
-  @Email(regexp = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$", message = "Must be a valid email address")
+  @Email(regexp = ValidConst.REG_EXPR_EMAIL, message = "Must be a valid email address")
   private String email;
 
   /** Password. Note: this will store BCrypt hash, not the plain text. */
@@ -63,8 +64,35 @@ public class User {
 
   //
 
-  @OneToMany(mappedBy = "user")
+  /** History of this user. */
+  @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+  private List<UserHistory> history = new ArrayList<>();
+
+  /** Tokens that belong to this user. */
+  @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
   private List<UserToken> tokens = new ArrayList<>();
+
+  // //////////////////////////////////////////////////////////////////////////
+
+  /**
+   * Add history entry to history.
+   * @param historyEntry History entry to add.
+   */
+  public void addHistory(UserHistory historyEntry) {
+    if (history == null) this.history = new ArrayList<>();
+    history.add(historyEntry);
+    historyEntry.setUser(this);
+  }
+
+  /**
+   * Add token entry to token list.
+   * @param tokenEntry Token entry to add.
+   */
+  public void addToken(UserToken tokenEntry) {
+    if (tokens == null) this.tokens = new ArrayList<>();
+    tokens.add(tokenEntry);
+    tokenEntry.setUser(this);
+  }
 
   // //////////////////////////////////////////////////////////////////////////
 

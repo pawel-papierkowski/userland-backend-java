@@ -1,4 +1,4 @@
-package org.portfolio.userland.utils.problemDetail;
+package org.portfolio.userland.helpers.problemDetail;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;

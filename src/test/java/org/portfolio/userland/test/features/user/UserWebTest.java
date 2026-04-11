@@ -2,9 +2,9 @@ package org.portfolio.userland.test.features.user;
 
 import org.junit.jupiter.api.Test;
 import org.portfolio.userland.base.BaseWebTest;
-import org.portfolio.userland.features.user.dto.UserRegisterReq;
+import org.portfolio.userland.features.user.dto.register.UserRegisterReq;
 import org.portfolio.userland.features.user.services.UserRegisterService;
-import org.portfolio.userland.utils.problemDetail.ProblemDetailBox;
+import org.portfolio.userland.helpers.problemDetail.ProblemDetailBox;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -24,7 +24,7 @@ public class UserWebTest extends BaseWebTest {
   private UserRegisterService userRegisterService;
 
   @Test
-  void return400WhenPasswordIsTooWeak() throws Exception {
+  void registrationWhenPasswordIsTooWeak() throws Exception {
     // Arrange: password violates the @Size(min = 8, max = 100) constraint
     UserRegisterReq req = new UserRegisterReq("John Doe", "john.doe@example.com", "123");
 

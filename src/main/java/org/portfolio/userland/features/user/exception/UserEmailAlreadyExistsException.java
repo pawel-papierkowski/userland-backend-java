@@ -31,6 +31,6 @@ public class UserEmailAlreadyExistsException extends GeneralException {
 
   @Override
   public String getType() {
-    return "https://api.userland.org/errors/general";
+    return "https://api.userland.org/errors/user/email/alreadyExists";
   }
 }

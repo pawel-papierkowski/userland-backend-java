@@ -1,3 +1,9 @@
 # Configuration specific to UserLand project.
 
-# For now, it is placeholder.
+user:
+  token:
+    length: 32
+    confirmation:
+      expires: 1440 # in minutes
+    passwordReset:
+      expires: 30 # in minutes

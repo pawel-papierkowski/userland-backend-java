@@ -1,4 +1,6 @@
-CREATE TABLE users (
+CREATE SCHEMA IF NOT EXISTS iam; -- Identity and access management: handless all things related to user accounts.
+
+CREATE TABLE iam.users (
     -- Identificator.
     id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     -- When user account was created.
@@ -7,7 +9,7 @@ CREATE TABLE users (
     modified_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     -- Username visible on frontend. Must be present.
     username VARCHAR(100) NOT NULL,
-    -- User email. 'UNIQUE' ensures no two users can register with the same email.
+    -- User email. 'UNIQUE' ensures no two users can register with the same email. Business key.
     email VARCHAR(100) NOT NULL UNIQUE,
     -- Password as hash.
     password VARCHAR(100) NOT NULL,
@@ -17,18 +19,42 @@ CREATE TABLE users (
     blocked BOOLEAN NOT NULL DEFAULT FALSE
 );
 
-CREATE TABLE tokens (
+CREATE TABLE iam.tokens (
     -- Identificator.
     id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     -- Foreign key to user table.
     id_user BIGINT NOT NULL,
+
     -- When token was created.
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     -- When token expires. Expired tokens cannot be used and will eventually be removed.
     expires_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    -- Token value itself.
-    token VARCHAR(100) NOT NULL UNIQUE,
+
+    -- Token type.
+    type VARCHAR(50) NOT NULL CHECK (type IN ('ACTIVATE', 'PASSWORD', 'REMOVAL')),
+    -- Token value itself. Business key.
+    token VARCHAR(128) NOT NULL UNIQUE,
 
     -- Table-level constraint for Foreign Key
-    CONSTRAINT fk_user FOREIGN KEY (id_user) REFERENCES usr_users(id)
+    CONSTRAINT fk_user FOREIGN KEY (id_user) REFERENCES iam.users(id)
+);
+
+CREATE TABLE iam.history (
+    -- Identificator.
+    id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    -- UUID. Business key.
+    uuid VARCHAR(128) NOT NULL UNIQUE,
+    -- Foreign key to user table.
+    id_user BIGINT NOT NULL,
+
+    -- When user history entry was created.
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    -- Who caused user history event?
+    who VARCHAR(50) NOT NULL CHECK (who IN ('USER', 'OPERATOR', 'SYSTEM')),
+    -- What caused user history event?
+    what VARCHAR(50) NOT NULL CHECK (what IN ('CREATED', 'ACTIVATED', 'PASS_RESET', 'LOGIN')),
+
+    -- Table-level constraint for Foreign Key
+    CONSTRAINT fk_user FOREIGN KEY (id_user) REFERENCES iam.users(id)
 );
