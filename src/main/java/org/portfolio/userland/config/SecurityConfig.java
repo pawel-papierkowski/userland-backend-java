@@ -14,23 +14,32 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 
+import java.util.UUID;
+
 /**
  * Security configuration.
  */
 @Configuration
 public class SecurityConfig {
+  /**
+   * Defines password encoder bean.
+   * @return Password encoder bean.
+   */
   @Bean
   public PasswordEncoder passwordEncoder() {
     return new BCryptPasswordEncoder(); // we can safely hash passwords with this
   }
 
+  /**
+   * Create a hardcoded Spring test user with a random UUID as password.
+   * @param passwordEncoder Password encoder bean.
+   * @return User details service.
+   */
   @Bean
   public UserDetailsService userDetailsService(PasswordEncoder passwordEncoder) {
-    // Create a hardcoded test user with a fixed password (not a random UUID).
-    // This is temporary - we will use users from database later.
     UserDetails testUser = User.builder()
         .username("admin")
-        .password(passwordEncoder.encode("password123"))
+        .password(passwordEncoder.encode(UUID.randomUUID().toString()))
         .roles("ADMIN")
         .build();
     return new InMemoryUserDetailsManager(testUser);
@@ -72,7 +81,7 @@ public class SecurityConfig {
 
   /**
    * This specific filter chain only applies to user endpoints.
-   * By nature of register or login endpoints, these must be available publicly to everyone.
+   * By nature of register/confirm/login/etc endpoints, these must be available publicly to everyone.
    * @param http HTTP security data.
    * @return Security filter chain.
    */
@@ -80,7 +89,11 @@ public class SecurityConfig {
   @Order(3)
   public SecurityFilterChain userSecurityFilterChain(HttpSecurity http) {
     http.csrf(AbstractHttpConfigurer::disable)
-        .securityMatcher("/api/users/register","/api/users/login")
+        .securityMatcher(
+            "/api/users/register", // user registration
+            "/api/users/activate", // activate user account
+            "/api/users/password", // reset password
+            "/api/users/login") // login user
         .authorizeHttpRequests(requests -> requests.anyRequest().permitAll());
     return http.build();
   }

@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.AfterEach;
 import org.portfolio.userland.common.services.clock.ClockService;
 import org.portfolio.userland.common.services.clock.MutableClock;
-import org.portfolio.userland.utils.problemDetail.ProblemDetailService;
+import org.portfolio.userland.helpers.problemDetail.ProblemDetailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.springframework.test.web.servlet.MockMvc;
