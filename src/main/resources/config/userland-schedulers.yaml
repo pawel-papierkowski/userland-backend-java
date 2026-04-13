@@ -1,0 +1,12 @@
+# Configuration specific to UserLand project: scheduling.
+
+app:
+  scheduler:
+    user:
+      cleanup:
+        users:
+          delay: 6h
+          initial: 5m
+        tokens:
+          delay: 6h
+          initial: 10m # to prevent user and token cleanup starting simultaneously

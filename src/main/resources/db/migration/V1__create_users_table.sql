@@ -1,5 +1,16 @@
 CREATE SCHEMA IF NOT EXISTS iam; -- Identity and access management: handless all things related to user accounts.
 
+-- Small table required by net.javacrumbs.shedlock.
+-- Prevents issues when you call scheduler in Kubernets or similar environment.
+CREATE TABLE iam.shedlock (
+    name VARCHAR(64) NOT NULL,
+    lock_until TIMESTAMP NOT NULL,
+    locked_at TIMESTAMP NOT NULL,
+    locked_by VARCHAR(255) NOT NULL,
+    PRIMARY KEY (name)
+);
+
+-- Main users table.
 CREATE TABLE iam.users (
     -- Identificator.
     id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
@@ -19,6 +30,7 @@ CREATE TABLE iam.users (
     blocked BOOLEAN NOT NULL DEFAULT FALSE
 );
 
+-- Tokens for user.
 CREATE TABLE iam.tokens (
     -- Identificator.
     id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
@@ -36,9 +48,10 @@ CREATE TABLE iam.tokens (
     token VARCHAR(128) NOT NULL UNIQUE,
 
     -- Table-level constraint for Foreign Key
-    CONSTRAINT fk_user FOREIGN KEY (id_user) REFERENCES iam.users(id)
+    CONSTRAINT fk_user FOREIGN KEY (id_user) REFERENCES iam.users(id) ON DELETE CASCADE
 );
 
+-- User history.
 CREATE TABLE iam.history (
     -- Identificator.
     id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
@@ -56,5 +69,5 @@ CREATE TABLE iam.history (
     what VARCHAR(50) NOT NULL CHECK (what IN ('CREATED', 'ACTIVATED', 'PASS_RESET', 'LOGIN')),
 
     -- Table-level constraint for Foreign Key
-    CONSTRAINT fk_user FOREIGN KEY (id_user) REFERENCES iam.users(id)
+    CONSTRAINT fk_user FOREIGN KEY (id_user) REFERENCES iam.users(id) ON DELETE CASCADE
 );

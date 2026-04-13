@@ -32,9 +32,9 @@ public class UserRegisterService {
   private final UserRegisterMapper userRegisterMapper;
   private final ClockService clockService;
 
-  /** How long before confirmation token expires in minutes. */
-  @Value("${user.token.confirmation.expires}")
-  private long confirmationTokenExpires;
+  /** How long before activation token expires in minutes. */
+  @Value("${app.user.token.activation.expires}")
+  private long activationTokenExpires;
 
   /**
    * Registers user in UserLand system.
@@ -48,7 +48,7 @@ public class UserRegisterService {
     User entity = createUserData(userRegisterReq, nowAt);
     entity = userRepository.save(entity);
 
-    // TODO in future we will send e-mail with confirmation link.
+    // TODO in future we will send e-mail with activation link.
 
     return entity;
   }
@@ -121,7 +121,7 @@ public class UserRegisterService {
   private UserToken createTokenData(LocalDateTime nowAt, EnTokenType type) {
     UserToken token = new UserToken();
     token.setCreatedAt(nowAt);
-    token.setExpiresAt(nowAt.plusMinutes(confirmationTokenExpires));
+    token.setExpiresAt(nowAt.plusMinutes(activationTokenExpires));
     token.setType(type);
     token.setToken(securityGeneratorService.token());
     return token;

@@ -1,9 +1,12 @@
-# Configuration specific to UserLand project.
+# Configuration specific to UserLand project: general.
 
-user:
-  token:
-    length: 32
-    confirmation:
-      expires: 1440 # in minutes
-    passwordReset:
-      expires: 30 # in minutes
+app:
+  user:
+    pending:
+      removalDelay: 48 # when to remove pending users since creation, in hours
+    token:
+      length: 32
+      activation:
+        expires: 1440 # in minutes
+      passwordReset:
+        expires: 30 # in minutes

@@ -124,6 +124,13 @@
 			<artifactId>testcontainers-postgresql</artifactId>
 			<scope>test</scope>
 		</dependency>
+		<dependency>
+			<groupId>org.instancio</groupId>
+			<artifactId>instancio-junit</artifactId>
+			<version>5.5.1</version>
+			<scope>test</scope>
+		</dependency>
+
 
 		<!-- Database. -->
 		<dependency>
@@ -187,6 +194,16 @@
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
 			<optional>true</optional>
+		</dependency>
+		<dependency>
+			<groupId>net.javacrumbs.shedlock</groupId>
+			<artifactId>shedlock-spring</artifactId>
+			<version>7.7.0</version>
+		</dependency>
+		<dependency>
+			<groupId>net.javacrumbs.shedlock</groupId>
+			<artifactId>shedlock-provider-jdbc-template</artifactId>
+			<version>7.7.0</version>
 		</dependency>
 	</dependencies>
 
