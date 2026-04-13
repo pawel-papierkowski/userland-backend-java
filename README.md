@@ -84,18 +84,20 @@ UserLand has endpoints available publicly to use by frontend, PostMan etc.
 ### Dependencies
 
 - Spring:
-  - Web
-  - Security
-  - Validation
-  - Actuator
-  - DevTools
-  - Docker Compose Support
+  - **Web**: REST endpoints
+  - **Security**: secures API endpoints
+  - **Validation**: validate data
+  - **Actuator**: gives endpoints to check on system state
+  - **DevTools**: additional dev tools
+  - **Docker Compose Support**: use containers for stuff like database when project is executed locally
 - Database:
-  - Testcontainers
-  - PostgreSQL
-  - Flyway
+  - **PostgreSQL**: popular relational database
+  - **Testcontainers**: instantiate real database (or anything else needed) for tests
+  - **Flyway**: versioning of database
 - Other
-  - Lombok
-  - Springdoc OpenAPI (Swagger UI)
-  - JJWT
-  - MapStruct
+  - **Lombok**: reduce Jave boilerplate code
+  - **Instancio**: easily create randomized instances of entities for tests
+  - **ShedLock**: prevent issues with schedulers in environment like Kubernets
+  - **Springdoc OpenAPI (Swagger UI)**: documenting API endpoints
+  - **JJWT**: popular JWT library
+  - **MapStruct**: translate DTO to actual entities

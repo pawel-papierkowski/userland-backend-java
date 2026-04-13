@@ -14,7 +14,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class SecurityGeneratorService {
   /** Length of token. */
-  @Value("${user.token.length}")
+  @Value("${app.user.token.length}")
   private int tokenLength;
 
   /**

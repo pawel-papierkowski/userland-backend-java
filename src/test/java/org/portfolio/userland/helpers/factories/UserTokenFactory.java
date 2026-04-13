@@ -17,7 +17,7 @@ public class UserTokenFactory {
   private final ClockService clockService;
 
   /** How long before confirmation token expires in minutes. */
-  @Value("${user.token.confirmation.expires}")
+  @Value("${app.user.token.activation.expires}")
   private long confirmationTokenExpires;
 
   /**

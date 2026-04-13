@@ -4,8 +4,8 @@ package org.portfolio.userland.features.user.data;
  * Status of user account.
  */
 public enum EnUserStatus {
-  /** After creation, but before confirmation. */
+  /** After creation, but before activation. Old pending users will be removed automatically. */
   PENDING,
-  /** After confirmation account will be active. */
+  /** Indicates active account. */
   ACTIVE
 }

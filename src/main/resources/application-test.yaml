@@ -1,3 +1,5 @@
 # Profile for tests
 
-# Right now, it is placeholder.
+app:
+  scheduling:
+    enabled: false

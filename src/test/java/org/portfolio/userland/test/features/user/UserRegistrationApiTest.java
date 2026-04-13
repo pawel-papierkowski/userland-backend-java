@@ -1,6 +1,5 @@
 package org.portfolio.userland.test.features.user;
 
-import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.portfolio.userland.base.BaseIntegrationTest;
@@ -13,7 +12,6 @@ import org.portfolio.userland.features.user.repositories.UserRepository;
 import org.portfolio.userland.features.user.repositories.UserTokenRepository;
 import org.portfolio.userland.helpers.asserts.UserAssert;
 import org.portfolio.userland.helpers.factories.UserFactory;
-import org.portfolio.userland.helpers.factories.UserHistoryFactory;
 import org.portfolio.userland.helpers.problemDetail.ProblemDetailBox;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -40,13 +38,7 @@ public class UserRegistrationApiTest extends BaseIntegrationTest {
   @Autowired
   private UserFactory userFactory;
   @Autowired
-  private UserHistoryFactory userHistoryFactory;
-  @Autowired
   private UserAssert userAssert;
-
-  @Autowired
-  private EntityManager entityManager;
-
 
   @AfterEach
   void tearDown() {
@@ -56,7 +48,7 @@ public class UserRegistrationApiTest extends BaseIntegrationTest {
     userRepository.deleteAll();
   }
 
-  //
+  // //////////////////////////////////////////////////////////////////////////
 
   @Test
   @Transactional
@@ -124,8 +116,8 @@ public class UserRegistrationApiTest extends BaseIntegrationTest {
     // Assert that user data is correctly updated.
     User actualUser = userRepository.findByEmail("test@example.com").orElseThrow();
     userAssert.assertIt(actualUser, expectedUser);
-    // Assert that token is removed.
-    assertThat(userTokenRepository.count()).as("Count of all tokens is wrong").isEqualTo(0);
+    // Assert that activation token is removed.
+    assertThat(userTokenRepository.count()).as("Count of all user tokens is wrong").isEqualTo(0);
   }
 
   // //////////////////////////////////////////////////////////////////////////

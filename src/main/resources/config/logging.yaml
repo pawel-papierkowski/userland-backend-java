@@ -1,3 +1,5 @@
+# Logging configuration.
+
 logging:
   level:
     # Prevent SpringDoc warnings about being enabled by default. For this project we actually want Swagger to be available publicly.
