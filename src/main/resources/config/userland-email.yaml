@@ -1,0 +1,27 @@
+spring:
+  mail: # plain email provider config is here
+    host: ${EMAIL_HOST}
+    port: 587
+    username: ${EMAIL_USERNAME}
+    password: ${EMAIL_PASSWORD}
+    protocol: smtp
+    default-encoding: UTF-8
+    test-connection: false # Fail fast on boot if credentials are bad
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+          # Prevent infinite hanging threads!
+          connectiontimeout: 5000
+          timeout: 3000
+          writetimeout: 5000
+
+app:
+  email:
+    providers:
+      default: 'plain' # default provider
+      resend:
+        apiKey: ${TEP_RESEND_APIKEY:PLACEHOLDER_API_KEY} # API key used for TEP Resend

@@ -34,6 +34,11 @@ You need to add these Repository Secrets:
 - Google Cloud: 
   - **GCP_PROJECT_ID**: Identificator of project on Google Cloud. Used for deploying project.
   - **GCP_WORKLOAD_IDENTITY_PROVIDER**: For WIP login on Google Cloud.
+- Email:
+  - **EMAIL_HOST**: Host for standard email provider (Google etc).
+  - **EMAIL_USERNAME**: Username (full email address) for standard email provider (Google etc).
+  - **EMAIL_PASSWORD**: Password (or App password) for standard email provider (Google etc).
+  - **TEP_RESEND_APIKEY**: API key for Transactional Email Provider called Resend.
 - Other:
   - **JWT_SECRET**: JWT token secret. Must have 256 bits and be encoded in BASE64.
     - Best way to generate: in Linux/macOD/Git Bash terminal execute *openssl rand -base64 32*.
@@ -60,6 +65,8 @@ This app uses:
 
 **UserLand** app is deployed via **GitHub Actions**.
 
+For portfolio, email address pawel.papierkowski.portfolio@gmail.com is used and any emails from this system will have this address as sender.
+
 ## Endpoints
 
 Server address on Google Cloud: https://userland-backend-java-299988087135.europe-central2.run.app
@@ -85,6 +92,7 @@ UserLand has endpoints available publicly to use by frontend, PostMan etc.
 
 - Spring:
   - **Web**: REST endpoints
+  - **Email**: Spring's way to send emails
   - **Security**: secures API endpoints
   - **Validation**: validate data
   - **Actuator**: gives endpoints to check on system state

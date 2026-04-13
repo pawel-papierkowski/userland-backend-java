@@ -33,7 +33,7 @@ public class UserSchedulerTest extends BaseIntegrationTest {
   private UserScheduler userScheduler;
 
   @AfterEach
-  void tearDown() {
+  public void tearDown() {
     // Clean up the database after every test so tests don't interfere with each other.
     userTokenRepository.deleteAll();
     userRepository.deleteAll();
@@ -43,7 +43,7 @@ public class UserSchedulerTest extends BaseIntegrationTest {
 
   @Test
   @Transactional
-  void cleanPendingUsers() throws Exception {
+  public void cleanPendingUsers() throws Exception {
     // Arrange: add a bunch of random users ensuring each one has different creation time.
     clock.setFixedTime("2026-04-10T10:00:00Z");
     userRepository.save(userFactory.genRandUser(EnUserStatus.PENDING)); // this user will be removed
@@ -71,7 +71,7 @@ public class UserSchedulerTest extends BaseIntegrationTest {
 
   @Test
   @Transactional
-  void cleanExpiredTokens() throws Exception {
+  public void cleanExpiredTokens() throws Exception {
     // Arrange: add a bunch of random users with tokens ensuring each one has different expiration time.
     // Test will remove only some of them.
     clock.setFixedTime("2026-04-10T10:00:00Z");
