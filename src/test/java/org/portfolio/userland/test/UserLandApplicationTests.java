@@ -14,6 +14,6 @@ import org.springframework.context.annotation.Import;
 class UserLandApplicationTests {
 	/** Sanity check. Is anything working at all? */
 	@Test
-	void contextLoads() {
+	public void contextLoads() {
 	}
 }

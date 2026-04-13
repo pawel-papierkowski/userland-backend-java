@@ -58,6 +58,10 @@ jobs:
       - name: Build and Push Docker Image
         env:
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          EMAIL_HOST: ${{ secrets.EMAIL_HOST }}
+          EMAIL_USERNAME: ${{ secrets.EMAIL_USERNAME }}
+          EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
+          TEP_RESEND_APIKEY: ${{ secrets.TEP_RESEND_APIKEY }}
         run: |
           chmod +x mvnw
           
@@ -93,6 +97,10 @@ jobs:
             SPRING_DATASOURCE_USERNAME=${{ secrets.DB_USERNAME }}
             SPRING_DATASOURCE_PASSWORD=${{ secrets.DB_PASSWORD }}
             JWT_SECRET=${{ secrets.JWT_SECRET }}
+            EMAIL_HOST=${{ secrets.EMAIL_HOST }}
+            EMAIL_USERNAME=${{ secrets.EMAIL_USERNAME }}
+            EMAIL_PASSWORD=${{ secrets.EMAIL_PASSWORD }}
+            TEP_RESEND_APIKEY=${{ secrets.TEP_RESEND_APIKEY }}
             BPL_JVM_THREAD_COUNT=50
             BPL_JVM_HEAD_ROOM=25
             BPL_JAVA_NMT_ENABLED=false

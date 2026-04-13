@@ -19,8 +19,10 @@ public abstract class UserRegisterMapper {
   @Mapping(target = "id", ignore = true)
   @Mapping(target = "createdAt", ignore = true)
   @Mapping(target = "modifiedAt", ignore = true)
+  @Mapping(target = "password", expression = "java(passwordEncoder.encode(req.password()))")
   @Mapping(target = "status", ignore = true)
   @Mapping(target = "blocked", ignore = true)
-  @Mapping(target = "password", expression = "java(passwordEncoder.encode(req.password()))")
+  @Mapping(target = "history", ignore = true)
+  @Mapping(target = "tokens", ignore = true)
   public abstract User toEntity(UserRegisterReq req);
 }

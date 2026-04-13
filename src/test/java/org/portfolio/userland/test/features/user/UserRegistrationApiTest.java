@@ -41,7 +41,7 @@ public class UserRegistrationApiTest extends BaseIntegrationTest {
   private UserAssert userAssert;
 
   @AfterEach
-  void tearDown() {
+  public void tearDown() {
     // Clean up the database after every test so tests don't interfere with each other.
     userTokenRepository.deleteAll();
     userHistoryRepository.deleteAll();
@@ -52,7 +52,7 @@ public class UserRegistrationApiTest extends BaseIntegrationTest {
 
   @Test
   @Transactional
-  void registerNewUser() throws Exception {
+  public void registerNewUser() throws Exception {
     clock.setFixedTime("2026-04-10T10:00:00Z");
 
     // Arrange: Create the JSON payload.
@@ -84,7 +84,7 @@ public class UserRegistrationApiTest extends BaseIntegrationTest {
 
   @Test
   @Transactional
-  void activateUser() throws Exception {
+  public void activateUser() throws Exception {
     clock.setFixedTime("2026-04-10T10:00:00Z");
     User expectedUser = userFactory.genUser(); // already generate expected user due to date/time
 
@@ -125,7 +125,7 @@ public class UserRegistrationApiTest extends BaseIntegrationTest {
 
   @Test
   @Transactional
-  void errUserWithEmailAlreadyExists() throws Exception {
+  public void errUserWithEmailAlreadyExists() throws Exception {
     clock.setFixedTime("2026-04-10T10:00:00Z");
 
     // Arrange: Create existing user manually.
@@ -155,7 +155,7 @@ public class UserRegistrationApiTest extends BaseIntegrationTest {
   }
 
   @Test
-  void errMissingToken() throws Exception {
+  public void errMissingToken() throws Exception {
     // Arrange: create token activation request.
     String tokenStr = "MISSING_TOKEN___________________";
     TokenActivateReq req = new TokenActivateReq(tokenStr); // pad it as it must have at least 32 chars
@@ -182,7 +182,7 @@ public class UserRegistrationApiTest extends BaseIntegrationTest {
 
   @Test
   @Transactional
-  void errExpiredToken() throws Exception {
+  public void errExpiredToken() throws Exception {
     clock.setFixedTime("2026-04-08T10:00:00Z");
 
     // Arrange: create user and activation token.

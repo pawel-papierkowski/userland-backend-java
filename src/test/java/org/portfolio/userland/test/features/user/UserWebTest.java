@@ -24,7 +24,7 @@ public class UserWebTest extends BaseWebTest {
   private UserRegisterService userRegisterService;
 
   @Test
-  void registrationWhenPasswordIsTooWeak() throws Exception {
+  public void registrationWhenPasswordIsTooWeak() throws Exception {
     // Arrange: password violates the @Size(min = 8, max = 100) constraint
     UserRegisterReq req = new UserRegisterReq("John Doe", "john.doe@example.com", "123");
 
