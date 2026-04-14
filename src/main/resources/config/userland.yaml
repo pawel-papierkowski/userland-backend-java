@@ -1,12 +1,14 @@
 # Configuration specific to UserLand project: general.
 
 app:
+  main:
+    www: https://pawel-papierkowski.github.io/frontend-userland-vue # does not exist yet
   user:
     pending:
       removalDelay: 48 # when to remove pending users since creation, in hours
     token:
       length: 32
       activation:
-        expires: 1440 # in minutes
+        expires: 24 # in hours
       passwordReset:
         expires: 30 # in minutes

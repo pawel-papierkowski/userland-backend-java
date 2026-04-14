@@ -10,7 +10,12 @@ import org.springframework.stereotype.Service;
 
 /**
  * Handles Transactional Email Provider called Resend.
- * TODO: preliminary code, will update it
+ * <p>
+ *   Notes:
+ *   <ul>
+ *     <li>Resend provides special email address that you can use for testing: <b>delivered@resend.dev</b></li>
+ *   </ul>
+ * </p>
  */
 @Service
 @RequiredArgsConstructor

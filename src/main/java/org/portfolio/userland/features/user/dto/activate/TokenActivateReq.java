@@ -6,6 +6,7 @@ import jakarta.validation.constraints.Size;
 
 /**
  * Token activation request.
+ * @param token Token string.
  */
 @Schema(description = "Payload required to register a new user.")
 public record TokenActivateReq(

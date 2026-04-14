@@ -16,7 +16,7 @@ import org.springframework.stereotype.Service;
 public class UserTokenFactory {
   private final ClockService clockService;
 
-  /** How long before confirmation token expires in minutes. */
+  /** How long before confirmation token expires in hours. */
   @Value("${app.user.token.activation.expires}")
   private long confirmationTokenExpires;
 
@@ -28,7 +28,7 @@ public class UserTokenFactory {
   public UserToken genTokenEntry(User user, EnTokenType type, String tokenStr) {
     UserToken userToken = new UserToken();
     userToken.setCreatedAt(clockService.getNowUTC());
-    userToken.setExpiresAt(clockService.getNowUTC().plusMinutes(confirmationTokenExpires));
+    userToken.setExpiresAt(clockService.getNowUTC().plusHours(confirmationTokenExpires));
     userToken.setType(type);
     userToken.setToken(tokenStr);
     user.addToken(userToken);

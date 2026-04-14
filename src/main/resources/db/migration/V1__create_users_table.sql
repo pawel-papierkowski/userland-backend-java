@@ -24,6 +24,8 @@ CREATE TABLE iam.users (
     email VARCHAR(100) NOT NULL UNIQUE,
     -- Password as hash.
     password VARCHAR(100) NOT NULL,
+    -- Language code like 'en'.
+    lang VARCHAR(10) NOT NULL,
     -- Status of user.
     status VARCHAR(50) NOT NULL DEFAULT 'PENDING' CHECK (status IN ('PENDING', 'ACTIVE')),
     -- Is user blocked?

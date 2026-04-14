@@ -42,6 +42,7 @@ public class UserFactory {
     user.setUsername("Jane");
     user.setEmail("test@example.com");
     user.setPassword(passwordEncoder.encode("Password123!"));
+    user.setLang("en");
 
     userTokenFactory.genTokenEntry(user, EnTokenType.ACTIVATE, tokenStr);
     userHistoryFactory.genHistoryEvent(user, EnHistoryWhat.CREATED);
@@ -60,6 +61,7 @@ public class UserFactory {
     user.setUsername("Jane");
     user.setEmail("test@example.com");
     user.setPassword(passwordEncoder.encode("Password123!"));
+    user.setLang("en");
     user.setStatus(EnUserStatus.ACTIVE);
 
     userHistoryFactory.genHistoryEvent(user, EnHistoryWhat.CREATED);
@@ -82,6 +84,7 @@ public class UserFactory {
         .set(field(User::getModifiedAt), clockService.getNowUTC())
         .generate(field(User::getEmail), gen -> gen.net().email())
         .set(field(User::getPassword), passwordEncoder.encode("Password123!"))
+        .set(field(User::getLang), "en")
         .set(field(User::getStatus), status)
         .set(field(User::getBlocked), false)
         .ignore(field(User::getTokens)) // we fill it manually

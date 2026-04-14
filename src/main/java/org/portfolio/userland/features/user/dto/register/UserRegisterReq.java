@@ -8,6 +8,10 @@ import org.portfolio.userland.common.constants.ValidConst;
 
 /**
  * DTO for user registration. It contains minimal subset of whole User - only data needed for registration.
+ * @param username Username.
+ * @param email User email.
+ * @param password User password.
+ * @param lang User language as simple language code. Example: 'pl'.
  */
 @Schema(description = "Payload required to register a new user.")
 public record UserRegisterReq(
@@ -23,5 +27,9 @@ public record UserRegisterReq(
     @NotBlank(message = "Password is required")
     @Size(min = 8, max = 100, message = "Password must be between 8 and 100 characters")
     @Schema(description = "User's password.", example = "StrongP@ssw0rd")
-    String password
+    String password,
+
+    @NotBlank(message = "Language is required")
+    @Schema(description = "User's language.", example = "en")
+    String lang
 ) {}

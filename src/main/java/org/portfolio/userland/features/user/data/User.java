@@ -51,6 +51,11 @@ public class User {
   @NotBlank(message = "Password cannot be empty")
   private String password;
 
+  /** Used language. If empty/unknown, will fall back to English */
+  @Column(nullable = false)
+  @NotBlank(message = "Language cannot be empty")
+  private String lang;
+
   //
 
   /** Status of user. */
@@ -62,7 +67,7 @@ public class User {
   @Column(nullable = false)
   private Boolean blocked = false;
 
-  //
+  // related tables
 
   /** History of this user. */
   @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)

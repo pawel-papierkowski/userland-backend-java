@@ -59,9 +59,10 @@ Same with running tests in general.
 
 ## Deployment
 
-This app uses:
+This app uses (free tier for all of these):
 - **Google Cloud Run** for backend hosting.
 - **Aiven** for PostgreSQL database hosting.
+- **Resend** for email services.
 
 **UserLand** app is deployed via **GitHub Actions**.
 
@@ -105,6 +106,7 @@ UserLand has endpoints available publicly to use by frontend, PostMan etc.
 - Other
   - **Lombok**: reduce Jave boilerplate code
   - **Instancio**: easily create randomized instances of entities for tests
+  - **Awaitlility**: test async code 
   - **ShedLock**: prevent issues with schedulers in environment like Kubernets
   - **Springdoc OpenAPI (Swagger UI)**: documenting API endpoints
   - **JJWT**: popular JWT library
