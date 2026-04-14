@@ -1,8 +1,12 @@
 package org.portfolio.userland.test.features.user;
 
+import com.google.common.collect.Maps;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.portfolio.userland.base.BaseIntegrationTest;
+import org.portfolio.userland.common.services.email.EmailService;
+import org.portfolio.userland.common.services.email.data.EmailReq;
 import org.portfolio.userland.features.user.data.User;
 import org.portfolio.userland.features.user.dto.activate.TokenActivateReq;
 import org.portfolio.userland.features.user.dto.register.UserRegisterReq;
@@ -16,12 +20,19 @@ import org.portfolio.userland.helpers.problemDetail.ProblemDetailBox;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionTemplate;
 
+import java.time.Duration;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.awaitility.Awaitility.await;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
 /**
@@ -36,9 +47,15 @@ public class UserRegistrationApiTest extends BaseIntegrationTest {
   private UserHistoryRepository userHistoryRepository;
 
   @Autowired
+  private TransactionTemplate transactionTemplate;
+
+  @Autowired
   private UserFactory userFactory;
   @Autowired
   private UserAssert userAssert;
+
+  @MockitoBean
+  private EmailService emailService;
 
   @AfterEach
   public void tearDown() {
@@ -51,12 +68,11 @@ public class UserRegistrationApiTest extends BaseIntegrationTest {
   // //////////////////////////////////////////////////////////////////////////
 
   @Test
-  @Transactional
   public void registerNewUser() throws Exception {
     clock.setFixedTime("2026-04-10T10:00:00Z");
 
     // Arrange: Create the JSON payload.
-    UserRegisterReq req = new UserRegisterReq("Jane", "test@example.com", "Password123!");
+    UserRegisterReq req = new UserRegisterReq("Jane", "test@example.com", "Password123!", "en");
 
     // Act: Call the API endpoint.
     MvcResult mvcResult = mockMvc.perform(post("/api/users/register")
@@ -70,16 +86,48 @@ public class UserRegistrationApiTest extends BaseIntegrationTest {
     //UserRegisterResp expectedResp = new UserRegisterResp(1L);
     assertThat(actualResp.id()).as("Response body is wrong").isGreaterThan(0L); // in this way we do not have to know exact id
 
-    // TODO Assert that activation email was "sent".
+    AtomicReference<String> activationToken = new AtomicReference<>();
 
     // Assert database state.
-    boolean userExists = userRepository.existsByEmail("test@example.com");
-    assertThat(userExists).as("User should exist").isTrue();
+    transactionTemplate.execute(status -> {
+      // We wrap it in transactionTemplate because we cannot use @Transactional on this test, as it would break await() later.
+      boolean userExists = userRepository.existsByEmail("test@example.com");
+      assertThat(userExists).as("User should exist").isTrue();
 
-    // Assert user state.
-    User expectedUser = userFactory.genPendingUserWithToken(null);
-    User actualUser = userRepository.findByEmail("test@example.com").orElseThrow();
-    userAssert.assertIt(actualUser, expectedUser);
+      // Assert user state.
+      User expectedUser = userFactory.genPendingUserWithToken(null);
+      User actualUser = userRepository.findByEmail("test@example.com").orElseThrow();
+      userAssert.assertIt(actualUser, expectedUser);
+
+      activationToken.set(actualUser.getTokens().getFirst().getToken());
+      return null;
+    });
+
+
+    // Assert that activation email was "sent".
+    await().atMost(Duration.ofSeconds(3)).untilAsserted(() -> {
+      ArgumentCaptor<EmailReq> captor = ArgumentCaptor.forClass(EmailReq.class);
+      verify(emailService, times(1)).sendEmail(captor.capture());
+
+      // Assert that correct email request was sent.
+      Map<String, Object> params = Maps.newHashMap();
+      params.put("username", "Jane");
+      params.put("activationLink", "https://pawel-papierkowski.github.io/frontend-userland-vue/activate?token="+activationToken.get());
+      params.put("linkValidXhours", 24L);
+
+      EmailReq capturedReq = captor.getValue();
+      assertThat(capturedReq.provider()).isNull(); // use default provider
+      assertThat(capturedReq.lang()).isEqualTo("en");
+      assertThat(capturedReq.sender()).isEqualTo("pawel.papierkowski.portfolio@gmail.com");
+      assertThat(capturedReq.recipients()[0]).isEqualTo("test@example.com");
+      assertThat(capturedReq.recipientsCc()).isEqualTo(new String[] {});
+      assertThat(capturedReq.recipientsBcc()).isEqualTo(new String[] {});
+      assertThat(capturedReq.replyTo()).isEqualTo("pawel.papierkowski.portfolio@gmail.com");
+      assertThat(capturedReq.subject()).isEqualTo("SUBJECT");
+      assertThat(capturedReq.template()).isEqualTo("user/activation");
+      assertThat(capturedReq.params()).isEqualTo(params);
+      assertThat(capturedReq.messageHtml()).isNull(); // it is resolved later, in EmailService
+    });
   }
 
   @Test
@@ -132,7 +180,7 @@ public class UserRegistrationApiTest extends BaseIntegrationTest {
     userRepository.save(userFactory.genPendingUserWithToken(null));
 
     // Arrange: Create the JSON payload.
-    UserRegisterReq req = new UserRegisterReq("testuser", "test@example.com", "SecurePass123!");
+    UserRegisterReq req = new UserRegisterReq("testuser", "test@example.com", "SecurePass123!", "en");
 
     // Act: Try to register a NEW user with the SAME email via the API.
     MvcResult mvcResult = mockMvc.perform(post("/api/users/register")

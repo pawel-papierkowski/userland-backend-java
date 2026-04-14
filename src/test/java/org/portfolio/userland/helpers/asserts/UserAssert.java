@@ -13,6 +13,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Assert users and related entities.
+ * NOTE: if test do not have @Transactional, you need to use TransactionTemplate:
+ * <pre>
+ *  private final TransactionTemplate transactionTemplate;
+ *  transactionTemplate.execute(_ -> {
+ *    User actualUser = ...;
+ *    userAssert.assertIt(actualUser, expectedUser);
+ *  });
+ * </pre>
  */
 @Service
 @RequiredArgsConstructor
@@ -20,6 +28,7 @@ public class UserAssert {
   private static final String[] USER_FIELDS_IGNORE = { "id", "password", "tokens", "history" };
   private static final String[] USER_TOKEN_FIELDS_IGNORE = { "id", "user", "token" };
   private static final String[] USER_HISTORY_FIELDS_IGNORE = { "id", "user", "uuid" };
+
   /**
    * Assert that two users are same.
    * @param actualUser Actual user.
@@ -40,7 +49,6 @@ public class UserAssert {
     // Assert collections
     assertTokens(actualUser.getTokens(), expectedUser.getTokens());
     assertHistory(actualUser.getHistory(), expectedUser.getHistory());
-
   }
 
   /**
@@ -57,6 +65,12 @@ public class UserAssert {
     }
   }
 
+  /**
+   * Assert one token entry.
+   * @param ix Index.
+   * @param actualToken Actual token entry.
+   * @param expectedToken Expected token entry.
+   */
   private void assertTokenEntry(int ix, UserToken actualToken, UserToken expectedToken) {
     assertThat(actualToken)
         .as("Token entry has invalid state")
@@ -82,6 +96,12 @@ public class UserAssert {
     }
   }
 
+  /**
+   * Assert one history event.
+   * @param ix Index.
+   * @param actualHistoryEvent Actual history event.
+   * @param expectedHistoryEvent Expected history event.
+   */
   private void assertHistoryEvent(int ix, UserHistory actualHistoryEvent, UserHistory expectedHistoryEvent) {
     assertThat(actualHistoryEvent)
         .as("History event has invalid state")

@@ -1,12 +1,14 @@
 spring:
+  thymeleaf:
+    prefix: "classpath:/templates/emails/"
   mail: # plain email provider config is here
-    host: ${EMAIL_HOST}
+    host: ${EMAIL_HOST:smtp.gmail.com}
     port: 587
-    username: ${EMAIL_USERNAME}
-    password: ${EMAIL_PASSWORD}
+    username: ${EMAIL_USERNAME:pawel.papierkowski.portfolio@gmail.com}
+    password: ${EMAIL_PASSWORD:APP_PASSWORD}
     protocol: smtp
     default-encoding: UTF-8
-    test-connection: false # Fail fast on boot if credentials are bad
+    test-connection: true # If true, fail fast on boot if credentials are bad.
     properties:
       mail:
         smtp:
@@ -14,6 +16,8 @@ spring:
           starttls:
             enable: true
             required: true
+          ssl:
+            trust: ${EMAIL_HOST:smtp.gmail.com}
           # Prevent infinite hanging threads!
           connectiontimeout: 5000
           timeout: 3000
@@ -21,6 +25,7 @@ spring:
 
 app:
   email:
+    sender: "pawel.papierkowski.portfolio@gmail.com"
     providers:
       default: 'plain' # default provider
       resend:

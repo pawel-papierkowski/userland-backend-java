@@ -13,6 +13,7 @@ import org.portfolio.userland.features.user.mapper.UserRegisterMapper;
 import org.portfolio.userland.features.user.repositories.UserRepository;
 import org.portfolio.userland.features.user.repositories.UserTokenRepository;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,11 +29,12 @@ public class UserRegisterService {
 
   private final UserRepository userRepository;
   private final UserTokenRepository userTokenRepository;
+  private final ApplicationEventPublisher eventPublisher;
 
   private final UserRegisterMapper userRegisterMapper;
   private final ClockService clockService;
 
-  /** How long before activation token expires in minutes. */
+  /** How long before activation token expires in hours. */
   @Value("${app.user.token.activation.expires}")
   private long activationTokenExpires;
 
@@ -41,16 +43,16 @@ public class UserRegisterService {
    * @param userRegisterReq User registration request.
    * @return Created user.
    */
+  @Transactional
   public User register(UserRegisterReq userRegisterReq) {
     LocalDateTime nowAt = clockService.getNowUTC();
 
     verifyRegistration(userRegisterReq);
-    User entity = createUserData(userRegisterReq, nowAt);
-    entity = userRepository.save(entity);
+    User user = createUserData(userRegisterReq, nowAt);
+    user = userRepository.save(user);
 
-    // TODO in future we will send e-mail with activation link.
-
-    return entity;
+    triggerEvent(user);
+    return user;
   }
 
   /**
@@ -60,6 +62,22 @@ public class UserRegisterService {
   private void verifyRegistration(UserRegisterReq userRegisterReq) {
     if (userRepository.existsByEmail(userRegisterReq.email()))
       throw new UserEmailAlreadyExistsException(userRegisterReq.email());
+  }
+
+  /**
+   * Triggers user registration event for anyone interested.
+   * @param user User data.
+   */
+  private void triggerEvent(User user) {
+    UserRegisteredEvent userRegisteredEvent = new UserRegisteredEvent(
+        user.getId(),
+        user.getUsername(),
+        user.getEmail(),
+        user.getLang(),
+        user.getTokens().getFirst().getToken()
+    );
+    // Will trigger UserEmailService.sendActivationEmail().
+    eventPublisher.publishEvent(userRegisteredEvent);
   }
 
   //
@@ -121,7 +139,7 @@ public class UserRegisterService {
   private UserToken createTokenData(LocalDateTime nowAt, EnTokenType type) {
     UserToken token = new UserToken();
     token.setCreatedAt(nowAt);
-    token.setExpiresAt(nowAt.plusMinutes(activationTokenExpires));
+    token.setExpiresAt(nowAt.plusHours(activationTokenExpires));
     token.setType(type);
     token.setToken(securityGeneratorService.token());
     return token;

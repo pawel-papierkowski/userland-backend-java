@@ -26,7 +26,7 @@ public class UserWebTest extends BaseWebTest {
   @Test
   public void registrationWhenPasswordIsTooWeak() throws Exception {
     // Arrange: password violates the @Size(min = 8, max = 100) constraint
-    UserRegisterReq req = new UserRegisterReq("John Doe", "john.doe@example.com", "123");
+    UserRegisterReq req = new UserRegisterReq("John Doe", "john.doe@example.com", "123", "en");
 
     // Act: Call the API endpoint.
     MvcResult mvcResult = mockMvc.perform(post("/api/users/register")

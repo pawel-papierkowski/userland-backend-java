@@ -4,6 +4,7 @@ import org.portfolio.userland.config.MutableClockConfig;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.context.annotation.Import;
+import org.testcontainers.junit.jupiter.Testcontainers;
 
 import java.lang.annotation.*;
 
@@ -17,6 +18,7 @@ import java.lang.annotation.*;
 @AnyTest
 @SpringBootTest // Boots the application context
 @AutoConfigureMockMvc
+@Testcontainers // Use containers
 @Import(MutableClockConfig.class)
 public @interface IntegrationTest {
 }

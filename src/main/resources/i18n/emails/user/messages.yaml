@@ -1,0 +1,8 @@
+email:
+  user:
+    activation:
+      subject: "Welcome to UserLand"
+      greeting: "Hello, {0}!"
+      l1: "We are excited to have you on board."
+      l2: "Please activate your account here:"
+      l3: "Link will be valid for {0} hours."
