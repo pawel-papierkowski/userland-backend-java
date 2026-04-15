@@ -44,7 +44,7 @@ public class EmailService {
     Locale userLocale = Locale.forLanguageTag(emailReq.lang());
     Context context = new Context(userLocale);
     context.setVariables(emailReq.params());
-    String htmlContent = templateEngine.process(emailReq.template(), context);
-    return emailReq.withMessageHtml(htmlContent);
+    String messageHtml = templateEngine.process(emailReq.template(), context);
+    return emailReq.withMessageHtml(messageHtml);
   }
 }

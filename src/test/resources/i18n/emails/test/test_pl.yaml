@@ -1,0 +1,5 @@
+email:
+  test:
+    simple:
+      title: "To jest tytuł emaila"
+      content: "To jest zawartość emaila. Zmienna: {0}."
