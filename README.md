@@ -13,7 +13,7 @@ You can think of it as baseline for any other project, as almost anything will n
 ### Features
 
 - Standard user:
-  - User registration (with e-mail confirmation)
+  - User registration
   - User activation via email
   - User login
   - User logout
@@ -67,6 +67,10 @@ This app uses (free tier for all of these):
 **UserLand** app is deployed via **GitHub Actions**.
 
 For portfolio, email address pawel.papierkowski.portfolio@gmail.com is used and any emails from this system will have this address as sender.
+
+## Design notes
+
+- **Kafka** was considered for demonstration purposes (email retries), but not used since it won't work well with restrictions typical of Google Cloud free tier, where this project lives. Google Cloud is serverless, but Kafka would require system to be up at all times.
 
 ## Endpoints
 

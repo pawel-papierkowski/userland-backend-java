@@ -7,6 +7,8 @@ import org.portfolio.userland.common.services.email.data.EmailReq;
 import org.portfolio.userland.common.services.email.exception.UnknownEmailProviderException;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.List;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -24,8 +26,9 @@ public class EmailServiceTest extends BaseIntegrationTest {
         "invalid_provider",
         "en",
         "tester@test.test",
-        new String[]{"newuser@example.com"},
-        new String[]{}, new String[]{},
+        List.of("newuser@example.com"),
+        List.of(),
+        List.of(),
         "",
         "TITLE",
         null,

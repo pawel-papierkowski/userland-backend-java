@@ -35,7 +35,7 @@ public class PlainEmailProvider implements IntEmailProvider {
 
       // Set the email details.
       helper.setFrom(emailReq.sender());
-      helper.setTo(emailReq.recipients());
+      helper.setTo(emailReq.recipients().toArray(new String[]{}));
       helper.setSubject(emailReq.subject());
 
       // Set the body. The 'true' flag tells Spring this string contains HTML.

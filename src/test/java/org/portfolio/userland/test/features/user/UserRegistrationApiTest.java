@@ -26,6 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import java.time.Duration;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -103,8 +104,7 @@ public class UserRegistrationApiTest extends BaseIntegrationTest {
       return null;
     });
 
-
-    // Assert that activation email was "sent".
+    // Assert that email (account registration) was sent.
     await().atMost(Duration.ofSeconds(3)).untilAsserted(() -> {
       ArgumentCaptor<EmailReq> captor = ArgumentCaptor.forClass(EmailReq.class);
       verify(emailService, times(1)).sendEmail(captor.capture());
@@ -114,24 +114,26 @@ public class UserRegistrationApiTest extends BaseIntegrationTest {
       params.put("username", "Jane");
       params.put("activationLink", "https://pawel-papierkowski.github.io/frontend-userland-vue/activate?token="+activationToken.get());
       params.put("linkValidXhours", 24L);
+      EmailReq expectedEmailReq = new EmailReq(
+          null,
+          "en",
+          "pawel.papierkowski.portfolio@gmail.com",
+          List.of("test@example.com"),
+          List.of(),
+          List.of(),
+          "pawel.papierkowski.portfolio@gmail.com",
+          "Account activation in UserLand",
+          "user/registration",
+          params,
+          null
+      );
 
-      EmailReq capturedReq = captor.getValue();
-      assertThat(capturedReq.provider()).isNull(); // use default provider
-      assertThat(capturedReq.lang()).isEqualTo("en");
-      assertThat(capturedReq.sender()).isEqualTo("pawel.papierkowski.portfolio@gmail.com");
-      assertThat(capturedReq.recipients()[0]).isEqualTo("test@example.com");
-      assertThat(capturedReq.recipientsCc()).isEqualTo(new String[] {});
-      assertThat(capturedReq.recipientsBcc()).isEqualTo(new String[] {});
-      assertThat(capturedReq.replyTo()).isEqualTo("pawel.papierkowski.portfolio@gmail.com");
-      assertThat(capturedReq.subject()).isEqualTo("SUBJECT");
-      assertThat(capturedReq.template()).isEqualTo("user/activation");
-      assertThat(capturedReq.params()).isEqualTo(params);
-      assertThat(capturedReq.messageHtml()).isNull(); // it is resolved later, in EmailService
+      EmailReq actualEmailReq = captor.getValue();
+      assertThat(actualEmailReq).isEqualTo(expectedEmailReq);
     });
   }
 
   @Test
-  @Transactional
   public void activateUser() throws Exception {
     clock.setFixedTime("2026-04-10T10:00:00Z");
     User expectedUser = userFactory.genUser(); // already generate expected user due to date/time
@@ -154,18 +156,47 @@ public class UserRegistrationApiTest extends BaseIntegrationTest {
     // Assert API Response.
     assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.OK.value());
 
-    entityManager.flush(); // needed or tearDown() will die
-    entityManager.clear();
+    //entityManager.flush(); // needed or tearDown() will die
+    //entityManager.clear();
 
     // Prepare expected result.
     expectedUser.setModifiedAt(clockService.getNowUTC());
     expectedUser.getHistory().get(1).setCreatedAt(clockService.getNowUTC()); // activation event happened now
 
     // Assert that user data is correctly updated.
-    User actualUser = userRepository.findByEmail("test@example.com").orElseThrow();
-    userAssert.assertIt(actualUser, expectedUser);
-    // Assert that activation token is removed.
-    assertThat(userTokenRepository.count()).as("Count of all user tokens is wrong").isEqualTo(0);
+    transactionTemplate.execute(status -> {
+      User actualUser = userRepository.findByEmail("test@example.com").orElseThrow();
+      userAssert.assertIt(actualUser, expectedUser);
+      // Assert that activation token is removed.
+      assertThat(userTokenRepository.count()).as("Count of all user tokens is wrong").isEqualTo(0);
+      return null;
+    });
+
+    // Assert that email (confirmation of account activation) was sent.
+    await().atMost(Duration.ofSeconds(3)).untilAsserted(() -> {
+      ArgumentCaptor<EmailReq> captor = ArgumentCaptor.forClass(EmailReq.class);
+      verify(emailService, times(1)).sendEmail(captor.capture());
+
+      // Assert that correct email request was sent.
+      Map<String, Object> params = Maps.newHashMap();
+      params.put("username", "Jane");
+      EmailReq expectedEmailReq = new EmailReq(
+          null,
+          "en",
+          "pawel.papierkowski.portfolio@gmail.com",
+          List.of("test@example.com"),
+          List.of(),
+          List.of(),
+          "pawel.papierkowski.portfolio@gmail.com",
+          "Welcome to UserLand",
+          "user/activation",
+          params,
+          null
+      );
+
+      EmailReq actualEmailReq = captor.getValue();
+      assertThat(actualEmailReq).isEqualTo(expectedEmailReq);
+    });
   }
 
   // //////////////////////////////////////////////////////////////////////////

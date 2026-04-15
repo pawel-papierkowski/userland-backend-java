@@ -6,6 +6,8 @@ import org.portfolio.userland.common.services.security.SecurityGeneratorService;
 import org.portfolio.userland.features.user.data.*;
 import org.portfolio.userland.features.user.dto.activate.TokenActivateReq;
 import org.portfolio.userland.features.user.dto.register.UserRegisterReq;
+import org.portfolio.userland.features.user.events.UserActivatedEvent;
+import org.portfolio.userland.features.user.events.UserRegisteredEvent;
 import org.portfolio.userland.features.user.exception.UserEmailAlreadyExistsException;
 import org.portfolio.userland.features.user.exception.UserTokenExpiredException;
 import org.portfolio.userland.features.user.exception.UserTokenMissingException;
@@ -21,6 +23,8 @@ import java.time.LocalDateTime;
 
 /**
  * Business logic for user registration.
+ * Note we do not do anything beyond registration itself here. We trigger event - other services (like user email
+ * service sending activation email) will react to it.
  */
 @Service
 @RequiredArgsConstructor
@@ -51,7 +55,7 @@ public class UserRegisterService {
     User user = createUserData(userRegisterReq, nowAt);
     user = userRepository.save(user);
 
-    triggerEvent(user);
+    triggerRegisterEvent(user);
     return user;
   }
 
@@ -68,7 +72,7 @@ public class UserRegisterService {
    * Triggers user registration event for anyone interested.
    * @param user User data.
    */
-  private void triggerEvent(User user) {
+  private void triggerRegisterEvent(User user) {
     UserRegisteredEvent userRegisteredEvent = new UserRegisteredEvent(
         user.getId(),
         user.getUsername(),
@@ -115,6 +119,7 @@ public class UserRegisterService {
     user.addHistory(createHistoryEvent(nowAt, EnHistoryWhat.ACTIVATED));
 
     userRepository.save(user);
+    triggerActivationEvent(user);
   }
 
   /**
@@ -126,6 +131,21 @@ public class UserRegisterService {
         .orElseThrow(() -> new UserTokenMissingException(tokenStr));
     if (userToken.getExpiresAt().isBefore(nowAt)) throw new UserTokenExpiredException(tokenStr);
     return userToken;
+  }
+
+  /**
+   * Triggers user activation event for anyone interested.
+   * @param user User data.
+   */
+  private void triggerActivationEvent(User user) {
+    UserActivatedEvent userActivatedEvent = new UserActivatedEvent(
+        user.getId(),
+        user.getUsername(),
+        user.getEmail(),
+        user.getLang()
+    );
+    // Will trigger UserEmailService.sendActivationEmail().
+    eventPublisher.publishEvent(userActivatedEvent);
   }
 
   // //////////////////////////////////////////////////////////////////////////

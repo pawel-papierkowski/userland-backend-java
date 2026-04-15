@@ -9,6 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.testcontainers.junit.jupiter.Container;
 
+import java.util.List;
+
 import static ch.martinelli.oss.testcontainers.mailpit.assertions.MailpitAssertions.assertThat;
 
 /**
@@ -30,9 +32,9 @@ public class EmailServicePlainTest extends BaseIntegrationTest {
         "plain",
         "pl",
         "tester@test.test",
-        new String[]{"newuser@example.com"},
-        new String[]{},
-        new String[]{},
+        List.of("newuser@example.com"),
+        List.of(),
+        List.of(),
         "",
         "TITLE",
         null,

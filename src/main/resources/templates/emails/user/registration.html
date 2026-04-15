@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="#{email.user.registration.subject}">Welcome to UserLand</title>
+</head>
+<body>
+  <h3 th:text="#{email.user.registration.greeting(${username})}">Hello, User!</h3>
+  <p><span th:text="#{email.user.registration.l1}">Please activate your account here:</span> <a th:href="${activationLink}" th:text="${activationLink}">ACTIVATION_LINK</a>.</p>
+  <p th:text="#{email.user.registration.l2(${linkValidXhours})}">Link will be valid for 24 hours.</p>
+</body>
+</html>

@@ -1,8 +1,11 @@
 email:
   user:
+    registration:
+      subject: "Rejestracja konta w UserLand"
+      greeting: "Cześć, {0}!"
+      l1: "Prosimy aktywować konto tutaj:"
+      l2: "Łącze będzie ważne przez {0} godzin."
     activation:
       subject: "Witamy w UserLand"
       greeting: "Cześć, {0}!"
-      l1: "Bardzo się cieszymy, że jesteś z nami."
-      l2: "Prosimy aktywować konto tutaj:"
-      l3: "Łącze będzie ważne przez {0} godzin."
+      l1: "Konto zostało pomyślnie aktywowane. Bardzo się cieszymy, że jesteś z nami."

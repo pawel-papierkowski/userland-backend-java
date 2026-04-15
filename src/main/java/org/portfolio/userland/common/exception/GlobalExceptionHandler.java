@@ -68,7 +68,6 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
   /**
    * Handle validation failures for individual controller parameters like @RequestParam, @PathVariable, or @RequestHeader.
    * Should make life of frontend developer easier.
-   * TODO: need to be tested, do it after appropriate endpoint is created.
    * @param ex Exception for validation failures.
    * @param headers – The headers to be written to the response.
    * @param status – The selected response status.

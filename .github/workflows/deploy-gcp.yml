@@ -71,7 +71,8 @@ jobs:
             -Dspring-boot.build-image.imageName=$IMAGE_URL \
             -Dspring-boot.build-image.publish=true
 
-      # Launch a new container using the image that was just uploaded.
+      # Launch a new container using the image that was just uploaded. Deployment is heavily tuned to squeeze every drop
+      # of memory out of that container.
       # --allow-unauthenticated means the website is public and anyone on the internet can hit your API endpoints.
       # --memory=512Mi explicitly limits the container RAM.
       # env_vars:

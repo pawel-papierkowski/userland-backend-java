@@ -66,7 +66,7 @@ public class UserController {
   @ApiResponses(value = {
       @ApiResponse(responseCode = "200", description = "User successfully activated.",
           content = @Content(schema = @Schema(hidden = true))),
-      @ApiResponse(responseCode = "404", description = "Invalid input (malformed token string) or token do not exist.",
+      @ApiResponse(responseCode = "404", description = "Invalid input (malformed token string) or token does not exist.",
           content = @Content(mediaType = "application/problem+json",
                              schema = @Schema(implementation = TokenMissingProblemDetail.class))),
       @ApiResponse(responseCode = "409", description = "Token found, but is expired.",
