@@ -106,7 +106,7 @@ UserLand has endpoints available publicly to use by frontend, PostMan etc.
 - Other
   - **Lombok**: reduce Jave boilerplate code
   - **Instancio**: easily create randomized instances of entities for tests
-  - **Awaitlility**: test async code 
+  - **Awaitlility**: allow testing of async code 
   - **ShedLock**: prevent issues with schedulers in environment like Kubernets
   - **Springdoc OpenAPI (Swagger UI)**: documenting API endpoints
   - **JJWT**: popular JWT library

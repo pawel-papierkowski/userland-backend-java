@@ -32,7 +32,7 @@ public class EmailServiceTest extends BaseIntegrationTest {
         null,
         "<p>Content</p>");
 
-    // Act & Assert: simulate sending email.
+    // Act & Assert: simulate sending email, fail due to unknown provider.
     UnknownEmailProviderException actualEx = assertThrows(
         UnknownEmailProviderException.class,
         () -> emailService.sendEmail(emailReq)
@@ -40,6 +40,5 @@ public class EmailServiceTest extends BaseIntegrationTest {
 
     // Assert: exception details.
     assertThat(actualEx.getDetail()).as("Exception detail is wrong").isEqualTo("Email provider 'invalid_provider' does not exist.");
-
   }
 }
