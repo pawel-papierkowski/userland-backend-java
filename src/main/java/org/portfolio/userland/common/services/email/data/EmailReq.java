@@ -1,5 +1,6 @@
 package org.portfolio.userland.common.services.email.data;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -21,9 +22,9 @@ public record EmailReq(
     String lang,
 
     String sender,
-    String[] recipients,
-    String[] recipientsCc,
-    String[] recipientsBcc,
+    List<String> recipients,
+    List<String> recipientsCc,
+    List<String> recipientsBcc,
     String replyTo,
 
     String subject,

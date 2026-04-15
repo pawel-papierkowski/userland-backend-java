@@ -14,6 +14,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.exceptions.TemplateInputException;
 
+import java.util.List;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -48,9 +49,9 @@ public class EmailServiceTemplateTest extends BaseIntegrationTest {
         "plain",
         "pl",
         "tester@test.test",
-        new String[]{"newuser@example.com"},
-        new String[]{},
-        new String[]{},
+        List.of("newuser@example.com"),
+        List.of(),
+        List.of(),
         "",
         "TITLE",
         null,
@@ -73,9 +74,9 @@ public class EmailServiceTemplateTest extends BaseIntegrationTest {
         "plain",
         "pl",
         "tester@test.test",
-        new String[]{"newuser@example.com"},
-        new String[]{},
-        new String[]{},
+        List.of("newuser@example.com"),
+        List.of(),
+        List.of(),
         "",
         "TITLE",
         "unknown",
@@ -101,9 +102,9 @@ public class EmailServiceTemplateTest extends BaseIntegrationTest {
         "plain",
         "pl",
         "tester@test.test",
-        new String[]{"newuser@example.com"},
-        new String[]{},
-        new String[]{},
+        List.of("newuser@example.com"),
+        List.of(),
+        List.of(),
         "",
         "TITLE",
         "test/simple",

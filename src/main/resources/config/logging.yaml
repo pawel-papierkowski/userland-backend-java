@@ -4,3 +4,6 @@ logging:
   level:
     # Prevent SpringDoc warnings about being enabled by default. For this project we actually want Swagger to be available publicly.
     org.springdoc.core.events.SpringDocAppInitializer: ERROR
+
+    # Prevent log pollution from expected user validation errors.
+    org.springframework.web.servlet.mvc.method.annotation.ExceptionHandlerExceptionResolver: ERROR

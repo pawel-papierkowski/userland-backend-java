@@ -12,6 +12,8 @@ import org.portfolio.userland.common.services.email.data.EmailReq;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
+import java.util.List;
+
 import static org.mockito.Mockito.*;
 
 /**
@@ -40,9 +42,9 @@ public class EmailServiceResendTest extends BaseIntegrationTest {
         "resend",
         "pl",
         "tester@test.test",
-        new String[]{"delivered@resend.dev"},
-        new String[]{},
-        new String[]{},
+        List.of("delivered@resend.dev"),
+        List.of(),
+        List.of(),
         "",
         "TITLE",
         null,

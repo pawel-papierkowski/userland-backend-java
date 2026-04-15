@@ -26,7 +26,7 @@ public class UserTokenMissingException extends GeneralException {
 
   @Override
   public String getDetail() {
-    return "Token '"+tokenString+"' do not exist.";
+    return "Token '"+tokenString+"' does not exist.";
   }
 
   @Override

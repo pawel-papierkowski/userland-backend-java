@@ -26,10 +26,12 @@ public class EmailService {
    */
   public void sendEmail(EmailReq emailReq) {
     emailReq = processTemplate(emailReq);
+
+    // TODO: in future handle code below as background task with retries and other fancy features (message broker?).
+
     // Determine correct provider.
     IntEmailProvider emailProvider = emailProviderFactory.getProvider(emailReq.provider());
     // Send email using that provider.
-    // TODO: in future handle it as background task with retries and other fancy features (Kafka)
     emailProvider.send(emailReq);
   }
 

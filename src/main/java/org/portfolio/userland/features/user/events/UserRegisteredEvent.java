@@ -1,4 +1,4 @@
-package org.portfolio.userland.features.user.services;
+package org.portfolio.userland.features.user.events;
 
 /**
  * Event for registering user.
