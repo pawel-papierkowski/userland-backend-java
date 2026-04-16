@@ -24,7 +24,7 @@ public class ShedLockConfig {
             .withJdbcTemplate(new JdbcTemplate(dataSource))
             .withTransactionManager(transactionManager) // prevents weird database issues when running multiple tests
             .usingDbTime() // Uses PostgreSQL time, ignoring server clock drift.
-            .withTableName("iam.shedlock") // Ensures ShedLock uses correct schema.
+            .withTableName("public.shedlock") // Ensures ShedLock uses correct schema.
             .build()
     );
   }

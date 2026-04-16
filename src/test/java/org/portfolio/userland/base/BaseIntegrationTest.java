@@ -11,6 +11,7 @@ import org.springframework.boot.testcontainers.service.connection.ServiceConnect
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.transaction.support.TransactionTemplate;
 import org.testcontainers.postgresql.PostgreSQLContainer;
 
 /**
@@ -30,6 +31,9 @@ public abstract class BaseIntegrationTest {
   /** For specific tasks like flushing cache. */
   @Autowired
   protected EntityManager entityManager;
+
+  @Autowired
+  protected TransactionTemplate transactionTemplate;
 
   /** Service to assert Problem Detail. */
   @Autowired
