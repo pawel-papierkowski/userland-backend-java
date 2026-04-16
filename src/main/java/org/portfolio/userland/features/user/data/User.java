@@ -63,9 +63,9 @@ public class User {
   @Enumerated(EnumType.STRING)
   private EnUserStatus status = EnUserStatus.PENDING;
 
-  /** Is user blocked? */
+  /** Is user locked? That means user cannot log in or do anything on this account. */
   @Column(nullable = false)
-  private Boolean blocked = false;
+  private Boolean locked = false;
 
   // related tables
 

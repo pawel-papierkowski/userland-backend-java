@@ -1,42 +1,37 @@
 package org.portfolio.userland.features.user.services;
 
 import lombok.RequiredArgsConstructor;
-import org.portfolio.userland.common.services.clock.ClockService;
-import org.portfolio.userland.common.services.security.SecurityGeneratorService;
 import org.portfolio.userland.features.user.data.*;
 import org.portfolio.userland.features.user.dto.activate.TokenActivateReq;
 import org.portfolio.userland.features.user.dto.register.UserRegisterReq;
 import org.portfolio.userland.features.user.events.UserActivatedEvent;
 import org.portfolio.userland.features.user.events.UserRegisteredEvent;
 import org.portfolio.userland.features.user.exception.UserEmailAlreadyExistsException;
-import org.portfolio.userland.features.user.exception.UserTokenExpiredException;
-import org.portfolio.userland.features.user.exception.UserTokenMissingException;
 import org.portfolio.userland.features.user.mapper.UserRegisterMapper;
-import org.portfolio.userland.features.user.repositories.UserRepository;
-import org.portfolio.userland.features.user.repositories.UserTokenRepository;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 
 /**
- * Business logic for user registration.
- * Note we do not do anything beyond registration itself here. We trigger event - other services (like user email
- * service sending activation email) will react to it.
+ * Business logic for user registration and activation.
+ * <p>User story:</p>
+ * <ul>
+ *   <li>User goes on user registration page and fills form.</li>
+ *   <li>User clicks on registration button. Frontend calls <code>/api/users/register</code> endpoint.</li>
+ *   <li>System creates pending user account, activation token and sends email with activation link. Note that link leads to frontend.</li>
+ *   <li>User clicks on activation link, get redirected to frontend, frontend calls <code>/api/users/activate</code>.</li>
+ *   <li>Frontend reacts appropriately to response from activation endpoint (show success or failure message).</li>
+ *   <li>On successful activation, backend sends email confirming successful user account activation.</li>
+ * </ul>
+ * <p>Note we do not do anything beyond registration/activation itself here. We trigger events - other services (like
+ * user email service sending activation email) will react to it.</p>
  */
 @Service
 @RequiredArgsConstructor
-public class UserRegisterService {
-  private final SecurityGeneratorService securityGeneratorService;
-
-  private final UserRepository userRepository;
-  private final UserTokenRepository userTokenRepository;
-  private final ApplicationEventPublisher eventPublisher;
-
+public class UserRegisterService extends BaseUserService {
   private final UserRegisterMapper userRegisterMapper;
-  private final ClockService clockService;
 
   /** How long before activation token expires in hours. */
   @Value("${app.user.token.activation.expires}")
@@ -78,7 +73,8 @@ public class UserRegisterService {
         user.getUsername(),
         user.getEmail(),
         user.getLang(),
-        user.getTokens().getFirst().getToken()
+        user.getTokens().getFirst().getToken(),
+        activationTokenExpires
     );
     // Will trigger UserEmailService.sendActivationEmail().
     eventPublisher.publishEvent(userRegisteredEvent);
@@ -111,7 +107,7 @@ public class UserRegisterService {
   public void activate(TokenActivateReq tokenActivateReq) {
     LocalDateTime nowAt = clockService.getNowUTC();
 
-    UserToken userToken = resolveToken(tokenActivateReq.token(), nowAt);
+    UserToken userToken = resolveToken(nowAt, EnTokenType.ACTIVATE, tokenActivateReq.token());
     User user = userToken.getUser();
     user.setModifiedAt(nowAt);
     user.setStatus(EnUserStatus.ACTIVE);
@@ -120,17 +116,6 @@ public class UserRegisterService {
 
     userRepository.save(user);
     triggerActivationEvent(user);
-  }
-
-  /**
-   * Retrieve user token based on token string. Will throw exception if token is not found or is expired.
-   * @param tokenStr Token string.
-   */
-  private UserToken resolveToken(String tokenStr, LocalDateTime nowAt) {
-    UserToken userToken = userTokenRepository.findByTypeAndToken(EnTokenType.ACTIVATE, tokenStr)
-        .orElseThrow(() -> new UserTokenMissingException(tokenStr));
-    if (userToken.getExpiresAt().isBefore(nowAt)) throw new UserTokenExpiredException(tokenStr);
-    return userToken;
   }
 
   /**
@@ -146,37 +131,5 @@ public class UserRegisterService {
     );
     // Will trigger UserEmailService.sendActivationEmail().
     eventPublisher.publishEvent(userActivatedEvent);
-  }
-
-  // //////////////////////////////////////////////////////////////////////////
-
-  /**
-   * Create and fill token data.
-   * @param nowAt Current date&time.
-   * @param type Type of token.
-   * @return User token entry.
-   */
-  private UserToken createTokenData(LocalDateTime nowAt, EnTokenType type) {
-    UserToken token = new UserToken();
-    token.setCreatedAt(nowAt);
-    token.setExpiresAt(nowAt.plusHours(activationTokenExpires));
-    token.setType(type);
-    token.setToken(securityGeneratorService.token());
-    return token;
-  }
-
-  /**
-   * Create and fill history event.
-   * @param nowAt Current date&time.
-   * @param what What happened.
-   * @return User history event.
-   */
-  private UserHistory createHistoryEvent(LocalDateTime nowAt, EnHistoryWhat what) {
-    UserHistory event = new UserHistory();
-    event.setUuid(securityGeneratorService.uuid());
-    event.setCreatedAt(nowAt);
-    event.setWho(EnHistoryWho.USER);
-    event.setWhat(what);
-    return event;
   }
 }

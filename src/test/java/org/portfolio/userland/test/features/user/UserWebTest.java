@@ -3,6 +3,7 @@ package org.portfolio.userland.test.features.user;
 import org.junit.jupiter.api.Test;
 import org.portfolio.userland.base.BaseWebTest;
 import org.portfolio.userland.features.user.dto.register.UserRegisterReq;
+import org.portfolio.userland.features.user.services.UserPasswordService;
 import org.portfolio.userland.features.user.services.UserRegisterService;
 import org.portfolio.userland.helpers.problemDetail.ProblemDetailBox;
 import org.springframework.http.HttpStatus;
@@ -22,6 +23,8 @@ public class UserWebTest extends BaseWebTest {
   // We mock the service because we only care about testing the Controller's @Valid rules.
   @MockitoBean
   private UserRegisterService userRegisterService;
+  @MockitoBean
+  private UserPasswordService userPasswordService;
 
   @Test
   public void registrationWhenPasswordIsTooWeak() throws Exception {

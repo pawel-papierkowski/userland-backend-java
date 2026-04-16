@@ -16,20 +16,21 @@ import org.portfolio.userland.common.constants.ValidConst;
 @Schema(description = "Payload required to register a new user.")
 public record UserRegisterReq(
     @NotBlank(message = "User name is required")
-    @Schema(description = "User's name shown on frontend.", example = "John Doe")
+    @Schema(description = "Name shown on frontend.", example = "John Doe")
     String username,
 
     @NotBlank(message = "Email is required")
     @Email(regexp = ValidConst.REG_EXPR_EMAIL, message = "Must be a valid email address")
-    @Schema(description = "User's email address (must be unique).", example = "john.doe@example.com")
+    @Schema(description = "Email address (must be unique).", example = "john.doe@example.com")
     String email,
 
     @NotBlank(message = "Password is required")
     @Size(min = 8, max = 100, message = "Password must be between 8 and 100 characters")
-    @Schema(description = "User's password.", example = "StrongP@ssw0rd")
+    @Schema(description = "Password.", example = "StrongP@ssw0rd")
     String password,
 
     @NotBlank(message = "Language is required")
-    @Schema(description = "User's language.", example = "en")
+    @Size(min = 2, max = 2, message = "Invalid language code")
+    @Schema(description = "Short language code.", example = "en")
     String lang
 ) {}

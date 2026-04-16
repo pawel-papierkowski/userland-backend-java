@@ -9,7 +9,11 @@ public enum EnHistoryWhat {
   /** User was activated. */
   ACTIVATED,
   /** Password reset was requested. */
+  PASS_RESET_REQ,
+  /** Password reset was done. */
   PASS_RESET,
   /** User logged in. */
-  LOGIN
+  LOGIN,
+  /** User logged out. */
+  LOGOUT
 }

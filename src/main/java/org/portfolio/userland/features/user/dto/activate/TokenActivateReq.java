@@ -12,6 +12,6 @@ import jakarta.validation.constraints.Size;
 public record TokenActivateReq(
   @NotBlank(message = "Token string is required")
   @Size(min = 32, max = 128, message = "Token string must have 32 or more characters.")
-  @Schema(description = "Token string.", example = "john.doe@example.com")
+  @Schema(description = "Token string.", example = "J4L1wZnLiw3durFYN0WDsulcpFnoKWqg")
   String token
 ) {}

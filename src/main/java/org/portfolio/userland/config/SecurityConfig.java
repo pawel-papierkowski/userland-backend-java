@@ -92,7 +92,7 @@ public class SecurityConfig {
         .securityMatcher(
             "/api/users/register", // user registration
             "/api/users/activate", // activate user account
-            "/api/users/password", // reset password
+            "/api/users/password/*", // reset password
             "/api/users/login") // login user
         .authorizeHttpRequests(requests -> requests.anyRequest().permitAll());
     return http.build();

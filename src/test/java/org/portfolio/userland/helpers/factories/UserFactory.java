@@ -86,7 +86,7 @@ public class UserFactory {
         .set(field(User::getPassword), passwordEncoder.encode("Password123!"))
         .set(field(User::getLang), "en")
         .set(field(User::getStatus), status)
-        .set(field(User::getBlocked), false)
+        .set(field(User::getLocked), false)
         .ignore(field(User::getTokens)) // we fill it manually
         .ignore(field(User::getHistory)) // ditto
         .create();

@@ -8,7 +8,9 @@ app:
       removalDelay: 48 # when to remove pending users since creation, in hours
     token:
       length: 32
-      activation:
+      activation: # account activation
         expires: 24 # in hours
-      passwordReset:
+      passwordReset: # password reset
+        expires: 30 # in minutes
+      removal: # account deletion
         expires: 30 # in minutes

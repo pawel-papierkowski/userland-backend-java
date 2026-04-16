@@ -4,26 +4,16 @@ import com.google.common.collect.Maps;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
-import org.portfolio.userland.base.BaseIntegrationTest;
-import org.portfolio.userland.common.services.email.EmailService;
 import org.portfolio.userland.common.services.email.data.EmailReq;
 import org.portfolio.userland.features.user.data.User;
 import org.portfolio.userland.features.user.dto.activate.TokenActivateReq;
 import org.portfolio.userland.features.user.dto.register.UserRegisterReq;
 import org.portfolio.userland.features.user.dto.register.UserRegisterResp;
-import org.portfolio.userland.features.user.repositories.UserHistoryRepository;
-import org.portfolio.userland.features.user.repositories.UserRepository;
-import org.portfolio.userland.features.user.repositories.UserTokenRepository;
-import org.portfolio.userland.helpers.asserts.UserAssert;
-import org.portfolio.userland.helpers.factories.UserFactory;
 import org.portfolio.userland.helpers.problemDetail.ProblemDetailBox;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.support.TransactionTemplate;
 
 import java.time.Duration;
 import java.util.List;
@@ -39,31 +29,10 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 /**
  * Integration test for user registration.
  */
-public class UserRegistrationApiTest extends BaseIntegrationTest {
-  @Autowired
-  private UserRepository userRepository;
-  @Autowired
-  private UserTokenRepository userTokenRepository;
-  @Autowired
-  private UserHistoryRepository userHistoryRepository;
-
-  @Autowired
-  private TransactionTemplate transactionTemplate;
-
-  @Autowired
-  private UserFactory userFactory;
-  @Autowired
-  private UserAssert userAssert;
-
-  @MockitoBean
-  private EmailService emailService;
-
+public class UserRegistrationApiTest extends BaseUserTest {
   @AfterEach
   public void tearDown() {
-    // Clean up the database after every test so tests don't interfere with each other.
-    userTokenRepository.deleteAll();
-    userHistoryRepository.deleteAll();
-    userRepository.deleteAll();
+    cleanDatabase();
   }
 
   // //////////////////////////////////////////////////////////////////////////
@@ -113,7 +82,7 @@ public class UserRegistrationApiTest extends BaseIntegrationTest {
       Map<String, Object> params = Maps.newHashMap();
       params.put("username", "Jane");
       params.put("activationLink", "https://pawel-papierkowski.github.io/frontend-userland-vue/activate?token="+activationToken.get());
-      params.put("linkValidXhours", 24L);
+      params.put("activationTokenExpires", 24L);
       EmailReq expectedEmailReq = new EmailReq(
           null,
           "en",
@@ -122,7 +91,7 @@ public class UserRegistrationApiTest extends BaseIntegrationTest {
           List.of(),
           List.of(),
           "pawel.papierkowski.portfolio@gmail.com",
-          "Account activation in UserLand",
+          "UserLand: account activation",
           "user/registration",
           params,
           null
@@ -134,17 +103,41 @@ public class UserRegistrationApiTest extends BaseIntegrationTest {
   }
 
   @Test
+  public void userIsSanitized() throws Exception {
+    clock.setFixedTime("2026-04-10T10:00:00Z");
+
+    // Arrange: Create the JSON payload.
+    UserRegisterReq req = new UserRegisterReq("<script>alert('hacked')</script>", "test@example.com", "Password123!", "en");
+
+    // Act: Call the API endpoint.
+    MvcResult mvcResult = mockMvc.perform(post("/api/users/register")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(req)))
+        .andReturn();
+
+    // Assert database state.
+    transactionTemplate.execute(status -> {
+      // Assert user state.
+      User expectedUser = userFactory.genPendingUserWithToken(null);
+      expectedUser.setUsername("&lt;script&gt;alert(&#39;hacked&#39;)&lt;/script&gt;"); // make sure it is sanitized
+      User actualUser = userRepository.findByEmail("test@example.com").orElseThrow();
+      userAssert.assertIt(actualUser, expectedUser);
+      return null;
+    });
+  }
+
+  @Test
   public void activateUser() throws Exception {
     clock.setFixedTime("2026-04-10T10:00:00Z");
     User expectedUser = userFactory.genUser(); // already generate expected user due to date/time
 
-    // Arrange: create user and activation token.
+    // Arrange: Create user and activation token.
     String tokenStr = "Gl7Y3GK9dqFDEjza3KsOU6k0pM9J4Tiq";
     userRepository.save(userFactory.genPendingUserWithToken(tokenStr));
 
     clock.setFixedTime("2026-04-10T10:05:00Z");
 
-    // Arrange: create token activation request.
+    // Arrange: Create token activation request.
     TokenActivateReq req = new TokenActivateReq(tokenStr);
 
     // Act: Try to activate user using valid token.
@@ -155,9 +148,6 @@ public class UserRegistrationApiTest extends BaseIntegrationTest {
 
     // Assert API Response.
     assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.OK.value());
-
-    //entityManager.flush(); // needed or tearDown() will die
-    //entityManager.clear();
 
     // Prepare expected result.
     expectedUser.setModifiedAt(clockService.getNowUTC());
@@ -188,7 +178,7 @@ public class UserRegistrationApiTest extends BaseIntegrationTest {
           List.of(),
           List.of(),
           "pawel.papierkowski.portfolio@gmail.com",
-          "Welcome to UserLand",
+          "UserLand: welcome",
           "user/activation",
           params,
           null
@@ -251,7 +241,7 @@ public class UserRegistrationApiTest extends BaseIntegrationTest {
     ProblemDetailBox expectedPdb = new ProblemDetailBox(
         HttpStatus.NOT_FOUND.value(),
         "User token is missing.",
-        "Token '"+tokenStr+"' do not exist.",
+        "Token '"+tokenStr+"' does not exist.",
         "/api/users/activate",
         "https://api.userland.org/errors/user/token/missing",
         Map.of()
@@ -264,7 +254,7 @@ public class UserRegistrationApiTest extends BaseIntegrationTest {
   public void errExpiredToken() throws Exception {
     clock.setFixedTime("2026-04-08T10:00:00Z");
 
-    // Arrange: create user and activation token.
+    // Arrange: create pending user and activation token.
     String tokenStr = "REAL_BUT_EXPIRED_TOKEN__________";
     userRepository.save(userFactory.genPendingUserWithToken(tokenStr));
 
