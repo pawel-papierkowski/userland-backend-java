@@ -1,7 +1,7 @@
 email:
   user:
     registration:
-      subject: "UserLand: account activation"
+      subject: "UserLand: account registration"
       greeting: "Hello, <b>{0}</b>!"
       l1: "Please activate your account here:"
       l2: "Link will be valid for {0} hours."

@@ -25,5 +25,6 @@ public abstract class UserRegisterMapper {
   // email as is
   @Mapping(target = "password", expression = "java(passwordEncoder.encode(req.password()))")
   // lang as is
+  // Rest of fields is just ignored.
   public abstract User toEntity(UserRegisterReq req);
 }

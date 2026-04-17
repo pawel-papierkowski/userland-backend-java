@@ -65,7 +65,7 @@ public class UserEmailService {
    * @return Email request.
    */
   private EmailReq resolveEmailReq(UserRegisteredEvent event) {
-    String subject = langService.t(event.lang(), "email.user.registration.subject", null);
+    String subject = langService.t(event.lang(), "email.user.registration.subject");
 
     // Prepare params required by user registration template.
     Map<String, Object> params = Maps.newHashMap();
@@ -116,7 +116,7 @@ public class UserEmailService {
    * @return Email request.
    */
   private EmailReq resolveEmailReq(UserActivatedEvent event) {
-    String subject = langService.t(event.lang(), "email.user.activation.subject", null);
+    String subject = langService.t(event.lang(), "email.user.activation.subject");
 
     // Prepare params required by user activation template.
     Map<String, Object> params = Maps.newHashMap();
@@ -155,7 +155,7 @@ public class UserEmailService {
    * @return Email request.
    */
   private EmailReq resolveEmailReq(UserPasswordResetSendEvent event) {
-    String subject = langService.t(event.lang(), "email.user.password.reset.subject", null);
+    String subject = langService.t(event.lang(), "email.user.password.reset.subject");
 
     // Prepare params required by user activation template.
     Map<String, Object> params = Maps.newHashMap();
@@ -206,7 +206,7 @@ public class UserEmailService {
    * @return Email request.
    */
   private EmailReq resolveEmailReq(UserPasswordResetConfirmEvent event) {
-    String subject = langService.t(event.lang(), "email.user.password.confirm.subject", null);
+    String subject = langService.t(event.lang(), "email.user.password.confirm.subject");
 
     // Prepare params required by user activation template.
     Map<String, Object> params = Maps.newHashMap();
