@@ -11,7 +11,7 @@ email:
       l1: "Konto zostało pomyślnie aktywowane. Bardzo się cieszymy, że jesteś z nami."
       l2: "Możesz się zalogować do UserLand tutaj:"
     password:
-      reset:
+      link:
         subject: "UserLand: reset hasła"
         greeting: "Cześć, <b>{0}</b>!"
         l1: "Prosimy zresetować hasło tutaj:"
@@ -20,3 +20,13 @@ email:
         subject: "UserLand: hasło zmienione"
         greeting: "Cześć, <b>{0}</b>!"
         l1: "Hasło do Twojego konta zostało pomyślnie zmienione."
+    delete:
+      link:
+        subject: "UserLand: usuwanie konta"
+        greeting: "Cześć, <b>{0}</b>!"
+        l1: "Prosimy kliknąć te łącze, by usunąć konto:"
+        l2: "Łącze będzie ważne przez {0} minut."
+      confirm:
+        subject: "UserLand: konto usunięte"
+        greeting: "Cześć, <b>{0}</b>!"
+        l1: "Konto zostało usunięte z systemu UserLand."

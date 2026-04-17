@@ -6,10 +6,10 @@ import org.portfolio.userland.features.user.data.EnHistoryWhat;
 import org.portfolio.userland.features.user.data.EnTokenType;
 import org.portfolio.userland.features.user.data.User;
 import org.portfolio.userland.features.user.data.UserToken;
-import org.portfolio.userland.features.user.dto.password.UserPassLinkReq;
-import org.portfolio.userland.features.user.dto.password.UserPassResetReq;
-import org.portfolio.userland.features.user.events.UserPasswordResetConfirmEvent;
-import org.portfolio.userland.features.user.events.UserPasswordResetLinkEvent;
+import org.portfolio.userland.features.user.dto.delete.UserDeleteConfirmReq;
+import org.portfolio.userland.features.user.dto.delete.UserDeleteLinkReq;
+import org.portfolio.userland.features.user.events.UserAccountDeleteConfirmEvent;
+import org.portfolio.userland.features.user.events.UserAccountDeleteLinkEvent;
 import org.portfolio.userland.test.helpers.problemDetail.ProblemDetailBox;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -26,10 +26,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
 /**
- * Integration test for user password reset.
+ * Integration test for user account deletion.
  */
 @RecordApplicationEvents
-public class UserPasswordApiTest extends BaseUserTest {
+public class UserDeleteApiTest extends BaseUserTest {
   @Autowired
   @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection") // IDE cannot find it
   private ApplicationEvents applicationEvents;
@@ -42,7 +42,7 @@ public class UserPasswordApiTest extends BaseUserTest {
   // //////////////////////////////////////////////////////////////////////////
 
   @Test
-  public void sendPasswordResetEmail() throws Exception {
+  public void sendAccountDeletionEmail() throws Exception {
     clock.setFixedTime("2026-04-10T10:00:00Z");
 
     // Arrange: Create active user in database.
@@ -51,11 +51,11 @@ public class UserPasswordApiTest extends BaseUserTest {
 
     clock.setFixedTime("2026-04-11T11:30:00Z");
 
-    // Arrange: Create password reset link request.
-    UserPassLinkReq req = new UserPassLinkReq(expectedUser.getEmail());
+    // Arrange: Create account deletion link request.
+    UserDeleteLinkReq req = new UserDeleteLinkReq(expectedUser.getEmail());
 
     // Act: Request password reset link.
-    MvcResult mvcResult = mockMvc.perform(post("/api/users/password/send")
+    MvcResult mvcResult = mockMvc.perform(post("/api/users/delete/send")
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(req)))
         .andReturn();
@@ -64,22 +64,22 @@ public class UserPasswordApiTest extends BaseUserTest {
     assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.OK.value());
 
     // Prepare expected result.
-    userTokenFactory.genTokenEntry(expectedUser, EnTokenType.PASSWORD, null);
-    userHistoryFactory.genHistoryEvent(expectedUser, EnHistoryWhat.PASS_RESET_REQ);
+    userTokenFactory.genTokenEntry(expectedUser, EnTokenType.DELETE, null);
+    userHistoryFactory.genHistoryEvent(expectedUser, EnHistoryWhat.DELETE_REQ);
 
-    AtomicReference<String> passResetToken = new AtomicReference<>();
+    AtomicReference<String> accDeleteToken = new AtomicReference<>();
 
     // Assert that user data is correctly updated.
     transactionTemplate.execute(status -> {
       User actualUser = userRepository.findByEmail("test@example.com").orElseThrow();
       userAssert.assertIt(actualUser, expectedUser);
 
-      passResetToken.set(actualUser.getTokens().getFirst().getToken());
+      accDeleteToken.set(actualUser.getTokens().getFirst().getToken());
       return null;
     });
 
     // Assert that the correct event was published.
-    assertThat(applicationEvents.stream(UserPasswordResetLinkEvent.class))
+    assertThat(applicationEvents.stream(UserAccountDeleteLinkEvent.class))
         .as("Event is invalid")
         .hasSize(1)
         .first()
@@ -88,30 +88,28 @@ public class UserPasswordApiTest extends BaseUserTest {
           assertThat(event.username()).isEqualTo("Jane");
           assertThat(event.email()).isEqualTo("test@example.com");
           assertThat(event.lang()).isEqualTo("en");
-          assertThat(event.passwordResetToken()).isEqualTo(passResetToken.get());
-          assertThat(event.passwordResetTokenExpires()).isEqualTo(30L);
+          assertThat(event.accountDeleteToken()).isEqualTo(accDeleteToken.get());
+          assertThat(event.accountDeleteTokenExpires()).isEqualTo(30L);
         });
   }
 
   @Test
-  public void actuallyResetPassword() throws Exception {
+  public void actuallyDeleteUser() throws Exception {
     clock.setFixedTime("2026-04-10T10:00:00Z");
 
-    // Arrange: Create active user in database in state indicating it requested password reset.
+    // Arrange: Create active user in database in state indicating it requested account deletion.
     User expectedUser = userFactory.genUser();
-    UserToken token = userTokenFactory.genTokenEntry(expectedUser, EnTokenType.PASSWORD, null);
-    userHistoryFactory.genHistoryEvent(expectedUser, EnHistoryWhat.PASS_RESET_REQ);
-
+    UserToken token = userTokenFactory.genTokenEntry(expectedUser, EnTokenType.DELETE, null);
+    userHistoryFactory.genHistoryEvent(expectedUser, EnHistoryWhat.DELETE_REQ);
     userRepository.save(expectedUser);
-    String oldPassword = expectedUser.getPassword();
 
     clock.setFixedTime("2026-04-10T10:05:00Z");
 
     // Arrange: Create password reset request.
-    UserPassResetReq req = new UserPassResetReq(token.getToken(), "N3vP@ssw0rd");
+    UserDeleteConfirmReq req = new UserDeleteConfirmReq(token.getToken());
 
     // Act: Request password reset.
-    MvcResult mvcResult = mockMvc.perform(post("/api/users/password/reset")
+    MvcResult mvcResult = mockMvc.perform(post("/api/users/delete/confirm")
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(req)))
         .andReturn();
@@ -119,22 +117,14 @@ public class UserPasswordApiTest extends BaseUserTest {
     // Assert API Response.
     assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.OK.value());
 
-    // Prepare expected result.
-    expectedUser.setModifiedAt(clockService.getNowUTC());
-    expectedUser.getTokens().clear(); // password reset token should be gone
-    userHistoryFactory.genHistoryEvent(expectedUser, EnHistoryWhat.PASS_RESET);
-
-    // Assert that user data is correctly updated.
+    // Assert that user is gone.
     transactionTemplate.execute(status -> {
-      User actualUser = userRepository.findByEmail("test@example.com").orElseThrow();
-      userAssert.assertIt(actualUser, expectedUser);
-      // ensure password hash changed
-      assertThat(actualUser.getPassword()).as("User password must different").isNotEqualTo(oldPassword);
+      assertThat(userRepository.findByEmail("test@example.com").isPresent()).as("User should be deleted").isFalse();
       return null;
     });
 
     // Assert that the correct event was published.
-    assertThat(applicationEvents.stream(UserPasswordResetConfirmEvent.class))
+    assertThat(applicationEvents.stream(UserAccountDeleteConfirmEvent.class))
         .as("Event is invalid")
         .hasSize(1)
         .first()
@@ -151,18 +141,18 @@ public class UserPasswordApiTest extends BaseUserTest {
 
   @Test
   @Transactional
-  public void errPassResetForPendingUser() throws Exception {
+  public void errAccDeleteForPendingUser() throws Exception {
     clock.setFixedTime("2026-04-08T10:00:00Z");
 
     // Arrange: create pending user.
     User expectedUser = userFactory.genUserPending(null);
     userRepository.save(expectedUser);
 
-    // Arrange: create password reset request.
-    UserPassLinkReq req = new UserPassLinkReq(expectedUser.getEmail());
+    // Arrange: create account deletion request.
+    UserDeleteLinkReq req = new UserDeleteLinkReq(expectedUser.getEmail());
 
-    // Act: Try to send password reset email.
-    MvcResult mvcResult = mockMvc.perform(post("/api/users/password/send")
+    // Act: Try to send account deletion email.
+    MvcResult mvcResult = mockMvc.perform(post("/api/users/delete/send")
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(req)))
         .andReturn();
@@ -174,7 +164,7 @@ public class UserPasswordApiTest extends BaseUserTest {
         HttpStatus.CONFLICT.value(),
         "User must be active.",
         "User with email '"+expectedUser.getEmail()+"' must be active.",
-        "/api/users/password/send",
+        "/api/users/delete/send",
         "https://api.userland.org/errors/user/mustBeActive",
         Map.of()
     );
@@ -183,7 +173,7 @@ public class UserPasswordApiTest extends BaseUserTest {
 
   @Test
   @Transactional
-  public void errPassResetForLockedUser() throws Exception {
+  public void errAccDeleteForLockedUser() throws Exception {
     clock.setFixedTime("2026-04-08T10:00:00Z");
 
     // Arrange: create locked user.
@@ -191,11 +181,11 @@ public class UserPasswordApiTest extends BaseUserTest {
     expectedUser.setLocked(true);
     userRepository.save(expectedUser);
 
-    // Arrange: create password reset request.
-    UserPassLinkReq req = new UserPassLinkReq(expectedUser.getEmail());
+    // Arrange: create account deletion request.
+    UserDeleteLinkReq req = new UserDeleteLinkReq(expectedUser.getEmail());
 
-    // Act: Try to send password reset email.
-    MvcResult mvcResult = mockMvc.perform(post("/api/users/password/send")
+    // Act: Try to send account deletion email.
+    MvcResult mvcResult = mockMvc.perform(post("/api/users/delete/send")
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(req)))
         .andReturn();
@@ -207,7 +197,7 @@ public class UserPasswordApiTest extends BaseUserTest {
         HttpStatus.CONFLICT.value(),
         "User cannot be locked.",
         "User with email '"+expectedUser.getEmail()+"' cannot be locked.",
-        "/api/users/password/send",
+        "/api/users/delete/send",
         "https://api.userland.org/errors/user/cannotBeLocked",
         Map.of()
     );
@@ -218,20 +208,20 @@ public class UserPasswordApiTest extends BaseUserTest {
 
   @Test
   @Transactional
-  public void errPassResetWithMissingToken() throws Exception {
+  public void errAccDeleteWithMissingToken() throws Exception {
     clock.setFixedTime("2026-04-08T10:00:00Z");
 
     // Arrange: create user that requested password reset.
     User expectedUser = userFactory.genUser();
-    UserToken token = userTokenFactory.genTokenEntry(expectedUser, EnTokenType.PASSWORD, null);
-    userHistoryFactory.genHistoryEvent(expectedUser, EnHistoryWhat.PASS_RESET_REQ);
+    UserToken token = userTokenFactory.genTokenEntry(expectedUser, EnTokenType.DELETE, null);
+    userHistoryFactory.genHistoryEvent(expectedUser, EnHistoryWhat.DELETE_REQ);
     userRepository.save(expectedUser);
 
-    // Arrange: password reset request with deliberately invalid token.
-    UserPassResetReq req = new UserPassResetReq(token.getToken()+"N", "abcABC123!");
+    // Arrange: account deletion request with deliberately invalid token.
+    UserDeleteConfirmReq req = new UserDeleteConfirmReq(token.getToken()+"N");
 
-    // Act: Try to set new password.
-    MvcResult mvcResult = mockMvc.perform(post("/api/users/password/reset")
+    // Act: Try to delete user.
+    MvcResult mvcResult = mockMvc.perform(post("/api/users/delete/confirm")
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(req)))
         .andReturn();
@@ -243,7 +233,7 @@ public class UserPasswordApiTest extends BaseUserTest {
         HttpStatus.NOT_FOUND.value(),
         "User token is missing.",
         "Token '"+token.getToken()+"N' does not exist.",
-        "/api/users/password/reset",
+        "/api/users/delete/confirm",
         "https://api.userland.org/errors/user/token/missing",
         Map.of()
     );

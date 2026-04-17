@@ -4,10 +4,7 @@ import com.google.common.collect.Maps;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.portfolio.userland.common.services.email.data.EmailReq;
-import org.portfolio.userland.features.user.events.UserActivatedEvent;
-import org.portfolio.userland.features.user.events.UserPasswordResetConfirmEvent;
-import org.portfolio.userland.features.user.events.UserPasswordResetSendEvent;
-import org.portfolio.userland.features.user.events.UserRegisteredEvent;
+import org.portfolio.userland.features.user.events.*;
 import org.portfolio.userland.features.user.services.UserEmailService;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -117,7 +114,7 @@ public class UserEmailTest extends BaseUserTest {
   @Test
   public void sendPasswordResetLink() {
     // Arrange: event data.
-    UserPasswordResetSendEvent event = new UserPasswordResetSendEvent(
+    UserPasswordResetLinkEvent event = new UserPasswordResetLinkEvent(
         1L,
         "Jane",
         "test@example.com",
@@ -148,7 +145,7 @@ public class UserEmailTest extends BaseUserTest {
           List.of(),
           "pawel.papierkowski.portfolio@gmail.com",
           "UserLand: password reset",
-          "user/passwordReset",
+          "user/password/link",
           params,
           null
       );
@@ -188,7 +185,93 @@ public class UserEmailTest extends BaseUserTest {
           List.of(),
           "pawel.papierkowski.portfolio@gmail.com",
           "UserLand: password changed",
-          "user/passwordConfirm",
+          "user/password/confirm",
+          params,
+          null
+      );
+
+      EmailReq actualEmailReq = captor.getValue();
+      assertThat(actualEmailReq).isEqualTo(expectedEmailReq);
+    });
+  }
+
+  //
+
+  @Test
+  public void sendAccountDeleteLink() {
+    // Arrange: event data.
+    UserAccountDeleteLinkEvent event = new UserAccountDeleteLinkEvent(
+        1L,
+        "Jane",
+        "test@example.com",
+        "en",
+        "nDVAZXAEt1VvrYrazvxmU8yruiur9cJg",
+        30
+    );
+
+    // Act: send registration email.
+    userEmailService.sendAccountDeleteLink(event);
+
+    // Assert that email (link to account deletion page) was sent.
+    await().atMost(Duration.ofSeconds(3)).untilAsserted(() -> {
+      ArgumentCaptor<EmailReq> captor = ArgumentCaptor.forClass(EmailReq.class);
+      verify(emailService, times(1)).sendEmail(captor.capture());
+
+      // Assert that correct email request was sent.
+      Map<String, Object> params = Maps.newHashMap();
+      params.put("username", "Jane");
+      params.put("accountDeleteLink", "https://pawel-papierkowski.github.io/frontend-userland-vue/accountDelete?token=nDVAZXAEt1VvrYrazvxmU8yruiur9cJg");
+      params.put("accountDeleteTokenExpires", 30L);
+      EmailReq expectedEmailReq = new EmailReq(
+          null,
+          "en",
+          "pawel.papierkowski.portfolio@gmail.com",
+          List.of("test@example.com"),
+          List.of(),
+          List.of(),
+          "pawel.papierkowski.portfolio@gmail.com",
+          "UserLand: account deletion",
+          "user/delete/link",
+          params,
+          null
+      );
+
+      EmailReq actualEmailReq = captor.getValue();
+      assertThat(actualEmailReq).isEqualTo(expectedEmailReq);
+    });
+  }
+
+  @Test
+  public void sendAccountDeleteConfirmation() {
+    // Arrange: event data.
+    UserAccountDeleteConfirmEvent event = new UserAccountDeleteConfirmEvent(
+        1L,
+        "Jane",
+        "test@example.com",
+        "en"
+    );
+
+    // Act: send registration email.
+    userEmailService.sendAccountDeleteConfirmation(event);
+
+    // Assert that email (account deletion confirmation) was sent.
+    await().atMost(Duration.ofSeconds(3)).untilAsserted(() -> {
+      ArgumentCaptor<EmailReq> captor = ArgumentCaptor.forClass(EmailReq.class);
+      verify(emailService, times(1)).sendEmail(captor.capture());
+
+      // Assert that correct email request was sent.
+      Map<String, Object> params = Maps.newHashMap();
+      params.put("username", "Jane");
+      EmailReq expectedEmailReq = new EmailReq(
+          null,
+          "en",
+          "pawel.papierkowski.portfolio@gmail.com",
+          List.of("test@example.com"),
+          List.of(),
+          List.of(),
+          "pawel.papierkowski.portfolio@gmail.com",
+          "UserLand: account deleted",
+          "user/delete/confirm",
           params,
           null
       );

@@ -8,6 +8,6 @@ public enum EnTokenType {
   ACTIVATE,
   /** Token for password reset. */
   PASSWORD,
-  /** Token for user removal. */
-  REMOVAL
+  /** Token for user deletion. */
+  DELETE
 }

@@ -12,6 +12,8 @@ public enum EnHistoryWhat {
   PASS_RESET_REQ,
   /** Password reset was done. */
   PASS_RESET,
+  /** Account deletion was requested. */
+  DELETE_REQ,
   /** User logged in. */
   LOGIN,
   /** User logged out. */

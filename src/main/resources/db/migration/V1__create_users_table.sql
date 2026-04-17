@@ -48,7 +48,7 @@ CREATE TABLE iam.tokens (
     expires_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     -- Token type.
-    type VARCHAR(50) NOT NULL CHECK (type IN ('ACTIVATE', 'PASSWORD', 'REMOVAL')),
+    type VARCHAR(50) NOT NULL CHECK (type IN ('ACTIVATE', 'PASSWORD', 'DELETE')),
     -- Token value itself. Business key.
     token VARCHAR(128) NOT NULL UNIQUE,
 
@@ -71,7 +71,7 @@ CREATE TABLE iam.history (
     -- Who caused user history event?
     who VARCHAR(50) NOT NULL CHECK (who IN ('USER', 'OPERATOR', 'SYSTEM')),
     -- What caused user history event?
-    what VARCHAR(50) NOT NULL CHECK (what IN ('CREATED', 'ACTIVATED', 'PASS_RESET_REQ', 'PASS_RESET', 'LOGIN', 'LOGOUT')),
+    what VARCHAR(50) NOT NULL CHECK (what IN ('CREATED', 'ACTIVATED', 'PASS_RESET_REQ', 'PASS_RESET', 'DELETE_REQ', 'LOGIN', 'LOGOUT')),
 
     -- Table-level constraint for Foreign Key
     CONSTRAINT fk_user FOREIGN KEY (id_user) REFERENCES iam.users(id) ON DELETE CASCADE
