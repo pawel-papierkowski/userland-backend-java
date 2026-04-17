@@ -19,9 +19,9 @@ public class UserHelperService {
   /** How long before password reset token expires in minutes. */
   @Value("${app.user.token.passwordReset.expires}")
   private long passwordResetTokenExpires;
-  /** How long before account removal token expires in minutes. */
-  @Value("${app.user.token.removal.expires}")
-  private long removalTokenExpires;
+  /** How long before account deletion token expires in minutes. */
+  @Value("${app.user.token.deletion.expires}")
+  private long deletionTokenExpires;
 
   /**
    * Finds out when given token type expires.
@@ -33,7 +33,7 @@ public class UserHelperService {
     return switch (type) {
       case ACTIVATE -> nowAt.plusHours(activationTokenExpires);
       case PASSWORD -> nowAt.plusMinutes(passwordResetTokenExpires);
-      case REMOVAL -> nowAt.plusMinutes(removalTokenExpires);
+      case DELETE -> nowAt.plusMinutes(deletionTokenExpires);
     };
   }
 }

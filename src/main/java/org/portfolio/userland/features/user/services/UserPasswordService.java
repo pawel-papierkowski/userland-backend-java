@@ -2,10 +2,10 @@ package org.portfolio.userland.features.user.services;
 
 import lombok.RequiredArgsConstructor;
 import org.portfolio.userland.features.user.data.*;
+import org.portfolio.userland.features.user.dto.password.UserPassLinkReq;
 import org.portfolio.userland.features.user.dto.password.UserPassResetReq;
-import org.portfolio.userland.features.user.dto.password.UserPassSendReq;
 import org.portfolio.userland.features.user.events.UserPasswordResetConfirmEvent;
-import org.portfolio.userland.features.user.events.UserPasswordResetSendEvent;
+import org.portfolio.userland.features.user.events.UserPasswordResetLinkEvent;
 import org.portfolio.userland.features.user.exception.UserCannotBeLockedException;
 import org.portfolio.userland.features.user.exception.UserDoesNotExistException;
 import org.portfolio.userland.features.user.exception.UserMustBeActiveException;
@@ -23,11 +23,10 @@ import java.time.LocalDateTime;
  *   <li>User on frontend clicks "I forgot password" option and is redirected to password reset form.</li>
  *   <li>User fills form (email) and clicks on button. Frontend calls <code>/api/users/password/send</code> endpoint.</li>
  *   <li>System creates password reset token and sends password reset email with link to frontend.</li>
- *   <li>User clicks on link, get redirected to separate page where they can enter new password.</li>
+ *   <li>User clicks on link and gets redirected to separate page where they can enter new password.</li>
  *   <li>User clicks on reset password button. Frontend calls <code>/api/users/password/reset</code>.</li>
- *   <li>Backend verifies call and in case of success changes password to new.</li>
+ *   <li>Backend verifies call and in case of success changes password to new one and sends email confirming successful password reset.</li>
  *   <li>Frontend reacts appropriately to response from password reset endpoint (show success or failure message).</li>
- *   <li>Backend sends email confirming successful password reset.</li>
  * </ul>
  */
 @Service
@@ -42,11 +41,11 @@ public class UserPasswordService extends BaseUserService {
   /**
    * Creates password reset token and (indirectly, via event) sends email with password reset link to user with given
    * email.
-   * @param userPassSendReq User password reset send request.
+   * @param userPassLinkReq User password reset link request.
    */
   @Transactional
-  public void send(UserPassSendReq userPassSendReq) {
-    User user = resolveUser(userPassSendReq);
+  public void send(UserPassLinkReq userPassLinkReq) {
+    User user = resolveUser(userPassLinkReq);
 
     LocalDateTime nowAt = clockService.getNowUTC();
     UserToken token = createTokenData(nowAt, EnTokenType.PASSWORD);
@@ -54,30 +53,30 @@ public class UserPasswordService extends BaseUserService {
     user.addHistory(createHistoryEvent(nowAt, EnHistoryWhat.PASS_RESET_REQ));
     user = userRepository.save(user);
 
-    triggerPassSendEvent(user, token);
+    triggerPassLinkEvent(user, token);
   }
 
   /**
    * Resolves and verifies user state.
-   * @param userPassSendReq User password reset send request.
+   * @param userPassLinkReq User password reset link request.
    * @return User.
    */
-  private User resolveUser(UserPassSendReq userPassSendReq) {
-    User user = userRepository.findByEmail(userPassSendReq.email())
-        .orElseThrow(() -> new UserDoesNotExistException(userPassSendReq.email()));
+  private User resolveUser(UserPassLinkReq userPassLinkReq) {
+    User user = userRepository.findByEmail(userPassLinkReq.email())
+        .orElseThrow(() -> new UserDoesNotExistException(userPassLinkReq.email()));
     if (EnUserStatus.PENDING.equals(user.getStatus()))
-      throw new UserMustBeActiveException(userPassSendReq.email());
+      throw new UserMustBeActiveException(userPassLinkReq.email());
     if (user.getLocked())
-      throw new UserCannotBeLockedException(userPassSendReq.email());
+      throw new UserCannotBeLockedException(userPassLinkReq.email());
     return user;
   }
 
   /**
-   * Triggers password send event for anyone interested.
+   * Triggers password reset link event for anyone interested.
    * @param user User data.
    */
-  private void triggerPassSendEvent(User user, UserToken token) {
-    UserPasswordResetSendEvent userPasswordResetSendEvent = new UserPasswordResetSendEvent(
+  private void triggerPassLinkEvent(User user, UserToken token) {
+    UserPasswordResetLinkEvent userPasswordResetLinkEvent = new UserPasswordResetLinkEvent(
         user.getId(),
         user.getUsername(),
         user.getEmail(),
@@ -86,7 +85,7 @@ public class UserPasswordService extends BaseUserService {
         passwordResetTokenExpires
     );
     // Will trigger UserEmailService.sendPasswordResetLink().
-    eventPublisher.publishEvent(userPasswordResetSendEvent);
+    eventPublisher.publishEvent(userPasswordResetLinkEvent);
   }
 
   // //////////////////////////////////////////////////////////////////////////
@@ -111,7 +110,7 @@ public class UserPasswordService extends BaseUserService {
   }
 
   /**
-   * Triggers password send event for anyone interested.
+   * Triggers password reset confirmation event for anyone interested.
    * @param user User data.
    */
   private void triggerPassConfirmEvent(User user) {

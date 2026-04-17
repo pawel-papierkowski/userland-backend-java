@@ -5,10 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.portfolio.userland.common.services.email.EmailService;
 import org.portfolio.userland.common.services.email.data.EmailReq;
 import org.portfolio.userland.common.services.lang.LangService;
-import org.portfolio.userland.features.user.events.UserActivatedEvent;
-import org.portfolio.userland.features.user.events.UserPasswordResetConfirmEvent;
-import org.portfolio.userland.features.user.events.UserPasswordResetSendEvent;
-import org.portfolio.userland.features.user.events.UserRegisteredEvent;
+import org.portfolio.userland.features.user.events.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -31,8 +28,10 @@ import java.util.Map;
 public class UserEmailService {
   private final static String TEMPLATE_USER_REGISTRATION = "user/registration";
   private final static String TEMPLATE_USER_ACTIVATION = "user/activation";
-  private final static String TEMPLATE_USER_PASSWORD_RESET = "user/passwordReset";
-  private final static String TEMPLATE_USER_PASSWORD_CONFIRM = "user/passwordConfirm";
+  private final static String TEMPLATE_USER_PASSWORD_LINK = "user/password/link";
+  private final static String TEMPLATE_USER_PASSWORD_CONFIRM = "user/password/confirm";
+  private final static String TEMPLATE_USER_DELETE_LINK = "user/delete/link";
+  private final static String TEMPLATE_USER_DELETE_CONFIRM = "user/delete/confirm";
 
   private final EmailService emailService;
   private final LangService langService;
@@ -97,7 +96,7 @@ public class UserEmailService {
     return frontendWww + "/activate?token="+activationToken;
   }
 
-  // //////////////////////////////////////////////////////////////////////////
+  //
 
   /**
    * React on user activation event. Will send email confirming successful activation of user account.
@@ -139,12 +138,12 @@ public class UserEmailService {
   // //////////////////////////////////////////////////////////////////////////
 
   /**
-   * React on password reset send event. Will send email with link that leads to page where you can change password.
-   * @param event Password reset send event data.
+   * React on password reset link event. Will send email with link that leads to page where you can change password.
+   * @param event Password reset link event data.
    */
   @Async("emailTaskExecutor")
   @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-  public void sendPasswordResetLink(UserPasswordResetSendEvent event) {
+  public void sendPasswordResetLink(UserPasswordResetLinkEvent event) {
     EmailReq emailReq = resolveEmailReq(event);
     emailService.sendEmail(emailReq);
   }
@@ -154,8 +153,8 @@ public class UserEmailService {
    * @param event Event.
    * @return Email request.
    */
-  private EmailReq resolveEmailReq(UserPasswordResetSendEvent event) {
-    String subject = langService.t(event.lang(), "email.user.password.reset.subject");
+  private EmailReq resolveEmailReq(UserPasswordResetLinkEvent event) {
+    String subject = langService.t(event.lang(), "email.user.password.link.subject");
 
     // Prepare params required by user activation template.
     Map<String, Object> params = Maps.newHashMap();
@@ -172,7 +171,7 @@ public class UserEmailService {
         List.of(),
         emailSender,
         subject,
-        TEMPLATE_USER_PASSWORD_RESET,
+        TEMPLATE_USER_PASSWORD_LINK,
         params,
         null);
   }
@@ -187,7 +186,7 @@ public class UserEmailService {
     return frontendWww + "/passwordReset?token="+passwordResetToken;
   }
 
-  // //////////////////////////////////////////////////////////////////////////
+  //
 
   /**
    * React on password reset confirmation event. Will send email with link that leads to page where you can change password.
@@ -222,6 +221,96 @@ public class UserEmailService {
         emailSender,
         subject,
         TEMPLATE_USER_PASSWORD_CONFIRM,
+        params,
+        null);
+  }
+
+  // //////////////////////////////////////////////////////////////////////////
+
+  /**
+   * React on account delete link event. Will send email with link that leads to page where you can delete your account.
+   * @param event Account delete link event data.
+   */
+  @Async("emailTaskExecutor")
+  @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+  public void sendAccountDeleteLink(UserAccountDeleteLinkEvent event) {
+    EmailReq emailReq = resolveEmailReq(event);
+    emailService.sendEmail(emailReq);
+  }
+
+  /**
+   * Prepare email request for sending account delete link.
+   * @param event Event.
+   * @return Email request.
+   */
+  private EmailReq resolveEmailReq(UserAccountDeleteLinkEvent event) {
+    String subject = langService.t(event.lang(), "email.user.delete.link.subject");
+
+    // Prepare params required by user activation template.
+    Map<String, Object> params = Maps.newHashMap();
+    params.put("username", event.username());
+    params.put("accountDeleteLink", resolveAccountDeleteLink(event.accountDeleteToken()));
+    params.put("accountDeleteTokenExpires", event.accountDeleteTokenExpires());
+
+    return new EmailReq(
+        null, // use default provider
+        event.lang(),
+        emailSender,
+        List.of(event.email()), // where email will be sent
+        List.of(),
+        List.of(),
+        emailSender,
+        subject,
+        TEMPLATE_USER_DELETE_LINK,
+        params,
+        null);
+  }
+
+  /**
+   * Resolve full account delete link. Note it is for frontend, not backend.
+   * @param accountDeleteToken Account delete token.
+   * @return Account delete link.
+   */
+  private String resolveAccountDeleteLink(String accountDeleteToken) {
+    // Note it is link to frontend - actual backend account delete endpoint will be called by frontend.
+    return frontendWww + "/accountDelete?token="+accountDeleteToken;
+  }
+
+  //
+
+  /**
+   * React on account delete confirmation event. Will send email with account delete confirmation.
+   * @param event Account delete link event data.
+   */
+  @Async("emailTaskExecutor")
+  @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+  public void sendAccountDeleteConfirmation(UserAccountDeleteConfirmEvent event) {
+    EmailReq emailReq = resolveEmailReq(event);
+    emailService.sendEmail(emailReq);
+  }
+
+  /**
+   * Prepare email request for account delete.
+   * @param event Event.
+   * @return Email request.
+   */
+  private EmailReq resolveEmailReq(UserAccountDeleteConfirmEvent event) {
+    String subject = langService.t(event.lang(), "email.user.delete.confirm.subject");
+
+    // Prepare params required by user activation template.
+    Map<String, Object> params = Maps.newHashMap();
+    params.put("username", event.username());
+
+    return new EmailReq(
+        null, // use default provider
+        event.lang(),
+        emailSender,
+        List.of(event.email()), // where email will be sent
+        List.of(),
+        List.of(),
+        emailSender,
+        subject,
+        TEMPLATE_USER_DELETE_CONFIRM,
         params,
         null);
   }

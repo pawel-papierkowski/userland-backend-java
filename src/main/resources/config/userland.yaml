@@ -12,5 +12,5 @@ app:
         expires: 24 # in hours
       passwordReset: # password reset
         expires: 30 # in minutes
-      removal: # account deletion
+      deletion: # account deletion
         expires: 30 # in minutes

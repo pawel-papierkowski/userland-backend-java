@@ -9,7 +9,7 @@ package org.portfolio.userland.features.user.events;
  * @param passwordResetToken Token string.
  * @param passwordResetTokenExpires How long before password reset token expires in minutes.
  */
-public record UserPasswordResetSendEvent(
+public record UserPasswordResetLinkEvent(
     Long id,
     String username,
     String email,

@@ -3,6 +3,7 @@ package org.portfolio.userland.features.user;
 import org.junit.jupiter.api.Test;
 import org.portfolio.userland.features.user.dto.password.UserPassResetReq;
 import org.portfolio.userland.features.user.dto.register.UserRegisterReq;
+import org.portfolio.userland.features.user.services.UserDeleteService;
 import org.portfolio.userland.features.user.services.UserPasswordService;
 import org.portfolio.userland.features.user.services.UserRegisterService;
 import org.portfolio.userland.test.base.BaseWebTest;
@@ -26,6 +27,8 @@ public class UserWebTest extends BaseWebTest {
   private UserRegisterService userRegisterService;
   @MockitoBean
   private UserPasswordService userPasswordService;
+  @MockitoBean
+  private UserDeleteService userDeleteService;
 
   @Test
   public void registrationWhenInvalidEmail() throws Exception {

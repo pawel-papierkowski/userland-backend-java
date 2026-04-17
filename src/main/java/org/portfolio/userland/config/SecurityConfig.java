@@ -93,6 +93,7 @@ public class SecurityConfig {
             "/api/users/register", // user registration
             "/api/users/activate", // activate user account
             "/api/users/password/*", // reset password
+            "/api/users/delete/*", // delete account
             "/api/users/login") // login user
         .authorizeHttpRequests(requests -> requests.anyRequest().permitAll());
     return http.build();
