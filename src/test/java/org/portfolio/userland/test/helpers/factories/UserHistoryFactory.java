@@ -3,10 +3,10 @@ package org.portfolio.userland.test.helpers.factories;
 import lombok.RequiredArgsConstructor;
 import org.portfolio.userland.common.services.clock.ClockService;
 import org.portfolio.userland.common.services.security.SecurityGeneratorService;
-import org.portfolio.userland.features.user.data.EnHistoryWhat;
-import org.portfolio.userland.features.user.data.EnHistoryWho;
-import org.portfolio.userland.features.user.data.User;
-import org.portfolio.userland.features.user.data.UserHistory;
+import org.portfolio.userland.features.user.entity.EnHistoryWhat;
+import org.portfolio.userland.features.user.entity.EnHistoryWho;
+import org.portfolio.userland.features.user.entity.User;
+import org.portfolio.userland.features.user.entity.UserHistory;
 import org.springframework.stereotype.Service;
 
 /**
@@ -21,6 +21,7 @@ public class UserHistoryFactory {
   /**
    * Generate user history event and assign it to user.
    * @param user User.
+   * @param what What happened?
    * @return User history event.
    */
   public UserHistory genHistoryEvent(User user, EnHistoryWhat what) {

@@ -1,10 +1,8 @@
 package org.portfolio.userland.common.exception;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.MessageSourceResolvable;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatusCode;
-import org.springframework.http.ProblemDetail;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.method.ParameterValidationResult;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -23,6 +21,7 @@ import java.util.Map;
  * Specifically handles validation errors.
  */
 @RestControllerAdvice
+@Slf4j
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
   /**
    * Handle general exceptions specific for this application.
@@ -39,6 +38,26 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     problemDetail.setType(URI.create(ex.getType()));
     return problemDetail;
   }
+
+  /**
+   * Catch all uncaught exceptions to process it properly.
+   * @param ex Exception.
+   * @return Problem detail.
+   */
+  @ExceptionHandler(Exception.class)
+  public ProblemDetail handleAllUncaughtExceptions(Exception ex) {
+    // Log the actual exception so we can see the PSQLException in console.
+    log.error("Unknown internal server error occurred:", ex);
+
+    // Return a generic 500 error to the frontend to prevent leaking database details
+    ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.INTERNAL_SERVER_ERROR);
+    problemDetail.setTitle("Internal Server Error");
+    problemDetail.setDetail("An unexpected error occurred while processing your request.");
+    problemDetail.setType(URI.create("https://api.general.org/errors/internal"));
+    return problemDetail;
+  }
+
+  //
 
   /**
    * Handle @Valid validation failures - shows errors for all fields that failed verification.

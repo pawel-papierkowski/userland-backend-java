@@ -6,6 +6,8 @@ import org.springframework.stereotype.Service;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.Date;
 
 /**
  * Wraps Clock and provides various useful utility functions.
@@ -30,5 +32,16 @@ public class ClockService {
    */
   public LocalDateTime getNowUTC() {
     return LocalDateTime.now(clock);
+  }
+
+  //
+
+  /**
+   * Convert LocalDateTime to Date.
+   * @param dateAt LocalDateTime.
+   * @return Date
+   */
+  public Date convert(LocalDateTime dateAt) {
+    return Date.from(dateAt.atZone(ZoneId.systemDefault()).toInstant());
   }
 }

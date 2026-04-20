@@ -2,9 +2,9 @@ package org.portfolio.userland.features.user;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
-import org.portfolio.userland.features.user.data.EnUserStatus;
-import org.portfolio.userland.features.user.data.User;
-import org.portfolio.userland.features.user.data.UserToken;
+import org.portfolio.userland.features.user.entity.EnUserStatus;
+import org.portfolio.userland.features.user.entity.User;
+import org.portfolio.userland.features.user.entity.UserToken;
 import org.portfolio.userland.features.user.repositories.UserRepository;
 import org.portfolio.userland.features.user.repositories.UserTokenRepository;
 import org.portfolio.userland.features.user.scheduler.UserScheduler;
@@ -58,7 +58,7 @@ public class UserSchedulerTest extends BaseIntegrationTest {
 
     // Act: manually call scheduler method for cleaning up old pending users.
     clock.setFixedTime("2026-04-12T12:30:00Z");
-    userScheduler.cleanPendingUsers();
+    userScheduler.cleanExpiredUsers();
 
     // Assert: only some users should exist, rest is deleted.
     assertThat(userRepository.count()).as("Count of all users is wrong").isEqualTo(3);

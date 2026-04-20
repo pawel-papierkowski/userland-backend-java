@@ -33,6 +33,7 @@ public class UserEmailTest extends BaseUserTest {
         "Jan Kowalski",
         "jan.kowalski@google.com",
         "pl",
+        null,
         "nDVAZXAEt1VvrYrazvxmU8yruiur9cJg",
         24L
     );
@@ -76,7 +77,8 @@ public class UserEmailTest extends BaseUserTest {
         1L,
         "Jan Kowalski",
         "jan.kowalski@google.com",
-        "pl"
+        "pl",
+        null
     );
 
     // Act: send registration email.
@@ -90,6 +92,7 @@ public class UserEmailTest extends BaseUserTest {
       // Assert that correct email request was sent.
       Map<String, Object> params = Maps.newHashMap();
       params.put("username", "Jan Kowalski");
+      params.put("loginLink", "https://pawel-papierkowski.github.io/frontend-userland-vue/login");
       EmailReq expectedEmailReq = new EmailReq(
           null,
           "pl",
@@ -119,6 +122,7 @@ public class UserEmailTest extends BaseUserTest {
         "Jane",
         "test@example.com",
         "en",
+        null,
         "nDVAZXAEt1VvrYrazvxmU8yruiur9cJg",
         30
     );
@@ -205,6 +209,7 @@ public class UserEmailTest extends BaseUserTest {
         "Jane",
         "test@example.com",
         "en",
+        null,
         "nDVAZXAEt1VvrYrazvxmU8yruiur9cJg",
         30
     );

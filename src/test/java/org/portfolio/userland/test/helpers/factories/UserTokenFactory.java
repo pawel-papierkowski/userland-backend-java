@@ -3,16 +3,16 @@ package org.portfolio.userland.test.helpers.factories;
 import lombok.RequiredArgsConstructor;
 import org.portfolio.userland.common.services.clock.ClockService;
 import org.portfolio.userland.common.services.security.SecurityGeneratorService;
-import org.portfolio.userland.features.user.data.EnTokenType;
-import org.portfolio.userland.features.user.data.User;
-import org.portfolio.userland.features.user.data.UserToken;
+import org.portfolio.userland.features.user.entity.EnTokenType;
+import org.portfolio.userland.features.user.entity.User;
+import org.portfolio.userland.features.user.entity.UserToken;
 import org.portfolio.userland.features.user.services.UserHelperService;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 
 /**
- * Generates user history event for tests.
+ * Generates user token entry for tests.
  */
 @Service
 @RequiredArgsConstructor
@@ -24,6 +24,8 @@ public class UserTokenFactory {
   /**
    * Generate user token entry and assign it to user.
    * @param user User.
+   * @param type Token type.
+   * @param tokenStr Token string.
    * @return User token entry.
    */
   public UserToken genTokenEntry(User user, EnTokenType type, String tokenStr) {

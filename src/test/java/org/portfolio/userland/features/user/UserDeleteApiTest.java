@@ -2,12 +2,12 @@ package org.portfolio.userland.features.user;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
-import org.portfolio.userland.features.user.data.EnHistoryWhat;
-import org.portfolio.userland.features.user.data.EnTokenType;
-import org.portfolio.userland.features.user.data.User;
-import org.portfolio.userland.features.user.data.UserToken;
 import org.portfolio.userland.features.user.dto.delete.UserDeleteConfirmReq;
 import org.portfolio.userland.features.user.dto.delete.UserDeleteLinkReq;
+import org.portfolio.userland.features.user.entity.EnHistoryWhat;
+import org.portfolio.userland.features.user.entity.EnTokenType;
+import org.portfolio.userland.features.user.entity.User;
+import org.portfolio.userland.features.user.entity.UserToken;
 import org.portfolio.userland.features.user.events.UserAccountDeleteConfirmEvent;
 import org.portfolio.userland.features.user.events.UserAccountDeleteLinkEvent;
 import org.portfolio.userland.test.helpers.problemDetail.ProblemDetailBox;
@@ -44,18 +44,19 @@ public class UserDeleteApiTest extends BaseUserTest {
   @Test
   public void sendAccountDeletionEmail() throws Exception {
     clock.setFixedTime("2026-04-10T10:00:00Z");
+    User expectedUser = userFactory.genUser();
 
     // Arrange: Create active user in database.
-    User expectedUser = userFactory.genUser();
-    userRepository.save(expectedUser);
+    User newUser = userFactory.genUser();
+    userRepository.save(newUser);
 
     clock.setFixedTime("2026-04-11T11:30:00Z");
 
     // Arrange: Create account deletion link request.
-    UserDeleteLinkReq req = new UserDeleteLinkReq(expectedUser.getEmail());
+    UserDeleteLinkReq req = new UserDeleteLinkReq(newUser.getEmail(), null);
 
     // Act: Request password reset link.
-    MvcResult mvcResult = mockMvc.perform(post("/api/users/delete/send")
+    MvcResult mvcResult = mockMvc.perform(post("/api/users/delete/link")
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(req)))
         .andReturn();
@@ -88,6 +89,63 @@ public class UserDeleteApiTest extends BaseUserTest {
           assertThat(event.username()).isEqualTo("Jane");
           assertThat(event.email()).isEqualTo("test@example.com");
           assertThat(event.lang()).isEqualTo("en");
+          assertThat(event.frontend()).isNull();
+          assertThat(event.accountDeleteToken()).isEqualTo(accDeleteToken.get());
+          assertThat(event.accountDeleteTokenExpires()).isEqualTo(30L);
+        });
+  }
+
+  @Test
+  public void sendAccountDeletionEmailWhenExpiredToken() throws Exception {
+    clock.setFixedTime("2026-04-10T10:00:00Z");
+    User expectedUser = userFactory.genUser();
+
+    // Arrange: Create active user in database with account deletion token already present...
+    User newUser = userFactory.genUser();
+    userTokenFactory.genTokenEntry(newUser, EnTokenType.DELETE, null);
+    userRepository.save(newUser);
+
+    // ...but this token is already expired!
+    clock.setFixedTime("2026-04-11T11:30:00Z");
+
+    // Arrange: Create account deletion link request.
+    UserDeleteLinkReq req = new UserDeleteLinkReq(newUser.getEmail(), null);
+
+    // Act: Request password reset link.
+    MvcResult mvcResult = mockMvc.perform(post("/api/users/delete/link")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(req)))
+        .andReturn();
+
+    // Assert API Response.
+    assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.OK.value());
+
+    // Prepare expected result.
+    userTokenFactory.genTokenEntry(expectedUser, EnTokenType.DELETE, null);
+    userHistoryFactory.genHistoryEvent(expectedUser, EnHistoryWhat.DELETE_REQ);
+
+    AtomicReference<String> accDeleteToken = new AtomicReference<>();
+
+    // Assert that user data is correctly updated.
+    transactionTemplate.execute(status -> {
+      User actualUser = userRepository.findByEmail("test@example.com").orElseThrow();
+      userAssert.assertIt(actualUser, expectedUser);
+
+      accDeleteToken.set(actualUser.getTokens().getFirst().getToken());
+      return null;
+    });
+
+    // Assert that the correct event was published.
+    assertThat(applicationEvents.stream(UserAccountDeleteLinkEvent.class))
+        .as("Event is invalid")
+        .hasSize(1)
+        .first()
+        .satisfies(event -> {
+          assertThat(event.id()).isGreaterThan(0L);
+          assertThat(event.username()).isEqualTo("Jane");
+          assertThat(event.email()).isEqualTo("test@example.com");
+          assertThat(event.lang()).isEqualTo("en");
+          assertThat(event.frontend()).isNull();
           assertThat(event.accountDeleteToken()).isEqualTo(accDeleteToken.get());
           assertThat(event.accountDeleteTokenExpires()).isEqualTo(30L);
         });
@@ -149,10 +207,10 @@ public class UserDeleteApiTest extends BaseUserTest {
     userRepository.save(expectedUser);
 
     // Arrange: create account deletion request.
-    UserDeleteLinkReq req = new UserDeleteLinkReq(expectedUser.getEmail());
+    UserDeleteLinkReq req = new UserDeleteLinkReq(expectedUser.getEmail(), null);
 
     // Act: Try to send account deletion email.
-    MvcResult mvcResult = mockMvc.perform(post("/api/users/delete/send")
+    MvcResult mvcResult = mockMvc.perform(post("/api/users/delete/link")
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(req)))
         .andReturn();
@@ -164,7 +222,7 @@ public class UserDeleteApiTest extends BaseUserTest {
         HttpStatus.CONFLICT.value(),
         "User must be active.",
         "User with email '"+expectedUser.getEmail()+"' must be active.",
-        "/api/users/delete/send",
+        "/api/users/delete/link",
         "https://api.userland.org/errors/user/mustBeActive",
         Map.of()
     );
@@ -182,10 +240,10 @@ public class UserDeleteApiTest extends BaseUserTest {
     userRepository.save(expectedUser);
 
     // Arrange: create account deletion request.
-    UserDeleteLinkReq req = new UserDeleteLinkReq(expectedUser.getEmail());
+    UserDeleteLinkReq req = new UserDeleteLinkReq(expectedUser.getEmail(), null);
 
     // Act: Try to send account deletion email.
-    MvcResult mvcResult = mockMvc.perform(post("/api/users/delete/send")
+    MvcResult mvcResult = mockMvc.perform(post("/api/users/delete/link")
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(req)))
         .andReturn();
@@ -197,8 +255,41 @@ public class UserDeleteApiTest extends BaseUserTest {
         HttpStatus.CONFLICT.value(),
         "User cannot be locked.",
         "User with email '"+expectedUser.getEmail()+"' cannot be locked.",
-        "/api/users/delete/send",
+        "/api/users/delete/link",
         "https://api.userland.org/errors/user/cannotBeLocked",
+        Map.of()
+    );
+    problemDetailService.assertPd(mvcResult, expectedPdb);
+  }
+
+  @Test
+  @Transactional
+  public void errAccDeleteWhenTokenExists() throws Exception {
+    clock.setFixedTime("2026-04-08T10:00:00Z");
+
+    // Arrange: create user with account deletion token already present and valid.
+    User expectedUser = userFactory.genUser();
+    userTokenFactory.genTokenEntry(expectedUser, EnTokenType.DELETE, null);
+    userRepository.save(expectedUser);
+
+    // Arrange: create account deletion request.
+    UserDeleteLinkReq req = new UserDeleteLinkReq(expectedUser.getEmail(), null);
+
+    // Act: Try to send account deletion email.
+    MvcResult mvcResult = mockMvc.perform(post("/api/users/delete/link")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(req)))
+        .andReturn();
+
+    // Assert API Response.
+    assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.CONFLICT.value());
+
+    ProblemDetailBox expectedPdb = new ProblemDetailBox(
+        HttpStatus.CONFLICT.value(),
+        "Required token already exists.",
+        "Token of type 'DELETE' already exists. You cannot do this action twice in row.",
+        "/api/users/delete/link",
+        "https://api.userland.org/errors/user/token/alreadyExists",
         Map.of()
     );
     problemDetailService.assertPd(mvcResult, expectedPdb);

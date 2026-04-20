@@ -11,7 +11,7 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class EmailConfig {
   /** Resend's API key. */
-  @Value("${app.email.providers.resend.apiKey}")
+  @Value("${app.email.providers.resend.api-key}")
   private String resendApiKey;
 
   @Bean

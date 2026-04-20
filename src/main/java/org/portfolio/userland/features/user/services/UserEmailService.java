@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.portfolio.userland.common.services.email.EmailService;
 import org.portfolio.userland.common.services.email.data.EmailReq;
 import org.portfolio.userland.common.services.lang.LangService;
+import org.portfolio.userland.features.user.dto.common.EnFrontendFramework;
 import org.portfolio.userland.features.user.events.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
@@ -26,6 +27,8 @@ import java.util.Map;
 @Service
 @RequiredArgsConstructor
 public class UserEmailService {
+  private final static String FRONTEND_DEFAULT = EnFrontendFramework.VUE.name().toLowerCase();
+
   private final static String TEMPLATE_USER_REGISTRATION = "user/registration";
   private final static String TEMPLATE_USER_ACTIVATION = "user/activation";
   private final static String TEMPLATE_USER_PASSWORD_LINK = "user/password/link";
@@ -36,7 +39,7 @@ public class UserEmailService {
   private final EmailService emailService;
   private final LangService langService;
 
-  /** Frontend address. */
+  /** Base frontend address. */
   @Value("${app.main.www}")
   private String frontendWww;
   /** Who sends emails? */
@@ -69,7 +72,7 @@ public class UserEmailService {
     // Prepare params required by user registration template.
     Map<String, Object> params = Maps.newHashMap();
     params.put("username", event.username());
-    params.put("activationLink", resolveActivationLink(event.activationToken()));
+    params.put("activationLink", resolveActivationLink(event.frontend(), event.activationToken()));
     params.put("activationTokenExpires", event.activationTokenExpires());
 
     return new EmailReq(
@@ -88,12 +91,13 @@ public class UserEmailService {
 
   /**
    * Resolve full activation link. Note it is for frontend, not backend.
+   * @param frontend Name of used frontend.
    * @param activationToken Activation token.
    * @return Activation link.
    */
-  private String resolveActivationLink(String activationToken) {
+  private String resolveActivationLink(EnFrontendFramework frontend, String activationToken) {
     // Note it is link to frontend - actual backend activation endpoint will be called by frontend.
-    return frontendWww + "/activate?token="+activationToken;
+    return resolveWww(frontend) + "/activate?token="+activationToken;
   }
 
   //
@@ -120,6 +124,7 @@ public class UserEmailService {
     // Prepare params required by user activation template.
     Map<String, Object> params = Maps.newHashMap();
     params.put("username", event.username());
+    params.put("loginLink", resolveLoginLink(event.frontend()));
 
     return new EmailReq(
         null, // use default provider
@@ -133,6 +138,16 @@ public class UserEmailService {
         TEMPLATE_USER_ACTIVATION,
         params,
         null);
+  }
+
+  /**
+   * Resolve login link. Note it is for frontend, not backend.
+   * @param frontend Name of used frontend.
+   * @return Login link.
+   */
+  private String resolveLoginLink(EnFrontendFramework frontend) {
+    // Note it is link to frontend - actual backend login endpoint will be called by frontend.
+    return resolveWww(frontend) + "/login";
   }
 
   // //////////////////////////////////////////////////////////////////////////
@@ -159,7 +174,7 @@ public class UserEmailService {
     // Prepare params required by user activation template.
     Map<String, Object> params = Maps.newHashMap();
     params.put("username", event.username());
-    params.put("passwordResetLink", resolvePasswordResetLink(event.passwordResetToken()));
+    params.put("passwordResetLink", resolvePasswordResetLink(event.frontend(), event.passwordResetToken()));
     params.put("passResetTokenExpires", event.passwordResetTokenExpires());
 
     return new EmailReq(
@@ -178,12 +193,13 @@ public class UserEmailService {
 
   /**
    * Resolve full password reset link. Note it is for frontend, not backend.
+   * @param frontend Name of used frontend.
    * @param passwordResetToken Password reset token.
    * @return Password reset link.
    */
-  private String resolvePasswordResetLink(String passwordResetToken) {
+  private String resolvePasswordResetLink(EnFrontendFramework frontend, String passwordResetToken) {
     // Note it is link to frontend - actual backend password reset endpoint will be called by frontend.
-    return frontendWww + "/passwordReset?token="+passwordResetToken;
+    return resolveWww(frontend) + "/passwordReset?token="+passwordResetToken;
   }
 
   //
@@ -249,7 +265,7 @@ public class UserEmailService {
     // Prepare params required by user activation template.
     Map<String, Object> params = Maps.newHashMap();
     params.put("username", event.username());
-    params.put("accountDeleteLink", resolveAccountDeleteLink(event.accountDeleteToken()));
+    params.put("accountDeleteLink", resolveAccountDeleteLink(event.frontend(), event.accountDeleteToken()));
     params.put("accountDeleteTokenExpires", event.accountDeleteTokenExpires());
 
     return new EmailReq(
@@ -268,12 +284,13 @@ public class UserEmailService {
 
   /**
    * Resolve full account delete link. Note it is for frontend, not backend.
+   * @param frontend Name of used frontend.
    * @param accountDeleteToken Account delete token.
    * @return Account delete link.
    */
-  private String resolveAccountDeleteLink(String accountDeleteToken) {
+  private String resolveAccountDeleteLink(EnFrontendFramework frontend, String accountDeleteToken) {
     // Note it is link to frontend - actual backend account delete endpoint will be called by frontend.
-    return frontendWww + "/accountDelete?token="+accountDeleteToken;
+    return resolveWww(frontend) + "/accountDelete?token="+accountDeleteToken;
   }
 
   //
@@ -313,5 +330,18 @@ public class UserEmailService {
         TEMPLATE_USER_DELETE_CONFIRM,
         params,
         null);
+  }
+
+  // //////////////////////////////////////////////////////////////////////////
+
+  /**
+   * Resolve WWW address of frontend. It consists of base www address (frontendWww) and suffix indicating what frontend
+   * framework was used.
+   * @param frontend Used frontend framework.
+   * @return WWW address of frontend. Example: https://pawel-papierkowski.github.io/frontend-userland-vue
+   */
+  private String resolveWww(EnFrontendFramework frontend) {
+    String suffix = frontend == null ? FRONTEND_DEFAULT : frontend.name().toLowerCase();
+    return frontendWww + suffix;
   }
 }

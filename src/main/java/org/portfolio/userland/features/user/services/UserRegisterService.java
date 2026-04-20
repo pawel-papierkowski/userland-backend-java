@@ -1,9 +1,9 @@
 package org.portfolio.userland.features.user.services;
 
 import lombok.RequiredArgsConstructor;
-import org.portfolio.userland.features.user.data.*;
-import org.portfolio.userland.features.user.dto.activate.TokenActivateReq;
+import org.portfolio.userland.features.user.dto.register.TokenActivateReq;
 import org.portfolio.userland.features.user.dto.register.UserRegisterReq;
+import org.portfolio.userland.features.user.entity.*;
 import org.portfolio.userland.features.user.events.UserActivatedEvent;
 import org.portfolio.userland.features.user.events.UserRegisteredEvent;
 import org.portfolio.userland.features.user.exception.UserEmailAlreadyExistsException;
@@ -50,7 +50,7 @@ public class UserRegisterService extends BaseUserService {
     User user = createUserData(userRegisterReq, nowAt);
     user = userRepository.save(user);
 
-    triggerRegisterEvent(user);
+    triggerRegisterEvent(userRegisterReq, user);
     return user;
   }
 
@@ -65,14 +65,16 @@ public class UserRegisterService extends BaseUserService {
 
   /**
    * Triggers user registration event for anyone interested.
+   * @param userRegisterReq User registration request.
    * @param user User data.
    */
-  private void triggerRegisterEvent(User user) {
+  private void triggerRegisterEvent(UserRegisterReq userRegisterReq, User user) {
     UserRegisteredEvent userRegisteredEvent = new UserRegisteredEvent(
         user.getId(),
         user.getUsername(),
         user.getEmail(),
         user.getLang(),
+        userRegisterReq.frontend(),
         user.getTokens().getFirst().getToken(),
         activationTokenExpires
     );
@@ -101,7 +103,7 @@ public class UserRegisterService extends BaseUserService {
 
   /**
    * Activate user that has token with given token string.
-   * @param tokenActivateReq Token string.
+   * @param tokenActivateReq Token activation request.
    */
   @Transactional
   public void activate(TokenActivateReq tokenActivateReq) {
@@ -115,19 +117,21 @@ public class UserRegisterService extends BaseUserService {
     user.addHistory(createHistoryEvent(nowAt, EnHistoryWhat.ACTIVATED));
 
     userRepository.save(user);
-    triggerActivationEvent(user);
+    triggerActivationEvent(tokenActivateReq, user);
   }
 
   /**
    * Triggers user activation event for anyone interested.
+   * @param tokenActivateReq Token activation request.
    * @param user User data.
    */
-  private void triggerActivationEvent(User user) {
+  private void triggerActivationEvent(TokenActivateReq tokenActivateReq, User user) {
     UserActivatedEvent userActivatedEvent = new UserActivatedEvent(
         user.getId(),
         user.getUsername(),
         user.getEmail(),
-        user.getLang()
+        user.getLang(),
+        tokenActivateReq.frontend()
     );
     // Will trigger UserEmailService.sendActivationEmail().
     eventPublisher.publishEvent(userActivatedEvent);

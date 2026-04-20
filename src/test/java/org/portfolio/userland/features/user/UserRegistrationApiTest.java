@@ -4,10 +4,11 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.portfolio.userland.common.services.email.data.EmailReq;
-import org.portfolio.userland.features.user.data.User;
-import org.portfolio.userland.features.user.dto.activate.TokenActivateReq;
+import org.portfolio.userland.features.user.dto.common.EnFrontendFramework;
+import org.portfolio.userland.features.user.dto.register.TokenActivateReq;
 import org.portfolio.userland.features.user.dto.register.UserRegisterReq;
 import org.portfolio.userland.features.user.dto.register.UserRegisterResp;
+import org.portfolio.userland.features.user.entity.User;
 import org.portfolio.userland.features.user.events.UserActivatedEvent;
 import org.portfolio.userland.features.user.events.UserRegisteredEvent;
 import org.portfolio.userland.test.helpers.problemDetail.ProblemDetailBox;
@@ -51,7 +52,7 @@ public class UserRegistrationApiTest extends BaseUserTest {
     clock.setFixedTime("2026-04-10T10:00:00Z");
 
     // Arrange: Create the JSON payload.
-    UserRegisterReq req = new UserRegisterReq("Jane", "test@example.com", "Password123!", "en");
+    UserRegisterReq req = new UserRegisterReq("Jane", "test@example.com", "Password123!", "en", null);
 
     // Act: Call the API endpoint.
     MvcResult mvcResult = mockMvc.perform(post("/api/users/register")
@@ -92,6 +93,7 @@ public class UserRegistrationApiTest extends BaseUserTest {
           assertThat(event.username()).isEqualTo("Jane");
           assertThat(event.email()).isEqualTo("test@example.com");
           assertThat(event.lang()).isEqualTo("en");
+          assertThat(event.frontend()).isNull();
           assertThat(event.activationToken()).isEqualTo(activationToken.get());
           assertThat(event.activationTokenExpires()).isEqualTo(24L);
         });
@@ -102,7 +104,7 @@ public class UserRegistrationApiTest extends BaseUserTest {
     clock.setFixedTime("2026-04-10T10:00:00Z");
 
     // Arrange: Create the JSON payload.
-    UserRegisterReq req = new UserRegisterReq("<script>alert('hacked')</script>", "test@example.com", "Password123!", "en");
+    UserRegisterReq req = new UserRegisterReq("<script>alert('hacked')</script>", "test@example.com", "Password123!", "en", EnFrontendFramework.VUE);
 
     // Act: Call the API endpoint.
     MvcResult mvcResult = mockMvc.perform(post("/api/users/register")
@@ -133,7 +135,7 @@ public class UserRegistrationApiTest extends BaseUserTest {
     clock.setFixedTime("2026-04-10T10:05:00Z");
 
     // Arrange: Create token activation request.
-    TokenActivateReq req = new TokenActivateReq(tokenStr);
+    TokenActivateReq req = new TokenActivateReq(tokenStr, EnFrontendFramework.VUE);
 
     // Act: Try to activate user using valid token.
     MvcResult mvcResult = mockMvc.perform(post("/api/users/activate")
@@ -167,6 +169,7 @@ public class UserRegistrationApiTest extends BaseUserTest {
           assertThat(event.username()).isEqualTo("Jane");
           assertThat(event.email()).isEqualTo("test@example.com");
           assertThat(event.lang()).isEqualTo("en");
+          assertThat(event.frontend()).isEqualTo(EnFrontendFramework.VUE);
         });
 
     // Assert that email (confirmation of account activation) was sent.
@@ -188,7 +191,7 @@ public class UserRegistrationApiTest extends BaseUserTest {
     userRepository.save(userFactory.genUserPending(null));
 
     // Arrange: Create the JSON payload.
-    UserRegisterReq req = new UserRegisterReq("testuser", "test@example.com", "SecurePass123!", "en");
+    UserRegisterReq req = new UserRegisterReq("testuser", "test@example.com", "SecurePass123!", "en", null);
 
     // Act: Try to register a NEW user with the SAME email via the API.
     MvcResult mvcResult = mockMvc.perform(post("/api/users/register")
@@ -214,7 +217,7 @@ public class UserRegistrationApiTest extends BaseUserTest {
   public void errMissingToken() throws Exception {
     // Arrange: create token activation request.
     String tokenStr = "MISSING_TOKEN___________________";
-    TokenActivateReq req = new TokenActivateReq(tokenStr); // pad it as it must have at least 32 chars
+    TokenActivateReq req = new TokenActivateReq(tokenStr, null); // pad it as it must have at least 32 chars
 
     // Act: Try to activate user using non-existent token.
     MvcResult mvcResult = mockMvc.perform(post("/api/users/activate")
@@ -248,7 +251,7 @@ public class UserRegistrationApiTest extends BaseUserTest {
     clock.setFixedTime("2026-04-10T10:00:00Z");
 
     // Arrange: create token activation request.
-    TokenActivateReq req = new TokenActivateReq(tokenStr); // pad it as it must have at least 32 chars
+    TokenActivateReq req = new TokenActivateReq(tokenStr, null); // pad it as it must have at least 32 chars
 
     // Act: Try to activate user using expired token.
     MvcResult mvcResult = mockMvc.perform(post("/api/users/activate")

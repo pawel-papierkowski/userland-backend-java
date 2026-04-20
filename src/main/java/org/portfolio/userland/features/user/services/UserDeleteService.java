@@ -1,14 +1,14 @@
 package org.portfolio.userland.features.user.services;
 
 import lombok.RequiredArgsConstructor;
-import org.portfolio.userland.features.user.data.*;
 import org.portfolio.userland.features.user.dto.delete.UserDeleteConfirmReq;
 import org.portfolio.userland.features.user.dto.delete.UserDeleteLinkReq;
+import org.portfolio.userland.features.user.entity.EnHistoryWhat;
+import org.portfolio.userland.features.user.entity.EnTokenType;
+import org.portfolio.userland.features.user.entity.User;
+import org.portfolio.userland.features.user.entity.UserToken;
 import org.portfolio.userland.features.user.events.UserAccountDeleteConfirmEvent;
 import org.portfolio.userland.features.user.events.UserAccountDeleteLinkEvent;
-import org.portfolio.userland.features.user.exception.UserCannotBeLockedException;
-import org.portfolio.userland.features.user.exception.UserDoesNotExistException;
-import org.portfolio.userland.features.user.exception.UserMustBeActiveException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,7 +20,7 @@ import java.time.LocalDateTime;
  * <p>User story:</p>
  * <ul>
  *   <li>User on frontend clicks "Delete account" option.</li>
- *   <li>Frontend calls <code>/api/users/delete/send</code> endpoint.</li>
+ *   <li>Frontend calls <code>/api/users/delete/link</code> endpoint.</li>
  *   <li>System creates account deletion token and sends account deletion email with link to frontend.</li>
  *   <li>User clicks on link and gets redirected to separate page where they can confirm that yes, they really want to delete account.</li>
  *   <li>User clicks on account delete button. Frontend calls <code>/api/users/delete/confirm</code>.</li>
@@ -41,42 +41,32 @@ public class UserDeleteService extends BaseUserService {
    */
   @Transactional
   public void send(UserDeleteLinkReq userDeleteLinkReq) {
-    User user = resolveUser(userDeleteLinkReq);
+    User user = resolveUser(userDeleteLinkReq.email());
 
     LocalDateTime nowAt = clockService.getNowUTC();
+    verifyTokenDoesNotExist(nowAt, EnTokenType.DELETE, user);
+
     UserToken token = createTokenData(nowAt, EnTokenType.DELETE);
     user.addToken(token);
     user.addHistory(createHistoryEvent(nowAt, EnHistoryWhat.DELETE_REQ));
     user = userRepository.save(user);
 
-    triggerDeleteLinkEvent(user, token);
-  }
-
-  /**
-   * Resolves and verifies user state.
-   * @param userDeleteLinkReq User account deletion link request.
-   * @return User.
-   */
-  private User resolveUser(UserDeleteLinkReq userDeleteLinkReq) {
-    User user = userRepository.findByEmail(userDeleteLinkReq.email())
-        .orElseThrow(() -> new UserDoesNotExistException(userDeleteLinkReq.email()));
-    if (EnUserStatus.PENDING.equals(user.getStatus()))
-      throw new UserMustBeActiveException(userDeleteLinkReq.email());
-    if (user.getLocked())
-      throw new UserCannotBeLockedException(userDeleteLinkReq.email());
-    return user;
+    triggerDeleteLinkEvent(userDeleteLinkReq, user, token);
   }
 
   /**
    * Triggers account deletion link event for anyone interested.
+   * @param userDeleteLinkReq User account deletion link request.
    * @param user User data.
+   * @param token User token data.
    */
-  private void triggerDeleteLinkEvent(User user, UserToken token) {
+  private void triggerDeleteLinkEvent(UserDeleteLinkReq userDeleteLinkReq, User user, UserToken token) {
     UserAccountDeleteLinkEvent userAccountDeleteLinkEvent = new UserAccountDeleteLinkEvent(
         user.getId(),
         user.getUsername(),
         user.getEmail(),
         user.getLang(),
+        userDeleteLinkReq.frontend(),
         token.getToken(),
         deletionTokenExpires
     );

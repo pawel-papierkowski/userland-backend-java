@@ -4,10 +4,10 @@ import lombok.RequiredArgsConstructor;
 import org.instancio.Instancio;
 import org.portfolio.userland.common.services.clock.ClockService;
 import org.portfolio.userland.common.services.security.SecurityGeneratorService;
-import org.portfolio.userland.features.user.data.EnHistoryWhat;
-import org.portfolio.userland.features.user.data.EnTokenType;
-import org.portfolio.userland.features.user.data.EnUserStatus;
-import org.portfolio.userland.features.user.data.User;
+import org.portfolio.userland.features.user.entity.EnHistoryWhat;
+import org.portfolio.userland.features.user.entity.EnTokenType;
+import org.portfolio.userland.features.user.entity.EnUserStatus;
+import org.portfolio.userland.features.user.entity.User;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -15,7 +15,6 @@ import static org.instancio.Select.field;
 
 /**
  * Generates users for tests.
- * NOTE: if it becomes even more unwieldy, consider Instancio.
  */
 @Service
 @RequiredArgsConstructor
@@ -72,7 +71,7 @@ public class UserFactory {
   //
 
   /**
-   * Generate random user.
+   * Generate random user using Instancio.
    * @param status Status of user.
    * @return User with randomized data.
    */
@@ -88,6 +87,7 @@ public class UserFactory {
         .set(field(User::getLocked), false)
         .ignore(field(User::getTokens)) // we fill it manually
         .ignore(field(User::getHistory)) // ditto
+        .ignore(field(User::getPermissions)) // ditto
         .create();
 
     if (EnUserStatus.PENDING.equals(status)) userTokenFactory.genTokenEntry(randomUser, EnTokenType.ACTIVATE, securityGeneratorService.token());

@@ -1,5 +1,7 @@
 package org.portfolio.userland.features.user.events;
 
+import org.portfolio.userland.features.user.dto.common.EnFrontendFramework;
+
 /**
  * Event for activating user.
  * @param id User identificator.
@@ -11,5 +13,6 @@ public record UserActivatedEvent(
     Long id,
     String username,
     String email,
-    String lang
+    String lang,
+    EnFrontendFramework frontend
 ) {}

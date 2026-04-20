@@ -4,6 +4,14 @@ This is very simple **backend project** demonstrating basics of modern Java and 
 
 Project is in early stages. Description below sums up planned functionality, features etc.
 
+## Basic info
+
+Author: Paweł Papierkowski
+
+Date: 2026
+
+Link to webpage: https://github.com/pawel-papierkowski/userland-backend-java
+
 ## Functionality
 
 This project fully handles user. This is where name **UserLand** comes from.
@@ -40,7 +48,7 @@ You need to add these Repository Secrets:
   - **EMAIL_PASSWORD**: Password (or App password) for standard email provider (Google etc).
   - **TEP_RESEND_APIKEY**: API key for Transactional Email Provider called Resend.
 - Other:
-  - **JWT_SECRET**: JWT token secret. Must have 256 bits and be encoded in BASE64.
+  - **JWT_SECRET**: JWT token secret. Must have at least 256 bits (32 bytes) and be string encoded in BASE64.
     - Best way to generate: in Linux/macOD/Git Bash terminal execute *openssl rand -base64 32*.
 
 ## Local startup
@@ -62,7 +70,7 @@ Same with running tests in general.
 This app uses (free tier for all of these):
 - **Google Cloud Run** for backend hosting.
 - **Aiven** for PostgreSQL database hosting.
-- **Resend** for email services.
+- **Resend** (or JavaMailSender) for email services.
 
 **UserLand** app is deployed via **GitHub Actions**.
 
@@ -70,7 +78,7 @@ For portfolio, email address pawel.papierkowski.portfolio@gmail.com is used and 
 
 ## Design notes
 
-- **Kafka** was considered for demonstration purposes (email retries), but not used since it won't work well with restrictions typical of Google Cloud free tier, where this project lives. Google Cloud is serverless, but Kafka would require system to be up at all times.
+- **Kafka** was considered for demonstration purposes (email retries), but not used since it won't work well with restrictions typical of Google Cloud free tier, where this project lives. GCP is serverless, but Kafka would require system to be up at all times.
 
 ## Endpoints
 
@@ -80,8 +88,8 @@ Important: due to use of free tier, first access might need a minute or so becau
 (backend is zeroed out if not used for too long).
 
 UserLand has endpoints available publicly to use by frontend, PostMan etc.
-- Spring Actuator: certain selected endpoints are available publicly, like health, metrics etc.
-- UserLand: info about endpoints available publicly via Swagger.
+- **Spring Actuator**: certain selected endpoints are available publicly, like health, metrics etc.
+- **UserLand**: info about endpoints available publicly via Swagger.
   - https://userland-backend-java-299988087135.europe-central2.run.app/v3/api-docs (via PostMan)
   - https://userland-backend-java-299988087135.europe-central2.run.app/swagger-ui.html (can be used in browser)
 
@@ -105,13 +113,14 @@ UserLand has endpoints available publicly to use by frontend, PostMan etc.
   - **Docker Compose Support**: use containers for stuff like database when project is executed locally
 - Database:
   - **PostgreSQL**: popular relational database
-  - **Testcontainers**: instantiate real database (or anything else needed) for tests
   - **Flyway**: versioning of database
+- Tests:
+  - **Instancio**: easily create randomized instances of entities for tests
+  - **Awaitlility**: allow testing of async code
+  - **Testcontainers**: instantiate real database (or anything else needed) for tests in container
 - Other
   - **Lombok**: reduce Jave boilerplate code
-  - **Instancio**: easily create randomized instances of entities for tests
-  - **Awaitlility**: allow testing of async code 
-  - **ShedLock**: prevent issues with schedulers in environment like Kubernets
-  - **Springdoc OpenAPI (Swagger UI)**: documenting API endpoints
   - **JJWT**: popular JWT library
   - **MapStruct**: translate DTO to actual entities
+  - **ShedLock**: prevent issues with schedulers in environment like Kubernets
+  - **Springdoc OpenAPI (Swagger UI)**: documenting API endpoints

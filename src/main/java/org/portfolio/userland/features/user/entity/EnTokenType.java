@@ -1,4 +1,4 @@
-package org.portfolio.userland.features.user.data;
+package org.portfolio.userland.features.user.entity;
 
 /**
  * Available token types.

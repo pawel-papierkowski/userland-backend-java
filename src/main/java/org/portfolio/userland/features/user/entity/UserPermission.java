@@ -1,4 +1,4 @@
-package org.portfolio.userland.features.user.data;
+package org.portfolio.userland.features.user.entity;
 
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -8,13 +8,15 @@ import java.time.LocalDateTime;
 import java.util.Objects;
 
 /**
- * User history event.
+ * Many-to-many table describing user permissions.
+ * Note: it is not pure many-to-many (we need value of permission, also we remember when that permission was given),
+ * so we cannot use @ManyToMany.
  */
 @Entity
-@Table(name = "history", schema = "iam")
+@Table(name = "user_permissions", schema = "iam")
 @Getter
 @Setter
-public class UserHistory {
+public class UserPermission {
   /** Identificator. */
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -24,28 +26,27 @@ public class UserHistory {
   @Column(unique = true, nullable = false, updatable = false)
   private String uuid;
 
-  /** User that has this history event. */
+  /** User that has this user permission entry. */
   @ManyToOne
   @JoinColumn(name = "id_user")
   private User user;
 
+  /** Permission that has this user permission entry. */
+  @ManyToOne
+  @JoinColumn(name = "id_permission")
+  private Permission permission;
+
   //
 
-  /** Date&time of history event creation. */
+  /** Date&time of user permission entry creation. */
   @Column(nullable = false, updatable = false)
   private LocalDateTime createdAt;
 
   //
 
-  /** Who caused history event? */
+  /** Value of permission entry. */
   @Column(nullable = false)
-  @Enumerated(EnumType.STRING)
-  private EnHistoryWho who;
-
-  /** What caused history event? */
-  @Column(nullable = false)
-  @Enumerated(EnumType.STRING)
-  private EnHistoryWhat what;
+  private String value;
 
   // //////////////////////////////////////////////////////////////////////////
 
@@ -54,10 +55,10 @@ public class UserHistory {
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
 
-    UserHistory userHistory = (UserHistory) o;
+    UserPermission userPermission = (UserPermission) o;
 
     if (uuid == null) return false;
-    return Objects.equals(uuid, userHistory.getUuid());
+    return Objects.equals(uuid, userPermission.getUuid());
   }
 
   @Override

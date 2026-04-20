@@ -1,4 +1,4 @@
-package org.portfolio.userland.features.user.dto.password;
+package org.portfolio.userland.features.user.dto.login;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
@@ -6,13 +6,18 @@ import jakarta.validation.constraints.NotBlank;
 import org.portfolio.userland.common.constants.ValidConst;
 
 /**
- * Email with link for password reset request.
+ * User login request.
  * @param email Email.
+ * @param password Password.
  */
-@Schema(description = "Payload required to send email with link for password reset.")
-public record UserPassLinkReq(
+@Schema(description = "Request for user login. Uses email as login name.")
+public record UserLoginReq(
   @NotBlank(message = "Email is required")
   @Email(regexp = ValidConst.REG_EXPR_EMAIL, message = "Must be a valid email address")
   @Schema(description = "Email address.", example = "john.doe@example.com")
-  String email
+  String email,
+
+  @NotBlank(message = "Password is required")
+  @Schema(description = "Password.", example = "StrongP@ssw0rd")
+  String password
 ) {}

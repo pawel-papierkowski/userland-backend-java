@@ -15,6 +15,6 @@ public record UserDoesNotExistProblemDetail(
     int status,
     @Schema(example = "User with email 'john.smith@example.com' does not exist.")
     String detail,
-    @Schema(example = "/api/users/password/send")
+    @Schema(example = "/api/users/password/link")
     String instance
 ) {}

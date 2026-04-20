@@ -2,9 +2,10 @@ package org.portfolio.userland.test.helpers.asserts;
 
 import lombok.RequiredArgsConstructor;
 import org.portfolio.userland.common.constants.ValidConst;
-import org.portfolio.userland.features.user.data.User;
-import org.portfolio.userland.features.user.data.UserHistory;
-import org.portfolio.userland.features.user.data.UserToken;
+import org.portfolio.userland.features.user.entity.User;
+import org.portfolio.userland.features.user.entity.UserHistory;
+import org.portfolio.userland.features.user.entity.UserPermission;
+import org.portfolio.userland.features.user.entity.UserToken;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -25,9 +26,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 @Service
 @RequiredArgsConstructor
 public class UserAssert {
-  private static final String[] USER_FIELDS_IGNORE = { "id", "password", "tokens", "history" };
+  private static final String[] USER_FIELDS_IGNORE = { "id", "password", "tokens", "history", "permissions" };
   private static final String[] USER_TOKEN_FIELDS_IGNORE = { "id", "user", "token" };
   private static final String[] USER_HISTORY_FIELDS_IGNORE = { "id", "user", "uuid" };
+  private static final String[] USER_PERMISSION_FIELDS_IGNORE = { "id", "user", "permission", "uuid" };
 
   /**
    * Assert that two users are same.
@@ -49,7 +51,10 @@ public class UserAssert {
     // Assert collections
     assertTokens(actualUser.getTokens(), expectedUser.getTokens());
     assertHistory(actualUser.getHistory(), expectedUser.getHistory());
+    assertPermissions(actualUser.getPermissions(), expectedUser.getPermissions());
   }
+
+  //
 
   /**
    * Assert all token entries.
@@ -82,6 +87,8 @@ public class UserAssert {
     assertThat(actualToken.getToken()).as("Token["+ix+"] entry string is invalid").matches(ValidConst.REG_EXPR_TOKEN);
   }
 
+  //
+
   /**
    * Assert all history events.
    * @param actualHistory Actual history.
@@ -111,5 +118,38 @@ public class UserAssert {
 
     assertThat(actualHistoryEvent.getId()).as("History["+ix+"] event id is wrong").isGreaterThan(0L);
     assertThat(actualHistoryEvent.getUuid()).as("History["+ix+"] event UUID is invalid").matches(ValidConst.REG_EXPR_UUID);
+  }
+
+  //
+
+  /**
+   * Assert all permission entries.
+   * @param actualRights Actual permission entries.
+   * @param expectedRights Expected permission entries.
+   */
+  private void assertPermissions(List<UserPermission> actualRights, List<UserPermission> expectedRights) {
+    assertThat(actualRights.size()).as("User count of permissions is wrong").isEqualTo(expectedRights.size());
+    for (int i=0; i<actualRights.size(); i++) {
+      UserPermission actualRight = actualRights.get(i);
+      UserPermission expectedRight = expectedRights.get(i);
+      assertPermissionEntry(i, actualRight, expectedRight);
+    }
+  }
+
+  /**
+   * Assert one permission entry.
+   * @param ix Index.
+   * @param actualRight Actual permission entry.
+   * @param expectedRight Expected permission entry.
+   */
+  private void assertPermissionEntry(int ix, UserPermission actualRight, UserPermission expectedRight) {
+    assertThat(actualRight)
+        .as("Right entry has invalid state")
+        .usingRecursiveComparison()
+        .ignoringFields(USER_PERMISSION_FIELDS_IGNORE)
+        .isEqualTo(expectedRight);
+
+    assertThat(actualRight.getId()).as("Right["+ix+"] entry id is wrong").isGreaterThan(0L);
+    assertThat(actualRight.getUuid()).as("Right["+ix+"] entry UUID is invalid").matches(ValidConst.REG_EXPR_UUID);
   }
 }
