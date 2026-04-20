@@ -2,15 +2,15 @@
 
 app:
   main:
-    www: https://pawel-papierkowski.github.io/frontend-userland-vue # does not exist yet
+    www: https://pawel-papierkowski.github.io/frontend-userland- # does not exist yet
   user:
     pending:
-      removalDelay: 48 # when to remove pending users since creation, in hours
+      removal-delay: 48 # when to remove pending users since creation, in hours
     token:
       length: 32
-      activation: # account activation
+      activation: # user account activation
         expires: 24 # in hours
-      passwordReset: # password reset
+      password: # user password reset
         expires: 30 # in minutes
-      deletion: # account deletion
+      deletion: # user account deletion
         expires: 30 # in minutes

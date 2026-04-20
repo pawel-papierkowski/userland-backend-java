@@ -1,7 +1,7 @@
 package org.portfolio.userland.features.user.services;
 
 import lombok.RequiredArgsConstructor;
-import org.portfolio.userland.features.user.data.EnTokenType;
+import org.portfolio.userland.features.user.entity.EnTokenType;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -17,7 +17,7 @@ public class UserHelperService {
   @Value("${app.user.token.activation.expires}")
   private long activationTokenExpires;
   /** How long before password reset token expires in minutes. */
-  @Value("${app.user.token.passwordReset.expires}")
+  @Value("${app.user.token.password.expires}")
   private long passwordResetTokenExpires;
   /** How long before account deletion token expires in minutes. */
   @Value("${app.user.token.deletion.expires}")

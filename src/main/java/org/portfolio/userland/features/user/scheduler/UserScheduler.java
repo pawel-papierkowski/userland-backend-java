@@ -26,7 +26,7 @@ public class UserScheduler {
   private final ClockService clockService;
 
   /** How long to wait before removal of pending user in hours. */
-  @Value("${app.user.pending.removalDelay}")
+  @Value("${app.user.pending.removal-delay}")
   private long removalDelay;
 
   /**
@@ -42,7 +42,7 @@ public class UserScheduler {
       lockAtMostFor = "15m"  // Failsafe in case the node dies while holding the lock
   )
   @Transactional
-  public void cleanPendingUsers() {
+  public void cleanExpiredUsers() {
     log.info("Starting scheduled cleanup of expired users...");
     StopWatch stopWatch = new StopWatch("Expired Users Cleanup");
     LocalDateTime nowAt = clockService.getNowUTC();

@@ -1,7 +1,9 @@
 package org.portfolio.userland.features.user;
 
 import org.junit.jupiter.api.Test;
-import org.portfolio.userland.features.user.dto.password.UserPassResetReq;
+import org.portfolio.userland.common.services.jwt.JwtService;
+import org.portfolio.userland.common.services.security.UserLandDetailsService;
+import org.portfolio.userland.features.user.dto.password.UserPassResetConfirmReq;
 import org.portfolio.userland.features.user.dto.register.UserRegisterReq;
 import org.portfolio.userland.features.user.services.UserDeleteService;
 import org.portfolio.userland.features.user.services.UserPasswordService;
@@ -22,7 +24,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
  * Tests only web layer of user handling.
  */
 public class UserWebTest extends BaseWebTest {
-  // We mock the service because we only care about testing the Controller's @Valid rules.
+  // We mock services present on UserController because we only care about testing the Controller's @Valid rules.
   @MockitoBean
   private UserRegisterService userRegisterService;
   @MockitoBean
@@ -30,10 +32,16 @@ public class UserWebTest extends BaseWebTest {
   @MockitoBean
   private UserDeleteService userDeleteService;
 
+  // Other needed mocks.
+  @MockitoBean
+  private JwtService jwtService;
+  @MockitoBean
+  private UserLandDetailsService userLandDetailsService;
+
   @Test
   public void registrationWhenInvalidEmail() throws Exception {
     // Arrange: invalid email (missing Top Level Domain like .com)
-    UserRegisterReq req = new UserRegisterReq("John Doe", "john.doe@example", "abcABC123!", "en");
+    UserRegisterReq req = new UserRegisterReq("John Doe", "john.doe@example", "abcABC123!", "en", null);
 
     // Act: Call the API endpoint.
     MvcResult mvcResult = mockMvc.perform(post("/api/users/register")
@@ -58,7 +66,7 @@ public class UserWebTest extends BaseWebTest {
   @Test
   public void registrationWhenPasswordIsTooWeak() throws Exception {
     // Arrange: password violates the @Size(min = 8, max = 100) constraint
-    UserRegisterReq req = new UserRegisterReq("John Doe", "john.doe@example.com", "1aA!", "en");
+    UserRegisterReq req = new UserRegisterReq("John Doe", "john.doe@example.com", "1aA!", "en", null);
 
     // Act: Call the API endpoint.
     MvcResult mvcResult = mockMvc.perform(post("/api/users/register")
@@ -85,10 +93,10 @@ public class UserWebTest extends BaseWebTest {
   @Test
   public void passResetWhenPasswordIsTooWeak() throws Exception {
     // Arrange: password violates the @Pattern() constraint
-    UserPassResetReq req = new UserPassResetReq("nDVAZXAEt1VvrYrazvxmU8yruiur9cJg", "weakPassword");
+    UserPassResetConfirmReq req = new UserPassResetConfirmReq("nDVAZXAEt1VvrYrazvxmU8yruiur9cJg", "weakPassword");
 
     // Act: Call the API endpoint.
-    MvcResult mvcResult = mockMvc.perform(post("/api/users/password/reset")
+    MvcResult mvcResult = mockMvc.perform(post("/api/users/password/confirm")
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(req)))
         .andReturn();
@@ -100,7 +108,7 @@ public class UserWebTest extends BaseWebTest {
         HttpStatus.BAD_REQUEST.value(),
         "Field Validation Failed",
         "One or more fields failed validation.",
-        "/api/users/password/reset",
+        "/api/users/password/confirm",
         "https://api.general.org/errors/validation",
         Map.of("validation_errors", Map.of("password", "Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character"))
     );

@@ -8,14 +8,14 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.portfolio.userland.features.user.data.User;
-import org.portfolio.userland.features.user.dto.activate.TokenActivateReq;
 import org.portfolio.userland.features.user.dto.delete.UserDeleteConfirmReq;
 import org.portfolio.userland.features.user.dto.delete.UserDeleteLinkReq;
-import org.portfolio.userland.features.user.dto.password.UserPassLinkReq;
-import org.portfolio.userland.features.user.dto.password.UserPassResetReq;
+import org.portfolio.userland.features.user.dto.password.UserPassResetConfirmReq;
+import org.portfolio.userland.features.user.dto.password.UserPassResetLinkReq;
+import org.portfolio.userland.features.user.dto.register.TokenActivateReq;
 import org.portfolio.userland.features.user.dto.register.UserRegisterReq;
 import org.portfolio.userland.features.user.dto.register.UserRegisterResp;
+import org.portfolio.userland.features.user.entity.User;
 import org.portfolio.userland.features.user.services.UserDeleteService;
 import org.portfolio.userland.features.user.services.UserPasswordService;
 import org.portfolio.userland.features.user.services.UserRegisterService;
@@ -34,8 +34,10 @@ import org.springframework.web.bind.annotation.RestController;
  * <ul>
  *   <li><code>/api/users/register</code> - registers user.</li>
  *   <li><code>/api/users/activate</code> - activates user.</li>
- *   <li><code>/api/users/password/send - sends email with password reset link.</code></li>
- *   <li><code>/api/users/password/reset</code> - actually resets password.</li>
+ *   <li><code>/api/users/password/link - sends email with password reset link.</code></li>
+ *   <li><code>/api/users/password/confirm</code> - actually resets password.</li>
+ *   <li><code>/api/users/delete/link - sends email with account deletion link.</code></li>
+ *   <li><code>/api/users/delete/confirm</code> - actually deletes user account.</li>
  * </ul>
  */
 @RestController
@@ -95,10 +97,10 @@ public class UserController {
 
   /**
    * Sends email with password reset link.
-   * @param userPassLinkReq User password link request.
+   * @param userPassResetLinkReq User password link request.
    * @return Response.
    */
-  @PostMapping(value = "/password/send", produces = "application/json")
+  @PostMapping(value = "/password/link", produces = "application/json")
   @Operation(summary = "Send password reset link", description = "Sends email with link to page where you can reset password to your account.")
   @ApiResponses(value = {
       @ApiResponse(responseCode = "200", description = "Email successfully sent."),
@@ -108,21 +110,21 @@ public class UserController {
       @ApiResponse(responseCode = "404", description = "User with given email does not exist.",
           content = @Content(mediaType = "application/problem+json",
               schema = @Schema(implementation = UserDoesNotExistProblemDetail.class))),
-      @ApiResponse(responseCode = "409", description = "User is not allowed to reset password (e.g. not activated or locked).",
+      @ApiResponse(responseCode = "409", description = "User is not allowed to reset password (e.g. not activated or locked) or password reset is already pending.",
           content = @Content(mediaType = "application/problem+json",
               schema = @Schema(implementation = ProblemDetail.class)))
   })
-  public ResponseEntity<String> sendPasswordResetLink(@Valid @RequestBody UserPassLinkReq userPassLinkReq) {
-    userPasswordService.send(userPassLinkReq);
+  public ResponseEntity<String> sendPasswordResetLink(@Valid @RequestBody UserPassResetLinkReq userPassResetLinkReq) {
+    userPasswordService.send(userPassResetLinkReq);
     return new ResponseEntity<>(HttpStatus.OK);
   }
 
   /**
    * Actually reset password.
-   * @param userPassResetReq User password reset request.
+   * @param userPassResetConfirmReq User password reset request.
    * @return Response.
    */
-  @PostMapping(value = "/password/reset", produces = "application/json")
+  @PostMapping(value = "/password/confirm", produces = "application/json")
   @Operation(summary = "Reset password", description = "Reset password.")
   @ApiResponses(value = {
       @ApiResponse(responseCode = "200", description = "Password reset successfully."),
@@ -133,8 +135,8 @@ public class UserController {
           content = @Content(mediaType = "application/problem+json",
               schema = @Schema(implementation = TokenMissingProblemDetail.class)))
   })
-  public ResponseEntity<String> passwordReset(@Valid @RequestBody UserPassResetReq userPassResetReq) {
-    userPasswordService.reset(userPassResetReq);
+  public ResponseEntity<String> passwordReset(@Valid @RequestBody UserPassResetConfirmReq userPassResetConfirmReq) {
+    userPasswordService.reset(userPassResetConfirmReq);
     return new ResponseEntity<>(HttpStatus.OK);
   }
 
@@ -145,7 +147,7 @@ public class UserController {
    * @param userDeleteLinkReq User deletion link request.
    * @return Response.
    */
-  @PostMapping(value = "/delete/send", produces = "application/json")
+  @PostMapping(value = "/delete/link", produces = "application/json")
   @Operation(summary = "Send account deletion link", description = "Sends email with link that leads to page where you can confirm account deletion.")
   @ApiResponses(value = {
       @ApiResponse(responseCode = "200", description = "Email successfully sent."),
@@ -155,7 +157,7 @@ public class UserController {
       @ApiResponse(responseCode = "404", description = "User with given email does not exist.",
           content = @Content(mediaType = "application/problem+json",
               schema = @Schema(implementation = UserDoesNotExistProblemDetail.class))),
-      @ApiResponse(responseCode = "409", description = "User is not allowed to delete account (e.g. not activated or locked).",
+      @ApiResponse(responseCode = "409", description = "User is not allowed to delete account (e.g. not activated or locked) or account deletion is already pending.",
           content = @Content(mediaType = "application/problem+json",
               schema = @Schema(implementation = ProblemDetail.class)))
   })

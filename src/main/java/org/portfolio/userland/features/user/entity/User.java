@@ -1,4 +1,4 @@
-package org.portfolio.userland.features.user.data;
+package org.portfolio.userland.features.user.entity;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
@@ -73,14 +73,18 @@ public class User {
   @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
   private List<UserHistory> history = new ArrayList<>();
 
-  /** Tokens that belong to this user. */
+  /** Tokens that this user has. Same user can have only one token of given type at once. */
   @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
   private List<UserToken> tokens = new ArrayList<>();
+
+  /** Permissions that this user has. */
+  @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+  private List<UserPermission> permissions = new ArrayList<>();
 
   // //////////////////////////////////////////////////////////////////////////
 
   /**
-   * Add history entry to history.
+   * Add history entry to list of history events.
    * @param historyEntry History entry to add.
    */
   public void addHistory(UserHistory historyEntry) {
@@ -90,13 +94,23 @@ public class User {
   }
 
   /**
-   * Add token entry to token list.
+   * Add token entry to list of token entries.
    * @param tokenEntry Token entry to add.
    */
   public void addToken(UserToken tokenEntry) {
     if (tokens == null) this.tokens = new ArrayList<>();
     tokens.add(tokenEntry);
     tokenEntry.setUser(this);
+  }
+
+  /**
+   * Add permission entry to list of permission entries.
+   * @param permissionEntry Permission entry to add.
+   */
+  public void addPermission(UserPermission permissionEntry) {
+    if (permissions == null) this.permissions = new ArrayList<>();
+    permissions.add(permissionEntry);
+    permissionEntry.setUser(this);
   }
 
   // //////////////////////////////////////////////////////////////////////////

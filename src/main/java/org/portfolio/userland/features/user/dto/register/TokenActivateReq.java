@@ -1,8 +1,9 @@
-package org.portfolio.userland.features.user.dto.activate;
+package org.portfolio.userland.features.user.dto.register;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import org.portfolio.userland.features.user.dto.common.EnFrontendFramework;
 
 /**
  * Token activation request.
@@ -13,5 +14,8 @@ public record TokenActivateReq(
   @NotBlank(message = "Token string is required")
   @Size(min = 32, max = 128, message = "Token string must have 32 or more characters.")
   @Schema(description = "Token string.", example = "J4L1wZnLiw3durFYN0WDsulcpFnoKWqg")
-  String token
+  String token,
+
+  @Schema(description = "Used frontend framework. Can be null, will default to vue.", example = "VUE")
+  EnFrontendFramework frontend
 ) {}

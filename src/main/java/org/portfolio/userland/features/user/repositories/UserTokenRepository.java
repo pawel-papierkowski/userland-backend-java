@@ -1,7 +1,7 @@
 package org.portfolio.userland.features.user.repositories;
 
-import org.portfolio.userland.features.user.data.EnTokenType;
-import org.portfolio.userland.features.user.data.UserToken;
+import org.portfolio.userland.features.user.entity.EnTokenType;
+import org.portfolio.userland.features.user.entity.UserToken;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -31,6 +31,15 @@ public interface UserTokenRepository extends JpaRepository<UserToken, Long> {
    * @return User token or empty optional.
    */
   Optional<UserToken> findByTypeAndToken(EnTokenType type, String token);
+
+  /**
+   * Checks if given token type for given user exists.
+   * @param userId Identificator of user.
+   * @param type Type of token.
+   * @return True if user token of this type exists, otherwise false.
+   */
+  @Query("SELECT t FROM UserToken t WHERE t.user.id = :userId and t.type = :type")
+  Optional<UserToken> findByUserAndType(Long userId, EnTokenType type);
 
   //
 

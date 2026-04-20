@@ -29,4 +29,4 @@ app:
     providers:
       default: 'plain' # default provider
       resend:
-        apiKey: ${TEP_RESEND_APIKEY:PLACEHOLDER_API_KEY} # API key used for TEP Resend
+        api-key: ${TEP_RESEND_APIKEY:PLACEHOLDER_API_KEY} # API key used for TEP Resend

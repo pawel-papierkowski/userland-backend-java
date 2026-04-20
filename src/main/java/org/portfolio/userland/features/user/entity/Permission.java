@@ -1,0 +1,31 @@
+package org.portfolio.userland.features.user.entity;
+
+import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
+
+/**
+ * Known user permissions.
+ */
+@Entity
+@Table(name = "permissions", schema = "iam")
+@Getter
+@Setter
+public class Permission {
+  /** Identificator. */
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
+
+  /** Name of permission. Acts as business key. */
+  @Column(unique = true, nullable = false)
+  private String name;
+
+  /** Indicates if that permission should be embedded in JWT key. */
+  @Column(nullable = false)
+  private Boolean inJwt;
+
+  /** Indicates if that permission should be included in Spring authorities. */
+  @Column(nullable = false)
+  private Boolean inAuthorities;
+}

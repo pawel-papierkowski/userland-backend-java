@@ -1,7 +1,11 @@
--- First, helper tables.
+-- ============================================================================
+-- Helper tables.
+-- ============================================================================
 
 -- Small table required by net.javacrumbs.shedlock.
--- Prevents issues when you call scheduler in Kubernets or similar environment.
+-- Prevents issues when you call scheduler in Kubernets or similar multi-node environment.
+-- It ensures only one given scheduler method is called at once.
+-- See @UserScheduler for example of use of @SchedulerLock.
 CREATE TABLE public.shedlock (
     name VARCHAR(64) NOT NULL,
     lock_until TIMESTAMP NOT NULL,
@@ -10,10 +14,14 @@ CREATE TABLE public.shedlock (
     PRIMARY KEY (name)
 );
 
--- Now tables for entities specific to our UserLand system.
-CREATE SCHEMA IF NOT EXISTS iam; -- Identity and access management: handles all things related to user accounts.
+-- ============================================================================
+-- Tables for entities specific to our UserLand system.
+-- ============================================================================
 
--- Main users table.
+-- Identity and access management: handles all things related to user accounts.
+CREATE SCHEMA IF NOT EXISTS iam;
+
+-- Main users table. Contains data about user accounts.
 CREATE TABLE iam.users (
     -- Identificator.
     id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
@@ -52,8 +60,10 @@ CREATE TABLE iam.tokens (
     -- Token value itself. Business key.
     token VARCHAR(128) NOT NULL UNIQUE,
 
-    -- Table-level constraint for Foreign Key
-    CONSTRAINT fk_user FOREIGN KEY (id_user) REFERENCES iam.users(id) ON DELETE CASCADE
+    -- Table-level constraint for Foreign Key.
+    CONSTRAINT fk_user FOREIGN KEY (id_user) REFERENCES iam.users(id) ON DELETE CASCADE,
+    -- There can be only one token of given type for given user at once.
+    CONSTRAINT uq_user_token_type UNIQUE (id_user, type)
 );
 
 -- User history.
@@ -73,6 +83,46 @@ CREATE TABLE iam.history (
     -- What caused user history event?
     what VARCHAR(50) NOT NULL CHECK (what IN ('CREATED', 'ACTIVATED', 'PASS_RESET_REQ', 'PASS_RESET', 'DELETE_REQ', 'LOGIN', 'LOGOUT')),
 
-    -- Table-level constraint for Foreign Key
+    -- Table-level constraint for Foreign Key.
     CONSTRAINT fk_user FOREIGN KEY (id_user) REFERENCES iam.users(id) ON DELETE CASCADE
+);
+
+-- User permissions.
+CREATE TABLE iam.permissions (
+    -- Identificator.
+    id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+
+    -- Name of permission entry. Must be unique.
+    name VARCHAR(255) NOT NULL UNIQUE,
+    -- If true, this permission should be embedded in JWT key.
+    in_jwt bool NOT NULL,
+    -- If true, this permission should be embedded in Spring authorities.
+    in_authorities bool NOT NULL
+);
+-- Known permissions.
+INSERT INTO iam.permissions (name, in_jwt, in_authorities) VALUES ('role', true, true);
+
+-- User permission entry.
+CREATE TABLE iam.user_permissions (
+    -- Identificator.
+    id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    -- UUID. Business key.
+    uuid VARCHAR(128) NOT NULL UNIQUE,
+    -- Foreign key to user table.
+    id_user BIGINT NOT NULL,
+    -- Foreign key to permission table.
+    id_permission BIGINT NOT NULL,
+
+    -- When user permission entry was created.
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    -- Value of permission entry.
+    value VARCHAR(255) NOT NULL,
+
+    -- Table-level constraint for Foreign Key.
+    CONSTRAINT fk_user FOREIGN KEY (id_user) REFERENCES iam.users(id) ON DELETE CASCADE,
+    -- Table-level constraint for Foreign Key.
+    CONSTRAINT fk_permission FOREIGN KEY (id_permission) REFERENCES iam.permissions(id) ON DELETE CASCADE,
+    -- There can be only one permission for given user at once.
+    CONSTRAINT uq_user_permission UNIQUE (id_user, id_permission)
 );

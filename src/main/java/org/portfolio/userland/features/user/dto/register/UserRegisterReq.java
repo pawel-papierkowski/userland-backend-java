@@ -6,6 +6,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import org.portfolio.userland.common.constants.ValidConst;
+import org.portfolio.userland.features.user.dto.common.EnFrontendFramework;
 
 /**
  * DTO for user registration. It contains minimal subset of whole User - only data needed for registration.
@@ -13,6 +14,7 @@ import org.portfolio.userland.common.constants.ValidConst;
  * @param email User email.
  * @param password User password.
  * @param lang User language as simple language code. Example: 'pl'.
+ * @param frontend Used frontend. If null/empty, will use default. Note it is not in user data.
  */
 @Schema(description = "Payload required to register a new user.")
 public record UserRegisterReq(
@@ -37,5 +39,8 @@ public record UserRegisterReq(
     @NotBlank(message = "Language is required")
     @Size(min = 2, max = 2, message = "Invalid language code")
     @Schema(description = "Short language code.", example = "en")
-    String lang
+    String lang,
+
+    @Schema(description = "Used frontend framework. Can be null, will default to vue.", example = "VUE")
+    EnFrontendFramework frontend
 ) {}

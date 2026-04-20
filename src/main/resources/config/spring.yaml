@@ -30,5 +30,5 @@ management:
 # Secrets are defined in GitHub (Repository Secrets).
 security:
   jwt:
-    secret-key: ${JWT_SECRET:qXqyG/cXonpbJY7zfChA/XoatblyieXumWmRg3mYjUc=} # this is default in case JWT_SECRET is missing, we can use whatever locally
-    expiration-time: 86400000 # 24 hours
+    secret: ${JWT_SECRET:qXqyG/cXonpbJY7zfChA/XoatblyieXumWmRg3mYjUc=} # Bytes encoded in BASE64. This is default in case JWT_SECRET is missing, we can use whatever locally.
+    expiration: 1440 # 24 hours, in minutes
