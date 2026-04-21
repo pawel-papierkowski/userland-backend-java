@@ -10,3 +10,6 @@ app:
         tokens:
           delay: 6h
           initial: 10m # to prevent user and token cleanup starting simultaneously
+        jwt:
+          delay: 6h
+          initial: 15m

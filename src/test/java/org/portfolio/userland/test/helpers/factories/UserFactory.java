@@ -3,6 +3,7 @@ package org.portfolio.userland.test.helpers.factories;
 import lombok.RequiredArgsConstructor;
 import org.instancio.Instancio;
 import org.portfolio.userland.common.services.clock.ClockService;
+import org.portfolio.userland.common.services.jwt.JwtService;
 import org.portfolio.userland.common.services.security.SecurityGeneratorService;
 import org.portfolio.userland.features.user.entity.EnHistoryWhat;
 import org.portfolio.userland.features.user.entity.EnTokenType;
@@ -21,8 +22,10 @@ import static org.instancio.Select.field;
 public class UserFactory {
   private final UserHistoryFactory userHistoryFactory;
   private final UserTokenFactory userTokenFactory;
+  private final UserJwtFactory userJwtFactory;
 
   private final SecurityGeneratorService securityGeneratorService;
+  private final JwtService jwtService;
 
   private final ClockService clockService;
   private final PasswordEncoder passwordEncoder;
@@ -48,6 +51,21 @@ public class UserFactory {
     User user = genBaseUser();
     user.setStatus(EnUserStatus.ACTIVE);
     userHistoryFactory.genHistoryEvent(user, EnHistoryWhat.ACTIVATED);
+    return user;
+  }
+
+  /**
+   * Generate activated user that is already logged in.
+   * @return User.
+   */
+  public User genUserLogged() {
+    User user = genBaseUser();
+    user.setStatus(EnUserStatus.ACTIVE);
+    userHistoryFactory.genHistoryEvent(user, EnHistoryWhat.ACTIVATED);
+
+    userHistoryFactory.genHistoryEvent(user, EnHistoryWhat.LOGIN);
+    String token = jwtService.generateToken(user);
+    userJwtFactory.genJwtEntry(user, token);
     return user;
   }
 
@@ -86,6 +104,7 @@ public class UserFactory {
         .set(field(User::getStatus), status)
         .set(field(User::getLocked), false)
         .ignore(field(User::getTokens)) // we fill it manually
+        .ignore(field(User::getJwt)) // ditto
         .ignore(field(User::getHistory)) // ditto
         .ignore(field(User::getPermissions)) // ditto
         .create();

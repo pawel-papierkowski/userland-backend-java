@@ -23,6 +23,10 @@ public class UserHelperService {
   @Value("${app.user.token.deletion.expires}")
   private long deletionTokenExpires;
 
+  /** How long before JWT token expires in minutes. */
+  @Value("${security.jwt.expiration}")
+  private long jwtExpiration;
+
   /**
    * Finds out when given token type expires.
    * @param nowAt Current date&time.
@@ -35,5 +39,14 @@ public class UserHelperService {
       case PASSWORD -> nowAt.plusMinutes(passwordResetTokenExpires);
       case DELETE -> nowAt.plusMinutes(deletionTokenExpires);
     };
+  }
+
+  /**
+   * Finds out when JWT expires.
+   * @param nowAt Current date&time.
+   * @return Expiration date&time.
+   */
+  public LocalDateTime resolveJwtExpiration(LocalDateTime nowAt) {
+    return nowAt.plusMinutes(jwtExpiration);
   }
 }

@@ -12,33 +12,29 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 /**
- * Handles <code>UserLandDetails</code> for <code>JwtAuthFilter</code>. Usage example:
- * <pre>
- * &#064;RestController
- * &#064;RequestMapping("/api")
- * public class ProfileController { *
- *   &#064;GetMapping("/me")
- *   public String getMyProfile(@AuthenticationPrincipal UserLandDetails principal) {
- *     // You now have safe, typed access to the authenticated user's details.
- *     Long userId = principal.getId();
- *     String username = principal.getUsername();
- *     return "Hello " + username + ", your ID is " + userId;
- *   }
- * }</pre>
+ * Handles <code>UserLandDetails</code> for <code>JwtAuthFilter</code>.
  */
 @Service
 @RequiredArgsConstructor
 public class UserLandDetailsService implements UserDetailsService {
   private final UserRepository userRepository;
 
+  /**
+   * Locates the user based on the username. Note: username is email.
+   * @param email The username identifying the user whose data is required.
+   * @return User details.
+   * @throws UsernameNotFoundException When user was not found.
+   */
   @Override
-  public @NonNull UserLandDetails loadUserByUsername(@NonNull String username) throws UsernameNotFoundException {
-    User user = userRepository.findByEmail(username)
-        .orElseThrow(() -> new UsernameNotFoundException("User '"+username+"' not found"));
+  @Transactional
+  public @NonNull UserLandDetails loadUserByUsername(@NonNull String email) throws UsernameNotFoundException {
+    User user = userRepository.findByEmail(email)
+        .orElseThrow(() -> new UsernameNotFoundException("User '"+email+"' not found"));
 
     // Map permissions to authorities.
     // Example: permission "role" and userPermission "operator" will result in "ROLE_OPERATOR"

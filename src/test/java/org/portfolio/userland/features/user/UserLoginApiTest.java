@@ -22,7 +22,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
 /**
- * Integration test for user login and logout.
+ * Integration test for user login.
  */
 public class UserLoginApiTest extends BaseUserTest {
   @Autowired
@@ -52,23 +52,24 @@ public class UserLoginApiTest extends BaseUserTest {
             .content(objectMapper.writeValueAsString(req)))
         .andReturn();
 
-    // Assert API Response.
+    // Assert: API Response.
     assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.OK.value());
 
-    // Prepare expected result (user is same, but with new LOGIN history event).
-    userHistoryFactory.genHistoryEvent(expectedUser, EnHistoryWhat.LOGIN);
+    UserLoginResp actualResp = objectMapper.readValue(mvcResult.getResponse().getContentAsString(), UserLoginResp.class);
 
-    // Assert database state.
-    transactionTemplate.execute(status -> {
-      // Assert user state.
+    // Prepare expected result (user is same, but with new LOGIN history event and JWT entry).
+    userHistoryFactory.genHistoryEvent(expectedUser, EnHistoryWhat.LOGIN);
+    userJwtFactory.genJwtEntry(expectedUser, actualResp.jwtToken());
+
+    // Assert: Database state.
+    transactionTemplate.execute(_ -> {
+      // Assert: User state.
       User actualUser = userRepository.findByEmail("test@example.com").orElseThrow();
       userAssert.assertIt(actualUser, expectedUser);
       return null;
     });
 
-    // Assert JWT token.
-    UserLoginResp actualResp = objectMapper.readValue(mvcResult.getResponse().getContentAsString(), UserLoginResp.class);
-    // Validate it is proper JWT token with correct signature and payload.
+    // Assert: Validate it is proper JWT token with correct signature and payload.
     assertThat(jwtService.isTokenValid(actualResp.jwtToken(), expectedUser.getEmail())).as("Token must be valid").isTrue();
     Map<String, Object> actualClaimMap = jwtService.extractAllClaims(actualResp.jwtToken());
     Map<String, Object> expectedClaimMap = Maps.newHashMap();
@@ -82,7 +83,7 @@ public class UserLoginApiTest extends BaseUserTest {
   public void loginWithRights() throws Exception {
     clock.setFixedTime("2026-04-10T10:00:00Z");
     // Arrange: Create active user in database that has special permissions (operator of administration panel).
-    Permission permissionRole = permissionRepository.findByName("role").get();
+    Permission permissionRole = permissionRepository.findByName("role").orElseThrow();
     User expectedUser = userFactory.genUser();
     userPermissionFactory.genPermissionEntry(expectedUser, permissionRole, "operator");
     userRepository.save(expectedUser);
@@ -97,23 +98,24 @@ public class UserLoginApiTest extends BaseUserTest {
             .content(objectMapper.writeValueAsString(req)))
         .andReturn();
 
-    // Assert API Response.
+    // Assert: API Response.
     assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.OK.value());
+
+    UserLoginResp actualResp = objectMapper.readValue(mvcResult.getResponse().getContentAsString(), UserLoginResp.class);
 
     // Prepare expected result (user is same, but with new LOGIN history event).
     userHistoryFactory.genHistoryEvent(expectedUser, EnHistoryWhat.LOGIN);
+    userJwtFactory.genJwtEntry(expectedUser, actualResp.jwtToken());
 
-    // Assert database state.
-    transactionTemplate.execute(status -> {
-      // Assert user state.
+    // Assert: Database state.
+    transactionTemplate.execute(_ -> {
+      // Assert: User state.
       User actualUser = userRepository.findByEmail("test@example.com").orElseThrow();
       userAssert.assertIt(actualUser, expectedUser);
       return null;
     });
 
-    // Assert JWT token.
-    UserLoginResp actualResp = objectMapper.readValue(mvcResult.getResponse().getContentAsString(), UserLoginResp.class);
-    // Validate it is proper JWT token with correct signature and payload.
+    // Assert: Validate it is proper JWT token with correct signature and payload.
     assertThat(jwtService.isTokenValid(actualResp.jwtToken(), expectedUser.getEmail())).as("Token must be valid").isTrue();
     Map<String, Object> actualClaimMap = jwtService.extractAllClaims(actualResp.jwtToken());
     Map<String, Object> expectedClaimMap = Maps.newHashMap();
@@ -140,7 +142,7 @@ public class UserLoginApiTest extends BaseUserTest {
     // Arrange: Create login request.
     UserLoginReq req = new UserLoginReq("test@example.com", "wrongPassword");
 
-    // Act: Log in user.
+    // Act: Try to log in user.
     MvcResult mvcResult = mockMvc.perform(post("/api/users/login")
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(req)))

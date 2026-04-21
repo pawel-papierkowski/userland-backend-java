@@ -77,6 +77,10 @@ public class User {
   @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
   private List<UserToken> tokens = new ArrayList<>();
 
+  /** JWT assigned to this user. */
+  @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+  private List<UserJwt> jwt = new ArrayList<>();
+
   /** Permissions that this user has. */
   @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
   private List<UserPermission> permissions = new ArrayList<>();
@@ -101,6 +105,16 @@ public class User {
     if (tokens == null) this.tokens = new ArrayList<>();
     tokens.add(tokenEntry);
     tokenEntry.setUser(this);
+  }
+
+  /**
+   * Add JWT entry to list of JWT entries.
+   * @param jwtEntry JWT entry to add.
+   */
+  public void addJwt(UserJwt jwtEntry) {
+    if (jwt == null) this.jwt = new ArrayList<>();
+    jwt.add(jwtEntry);
+    jwtEntry.setUser(this);
   }
 
   /**

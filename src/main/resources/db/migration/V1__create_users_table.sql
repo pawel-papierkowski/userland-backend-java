@@ -66,6 +66,25 @@ CREATE TABLE iam.tokens (
     CONSTRAINT uq_user_token_type UNIQUE (id_user, type)
 );
 
+-- JWT for user. Exists because we need ability to revoke them.
+CREATE TABLE iam.jwt (
+    -- Identificator.
+    id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    -- Foreign key to user table.
+    id_user BIGINT NOT NULL,
+
+    -- When token was created.
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    -- When token expires. Expired tokens cannot be used and will eventually be removed.
+    expires_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    -- Token value itself. Business key.
+    token TEXT NOT NULL UNIQUE,
+
+    -- Table-level constraint for Foreign Key.
+    CONSTRAINT fk_user FOREIGN KEY (id_user) REFERENCES iam.users(id) ON DELETE CASCADE
+);
+
 -- User history.
 CREATE TABLE iam.history (
     -- Identificator.
