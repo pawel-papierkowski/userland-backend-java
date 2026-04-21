@@ -8,9 +8,12 @@ import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import lombok.RequiredArgsConstructor;
 import org.portfolio.userland.common.services.clock.ClockService;
+import org.portfolio.userland.features.user.entity.EnUserStatus;
 import org.portfolio.userland.features.user.entity.Permission;
 import org.portfolio.userland.features.user.entity.User;
 import org.portfolio.userland.features.user.entity.UserPermission;
+import org.portfolio.userland.features.user.exception.UserCannotBeLockedException;
+import org.portfolio.userland.features.user.exception.UserMustBeActiveException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -35,7 +38,7 @@ public class JwtService {
   private String secretKey;
   /** How long before JWT token expires in minutes. */
   @Value("${security.jwt.expiration}")
-  private long expiration;
+  private long jwtExpiration;
 
   /**
    * Generate JWT token based on user data.
@@ -43,8 +46,10 @@ public class JwtService {
    * @return Generated JWT token.
    */
   public String generateToken(User user) {
+    verifyUser(user);
+
     LocalDateTime issuedAt = clockService.getNowUTC();
-    LocalDateTime expiresAt = issuedAt.plusMinutes(expiration);
+    LocalDateTime expiresAt = issuedAt.plusMinutes(jwtExpiration);
     Date issueDate = clockService.convert(issuedAt);
     Date expirationDate = clockService.convert(expiresAt);
 
@@ -55,6 +60,15 @@ public class JwtService {
         .expiration(expirationDate)
         .signWith(resolveSigningKey())
         .compact();
+  }
+
+  /**
+   * Checks if user is in state that allows login. Invalid state causes exception.
+   * @param user User data.
+   */
+  private void verifyUser(User user) {
+    if (!EnUserStatus.ACTIVE.equals(user.getStatus())) throw new UserMustBeActiveException(user.getEmail());
+    if (user.getLocked()) throw new UserCannotBeLockedException(user.getEmail());
   }
 
   /**
@@ -92,7 +106,7 @@ public class JwtService {
    */
   public boolean isTokenValid(String token, String email) {
     try {
-      final String emailInToken = extractClaim(token, Claims::getSubject);
+      final String emailInToken = extractEmail(token);
       return (emailInToken.equals(email)) && !isTokenExpired(token);
     } catch (JwtException | IllegalArgumentException ex) {
       // Token is malformed, expired, or signature is invalid.
@@ -112,16 +126,7 @@ public class JwtService {
     return extractedDate.before(nowDate);
   }
 
-  /**
-   * Generic method to extract a specific claim from the token payload.
-   * @param token JWT token.
-   * @param claimsResolver Claim to get.
-   * @return Value from claimsResolver.
-   */
-  public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
-    final Claims claims = extractAllClaims(token);
-    return claimsResolver.apply(claims);
-  }
+  //
 
   /**
    * Parses the token and returns all claims.
@@ -136,5 +141,25 @@ public class JwtService {
         .build()
         .parseSignedClaims(token)
         .getPayload();
+  }
+
+  /**
+   * Generic method to extract a specific claim from the token payload.
+   * @param token JWT token.
+   * @param claimsResolver Claim to get.
+   * @return Value from claimsResolver.
+   */
+  public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
+    final Claims claims = extractAllClaims(token);
+    return claimsResolver.apply(claims);
+  }
+
+  /**
+   * Extract email claim from the token payload.
+   * @param token JWT token.
+   * @return Email.
+   */
+  public String extractEmail(String token) {
+    return extractClaim(token, Claims::getSubject);
   }
 }

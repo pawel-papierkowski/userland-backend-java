@@ -4,12 +4,9 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.portfolio.userland.features.user.entity.EnUserStatus;
 import org.portfolio.userland.features.user.entity.User;
+import org.portfolio.userland.features.user.entity.UserJwt;
 import org.portfolio.userland.features.user.entity.UserToken;
-import org.portfolio.userland.features.user.repositories.UserRepository;
-import org.portfolio.userland.features.user.repositories.UserTokenRepository;
 import org.portfolio.userland.features.user.scheduler.UserScheduler;
-import org.portfolio.userland.test.base.BaseIntegrationTest;
-import org.portfolio.userland.test.helpers.factories.UserFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,22 +17,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * Testing code that is called via user scheduler.
  */
-public class UserSchedulerTest extends BaseIntegrationTest {
-  @Autowired
-  private UserRepository userRepository;
-  @Autowired
-  private UserTokenRepository userTokenRepository;
-
-  @Autowired
-  private UserFactory userFactory;
-
+public class UserSchedulerTest extends BaseUserTest {
   @Autowired
   private UserScheduler userScheduler;
 
   @AfterEach
   public void tearDown() {
     // Clean up the database after every test so tests don't interfere with each other.
-    userTokenRepository.deleteAll();
     userRepository.deleteAll();
   }
 
@@ -43,7 +31,7 @@ public class UserSchedulerTest extends BaseIntegrationTest {
 
   @Test
   @Transactional
-  public void cleanPendingUsers() throws Exception {
+  public void cleanPendingUsers() {
     // Arrange: add a bunch of random users ensuring each one has different creation time.
     clock.setFixedTime("2026-04-10T10:00:00Z");
     userRepository.save(userFactory.genRandUser(EnUserStatus.PENDING)); // this user will be removed
@@ -71,7 +59,7 @@ public class UserSchedulerTest extends BaseIntegrationTest {
 
   @Test
   @Transactional
-  public void cleanExpiredTokens() throws Exception {
+  public void cleanExpiredTokens() {
     // Arrange: add a bunch of random users with tokens ensuring each one has different expiration time.
     // Test will remove only some of them.
     clock.setFixedTime("2026-04-10T10:00:00Z");
@@ -93,5 +81,37 @@ public class UserSchedulerTest extends BaseIntegrationTest {
     // Make sure correct token survived.
     UserToken userToken = userTokenRepository.findAll().getFirst();
     assertThat(userToken.getUser().getId()).as("Wrong user id for token").isEqualTo(u3.getId());
+  }
+
+  @Test
+  @Transactional
+  public void cleanExpiredJwts() {
+    // Arrange: add a bunch of random users with JWT entries ensuring each one has different expiration time.
+    // Test will remove only some of them.
+    clock.setFixedTime("2026-04-10T10:00:00Z");
+    User u1 = userFactory.genRandUser(EnUserStatus.ACTIVE);
+    userJwtFactory.genJwtEntry(u1, "JWT token 1");
+    userRepository.save(u1);
+    clock.setFixedTime("2026-04-10T22:00:00Z");
+    User u2 = userFactory.genRandUser(EnUserStatus.ACTIVE);
+    userJwtFactory.genJwtEntry(u2, "JWT token 2");
+    userRepository.save(u2);
+    clock.setFixedTime("2026-04-11T10:00:00Z");
+    User u3 = userFactory.genRandUser(EnUserStatus.ACTIVE);
+    userJwtFactory.genJwtEntry(u3, "JWT token 3");
+    userRepository.save(u3); // this user will have surviving JWT
+
+    entityManager.flush();
+    entityManager.clear();
+
+    // Act: manually call scheduler method for cleaning up expired tokens.
+    clock.setFixedTime("2026-04-11T22:30:00Z");
+    userScheduler.cleanExpiredJwts();
+
+    // Assert: only one token should exist, rest is deleted.
+    assertThat(userJwtRepository.count()).as("Count of all user JWTs is wrong").isEqualTo(1);
+    // Make sure correct token survived.
+    UserJwt userJwt = userJwtRepository.findAll().getFirst();
+    assertThat(userJwt.getUser().getId()).as("Wrong user id for JWT").isEqualTo(u3.getId());
   }
 }

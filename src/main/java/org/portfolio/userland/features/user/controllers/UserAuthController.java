@@ -41,7 +41,7 @@ public class UserAuthController {
    * @return Response.
    */
   @PostMapping(value = "/login", produces = "application/json")
-  @Operation(summary = "Login user", description = "Accepts credentials, validates them, and returns a signed JWT.")
+  @Operation(summary = "Login user", description = "Accepts credentials, validates them, logs in user and returns a signed JWT.")
   @ApiResponses(value = {
       @ApiResponse(responseCode = "200", description = "Login was successful."),
       @ApiResponse(responseCode = "400", description = "Invalid input (missing data).",
@@ -54,5 +54,19 @@ public class UserAuthController {
   public ResponseEntity<UserLoginResp> login(@Valid @RequestBody UserLoginReq userLoginReq) {
     UserLoginResp resp = userLoginService.login(userLoginReq);
     return new ResponseEntity<>(resp, HttpStatus.OK);
+  }
+
+  /**
+   * Log out user. Nothing happens if you are already logged out.
+   * @return Response.
+   */
+  @PostMapping(value = "/logout", produces = "application/json")
+  @Operation(summary = "Logout user", description = "Perform user logout.")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200", description = "Logout was successful.")
+  })
+  public ResponseEntity<String> logout() {
+    userLoginService.logout();
+    return new ResponseEntity<>(HttpStatus.OK);
   }
 }

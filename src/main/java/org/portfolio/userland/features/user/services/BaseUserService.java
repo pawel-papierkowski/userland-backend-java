@@ -104,6 +104,22 @@ public abstract class BaseUserService {
   //
 
   /**
+   * Create and fill JWT data.
+   * @param nowAt Current date&time.
+   * @param jwtStr JWT string.
+   * @return User JWT entry.
+   */
+  protected UserJwt createJwtEntry(LocalDateTime nowAt, String jwtStr) {
+    UserJwt token = new UserJwt();
+    token.setCreatedAt(nowAt);
+    token.setExpiresAt(userHelperService.resolveJwtExpiration(nowAt));
+    token.setToken(jwtStr);
+    return token;
+  }
+
+  //
+
+  /**
    * Create and fill history event.
    * @param nowAt Current date&time.
    * @param what What happened.

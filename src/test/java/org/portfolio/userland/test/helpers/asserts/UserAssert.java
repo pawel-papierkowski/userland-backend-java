@@ -2,10 +2,7 @@ package org.portfolio.userland.test.helpers.asserts;
 
 import lombok.RequiredArgsConstructor;
 import org.portfolio.userland.common.constants.ValidConst;
-import org.portfolio.userland.features.user.entity.User;
-import org.portfolio.userland.features.user.entity.UserHistory;
-import org.portfolio.userland.features.user.entity.UserPermission;
-import org.portfolio.userland.features.user.entity.UserToken;
+import org.portfolio.userland.features.user.entity.*;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -26,8 +23,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 @Service
 @RequiredArgsConstructor
 public class UserAssert {
-  private static final String[] USER_FIELDS_IGNORE = { "id", "password", "tokens", "history", "permissions" };
+  private static final String[] USER_FIELDS_IGNORE = { "id", "password", "tokens", "jwt", "history", "permissions" };
   private static final String[] USER_TOKEN_FIELDS_IGNORE = { "id", "user", "token" };
+  private static final String[] USER_JWT_FIELDS_IGNORE = { "id", "user" };
   private static final String[] USER_HISTORY_FIELDS_IGNORE = { "id", "user", "uuid" };
   private static final String[] USER_PERMISSION_FIELDS_IGNORE = { "id", "user", "permission", "uuid" };
 
@@ -50,6 +48,7 @@ public class UserAssert {
 
     // Assert collections
     assertTokens(actualUser.getTokens(), expectedUser.getTokens());
+    assertJwt(actualUser.getJwt(), expectedUser.getJwt());
     assertHistory(actualUser.getHistory(), expectedUser.getHistory());
     assertPermissions(actualUser.getPermissions(), expectedUser.getPermissions());
   }
@@ -85,6 +84,38 @@ public class UserAssert {
 
     assertThat(actualToken.getId()).as("Token["+ix+"] entry id is wrong").isGreaterThan(0L);
     assertThat(actualToken.getToken()).as("Token["+ix+"] entry string is invalid").matches(ValidConst.REG_EXPR_TOKEN);
+  }
+
+  //
+
+  /**
+   * Assert all JWT entries.
+   * @param actualJwts Actual JWT entries.
+   * @param expectedJwts Expected JWT entries.
+   */
+  private void assertJwt(List<UserJwt> actualJwts, List<UserJwt> expectedJwts) {
+    assertThat(actualJwts.size()).as("User count of JWT entries is wrong").isEqualTo(expectedJwts.size());
+    for (int i=0; i<actualJwts.size(); i++) {
+      UserJwt actualJwt = actualJwts.get(i);
+      UserJwt expectedJwt = expectedJwts.get(i);
+      assertJwtEntry(i, actualJwt, expectedJwt);
+    }
+  }
+
+  /**
+   * Assert one JWT entry.
+   * @param ix Index.
+   * @param actualJwt Actual JWT entry.
+   * @param expectedJwt Expected JWT entry.
+   */
+  private void assertJwtEntry(int ix, UserJwt actualJwt, UserJwt expectedJwt) {
+    assertThat(actualJwt)
+        .as("JWT entry has invalid state")
+        .usingRecursiveComparison()
+        .ignoringFields(USER_JWT_FIELDS_IGNORE)
+        .isEqualTo(expectedJwt);
+
+    assertThat(actualJwt.getId()).as("Jwt["+ix+"] entry id is wrong").isGreaterThan(0L);
   }
 
   //

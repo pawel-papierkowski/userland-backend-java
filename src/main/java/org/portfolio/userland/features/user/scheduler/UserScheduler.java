@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 import org.portfolio.userland.common.services.clock.ClockService;
+import org.portfolio.userland.features.user.repositories.UserJwtRepository;
 import org.portfolio.userland.features.user.repositories.UserRepository;
 import org.portfolio.userland.features.user.repositories.UserTokenRepository;
 import org.springframework.beans.factory.annotation.Value;
@@ -15,7 +16,12 @@ import org.springframework.util.StopWatch;
 import java.time.LocalDateTime;
 
 /**
- * Scheduler for users.
+ * Scheduler for users. Functions:
+ * <ul>
+ *   <li>Clear expired users (PENDING only).</li>
+ *   <li>Clear expired tokens.</li>
+ *   <li>Clear expired JWT.</li>
+ * </ul>
  */
 @Service
 @RequiredArgsConstructor
@@ -23,6 +29,7 @@ import java.time.LocalDateTime;
 public class UserScheduler {
   private final UserRepository userRepository;
   private final UserTokenRepository userTokenRepository;
+  private final UserJwtRepository userJwtRepository;
   private final ClockService clockService;
 
   /** How long to wait before removal of pending user in hours. */
@@ -80,5 +87,31 @@ public class UserScheduler {
     stopWatch.stop();
 
     log.info("Cleaned up {} expired tokens. Total time: {} s", deletedTokens, stopWatch.getTotalTimeSeconds());
+  }
+
+  /**
+   * Cleans up expired JWTs.
+   */
+  @Scheduled(
+      fixedDelayString = "${app.scheduler.user.cleanup.jwt.delay}",
+      initialDelayString = "${app.scheduler.user.cleanup.jwt.initial}"
+  )
+  @SchedulerLock(
+      name = "CleanupScheduler_cleanExpiredJWTs",
+      lockAtLeastFor = "1m",
+      lockAtMostFor = "15m"
+  )
+  @Transactional
+  public void cleanExpiredJwts() {
+    log.info("Starting scheduled cleanup of expired JWTs...");
+    StopWatch stopWatch = new StopWatch("Expired Tokens Cleanup");
+    LocalDateTime nowAt = clockService.getNowUTC();
+
+    // Delete tokens that expired naturally.
+    stopWatch.start("Delete Expired JWTs");
+    int deletedTokens = userJwtRepository.deleteExpiredJwts(nowAt);
+    stopWatch.stop();
+
+    log.info("Cleaned up {} expired JWTs. Total time: {} s", deletedTokens, stopWatch.getTotalTimeSeconds());
   }
 }
