@@ -2,14 +2,17 @@
 
 spring:
   main:
-    banner-mode: off # will screw with gcp logging
+    banner-mode: off # banner will screw with gcp logging
   mvc:
     problemdetails:
       enabled: true
   jpa:
     hibernate:
-      ddl-auto: validate # never use 'update' or 'create'
+      ddl-auto: validate # never use 'update' or 'create', Flyway takes care of it
     open-in-view: false # disable Open-In-View
+  flyway:
+    schemas: aux
+    table: flyway_schema_history
   cloud:
     gcp: # disable gcp stuff locally, it will be enabled on gcp profile
       core:
@@ -31,4 +34,4 @@ management:
 security:
   jwt:
     secret: ${JWT_SECRET:qXqyG/cXonpbJY7zfChA/XoatblyieXumWmRg3mYjUc=} # Bytes encoded in BASE64. This is default in case JWT_SECRET is missing, we can use whatever locally.
-    expiration: 1440 # 24 hours, in minutes
+    expiration: 360 # 6 hours, in minutes

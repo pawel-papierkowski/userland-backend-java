@@ -3,7 +3,7 @@ package org.portfolio.userland.features.user.mapper;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.portfolio.userland.features.user.dto.register.UserRegisterReq;
-import org.portfolio.userland.features.user.entity.User;
+import org.portfolio.userland.features.user.entities.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.util.HtmlUtils;

@@ -4,7 +4,7 @@ import com.google.common.collect.Maps;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.portfolio.userland.features.user.BaseUserTest;
-import org.portfolio.userland.features.user.entity.User;
+import org.portfolio.userland.features.user.entities.User;
 import org.portfolio.userland.features.user.exception.UserCannotBeLockedException;
 import org.portfolio.userland.features.user.exception.UserMustBeActiveException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,7 +45,7 @@ public class JwtServiceTest extends BaseUserTest {
     Map<String, Object> actualClaimMap = jwtService.extractAllClaims(token);
     Map<String, Object> expectedClaimMap = Maps.newHashMap();
     expectedClaimMap.put("iat", 1775808300L); // issued
-    expectedClaimMap.put("exp", 1775894700L); // expires
+    expectedClaimMap.put("exp", 1775829900L); // expires
     expectedClaimMap.put("sub", "test@example.com"); // user account email as subject
     assertThat(actualClaimMap).as("Claim map is invalid").isEqualTo(expectedClaimMap);
   }

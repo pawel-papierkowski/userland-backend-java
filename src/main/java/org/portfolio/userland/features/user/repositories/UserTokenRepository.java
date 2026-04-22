@@ -1,7 +1,7 @@
 package org.portfolio.userland.features.user.repositories;
 
-import org.portfolio.userland.features.user.entity.EnTokenType;
-import org.portfolio.userland.features.user.entity.UserToken;
+import org.portfolio.userland.features.user.entities.EnTokenType;
+import org.portfolio.userland.features.user.entities.UserToken;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;

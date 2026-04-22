@@ -1,4 +1,4 @@
-package org.portfolio.userland.features.user.entity;
+package org.portfolio.userland.features.user.entities;
 
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -8,43 +8,44 @@ import java.time.LocalDateTime;
 import java.util.Objects;
 
 /**
- * User token entry.
+ * User history event.
  */
 @Entity
-@Table(name = "tokens", schema = "iam")
+@Table(name = "history", schema = "iam")
 @Getter
 @Setter
-public class UserToken {
+public class UserHistory {
   /** Identificator. */
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
-  /** User that has this token entry. */
+  /** UUID. Acts as business key. */
+  @Column(unique = true, nullable = false, updatable = false)
+  private String uuid;
+
+  /** User that has this history event. */
   @ManyToOne
   @JoinColumn(name = "id_user")
   private User user;
 
   //
 
-  /** Date&time of token creation. */
+  /** Date&time of history event creation. */
   @Column(nullable = false, updatable = false)
   private LocalDateTime createdAt;
 
-  /** Date&time of token expiration. */
-  @Column(nullable = false, updatable = false)
-  private LocalDateTime expiresAt;
-
   //
 
-  /** Type of token. */
+  /** Who caused history event? */
   @Column(nullable = false)
   @Enumerated(EnumType.STRING)
-  private EnTokenType type;
+  private EnHistoryWho who;
 
-  /** Value of token. Acts as business key. */
-  @Column(unique = true, nullable = false, updatable = false)
-  private String token;
+  /** What caused history event? */
+  @Column(nullable = false)
+  @Enumerated(EnumType.STRING)
+  private EnHistoryWhat what;
 
   // //////////////////////////////////////////////////////////////////////////
 
@@ -53,14 +54,14 @@ public class UserToken {
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
 
-    UserToken userToken = (UserToken) o;
+    UserHistory userHistory = (UserHistory) o;
 
-    if (token == null) return false;
-    return Objects.equals(token, userToken.getToken());
+    if (uuid == null) return false;
+    return Objects.equals(uuid, userHistory.getUuid());
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(token);
+    return Objects.hash(uuid);
   }
 }

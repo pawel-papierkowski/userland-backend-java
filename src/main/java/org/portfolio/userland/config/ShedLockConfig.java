@@ -18,13 +18,13 @@ import javax.sql.DataSource;
 public class ShedLockConfig {
   @Bean
   public LockProvider lockProvider(DataSource dataSource, PlatformTransactionManager transactionManager) {
-    // Tells ShedLock where is shedlock table to use.
+    // Configures ShedLock. Among other things, we tell it where is shedlock table to use.
     return new JdbcTemplateLockProvider(
         JdbcTemplateLockProvider.Configuration.builder()
             .withJdbcTemplate(new JdbcTemplate(dataSource))
             .withTransactionManager(transactionManager) // prevents weird database issues when running multiple tests
             .usingDbTime() // Uses PostgreSQL time, ignoring server clock drift.
-            .withTableName("public.shedlock") // Ensures ShedLock uses correct schema.
+            .withTableName("aux.shedlock") // Ensures ShedLock uses correct schema.
             .build()
     );
   }

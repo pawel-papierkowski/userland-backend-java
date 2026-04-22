@@ -1,4 +1,4 @@
-package org.portfolio.userland.features.user.entity;
+package org.portfolio.userland.features.user.entities;
 
 /**
  * Available token types.

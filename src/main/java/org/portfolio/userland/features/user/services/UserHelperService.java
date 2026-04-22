@@ -1,7 +1,7 @@
 package org.portfolio.userland.features.user.services;
 
 import lombok.RequiredArgsConstructor;
-import org.portfolio.userland.features.user.entity.EnTokenType;
+import org.portfolio.userland.features.user.entities.EnTokenType;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 

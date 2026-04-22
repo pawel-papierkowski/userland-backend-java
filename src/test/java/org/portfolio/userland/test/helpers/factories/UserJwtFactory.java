@@ -2,8 +2,8 @@ package org.portfolio.userland.test.helpers.factories;
 
 import lombok.RequiredArgsConstructor;
 import org.portfolio.userland.common.services.clock.ClockService;
-import org.portfolio.userland.features.user.entity.User;
-import org.portfolio.userland.features.user.entity.UserJwt;
+import org.portfolio.userland.features.user.entities.User;
+import org.portfolio.userland.features.user.entities.UserJwt;
 import org.portfolio.userland.features.user.services.UserHelperService;
 import org.springframework.stereotype.Service;
 

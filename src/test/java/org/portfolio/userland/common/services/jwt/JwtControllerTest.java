@@ -3,9 +3,10 @@ package org.portfolio.userland.common.services.jwt;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.portfolio.userland.features.user.BaseUserTest;
-import org.portfolio.userland.features.user.entity.EnHistoryWhat;
-import org.portfolio.userland.features.user.entity.EnUserStatus;
-import org.portfolio.userland.features.user.entity.User;
+import org.portfolio.userland.features.user.entities.EnHistoryWhat;
+import org.portfolio.userland.features.user.entities.EnUserStatus;
+import org.portfolio.userland.features.user.entities.Permission;
+import org.portfolio.userland.features.user.entities.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.web.servlet.MvcResult;
@@ -33,11 +34,32 @@ public class JwtControllerTest extends BaseUserTest {
     clock.setFixedTime("2026-04-10T10:00:00Z");
 
     // Arrange: Create a user, token and JWT entry in database, emulating user login.
-    userRepository.save(userFactory.genUserLogged());
+    User user = userFactory.genUserLogged();
+    userRepository.save(user);
     String token = userJwtRepository.findAll().getFirst().getToken();
 
     // Act: Perform the request using MockMvc.
     MvcResult mvcResult = mockMvc.perform(get("/api/checks/must-be-logged")
+            .header("Authorization", "Bearer " + token))
+        .andReturn();
+
+    // Assert: API Response.
+    assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.OK.value());
+  }
+
+  @Test
+  void requestAdminEndpointWithValidToken() throws Exception {
+    clock.setFixedTime("2026-04-10T10:00:00Z");
+
+    // Arrange: Create a user, token and JWT entry in database, emulating user login.
+    Permission permissionRole = permissionRepository.findByName("role").orElseThrow();
+    User user = userFactory.genUserLogged();
+    userPermissionFactory.genPermissionEntry(user, permissionRole, "admin");
+    userRepository.save(user);
+    String token = userJwtRepository.findAll().getFirst().getToken();
+
+    // Act: Perform the request using MockMvc.
+    MvcResult mvcResult = mockMvc.perform(get("/api/checks/must-be-admin")
             .header("Authorization", "Bearer " + token))
         .andReturn();
 
@@ -57,6 +79,8 @@ public class JwtControllerTest extends BaseUserTest {
 
     // Assert: API Response.
     assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.UNAUTHORIZED.value());
+    // Assert: correct problem detail is present.
+    problemDetailService.assertPdUnauthorized(mvcResult, "/api/checks/must-be-logged");
   }
 
   @Test
@@ -78,6 +102,8 @@ public class JwtControllerTest extends BaseUserTest {
 
     // Assert: API Response.
     assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.UNAUTHORIZED.value());
+    // Assert: correct problem detail is present.
+    problemDetailService.assertPdUnauthorized(mvcResult, "/api/checks/must-be-logged");
   }
 
   @Test
@@ -101,6 +127,8 @@ public class JwtControllerTest extends BaseUserTest {
 
     // Assert: API Response.
     assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.UNAUTHORIZED.value());
+    // Assert: correct problem detail is present.
+    problemDetailService.assertPdUnauthorized(mvcResult, "/api/checks/must-be-logged");
   }
 
   @Test
@@ -124,5 +152,27 @@ public class JwtControllerTest extends BaseUserTest {
 
     // Assert: API Response.
     assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.UNAUTHORIZED.value());
+    // Assert: correct problem detail is present.
+    problemDetailService.assertPdUnauthorized(mvcResult, "/api/checks/must-be-logged");
+  }
+
+  @Test
+  void errNoAdmin() throws Exception {
+    clock.setFixedTime("2026-04-10T10:00:00Z");
+
+    // Arrange: Create a user, token and JWT entry in database, emulating user login. No admin rights.
+    User user = userFactory.genUserLogged();
+    userRepository.save(user);
+    String token = userJwtRepository.findAll().getFirst().getToken();
+
+    // Act: Perform the request using MockMvc.
+    MvcResult mvcResult = mockMvc.perform(get("/api/checks/must-be-admin")
+            .header("Authorization", "Bearer " + token))
+        .andReturn();
+
+    // Assert: API Response.
+    assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.FORBIDDEN.value());
+    // Assert: correct problem detail is present.
+    problemDetailService.assertPdForbidden(mvcResult, "/api/checks/must-be-admin");
   }
 }

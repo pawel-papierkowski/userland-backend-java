@@ -2,11 +2,14 @@
 -- Helper tables.
 -- ============================================================================
 
+-- Auxiliary schema: UserLand system and auxiliary tables. Includes tables used by third party libraries like Flyway or ShedLock.
+-- CREATE SCHEMA IF NOT EXISTS aux; -- commented as Flyway already creates it
+
 -- Small table required by net.javacrumbs.shedlock.
 -- Prevents issues when you call scheduler in Kubernets or similar multi-node environment.
 -- It ensures only one given scheduler method is called at once.
 -- See @UserScheduler for example of use of @SchedulerLock.
-CREATE TABLE public.shedlock (
+CREATE TABLE aux.shedlock (
     name VARCHAR(64) NOT NULL,
     lock_until TIMESTAMP NOT NULL,
     locked_at TIMESTAMP NOT NULL,
@@ -14,11 +17,25 @@ CREATE TABLE public.shedlock (
     PRIMARY KEY (name)
 );
 
+-- UserLand system configuration. For configuration that should go in effect immediately without restarting the system.
+CREATE TABLE aux.config (
+    -- Identificator.
+    id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    -- Configuration variable name.
+    name TEXT NOT NULL,
+    -- Configuration variable value.
+    value TEXT NOT NULL,
+    -- Description of configuration variable for the developer.
+    description TEXT NOT NULL
+);
+-- Known configuration.
+INSERT INTO aux.config (name, value, description) VALUES ('user.lockdown', '0', 'If 1, no user can log in unless they have ROLE_ADMIN permission.');
+
 -- ============================================================================
 -- Tables for entities specific to our UserLand system.
 -- ============================================================================
 
--- Identity and access management: handles all things related to user accounts.
+-- Identity and access management schema: handles all things related to user accounts.
 CREATE SCHEMA IF NOT EXISTS iam;
 
 -- Main users table. Contains data about user accounts.
@@ -136,12 +153,13 @@ CREATE TABLE iam.user_permissions (
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     -- Value of permission entry.
-    value VARCHAR(255) NOT NULL,
+    value TEXT NOT NULL,
 
     -- Table-level constraint for Foreign Key.
     CONSTRAINT fk_user FOREIGN KEY (id_user) REFERENCES iam.users(id) ON DELETE CASCADE,
     -- Table-level constraint for Foreign Key.
     CONSTRAINT fk_permission FOREIGN KEY (id_permission) REFERENCES iam.permissions(id) ON DELETE CASCADE,
-    -- There can be only one permission for given user at once.
-    CONSTRAINT uq_user_permission UNIQUE (id_user, id_permission)
+    -- There can be only one permission name+value combination for given user at once.
+    CONSTRAINT uq_user_permission UNIQUE (id_user, id_permission, value)
 );
+

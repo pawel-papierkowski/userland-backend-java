@@ -1,4 +1,4 @@
-package org.portfolio.userland.features.user.entity;
+package org.portfolio.userland.features.user.entities;
 
 /**
  * What caused user history entry?

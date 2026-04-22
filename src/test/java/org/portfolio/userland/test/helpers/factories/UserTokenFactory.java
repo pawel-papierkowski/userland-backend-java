@@ -3,9 +3,9 @@ package org.portfolio.userland.test.helpers.factories;
 import lombok.RequiredArgsConstructor;
 import org.portfolio.userland.common.services.clock.ClockService;
 import org.portfolio.userland.common.services.security.SecurityGeneratorService;
-import org.portfolio.userland.features.user.entity.EnTokenType;
-import org.portfolio.userland.features.user.entity.User;
-import org.portfolio.userland.features.user.entity.UserToken;
+import org.portfolio.userland.features.user.entities.EnTokenType;
+import org.portfolio.userland.features.user.entities.User;
+import org.portfolio.userland.features.user.entities.UserToken;
 import org.portfolio.userland.features.user.services.UserHelperService;
 import org.springframework.stereotype.Service;
 

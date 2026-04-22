@@ -1,6 +1,6 @@
 package org.portfolio.userland.features.user.repositories;
 
-import org.portfolio.userland.features.user.entity.Permission;
+import org.portfolio.userland.features.user.entities.Permission;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

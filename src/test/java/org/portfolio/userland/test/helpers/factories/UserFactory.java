@@ -5,10 +5,10 @@ import org.instancio.Instancio;
 import org.portfolio.userland.common.services.clock.ClockService;
 import org.portfolio.userland.common.services.jwt.JwtService;
 import org.portfolio.userland.common.services.security.SecurityGeneratorService;
-import org.portfolio.userland.features.user.entity.EnHistoryWhat;
-import org.portfolio.userland.features.user.entity.EnTokenType;
-import org.portfolio.userland.features.user.entity.EnUserStatus;
-import org.portfolio.userland.features.user.entity.User;
+import org.portfolio.userland.features.user.entities.EnHistoryWhat;
+import org.portfolio.userland.features.user.entities.EnTokenType;
+import org.portfolio.userland.features.user.entities.EnUserStatus;
+import org.portfolio.userland.features.user.entities.User;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
