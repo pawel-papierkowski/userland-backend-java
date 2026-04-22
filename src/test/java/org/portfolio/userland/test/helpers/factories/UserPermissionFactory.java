@@ -3,9 +3,9 @@ package org.portfolio.userland.test.helpers.factories;
 import lombok.RequiredArgsConstructor;
 import org.portfolio.userland.common.services.clock.ClockService;
 import org.portfolio.userland.common.services.security.SecurityGeneratorService;
-import org.portfolio.userland.features.user.entity.Permission;
-import org.portfolio.userland.features.user.entity.User;
-import org.portfolio.userland.features.user.entity.UserPermission;
+import org.portfolio.userland.features.user.entities.Permission;
+import org.portfolio.userland.features.user.entities.User;
+import org.portfolio.userland.features.user.entities.UserPermission;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;

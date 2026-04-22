@@ -1,4 +1,4 @@
-package org.portfolio.userland.features.user.entity;
+package org.portfolio.userland.features.user.entities;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
@@ -51,7 +51,7 @@ public class User {
   @NotBlank(message = "Password cannot be empty")
   private String password;
 
-  /** Used language. If empty/unknown, will fall back to English */
+  /** Used language. If empty/unknown, will fall back to English. */
   @Column(nullable = false)
   @NotBlank(message = "Language cannot be empty")
   private String lang;

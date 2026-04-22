@@ -1,6 +1,6 @@
 package org.portfolio.userland.features.user.repositories;
 
-import org.portfolio.userland.features.user.entity.UserJwt;
+import org.portfolio.userland.features.user.entities.UserJwt;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;

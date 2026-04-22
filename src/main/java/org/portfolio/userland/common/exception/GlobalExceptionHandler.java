@@ -3,11 +3,15 @@ package org.portfolio.userland.common.exception;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.MessageSourceResolvable;
 import org.springframework.http.*;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authorization.AuthorizationDeniedException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.method.ParameterValidationResult;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.method.annotation.HandlerMethodValidationException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
@@ -17,8 +21,15 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
- * Handles exceptions gracefully, returning standard problem detail (RFC 7807).
- * Specifically handles validation errors.
+ * Handles exceptions gracefully, returning standard problem detail (<b>RFC 7807</b>).
+ * <p>Specifically handles:</p>
+ * <ul>
+ *   <li>exceptions specific for this application (derived from <code>GeneralException</code>)</li>
+ *   <li>authentication errors</li>
+ *   <li>authorization errors</li>
+ *   <li>validation errors</li>
+ * </ul>
+ * All other (unhandled) exceptions will return <b>500</b>.
  */
 @RestControllerAdvice
 @Slf4j
@@ -40,16 +51,56 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
   }
 
   /**
+   * Handle authentication exceptions.
+   * @param ex Exception.
+   * @param request Web request.
+   * @return Problem detail.
+   */
+  @ExceptionHandler(AuthenticationException.class)
+  public ProblemDetail handleAuthenticationException(AuthenticationException ex, WebRequest request) {
+    ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.UNAUTHORIZED);
+    problemDetail.setTitle("Unauthorized");
+    problemDetail.setDetail("Authentication is required to access this resource.");
+    problemDetail.setType(URI.create("https://api.general.org/errors/unauthorized"));
+
+    if (request instanceof ServletWebRequest servletWebRequest) {
+      problemDetail.setProperty("instance", servletWebRequest.getRequest().getRequestURI());
+    }
+    return problemDetail;
+  }
+
+  /**
+   * Handle authorization exceptions. These can happen if annotations like @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+   * prevent access.
+   * @param ex Exception.
+   * @param request Web request.
+   * @return Problem detail.
+   */
+  @ExceptionHandler({AuthorizationDeniedException.class, AccessDeniedException.class})
+  public ProblemDetail handleAccessDenied(Exception ex, WebRequest request) {
+    ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.FORBIDDEN);
+    problemDetail.setTitle("Forbidden");
+    problemDetail.setDetail("You do not have permission to access this resource.");
+    problemDetail.setType(URI.create("https://api.general.org/errors/forbidden"));
+
+    if (request instanceof ServletWebRequest servletWebRequest) {
+      problemDetail.setProperty("instance", servletWebRequest.getRequest().getRequestURI());
+    }
+    return problemDetail;
+  }
+
+  /**
    * Catch all uncaught exceptions to process it properly.
    * @param ex Exception.
    * @return Problem detail.
    */
   @ExceptionHandler(Exception.class)
   public ProblemDetail handleAllUncaughtExceptions(Exception ex) {
-    // Log the actual exception so we can see the PSQLException in console.
+    // Log the actual exception so we can see it in console.
     log.error("Unknown internal server error occurred:", ex);
 
-    // Return a generic 500 error to the frontend to prevent leaking database details
+    // Return a generic 500 error to the frontend to prevent leaking database details and other potential security
+    // issues.
     ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.INTERNAL_SERVER_ERROR);
     problemDetail.setTitle("Internal Server Error");
     problemDetail.setDetail("An unexpected error occurred while processing your request.");

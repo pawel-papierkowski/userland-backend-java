@@ -2,10 +2,10 @@ package org.portfolio.userland.features.user;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
-import org.portfolio.userland.features.user.entity.EnUserStatus;
-import org.portfolio.userland.features.user.entity.User;
-import org.portfolio.userland.features.user.entity.UserJwt;
-import org.portfolio.userland.features.user.entity.UserToken;
+import org.portfolio.userland.features.user.entities.EnUserStatus;
+import org.portfolio.userland.features.user.entities.User;
+import org.portfolio.userland.features.user.entities.UserJwt;
+import org.portfolio.userland.features.user.entities.UserToken;
 import org.portfolio.userland.features.user.scheduler.UserScheduler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -105,7 +105,7 @@ public class UserSchedulerTest extends BaseUserTest {
     entityManager.clear();
 
     // Act: manually call scheduler method for cleaning up expired tokens.
-    clock.setFixedTime("2026-04-11T22:30:00Z");
+    clock.setFixedTime("2026-04-11T12:30:00Z");
     userScheduler.cleanExpiredJwts();
 
     // Assert: only one token should exist, rest is deleted.

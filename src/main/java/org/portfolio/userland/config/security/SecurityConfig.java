@@ -1,15 +1,11 @@
-package org.portfolio.userland.config;
+package org.portfolio.userland.config.security;
 
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.portfolio.userland.common.services.jwt.JwtAuthFilter;
-import org.portfolio.userland.common.services.security.UserLandDetailsService;
 import org.springframework.boot.security.autoconfigure.actuate.web.servlet.EndpointRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
-import org.springframework.http.HttpStatus;
-import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -17,7 +13,6 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 /**
@@ -30,8 +25,9 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableMethodSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
-  private final UserLandDetailsService userLandDetailsService;
   private final JwtAuthFilter jwtAuthFilter;
+  private final ProblemDetailAuthenticationEntryPoint problemDetailAuthenticationEntryPoint;
+  private final ProblemDetailAccessDeniedHandler problemDetailAccessDeniedHandler;
 
   /**
    * Defines password encoder bean.
@@ -40,13 +36,6 @@ public class SecurityConfig {
   @Bean
   public PasswordEncoder passwordEncoder() {
     return new BCryptPasswordEncoder(); // we can safely hash passwords with this
-  }
-
-  @Bean
-  public DaoAuthenticationProvider authenticationProvider(PasswordEncoder passwordEncoder) {
-    DaoAuthenticationProvider provider = new DaoAuthenticationProvider(userLandDetailsService);
-    provider.setPasswordEncoder(passwordEncoder);
-    return provider;
   }
 
   //
@@ -132,15 +121,17 @@ public class SecurityConfig {
   @Order(100) // make sure it is last
   public SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) {
     // Anything that was not caught by security filter chains above will require authentication.
-    // We do exceptionHandling() to enforce 401 if there is no token and 403 if access is denied. Yes, these are two
-    // different things.
+    // In exceptionHandling() we do custom handling so GlobalExceptionHandler can process these errors and return
+    // correct problem detail.
+    // - authenticationEntryPoint enforce 401 if there is no token
+    // - problemDetailAccessDeniedHandler enforce 403 if access is denied (no permission).
+    //
     http.csrf(AbstractHttpConfigurer::disable)
         .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .authorizeHttpRequests(requests -> requests.anyRequest().authenticated())
         .exceptionHandling(ex -> ex
-            .authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED))
-            .accessDeniedHandler((request, response, _) ->
-                response.sendError(HttpServletResponse.SC_FORBIDDEN, "Forbidden"))
+            .authenticationEntryPoint(problemDetailAuthenticationEntryPoint)
+            .accessDeniedHandler(problemDetailAccessDeniedHandler)
         )
         .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
     return http.build();

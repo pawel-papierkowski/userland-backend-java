@@ -97,7 +97,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
    * @return True if user can be logged in, otherwise false.
    */
   private boolean verifyUserLand(UserLandDetails userLandDetails, String jwtStr) {
-    // Check if token is present in database (not revoked).
+    // Check if JWT is present in database (not revoked).
     if (!userLandDetails.getJwts().contains(jwtStr)) return false;
     // Other checks.
     return userLandDetails.getActive() && !userLandDetails.getLocked();

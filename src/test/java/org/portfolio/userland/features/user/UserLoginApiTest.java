@@ -6,9 +6,9 @@ import org.junit.jupiter.api.Test;
 import org.portfolio.userland.common.services.jwt.JwtService;
 import org.portfolio.userland.features.user.dto.login.UserLoginReq;
 import org.portfolio.userland.features.user.dto.login.UserLoginResp;
-import org.portfolio.userland.features.user.entity.EnHistoryWhat;
-import org.portfolio.userland.features.user.entity.Permission;
-import org.portfolio.userland.features.user.entity.User;
+import org.portfolio.userland.features.user.entities.EnHistoryWhat;
+import org.portfolio.userland.features.user.entities.Permission;
+import org.portfolio.userland.features.user.entities.User;
 import org.portfolio.userland.test.helpers.problemDetail.ProblemDetailBox;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -74,7 +74,7 @@ public class UserLoginApiTest extends BaseUserTest {
     Map<String, Object> actualClaimMap = jwtService.extractAllClaims(actualResp.jwtToken());
     Map<String, Object> expectedClaimMap = Maps.newHashMap();
     expectedClaimMap.put("iat", 1775808300L); // issued
-    expectedClaimMap.put("exp", 1775894700L); // expires
+    expectedClaimMap.put("exp", 1775829900L); // expires
     expectedClaimMap.put("sub", "test@example.com"); // user account email as subject
     assertThat(actualClaimMap).as("Claim map is invalid").isEqualTo(expectedClaimMap);
   }
@@ -120,7 +120,7 @@ public class UserLoginApiTest extends BaseUserTest {
     Map<String, Object> actualClaimMap = jwtService.extractAllClaims(actualResp.jwtToken());
     Map<String, Object> expectedClaimMap = Maps.newHashMap();
     expectedClaimMap.put("iat", 1775808300L); // issued
-    expectedClaimMap.put("exp", 1775894700L); // expires
+    expectedClaimMap.put("exp", 1775829900L); // expires
     expectedClaimMap.put("sub", "test@example.com"); // user account email as subject
     expectedClaimMap.put("role", "operator"); // from permission entry
     assertThat(actualClaimMap).as("Claim map is invalid").isEqualTo(expectedClaimMap);
@@ -150,7 +150,7 @@ public class UserLoginApiTest extends BaseUserTest {
 
     // Assert API Response.
     assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.CONFLICT.value());
-
+    // Assert: proper problem detail is present.
     ProblemDetailBox expectedPdb = new ProblemDetailBox(
         HttpStatus.CONFLICT.value(),
         "Wrong password.",

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Maps;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.test.web.servlet.MvcResult;
 
@@ -21,12 +22,53 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class ProblemDetailService {
   protected final ObjectMapper objectMapper = new ObjectMapper();
 
+  //
+
+  /**
+   * Check Problem Detail for 401 Unauthorized error.
+   * @param actualMvcResult Actual result of MVC call.
+   * @param instance Expected value of instance field.
+   */
+  public void assertPdUnauthorized(MvcResult actualMvcResult, String instance)
+      throws JsonProcessingException, UnsupportedEncodingException {
+    ProblemDetailBox expectedPdb = new ProblemDetailBox(
+        HttpStatus.UNAUTHORIZED.value(),
+        "Unauthorized",
+        "Authentication is required to access this resource.",
+        instance,
+        "https://api.general.org/errors/unauthorized",
+        Map.of()
+    );
+    assertPd(actualMvcResult, expectedPdb);
+  }
+
+  /**
+   * Check Problem Detail for 403 Forbidden error.
+   * @param actualMvcResult Actual result of MVC call.
+   * @param instance Expected value of instance field.
+   */
+  public void assertPdForbidden(MvcResult actualMvcResult, String instance)
+      throws JsonProcessingException, UnsupportedEncodingException {
+    ProblemDetailBox expectedPdb = new ProblemDetailBox(
+        HttpStatus.FORBIDDEN.value(),
+        "Forbidden",
+        "You do not have permission to access this resource.",
+        instance,
+        "https://api.general.org/errors/forbidden",
+        Map.of()
+    );
+    assertPd(actualMvcResult, expectedPdb);
+  }
+
+  // //////////////////////////////////////////////////////////////////////////
+
   /**
    * Assert Problem Detail boxes. Actual is raw JSON and is converted to ProblemDetailBox first.
    * @param actualMvcResult Actual result of MVC call.
    * @param expectedPdb Expected Problem Detail box.
    */
-  public void assertPd(MvcResult actualMvcResult, ProblemDetailBox expectedPdb) throws JsonProcessingException, UnsupportedEncodingException {
+  public void assertPd(MvcResult actualMvcResult, ProblemDetailBox expectedPdb)
+      throws JsonProcessingException, UnsupportedEncodingException {
     String jsonResponse = actualMvcResult.getResponse().getContentAsString();
     ProblemDetailBox actualPdb = convert(jsonResponse);
     assertPd(actualPdb, expectedPdb);

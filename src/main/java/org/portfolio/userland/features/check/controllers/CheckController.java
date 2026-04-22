@@ -7,9 +7,11 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.portfolio.userland.swagger.common.AuthenticationProblemDetail;
+import org.portfolio.userland.swagger.common.AuthorizationProblemDetail;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -53,9 +55,31 @@ public class CheckController {
           content = @Content(schema = @Schema(hidden = true))),
       @ApiResponse(responseCode = "401", description = "User is not authenticated.",
           content = @Content(mediaType = "application/problem+json",
-              schema = @Schema(implementation = ProblemDetail.class)))
+              schema = @Schema(implementation = AuthenticationProblemDetail.class)))
   })
   public ResponseEntity<String> mustBeLogged() {
+    // Yes, this endpoint does nothing by itself.
+    return new ResponseEntity<>(HttpStatus.OK);
+  }
+
+  /**
+   * Checks if you can access endpoint that requires you to be logged in as admin (ROLE_ADMIN). Tests permissions.
+   * @return Response.
+   */
+  @GetMapping(value = "/must-be-admin", produces = "application/json")
+  @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+  @Operation(summary = "Must be admin", description = "You need to be logged in as admin (ROLE_ADMIN) to successfully access this endpoint. Does nothing else.")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200", description = "Access was successful.",
+          content = @Content(schema = @Schema(hidden = true))),
+      @ApiResponse(responseCode = "401", description = "User is not authenticated (no token).",
+          content = @Content(mediaType = "application/problem+json",
+              schema = @Schema(implementation = AuthenticationProblemDetail.class))),
+      @ApiResponse(responseCode = "403", description = "User is not authorized (no ROLE_ADMIN permission).",
+          content = @Content(mediaType = "application/problem+json",
+              schema = @Schema(implementation = AuthorizationProblemDetail.class)))
+  })
+  public ResponseEntity<String> mustBeAdmin() {
     // Yes, this endpoint does nothing by itself.
     return new ResponseEntity<>(HttpStatus.OK);
   }

@@ -1,7 +1,7 @@
 package org.portfolio.userland.features.user.exception;
 
 import org.portfolio.userland.common.exception.GeneralException;
-import org.portfolio.userland.features.user.entity.EnTokenType;
+import org.portfolio.userland.features.user.entities.EnTokenType;
 import org.springframework.http.HttpStatus;
 
 /**

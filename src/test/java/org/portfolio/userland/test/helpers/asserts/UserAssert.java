@@ -2,7 +2,7 @@ package org.portfolio.userland.test.helpers.asserts;
 
 import lombok.RequiredArgsConstructor;
 import org.portfolio.userland.common.constants.ValidConst;
-import org.portfolio.userland.features.user.entity.*;
+import org.portfolio.userland.features.user.entities.*;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
