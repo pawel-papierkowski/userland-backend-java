@@ -2,10 +2,8 @@ package org.portfolio.userland.features.user;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
-import org.portfolio.userland.common.services.jwt.JwtService;
 import org.portfolio.userland.features.user.entities.EnHistoryWhat;
 import org.portfolio.userland.features.user.entities.User;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.web.servlet.MvcResult;
 
@@ -16,12 +14,9 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
  * Integration test for user logout.
  */
 public class UserLogoutApiTest extends BaseUserTest {
-  @Autowired
-  private JwtService jwtService;
-
   @AfterEach
   public void tearDown() {
-    cleanDatabase();
+    resetDatabase();
   }
 
   // //////////////////////////////////////////////////////////////////////////
@@ -30,13 +25,8 @@ public class UserLogoutApiTest extends BaseUserTest {
   public void logoutUser() throws Exception {
     clock.setFixedTime("2026-04-10T10:00:00Z");
     // Arrange: Create active user in database that is already logged in.
-    User expectedUser = userFactory.genUser();
-
-    clock.setFixedTime("2026-04-10T11:00:00Z");
-    // Arrange: Manually login that user.
-    String token = jwtService.generateToken(expectedUser);
-    userHistoryFactory.genHistoryEvent(expectedUser, EnHistoryWhat.LOGIN);
-    userJwtFactory.genJwtEntry(expectedUser, token);
+    User expectedUser = userFactory.genUserLogged();
+    String token = expectedUser.getJwts().stream().toList().getFirst().getToken();
     userRepository.save(expectedUser);
 
     clock.setFixedTime("2026-04-10T11:00:00Z");
@@ -50,7 +40,7 @@ public class UserLogoutApiTest extends BaseUserTest {
 
     // Prepare expected result (user is same, but with new LOGOUT history event and with empty JWT table).
     userHistoryFactory.genHistoryEvent(expectedUser, EnHistoryWhat.LOGOUT);
-    expectedUser.getJwt().clear();
+    expectedUser.getJwts().clear();
 
     // Assert: Database state.
     transactionTemplate.execute(_ -> {

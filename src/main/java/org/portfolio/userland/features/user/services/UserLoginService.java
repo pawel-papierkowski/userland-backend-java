@@ -2,13 +2,13 @@ package org.portfolio.userland.features.user.services;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.portfolio.userland.common.services.jwt.JwtService;
-import org.portfolio.userland.common.services.security.UserLandDetails;
 import org.portfolio.userland.features.user.dto.login.UserLoginReq;
 import org.portfolio.userland.features.user.dto.login.UserLoginResp;
 import org.portfolio.userland.features.user.entities.EnHistoryWhat;
 import org.portfolio.userland.features.user.entities.User;
-import org.portfolio.userland.features.user.exception.UserWrongPasswordException;
+import org.portfolio.userland.features.user.exceptions.UserWrongPasswordException;
+import org.portfolio.userland.system.auth.CustomUserDetails;
+import org.portfolio.userland.system.jwt.JwtService;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -70,15 +70,15 @@ public class UserLoginService extends BaseUserService {
     if (authentication == null || !authentication.isAuthenticated()) return;
     Object principalObj = authentication.getPrincipal();
     // Can happen if we call endpoints that do not handle jwtAuthFilter. See SecurityConfig.
-    if (!(principalObj instanceof UserLandDetails)) return;
+    if (!(principalObj instanceof CustomUserDetails)) return;
 
-    UserLandDetails principal = (UserLandDetails) authentication.getPrincipal();
+    CustomUserDetails principal = (CustomUserDetails) authentication.getPrincipal();
 
-    // If we are logged in, add entry in history and remove token in database.
+    // If we are logged in, add entry in history and remove JWT entries in database.
     LocalDateTime nowAt = clockService.getNowUTC();
     User user = resolveUser(principal.getEmail());
     user.addHistory(createHistoryEvent(nowAt, EnHistoryWhat.LOGOUT));
-    user.getJwt().clear(); // Revoke all JWT related to this user.
+    user.getJwts().clear(); // Revoke all JWTs related to this user.
     userRepository.save(user);
   }
 }

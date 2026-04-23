@@ -2,6 +2,8 @@ package org.portfolio.userland.features.user;
 
 import org.portfolio.userland.common.services.email.EmailService;
 import org.portfolio.userland.features.user.repositories.*;
+import org.portfolio.userland.system.config.entities.Config;
+import org.portfolio.userland.system.config.service.ConfigConst;
 import org.portfolio.userland.test.base.BaseIntegrationTest;
 import org.portfolio.userland.test.helpers.asserts.UserAssert;
 import org.portfolio.userland.test.helpers.factories.*;
@@ -39,8 +41,31 @@ public abstract class BaseUserTest extends BaseIntegrationTest {
 
   //
 
-  protected void cleanDatabase() {
-    // Clean up the database after every test so tests don't interfere with each other.
+  /**
+   * Reset state of database so tests don't interfere with each other.
+   */
+  @Override
+  protected void resetDatabase() {
+    cleanDatabase();
+    setupDatabase();
+  }
+
+  /**
+   * Clean up the database.
+   */
+  private void cleanDatabase() {
     userRepository.deleteAll(); // will remove everything from related tables too
+    configRepository.deleteAll();
+  }
+
+  /**
+   * Set up the database.
+   */
+  private void setupDatabase() {
+    Config config = new Config();
+    config.setName(ConfigConst.USER_LOCKDOWN);
+    config.setValue(ConfigConst.USER_LOCKDOWN_DEF);
+    config.setDescription("-");
+    configRepository.save(config);
   }
 }

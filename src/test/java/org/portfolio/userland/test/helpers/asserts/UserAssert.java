@@ -5,7 +5,9 @@ import org.portfolio.userland.common.constants.ValidConst;
 import org.portfolio.userland.features.user.entities.*;
 import org.springframework.stereotype.Service;
 
+import java.util.Comparator;
 import java.util.List;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -23,11 +25,17 @@ import static org.assertj.core.api.Assertions.assertThat;
 @Service
 @RequiredArgsConstructor
 public class UserAssert {
-  private static final String[] USER_FIELDS_IGNORE = { "id", "password", "tokens", "jwt", "history", "permissions" };
+  private static final String[] USER_FIELDS_IGNORE = { "id", "password", "tokens", "jwts", "history", "permissions" };
   private static final String[] USER_TOKEN_FIELDS_IGNORE = { "id", "user", "token" };
   private static final String[] USER_JWT_FIELDS_IGNORE = { "id", "user" };
   private static final String[] USER_HISTORY_FIELDS_IGNORE = { "id", "user", "uuid" };
   private static final String[] USER_PERMISSION_FIELDS_IGNORE = { "id", "user", "permission", "uuid" };
+
+  private static final Comparator<UserJwt> USER_JWT_COMPARATOR =
+      Comparator.comparing(UserJwt::getToken);
+  private static final Comparator<UserPermission> USER_PERMISSION_COMPARATOR =
+      Comparator.comparing((UserPermission it) -> it.getPermission().getName())
+          .thenComparing(UserPermission::getValue);
 
   /**
    * Assert that two users are same.
@@ -48,7 +56,7 @@ public class UserAssert {
 
     // Assert collections
     assertTokens(actualUser.getTokens(), expectedUser.getTokens());
-    assertJwt(actualUser.getJwt(), expectedUser.getJwt());
+    assertJwt(actualUser.getJwts(), expectedUser.getJwts());
     assertHistory(actualUser.getHistory(), expectedUser.getHistory());
     assertPermissions(actualUser.getPermissions(), expectedUser.getPermissions());
   }
@@ -93,11 +101,14 @@ public class UserAssert {
    * @param actualJwts Actual JWT entries.
    * @param expectedJwts Expected JWT entries.
    */
-  private void assertJwt(List<UserJwt> actualJwts, List<UserJwt> expectedJwts) {
+  private void assertJwt(Set<UserJwt> actualJwts, Set<UserJwt> expectedJwts) {
     assertThat(actualJwts.size()).as("User count of JWT entries is wrong").isEqualTo(expectedJwts.size());
-    for (int i=0; i<actualJwts.size(); i++) {
-      UserJwt actualJwt = actualJwts.get(i);
-      UserJwt expectedJwt = expectedJwts.get(i);
+
+    List<UserJwt> actualJwtsList = convert(actualJwts, USER_JWT_COMPARATOR);
+    List<UserJwt> expectedJwtsList = convert(expectedJwts, USER_JWT_COMPARATOR);
+    for (int i=0; i<actualJwtsList.size(); i++) {
+      UserJwt actualJwt = actualJwtsList.get(i);
+      UserJwt expectedJwt = expectedJwtsList.get(i);
       assertJwtEntry(i, actualJwt, expectedJwt);
     }
   }
@@ -155,32 +166,48 @@ public class UserAssert {
 
   /**
    * Assert all permission entries.
-   * @param actualRights Actual permission entries.
-   * @param expectedRights Expected permission entries.
+   * @param actualPermissions Actual permission entries.
+   * @param expectedPermissions Expected permission entries.
    */
-  private void assertPermissions(List<UserPermission> actualRights, List<UserPermission> expectedRights) {
-    assertThat(actualRights.size()).as("User count of permissions is wrong").isEqualTo(expectedRights.size());
-    for (int i=0; i<actualRights.size(); i++) {
-      UserPermission actualRight = actualRights.get(i);
-      UserPermission expectedRight = expectedRights.get(i);
-      assertPermissionEntry(i, actualRight, expectedRight);
+  private void assertPermissions(Set<UserPermission> actualPermissions, Set<UserPermission> expectedPermissions) {
+    assertThat(actualPermissions.size()).as("User count of permissions is wrong").isEqualTo(expectedPermissions.size());
+
+    List<UserPermission> actualJwtsList = convert(actualPermissions, USER_PERMISSION_COMPARATOR);
+    List<UserPermission> expectedJwtsList = convert(expectedPermissions, USER_PERMISSION_COMPARATOR);
+    for (int i=0; i<actualJwtsList.size(); i++) {
+      UserPermission actualPermission = actualJwtsList.get(i);
+      UserPermission expectedPermission = expectedJwtsList.get(i);
+      assertPermissionEntry(i, actualPermission, expectedPermission);
     }
   }
 
   /**
    * Assert one permission entry.
    * @param ix Index.
-   * @param actualRight Actual permission entry.
-   * @param expectedRight Expected permission entry.
+   * @param actualPermission Actual permission entry.
+   * @param expectedPermission Expected permission entry.
    */
-  private void assertPermissionEntry(int ix, UserPermission actualRight, UserPermission expectedRight) {
-    assertThat(actualRight)
+  private void assertPermissionEntry(int ix, UserPermission actualPermission, UserPermission expectedPermission) {
+    assertThat(actualPermission)
         .as("Right entry has invalid state")
         .usingRecursiveComparison()
         .ignoringFields(USER_PERMISSION_FIELDS_IGNORE)
-        .isEqualTo(expectedRight);
+        .isEqualTo(expectedPermission);
 
-    assertThat(actualRight.getId()).as("Right["+ix+"] entry id is wrong").isGreaterThan(0L);
-    assertThat(actualRight.getUuid()).as("Right["+ix+"] entry UUID is invalid").matches(ValidConst.REG_EXPR_UUID);
+    assertThat(actualPermission.getId()).as("Right["+ix+"] entry id is wrong").isGreaterThan(0L);
+    assertThat(actualPermission.getUuid()).as("Right["+ix+"] entry UUID is invalid").matches(ValidConst.REG_EXPR_UUID);
+  }
+
+  //
+
+  /**
+   * Convert set to sorted list, using given comparator for stable sorting.
+   * @param set Set.
+   * @param comparator For sorting.
+   * @return Set as sorted list.
+   * @param <T> Type of set and resulting list.
+   */
+  private <T> List<T> convert(Set<T> set, Comparator<? super T> comparator) {
+    return set.stream().sorted(comparator).toList();
   }
 }

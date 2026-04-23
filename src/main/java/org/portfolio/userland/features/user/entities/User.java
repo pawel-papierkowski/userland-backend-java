@@ -8,9 +8,7 @@ import lombok.Setter;
 import org.portfolio.userland.common.constants.ValidConst;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * User account.
@@ -79,11 +77,11 @@ public class User {
 
   /** JWT assigned to this user. */
   @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-  private List<UserJwt> jwt = new ArrayList<>();
+  private Set<UserJwt> jwts = new HashSet<>();
 
   /** Permissions that this user has. */
   @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-  private List<UserPermission> permissions = new ArrayList<>();
+  private Set<UserPermission> permissions = new HashSet<>();
 
   // //////////////////////////////////////////////////////////////////////////
 
@@ -112,8 +110,8 @@ public class User {
    * @param jwtEntry JWT entry to add.
    */
   public void addJwt(UserJwt jwtEntry) {
-    if (jwt == null) this.jwt = new ArrayList<>();
-    jwt.add(jwtEntry);
+    if (jwts == null) this.jwts = new HashSet<>();
+    jwts.add(jwtEntry);
     jwtEntry.setUser(this);
   }
 
@@ -122,7 +120,7 @@ public class User {
    * @param permissionEntry Permission entry to add.
    */
   public void addPermission(UserPermission permissionEntry) {
-    if (permissions == null) this.permissions = new ArrayList<>();
+    if (permissions == null) this.permissions = new HashSet<>();
     permissions.add(permissionEntry);
     permissionEntry.setUser(this);
   }

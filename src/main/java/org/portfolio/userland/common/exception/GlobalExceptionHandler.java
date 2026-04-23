@@ -40,14 +40,17 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
    * @return Problem detail.
    */
   @ExceptionHandler(GeneralException.class)
-  public ProblemDetail handleGeneralException(GeneralException ex) {
+  public ResponseEntity<ProblemDetail> handleGeneralException(GeneralException ex, WebRequest request) {
     // Create a standard RFC 7807 response based on data from exception.
     ProblemDetail problemDetail = ProblemDetail.forStatus(ex.getStatus());
-    // note instance is automatically determined
     problemDetail.setTitle(ex.getTitle());
     problemDetail.setDetail(ex.getDetail());
     problemDetail.setType(URI.create(ex.getType()));
-    return problemDetail;
+    if (request instanceof ServletWebRequest servletWebRequest)
+      problemDetail.setProperty("instance", servletWebRequest.getRequest().getRequestURI());
+
+    HttpHeaders headers = resolveHeaders(ex);
+    return ResponseEntity.of(problemDetail).headers(headers).build();
   }
 
   /**
@@ -62,10 +65,8 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     problemDetail.setTitle("Unauthorized");
     problemDetail.setDetail("Authentication is required to access this resource.");
     problemDetail.setType(URI.create("https://api.general.org/errors/unauthorized"));
-
-    if (request instanceof ServletWebRequest servletWebRequest) {
+    if (request instanceof ServletWebRequest servletWebRequest)
       problemDetail.setProperty("instance", servletWebRequest.getRequest().getRequestURI());
-    }
     return problemDetail;
   }
 
@@ -82,10 +83,8 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     problemDetail.setTitle("Forbidden");
     problemDetail.setDetail("You do not have permission to access this resource.");
     problemDetail.setType(URI.create("https://api.general.org/errors/forbidden"));
-
-    if (request instanceof ServletWebRequest servletWebRequest) {
+    if (request instanceof ServletWebRequest servletWebRequest)
       problemDetail.setProperty("instance", servletWebRequest.getRequest().getRequestURI());
-    }
     return problemDetail;
   }
 
@@ -95,7 +94,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
    * @return Problem detail.
    */
   @ExceptionHandler(Exception.class)
-  public ProblemDetail handleAllUncaughtExceptions(Exception ex) {
+  public ProblemDetail handleAllUncaughtExceptions(Exception ex, WebRequest request) {
     // Log the actual exception so we can see it in console.
     log.error("Unknown internal server error occurred:", ex);
 
@@ -105,6 +104,8 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     problemDetail.setTitle("Internal Server Error");
     problemDetail.setDetail("An unexpected error occurred while processing your request.");
     problemDetail.setType(URI.create("https://api.general.org/errors/internal"));
+    if (request instanceof ServletWebRequest servletWebRequest)
+      problemDetail.setProperty("instance", servletWebRequest.getRequest().getRequestURI());
     return problemDetail;
   }
 
@@ -169,5 +170,21 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     problemDetail.setProperty("validation_errors", errors);
 
     return handleExceptionInternal(ex, problemDetail, headers, status, request);
+  }
+
+  //
+
+  /**
+   * Resolve headers based on custom headers data in exception.
+   * @param ex Exception.
+   * @return List of HTTP headers.
+   */
+  private HttpHeaders resolveHeaders(GeneralException ex) {
+    if (ex.getCustomHeaders().isEmpty()) return HttpHeaders.EMPTY;
+    HttpHeaders headers = new HttpHeaders();
+    for (Map.Entry<String, String> entry : ex.getCustomHeaders().entrySet()) {
+      headers.add(entry.getKey(), entry.getValue());
+    }
+    return headers;
   }
 }

@@ -1,6 +1,7 @@
 package org.portfolio.userland.features.user.repositories;
 
 import org.portfolio.userland.features.user.entities.User;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -28,6 +29,20 @@ public interface UserRepository extends JpaRepository<User, Long> {
    * @return User or empty optional.
    */
   Optional<User> findByEmail(String email);
+
+  //
+
+  /**
+   * Find user by email for authorization purposes. Eagerly loads permissions and jwt data.
+   * @param email Email.
+   * @return User or empty optional.
+   */
+  @EntityGraph(attributePaths = {
+      "permissions",
+      "permissions.permission",
+      "jwts"
+  })
+  Optional<User> findAuthByEmail(String email);
 
   //
 

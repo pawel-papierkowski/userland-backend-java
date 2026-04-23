@@ -1,13 +1,15 @@
 package org.portfolio.userland.features.user;
 
 import org.junit.jupiter.api.Test;
-import org.portfolio.userland.common.services.jwt.JwtService;
-import org.portfolio.userland.common.services.security.UserLandDetailsService;
 import org.portfolio.userland.features.user.dto.password.UserPassResetConfirmReq;
 import org.portfolio.userland.features.user.dto.register.UserRegisterReq;
 import org.portfolio.userland.features.user.services.UserDeleteService;
 import org.portfolio.userland.features.user.services.UserPasswordService;
 import org.portfolio.userland.features.user.services.UserRegisterService;
+import org.portfolio.userland.system.auth.CustomUserDetailsService;
+import org.portfolio.userland.system.auth.PermissionService;
+import org.portfolio.userland.system.config.service.ConfigService;
+import org.portfolio.userland.system.jwt.JwtService;
 import org.portfolio.userland.test.base.BaseWebTest;
 import org.portfolio.userland.test.helpers.problemDetail.ProblemDetailBox;
 import org.springframework.http.HttpStatus;
@@ -34,9 +36,13 @@ public class UserWebTest extends BaseWebTest {
 
   // Other needed mocks.
   @MockitoBean
+  private ConfigService configService;
+  @MockitoBean
   private JwtService jwtService;
   @MockitoBean
-  private UserLandDetailsService userLandDetailsService;
+  private CustomUserDetailsService customUserDetailsService;
+  @MockitoBean
+  private PermissionService permissionService;
 
   @Test
   public void registrationWhenInvalidEmail() throws Exception {

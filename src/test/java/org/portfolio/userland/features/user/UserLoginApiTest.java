@@ -3,12 +3,12 @@ package org.portfolio.userland.features.user;
 import com.google.common.collect.Maps;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
-import org.portfolio.userland.common.services.jwt.JwtService;
 import org.portfolio.userland.features.user.dto.login.UserLoginReq;
 import org.portfolio.userland.features.user.dto.login.UserLoginResp;
 import org.portfolio.userland.features.user.entities.EnHistoryWhat;
 import org.portfolio.userland.features.user.entities.Permission;
 import org.portfolio.userland.features.user.entities.User;
+import org.portfolio.userland.system.jwt.JwtService;
 import org.portfolio.userland.test.helpers.problemDetail.ProblemDetailBox;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -30,7 +30,7 @@ public class UserLoginApiTest extends BaseUserTest {
 
   @AfterEach
   public void tearDown() {
-    cleanDatabase();
+    resetDatabase();
   }
 
   // //////////////////////////////////////////////////////////////////////////
