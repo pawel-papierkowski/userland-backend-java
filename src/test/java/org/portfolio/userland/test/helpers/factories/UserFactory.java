@@ -3,12 +3,12 @@ package org.portfolio.userland.test.helpers.factories;
 import lombok.RequiredArgsConstructor;
 import org.instancio.Instancio;
 import org.portfolio.userland.common.services.clock.ClockService;
-import org.portfolio.userland.common.services.jwt.JwtService;
 import org.portfolio.userland.common.services.security.SecurityGeneratorService;
 import org.portfolio.userland.features.user.entities.EnHistoryWhat;
 import org.portfolio.userland.features.user.entities.EnTokenType;
 import org.portfolio.userland.features.user.entities.EnUserStatus;
 import org.portfolio.userland.features.user.entities.User;
+import org.portfolio.userland.system.jwt.JwtService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -56,6 +56,7 @@ public class UserFactory {
 
   /**
    * Generate activated user that is already logged in.
+   * <p>You can get JWT string with <code>String token = expectedUser.getJwts().stream().toList().getFirst().getToken();</code>.</p>
    * @return User.
    */
   public User genUserLogged() {
@@ -104,7 +105,7 @@ public class UserFactory {
         .set(field(User::getStatus), status)
         .set(field(User::getLocked), false)
         .ignore(field(User::getTokens)) // we fill it manually
-        .ignore(field(User::getJwt)) // ditto
+        .ignore(field(User::getJwts)) // ditto
         .ignore(field(User::getHistory)) // ditto
         .ignore(field(User::getPermissions)) // ditto
         .create();

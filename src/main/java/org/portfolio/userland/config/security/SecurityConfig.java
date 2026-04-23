@@ -1,7 +1,7 @@
 package org.portfolio.userland.config.security;
 
 import lombok.RequiredArgsConstructor;
-import org.portfolio.userland.common.services.jwt.JwtAuthFilter;
+import org.portfolio.userland.system.jwt.JwtAuthFilter;
 import org.springframework.boot.security.autoconfigure.actuate.web.servlet.EndpointRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -89,7 +89,8 @@ public class SecurityConfig {
             "/api/users/password/*", // reset password
             "/api/users/delete/*", // delete account
             "/api/users/login") // login user
-        .authorizeHttpRequests(requests -> requests.anyRequest().permitAll());
+        .authorizeHttpRequests(requests -> requests.anyRequest().permitAll())
+        .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
     return http.build();
   }
 

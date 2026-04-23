@@ -5,6 +5,7 @@ import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.AfterEach;
 import org.portfolio.userland.common.services.clock.ClockService;
 import org.portfolio.userland.common.services.clock.MutableClock;
+import org.portfolio.userland.system.config.repositories.ConfigRepository;
 import org.portfolio.userland.test.helpers.problemDetail.ProblemDetailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
@@ -22,6 +23,10 @@ import org.testcontainers.postgresql.PostgreSQLContainer;
  */
 @IntegrationTest
 public abstract class BaseIntegrationTest {
+  /** Project config variables. */
+  @Autowired
+  protected ConfigRepository configRepository;
+
   /** Used to simulate HTTP requests. */
   @Autowired
   protected MockMvc mockMvc;
@@ -75,5 +80,9 @@ public abstract class BaseIntegrationTest {
   @AfterEach
   protected void resetBaseIntegration() {
     clock.reset();
+  }
+
+  protected void resetDatabase() {
+    // NOP
   }
 }

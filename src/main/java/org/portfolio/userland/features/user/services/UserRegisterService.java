@@ -6,7 +6,7 @@ import org.portfolio.userland.features.user.dto.register.UserRegisterReq;
 import org.portfolio.userland.features.user.entities.*;
 import org.portfolio.userland.features.user.events.UserActivatedEvent;
 import org.portfolio.userland.features.user.events.UserRegisteredEvent;
-import org.portfolio.userland.features.user.exception.UserEmailAlreadyExistsException;
+import org.portfolio.userland.features.user.exceptions.UserEmailAlreadyExistsException;
 import org.portfolio.userland.features.user.mapper.UserRegisterMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;

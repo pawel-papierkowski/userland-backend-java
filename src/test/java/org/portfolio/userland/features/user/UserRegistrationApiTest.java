@@ -42,7 +42,7 @@ public class UserRegistrationApiTest extends BaseUserTest {
 
   @AfterEach
   public void tearDown() {
-    cleanDatabase();
+    resetDatabase();
   }
 
   // //////////////////////////////////////////////////////////////////////////

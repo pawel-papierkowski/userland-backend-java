@@ -37,7 +37,7 @@ public class UserPasswordApiTest extends BaseUserTest {
 
   @AfterEach
   public void tearDown() {
-    cleanDatabase();
+    resetDatabase();
   }
 
   // //////////////////////////////////////////////////////////////////////////

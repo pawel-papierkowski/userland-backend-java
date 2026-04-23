@@ -36,7 +36,7 @@ public class UserDeleteApiTest extends BaseUserTest {
 
   @AfterEach
   public void tearDown() {
-    cleanDatabase();
+    resetDatabase();
   }
 
   // //////////////////////////////////////////////////////////////////////////

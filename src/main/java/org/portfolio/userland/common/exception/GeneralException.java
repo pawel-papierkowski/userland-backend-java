@@ -2,6 +2,8 @@ package org.portfolio.userland.common.exception;
 
 import org.springframework.http.HttpStatus;
 
+import java.util.Map;
+
 /**
  * General custom exception. All business logic exceptions should inherit from this one.
  */
@@ -42,5 +44,13 @@ public abstract class GeneralException extends RuntimeException {
    */
   public String getType() {
     return "https://api.general.org/errors/general";
+  }
+
+  /**
+   * Put here any headers you want to be present in response for that exception.
+   * @return Map of headers.
+   */
+  public Map<String, String> getCustomHeaders() {
+    return Map.of();
   }
 }

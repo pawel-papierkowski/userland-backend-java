@@ -3,7 +3,7 @@ package org.portfolio.userland.features.user.services;
 import org.portfolio.userland.common.services.clock.ClockService;
 import org.portfolio.userland.common.services.security.SecurityGeneratorService;
 import org.portfolio.userland.features.user.entities.*;
-import org.portfolio.userland.features.user.exception.*;
+import org.portfolio.userland.features.user.exceptions.*;
 import org.portfolio.userland.features.user.repositories.UserRepository;
 import org.portfolio.userland.features.user.repositories.UserTokenRepository;
 import org.springframework.beans.factory.annotation.Autowired;
