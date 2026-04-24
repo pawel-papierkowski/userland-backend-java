@@ -1,6 +1,7 @@
 package org.portfolio.userland.common.services.email;
 
 import com.google.common.collect.Maps;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.portfolio.userland.common.services.email.data.EmailReq;
@@ -24,23 +25,25 @@ import static org.mockito.Mockito.*;
  * running entire test suite with coverage will fail on this file.</p>
  */
 public class EmailServiceTemplateTest extends BaseIntegrationTest {
+  @Autowired
+  private EmailService emailService;
+
   @MockitoBean
   private EmailProviderFactory emailProviderFactory; // We do not want to actually send email.
   @MockitoBean
   private PlainEmailProvider emailProvider; // Fake provider.
 
-  @Autowired
-  private EmailService emailService;
+  @BeforeEach
+  public void prepare() {
+    // Tell our mock factory to return our mock provider so the code doesn't throw a NullPointerException.
+    when(emailProviderFactory.getProvider(anyString())).thenReturn(emailProvider);
+  }
 
   //
 
   @Test
   public void noTemplate() {
-    // If messageHtml is already provided, call to templating engine is skipped.
-    // Arrange: Tell our mock factory to return our mock provider so the code doesn't throw a NullPointerException.
-    when(emailProviderFactory.getProvider(anyString())).thenReturn(emailProvider);
-
-    // Arrange: prepare email request.
+    // Arrange: prepare email request. If messageHtml is already provided, call to templating engine is skipped.
     EmailReq emailReq = new EmailReq(
         "plain",
         "pl",
@@ -64,9 +67,6 @@ public class EmailServiceTemplateTest extends BaseIntegrationTest {
 
   @Test
   public void templateSimple() {
-    // Arrange: Tell our mock factory to return our mock provider so the code doesn't throw a NullPointerException.
-    when(emailProviderFactory.getProvider(anyString())).thenReturn(emailProvider);
-
     // Arrange: prepare template parameters and email request.
     Map<String, Object> params = Maps.newHashMap();
     params.put("var", "VARIABLE_VALUE");
@@ -81,7 +81,7 @@ public class EmailServiceTemplateTest extends BaseIntegrationTest {
         "TITLE",
         "test/simple",
         params,
-        null);
+        null); // null means system will try to use template to fill messageHtml
 
     // Act: simulate sending email.
     emailService.sendEmail(emailReq);
@@ -93,7 +93,7 @@ public class EmailServiceTemplateTest extends BaseIntegrationTest {
     EmailReq processedReq = captor.getValue();
     assertThat(processedReq.messageHtml()).isNotNull(); // ensure templating engine actually filled messageHtml
 
-    // Verify the HTML contains the exact text injected by the template engine in correct language.
+    // Assert: Verify the HTML contains the exact text injected by the template engine in correct language.
     assertThat(processedReq.messageHtml())
         .contains("To jest tytuł emaila")
         .contains("To jest zawartość emaila. Zmienna: VARIABLE_VALUE.");

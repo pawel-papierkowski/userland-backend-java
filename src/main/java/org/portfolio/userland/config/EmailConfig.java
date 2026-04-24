@@ -6,7 +6,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 /**
- * Email configuration.
+ * Email configuration. Provides <code>Resend</code> bean.
  */
 @Configuration
 public class EmailConfig {

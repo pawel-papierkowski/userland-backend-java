@@ -8,12 +8,12 @@ import org.portfolio.userland.features.user.entities.EnUserStatus;
 import org.portfolio.userland.features.user.entities.Permission;
 import org.portfolio.userland.features.user.entities.User;
 import org.portfolio.userland.system.config.service.ConfigConst;
-import org.portfolio.userland.system.config.service.ConfigService;
 import org.portfolio.userland.system.jwt.JwtService;
 import org.portfolio.userland.test.helpers.problemDetail.ProblemDetailBox;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Map;
 
@@ -27,9 +27,6 @@ public class CheckWithJwtTest extends BaseUserTest {
   /** Real service to generate a valid token. */
   @Autowired
   private JwtService jwtService;
-
-  @Autowired
-  private ConfigService configService;
 
   @AfterEach
   public void tearDown() {
@@ -92,6 +89,7 @@ public class CheckWithJwtTest extends BaseUserTest {
   //
 
   @Test
+  @Transactional
   void lockdownSecuredEndpointAsAdmin() throws Exception { // TODO
     clock.setFixedTime("2026-04-10T10:00:00Z");
 
@@ -103,7 +101,7 @@ public class CheckWithJwtTest extends BaseUserTest {
     String token = userJwtRepository.findAll().getFirst().getToken();
 
     // Arrange: Lock down system.
-    configService.set(ConfigConst.USER_LOCKDOWN, ConfigConst.TRUE);
+    configRepository.updateValueByName(ConfigConst.USER_LOCKDOWN, ConfigConst.TRUE);
 
     // Act: Perform the request using MockMvc.
     MvcResult mvcResult = mockMvc.perform(get("/api/checks/must-be-logged")
@@ -227,11 +225,12 @@ public class CheckWithJwtTest extends BaseUserTest {
   //
 
   @Test
-  void errLockdownUnsecuredEndpoint() throws Exception { // TODO
+  @Transactional
+  void errLockdownUnsecuredEndpoint() throws Exception {
     clock.setFixedTime("2026-04-10T10:00:00Z");
 
     // Arrange: Lock down system.
-    configService.set(ConfigConst.USER_LOCKDOWN, ConfigConst.TRUE);
+    configRepository.updateValueByName(ConfigConst.USER_LOCKDOWN, ConfigConst.TRUE);
 
     // Act: Perform the request using MockMvc.
     MvcResult mvcResult = mockMvc.perform(get("/api/checks/alive"))
@@ -251,7 +250,8 @@ public class CheckWithJwtTest extends BaseUserTest {
   }
 
   @Test
-  void errLockdownSecuredEndpoint() throws Exception { // TODO
+  @Transactional
+  void errLockdownSecuredEndpoint() throws Exception {
     clock.setFixedTime("2026-04-10T10:00:00Z");
 
     // Arrange: Create a user, token and JWT entry in database, emulating user login.
@@ -260,7 +260,7 @@ public class CheckWithJwtTest extends BaseUserTest {
     String token = userJwtRepository.findAll().getFirst().getToken();
 
     // Arrange: Lock down system.
-    configService.set(ConfigConst.USER_LOCKDOWN, ConfigConst.TRUE);
+    configRepository.updateValueByName(ConfigConst.USER_LOCKDOWN, ConfigConst.TRUE);
 
     // Act: Perform the request using MockMvc.
     MvcResult mvcResult = mockMvc.perform(get("/api/checks/must-be-logged")

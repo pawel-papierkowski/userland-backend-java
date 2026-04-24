@@ -5,6 +5,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.portfolio.userland.common.services.email.data.EmailReq;
 import org.portfolio.userland.common.services.email.providers.EmailProviderFactory;
 import org.portfolio.userland.common.services.email.providers.IntEmailProvider;
+import org.portfolio.userland.features.user.services.UserEmailService;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
@@ -12,7 +13,10 @@ import org.thymeleaf.context.Context;
 import java.util.Locale;
 
 /**
- * Email service. Note: It should be called asynchronously via event.
+ * Email service that handles arbitrary email. See intermediate <code>***EmailService</code> beans (for example
+ * <code>UserEmailService</code>) for usage.
+ * <p>Note: It should be called asynchronously via event.</p>
+ * @see UserEmailService
  */
 @Service
 @RequiredArgsConstructor

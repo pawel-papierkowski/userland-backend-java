@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Request for email sending.
+ * Request for sending email. Contains all data needed to send arbitrary email using template or directly with content.
  * @param provider  Use this provider. If empty/null, will use default provider.
  * @param lang Language. Example: "pl". If no language or unknown language, will fall back to "en".
  * @param sender Sender address.

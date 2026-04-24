@@ -6,7 +6,7 @@ import java.time.Instant;
 import java.time.ZoneId;
 
 /**
- * Clock that can be set to any time. Useful in tests.
+ * <code>Clock</code> that can be set to any time. Useful in tests.
  */
 public class MutableClock extends Clock {
   /** Actual clock under the wraps. */

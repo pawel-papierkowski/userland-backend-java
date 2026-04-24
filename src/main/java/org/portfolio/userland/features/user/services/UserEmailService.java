@@ -22,6 +22,10 @@ import java.util.Map;
  * <ul>
  *   <li>User registration (sends email with activation link)</li>
  *   <li>User activation (sends email confirming successful activation of user account)</li>
+ *   <li>Password reset link</li>
+ *   <li>Password reset confirmation</li>
+ *   <li>Account deletion link</li>
+ *   <li>Account deletion confirmation</li>
  * </ul>
  */
 @Service
@@ -96,7 +100,7 @@ public class UserEmailService {
    * @return Activation link.
    */
   private String resolveActivationLink(EnFrontendFramework frontend, String activationToken) {
-    // Note it is link to frontend - actual backend activation endpoint will be called by frontend.
+    // Note it is linking to frontend - actual backend activation endpoint will be called by frontend.
     return resolveWww(frontend) + "/activate?token="+activationToken;
   }
 
@@ -146,7 +150,7 @@ public class UserEmailService {
    * @return Login link.
    */
   private String resolveLoginLink(EnFrontendFramework frontend) {
-    // Note it is link to frontend - actual backend login endpoint will be called by frontend.
+    // Note it is linking to frontend - actual backend login endpoint will be called by frontend.
     return resolveWww(frontend) + "/login";
   }
 
@@ -198,7 +202,7 @@ public class UserEmailService {
    * @return Password reset link.
    */
   private String resolvePasswordResetLink(EnFrontendFramework frontend, String passwordResetToken) {
-    // Note it is link to frontend - actual backend password reset endpoint will be called by frontend.
+    // Note it is linking to frontend - actual backend password reset endpoint will be called by frontend.
     return resolveWww(frontend) + "/passwordReset?token="+passwordResetToken;
   }
 
@@ -289,7 +293,7 @@ public class UserEmailService {
    * @return Account delete link.
    */
   private String resolveAccountDeleteLink(EnFrontendFramework frontend, String accountDeleteToken) {
-    // Note it is link to frontend - actual backend account delete endpoint will be called by frontend.
+    // Note it is linking to frontend - actual backend account delete endpoint will be called by frontend.
     return resolveWww(frontend) + "/accountDelete?token="+accountDeleteToken;
   }
 

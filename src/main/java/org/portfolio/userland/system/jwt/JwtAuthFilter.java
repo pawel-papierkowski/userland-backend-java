@@ -16,6 +16,7 @@ import org.portfolio.userland.system.exceptions.SystemLockdownException;
 import org.portfolio.userland.system.exceptions.UserLockdownException;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Service;
@@ -59,6 +60,9 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     final String authHeader = request.getHeader(HEADER_AUTH);
     final boolean isLockdown = isLockdown();
 
+    // We can be already authorized in tests using @WithMockCustomUser. Handle it separately.
+    if (handleAlreadyAuth(request, response, filterChain, isLockdown)) return;
+
     // If header is missing or does not start with Bearer, skip this filter. Spring should be configured
     // so it rejects endpoints that require authorization, but do not have it.
     if (authHeader == null || !authHeader.startsWith(HEADER_TOKEN_PREFIX)) {
@@ -80,8 +84,8 @@ public class JwtAuthFilter extends OncePerRequestFilter {
       return;
     }
 
-    // No email or already authenticated.
-    if (email == null || SecurityContextHolder.getContext().getAuthentication() != null) {
+    // No email, something went wrong.
+    if (email == null) {
       if (maybeThrowLockdown(isLockdown, request, response)) return;
       filterChain.doFilter(request, response); // Continue the filter chain.
       return;
@@ -115,7 +119,31 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     filterChain.doFilter(request, response); // Continue the filter chain.
   }
 
-  //
+  /**
+   * Handle case when you are already authenticated. It is possible in tests.
+   * @param request Request.
+   * @param response Response.
+   * @param filterChain Filter chain.
+   * @param isLockdown Is lockdown active?
+   * @return True if user is already authenticated.
+   * @throws IOException If an I/O error occurs during the processing of the request.
+   * @throws ServletException If the processing fails for any other reason.
+   */
+  private boolean handleAlreadyAuth(HttpServletRequest request,
+                                 HttpServletResponse response,
+                                 FilterChain filterChain,
+                                 boolean isLockdown) throws ServletException, IOException {
+    Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+    if (auth == null) return false;
+    if (!(auth.getPrincipal() instanceof CustomUserDetails customUserDetails)) return false;
+
+    if (maybeThrowLockdown(isLockdown, customUserDetails, request, response)) return true;
+
+    filterChain.doFilter(request, response); // Continue the filter chain.
+    return true;
+  }
+
+  // //////////////////////////////////////////////////////////////////////////
 
   /**
    * Verify if user can be logged in.
