@@ -8,12 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.NonNull;
 import org.portfolio.userland.system.auth.CustomUserDetails;
 import org.portfolio.userland.system.auth.CustomUserDetailsService;
-import org.portfolio.userland.system.auth.PermissionService;
-import org.portfolio.userland.system.config.service.ConfigConst;
-import org.portfolio.userland.system.config.service.ConfigService;
 import org.portfolio.userland.system.exceptions.InvalidBearerTokenException;
-import org.portfolio.userland.system.exceptions.SystemLockdownException;
-import org.portfolio.userland.system.exceptions.UserLockdownException;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -39,34 +34,31 @@ import java.io.IOException;
 public class JwtAuthFilter extends OncePerRequestFilter {
   /** Header used for authorization. */
   private final static String HEADER_AUTH = "Authorization";
-  /** JWT tokens are sent as "Bearer <token>". */
+  /** JWT tokens are sent in authorization header as "Bearer [token]". */
   private final static String HEADER_TOKEN_PREFIX = "Bearer ";
   /** Length of prefix above. */
   private final static int HEADER_TOKEN_PREFIX_LENGTH = HEADER_TOKEN_PREFIX.length();
 
-  @Qualifier("handlerExceptionResolver")
-  private final HandlerExceptionResolver handlerExceptionResolver;
-
-  private final ConfigService configService;
   private final JwtService jwtService;
   private final CustomUserDetailsService customUserDetailsService;
-  private final PermissionService permissionService;
+
+  @Qualifier("handlerExceptionResolver")
+  private final HandlerExceptionResolver handlerExceptionResolver;
 
   @Override
   protected void doFilterInternal(@NonNull HttpServletRequest request,
                                   @NonNull HttpServletResponse response,
                                   @NonNull FilterChain filterChain) throws ServletException, IOException {
-    // Get the Authorization header.
-    final String authHeader = request.getHeader(HEADER_AUTH);
-    final boolean isLockdown = isLockdown();
+    System.out.println("JwtAuthFilter.doFilterInternal() called.");
+    final String authHeader = request.getHeader(HEADER_AUTH); // Get the Authorization header.
+    final boolean isLockdown = false; //isLockdown(); // Find out if we have system lockdown.
 
     // We can be already authorized in tests using @WithMockCustomUser. Handle it separately.
     if (handleAlreadyAuth(request, response, filterChain, isLockdown)) return;
 
-    // If header is missing or does not start with Bearer, skip this filter. Spring should be configured
-    // so it rejects endpoints that require authorization, but do not have it.
+    // If header is missing or does not start with Bearer, end it. Spring should be configured so it rejects endpoints
+    // that require authorization, but user do not have it.
     if (authHeader == null || !authHeader.startsWith(HEADER_TOKEN_PREFIX)) {
-      if (maybeThrowLockdown(isLockdown, request, response)) return;
       // Let's continue, maybe this endpoint does not require authentication.
       filterChain.doFilter(request, response);
       return;
@@ -86,7 +78,6 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
     // No email, something went wrong.
     if (email == null) {
-      if (maybeThrowLockdown(isLockdown, request, response)) return;
       filterChain.doFilter(request, response); // Continue the filter chain.
       return;
     }
@@ -94,28 +85,12 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     // Load user details from database based on email, as email uniquely identifies user.
     CustomUserDetails customUserDetails = customUserDetailsService.loadUserByUsername(email);
     if (!verifyCustomUser(customUserDetails, token)) {
-      if (maybeThrowLockdown(isLockdown, customUserDetails, request, response)) return;
       filterChain.doFilter(request, response); // Continue the filter chain.
       return;
     }
 
     // Validate the token against the loaded user.
-    if (jwtService.isTokenValid(token, customUserDetails.getEmail())) {
-      // Create the authentication token containing the user, no credentials (already validated), and their roles.
-      UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-          customUserDetails,
-          null,
-          customUserDetails.getAuthorities()
-      );
-
-      // Attach details about the web request (like IP address, session ID).
-      authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-
-      // Set the authentication in the security context.
-      SecurityContextHolder.getContext().setAuthentication(authToken);
-    }
-
-    if (maybeThrowLockdown(isLockdown, customUserDetails, request, response)) return;
+    if (jwtService.isTokenValid(token, customUserDetails.getEmail())) setupAuth(request, customUserDetails);
     filterChain.doFilter(request, response); // Continue the filter chain.
   }
 
@@ -137,10 +112,28 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     if (auth == null) return false;
     if (!(auth.getPrincipal() instanceof CustomUserDetails customUserDetails)) return false;
 
-    if (maybeThrowLockdown(isLockdown, customUserDetails, request, response)) return true;
-
     filterChain.doFilter(request, response); // Continue the filter chain.
     return true;
+  }
+
+  /**
+   * Actually set up authentification. Finally.
+   * @param request Request.
+   * @param customUserDetails Custom user details resolved from token string and database user.
+   */
+  private void setupAuth(HttpServletRequest request, CustomUserDetails customUserDetails) {
+    // Create the authentication token containing the user, no credentials (already validated), and their roles.
+    UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+        customUserDetails,
+        null,
+        customUserDetails.getAuthorities()
+    );
+
+    // Attach details about the web request (like IP address, session ID).
+    authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+
+    // Set the authentication in the security context.
+    SecurityContextHolder.getContext().setAuthentication(authToken);
   }
 
   // //////////////////////////////////////////////////////////////////////////
@@ -156,48 +149,5 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     if (!customUserDetails.getJwts().contains(jwtStr)) return false;
     // Other checks.
     return customUserDetails.getActive() && !customUserDetails.getLocked();
-  }
-
-  //
-
-  /**
-   * Checks if system is subjected to lockdown.
-   * @return True if system is under lockdown, otherwise false.
-   */
-  private boolean isLockdown() {
-    return configService.get(ConfigConst.USER_LOCKDOWN, ConfigConst.USER_LOCKDOWN_DEF).equals(ConfigConst.TRUE);
-  }
-
-  /**
-   * If isLockdown is true, cause exception that will be properly handled by GlobalExceptionHandler.
-   * @param isLockdown Do we have lockdown situation?
-   * @param request Request.
-   * @param response Response.
-   * @return True if we have lockdown, otherwise false.
-   */
-  private boolean maybeThrowLockdown(boolean isLockdown,
-                                     HttpServletRequest request,
-                                     HttpServletResponse response) {
-    if (!isLockdown) return false;
-    handlerExceptionResolver.resolveException(request, response, null, new SystemLockdownException());
-    return true;
-  }
-
-  /**
-   * If isLockdown is true AND user has no access to admin panel, cause exception that will be properly handled by
-   * GlobalExceptionHandler.
-   * @param isLockdown Do we have lockdown situation?
-   * @param customUserDetails Custom user details.
-   * @param request Request.
-   * @param response Response.
-   * @return True if we have lockdown, otherwise false.
-   */
-  private boolean maybeThrowLockdown(boolean isLockdown, CustomUserDetails customUserDetails,
-                                     HttpServletRequest request,
-                                     HttpServletResponse response) {
-    if (!isLockdown) return false;
-    if (permissionService.hasAccessToAdminPanel(customUserDetails)) return false;
-    handlerExceptionResolver.resolveException(request, response, null, new UserLockdownException(customUserDetails.getEmail()));
-    return true;
   }
 }

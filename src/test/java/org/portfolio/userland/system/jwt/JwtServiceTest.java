@@ -4,6 +4,7 @@ import com.google.common.collect.Maps;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.portfolio.userland.features.user.BaseUserTest;
+import org.portfolio.userland.features.user.entities.EnUserStatus;
 import org.portfolio.userland.features.user.entities.User;
 import org.portfolio.userland.features.user.exceptions.UserCannotBeLockedException;
 import org.portfolio.userland.features.user.exceptions.UserMustBeActiveException;
@@ -34,7 +35,7 @@ public class JwtServiceTest extends BaseUserTest {
     clock.setFixedTime("2026-04-10T10:05:00Z");
 
     // Arrange: Create a real user and token for that user.
-    User user = userRepository.save(userFactory.genUser());
+    User user = userRepository.save(userFactory.genRandUser(EnUserStatus.ACTIVE));
     String token = jwtService.generateToken(user);
 
     // Act: Check if token is valid.
@@ -46,7 +47,7 @@ public class JwtServiceTest extends BaseUserTest {
     Map<String, Object> expectedClaimMap = Maps.newHashMap();
     expectedClaimMap.put("iat", 1775808300L); // issued
     expectedClaimMap.put("exp", 1775829900L); // expires
-    expectedClaimMap.put("sub", "test@example.com"); // user account email as subject
+    expectedClaimMap.put("sub", user.getEmail()); // user account email as subject
     assertThat(actualClaimMap).as("Claim map is invalid").isEqualTo(expectedClaimMap);
   }
 
@@ -57,7 +58,7 @@ public class JwtServiceTest extends BaseUserTest {
     clock.setFixedTime("2026-04-10T10:00:00Z");
 
     // Arrange: Create a real user that is pending.
-    final User user = userFactory.genUserPending(null);
+    final User user = userFactory.genRandUser(EnUserStatus.PENDING);
 
     // Act & Assert: Try to create a real token.
     UserMustBeActiveException actualEx = assertThrows(
@@ -71,7 +72,7 @@ public class JwtServiceTest extends BaseUserTest {
     clock.setFixedTime("2026-04-10T10:00:00Z");
 
     // Arrange: Create a real user that is locked.
-    User tempUser = userFactory.genUser();
+    User tempUser = userFactory.genRandUser(EnUserStatus.ACTIVE);
     tempUser.setLocked(true);
     final User user = userRepository.save(tempUser);
 

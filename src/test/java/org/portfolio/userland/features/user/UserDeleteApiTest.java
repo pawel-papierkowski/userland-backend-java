@@ -4,10 +4,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.portfolio.userland.features.user.dto.delete.UserDeleteConfirmReq;
 import org.portfolio.userland.features.user.dto.delete.UserDeleteLinkReq;
-import org.portfolio.userland.features.user.entities.EnHistoryWhat;
-import org.portfolio.userland.features.user.entities.EnTokenType;
-import org.portfolio.userland.features.user.entities.User;
-import org.portfolio.userland.features.user.entities.UserToken;
+import org.portfolio.userland.features.user.entities.*;
 import org.portfolio.userland.features.user.events.UserAccountDeleteConfirmEvent;
 import org.portfolio.userland.features.user.events.UserAccountDeleteLinkEvent;
 import org.portfolio.userland.test.helpers.problemDetail.ProblemDetailBox;
@@ -44,10 +41,10 @@ public class UserDeleteApiTest extends BaseUserTest {
   @Test
   public void sendAccountDeletionEmail() throws Exception {
     clock.setFixedTime("2026-04-10T10:00:00Z");
-    User expectedUser = userFactory.genUser();
+    User expectedUser = userFactory.genUser(EnUserStatus.ACTIVE);
 
     // Arrange: Create active user in database.
-    User newUser = userFactory.genUser();
+    User newUser = userFactory.genUser(EnUserStatus.ACTIVE);
     userRepository.save(newUser);
 
     clock.setFixedTime("2026-04-11T11:30:00Z");
@@ -98,10 +95,10 @@ public class UserDeleteApiTest extends BaseUserTest {
   @Test
   public void sendAccountDeletionEmailWhenExpiredToken() throws Exception {
     clock.setFixedTime("2026-04-10T10:00:00Z");
-    User expectedUser = userFactory.genUser();
+    User expectedUser = userFactory.genUser(EnUserStatus.ACTIVE);
 
     // Arrange: Create active user in database with account deletion token already present...
-    User newUser = userFactory.genUser();
+    User newUser = userFactory.genUser(EnUserStatus.ACTIVE);
     userTokenFactory.genTokenEntry(newUser, EnTokenType.DELETE, null);
     userRepository.save(newUser);
 
@@ -156,7 +153,7 @@ public class UserDeleteApiTest extends BaseUserTest {
     clock.setFixedTime("2026-04-10T10:00:00Z");
 
     // Arrange: Create active user in database in state indicating it requested account deletion.
-    User expectedUser = userFactory.genUser();
+    User expectedUser = userFactory.genUser(EnUserStatus.ACTIVE);
     UserToken token = userTokenFactory.genTokenEntry(expectedUser, EnTokenType.DELETE, null);
     userHistoryFactory.genHistoryEvent(expectedUser, EnHistoryWhat.DELETE_REQ);
     userRepository.save(expectedUser);
@@ -203,7 +200,7 @@ public class UserDeleteApiTest extends BaseUserTest {
     clock.setFixedTime("2026-04-08T10:00:00Z");
 
     // Arrange: create pending user.
-    User expectedUser = userFactory.genUserPending(null);
+    User expectedUser = userFactory.genUser(EnUserStatus.PENDING);
     userRepository.save(expectedUser);
 
     // Arrange: create account deletion request.
@@ -235,7 +232,7 @@ public class UserDeleteApiTest extends BaseUserTest {
     clock.setFixedTime("2026-04-08T10:00:00Z");
 
     // Arrange: create locked user.
-    User expectedUser = userFactory.genUser();
+    User expectedUser = userFactory.genUser(EnUserStatus.ACTIVE);
     expectedUser.setLocked(true);
     userRepository.save(expectedUser);
 
@@ -268,7 +265,7 @@ public class UserDeleteApiTest extends BaseUserTest {
     clock.setFixedTime("2026-04-08T10:00:00Z");
 
     // Arrange: create user with account deletion token already present and valid.
-    User expectedUser = userFactory.genUser();
+    User expectedUser = userFactory.genUser(EnUserStatus.ACTIVE);
     userTokenFactory.genTokenEntry(expectedUser, EnTokenType.DELETE, null);
     userRepository.save(expectedUser);
 
@@ -303,7 +300,7 @@ public class UserDeleteApiTest extends BaseUserTest {
     clock.setFixedTime("2026-04-08T10:00:00Z");
 
     // Arrange: create user that requested password reset.
-    User expectedUser = userFactory.genUser();
+    User expectedUser = userFactory.genUser(EnUserStatus.ACTIVE);
     UserToken token = userTokenFactory.genTokenEntry(expectedUser, EnTokenType.DELETE, null);
     userHistoryFactory.genHistoryEvent(expectedUser, EnHistoryWhat.DELETE_REQ);
     userRepository.save(expectedUser);

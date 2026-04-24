@@ -5,10 +5,7 @@ import org.junit.jupiter.api.Test;
 import org.portfolio.userland.features.user.dto.common.EnFrontendFramework;
 import org.portfolio.userland.features.user.dto.password.UserPassResetConfirmReq;
 import org.portfolio.userland.features.user.dto.password.UserPassResetLinkReq;
-import org.portfolio.userland.features.user.entities.EnHistoryWhat;
-import org.portfolio.userland.features.user.entities.EnTokenType;
-import org.portfolio.userland.features.user.entities.User;
-import org.portfolio.userland.features.user.entities.UserToken;
+import org.portfolio.userland.features.user.entities.*;
 import org.portfolio.userland.features.user.events.UserPasswordResetConfirmEvent;
 import org.portfolio.userland.features.user.events.UserPasswordResetLinkEvent;
 import org.portfolio.userland.test.helpers.problemDetail.ProblemDetailBox;
@@ -45,10 +42,10 @@ public class UserPasswordApiTest extends BaseUserTest {
   @Test
   public void sendPasswordResetEmail() throws Exception {
     clock.setFixedTime("2026-04-10T10:00:00Z");
-    User expectedUser = userFactory.genUser();
+    User expectedUser = userFactory.genUser(EnUserStatus.ACTIVE);
 
     // Arrange: Create active user in database.
-    User newUser = userFactory.genUser();
+    User newUser = userFactory.genUser(EnUserStatus.ACTIVE);
     userRepository.save(newUser);
 
     clock.setFixedTime("2026-04-11T11:30:00Z");
@@ -99,10 +96,10 @@ public class UserPasswordApiTest extends BaseUserTest {
   @Test
   public void sendPasswordResetEmailWhenExpiredToken() throws Exception {
     clock.setFixedTime("2026-04-10T10:00:00Z");
-    User expectedUser = userFactory.genUser();
+    User expectedUser = userFactory.genUser(EnUserStatus.ACTIVE);
 
     // Arrange: Create active user in database with password reset token already present...
-    User newUser = userFactory.genUser();
+    User newUser = userFactory.genUser(EnUserStatus.ACTIVE);
     userTokenFactory.genTokenEntry(newUser, EnTokenType.PASSWORD, null);
     userRepository.save(newUser);
 
@@ -157,7 +154,7 @@ public class UserPasswordApiTest extends BaseUserTest {
     clock.setFixedTime("2026-04-10T10:00:00Z");
 
     // Arrange: Create active user in database in state indicating it requested password reset.
-    User expectedUser = userFactory.genUser();
+    User expectedUser = userFactory.genUser(EnUserStatus.ACTIVE);
     UserToken token = userTokenFactory.genTokenEntry(expectedUser, EnTokenType.PASSWORD, null);
     userHistoryFactory.genHistoryEvent(expectedUser, EnHistoryWhat.PASS_RESET_REQ);
 
@@ -214,7 +211,7 @@ public class UserPasswordApiTest extends BaseUserTest {
     clock.setFixedTime("2026-04-08T10:00:00Z");
 
     // Arrange: create pending user.
-    User expectedUser = userFactory.genUserPending(null);
+    User expectedUser = userFactory.genUser(EnUserStatus.PENDING);
     userRepository.save(expectedUser);
 
     // Arrange: create password reset request.
@@ -246,7 +243,7 @@ public class UserPasswordApiTest extends BaseUserTest {
     clock.setFixedTime("2026-04-08T10:00:00Z");
 
     // Arrange: create locked user.
-    User expectedUser = userFactory.genUser();
+    User expectedUser = userFactory.genUser(EnUserStatus.ACTIVE);
     expectedUser.setLocked(true);
     userRepository.save(expectedUser);
 
@@ -279,7 +276,7 @@ public class UserPasswordApiTest extends BaseUserTest {
     clock.setFixedTime("2026-04-08T10:00:00Z");
 
     // Arrange: create user with password reset token already present and valid.
-    User expectedUser = userFactory.genUser();
+    User expectedUser = userFactory.genUser(EnUserStatus.ACTIVE);
     userTokenFactory.genTokenEntry(expectedUser, EnTokenType.PASSWORD, null);
     userRepository.save(expectedUser);
 
@@ -314,7 +311,7 @@ public class UserPasswordApiTest extends BaseUserTest {
     clock.setFixedTime("2026-04-08T10:00:00Z");
 
     // Arrange: create user that requested password reset.
-    User expectedUser = userFactory.genUser();
+    User expectedUser = userFactory.genUser(EnUserStatus.ACTIVE);
     UserToken token = userTokenFactory.genTokenEntry(expectedUser, EnTokenType.PASSWORD, null);
     userHistoryFactory.genHistoryEvent(expectedUser, EnHistoryWhat.PASS_RESET_REQ);
     userRepository.save(expectedUser);

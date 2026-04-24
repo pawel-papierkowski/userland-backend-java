@@ -4,9 +4,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.portfolio.userland.system.auth.CustomUserDetails;
 import org.portfolio.userland.system.auth.CustomUserDetailsService;
-import org.portfolio.userland.system.auth.PermissionService;
-import org.portfolio.userland.system.config.service.ConfigConst;
-import org.portfolio.userland.system.config.service.ConfigService;
 import org.portfolio.userland.system.exceptions.InvalidBearerTokenException;
 import org.springframework.mock.web.MockFilterChain;
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -30,9 +27,9 @@ public class JwtAuthFilterTest {
   private static final String TOKEN_BAD = "bad.jwt.token";
 
   private HandlerExceptionResolver handlerExceptionResolver;
-  private ConfigService configService;
   private JwtService jwtService;
   private CustomUserDetailsService customUserDetailsService;
+
   private JwtAuthFilter jwtAuthFilter;
 
   @BeforeEach
@@ -41,12 +38,10 @@ public class JwtAuthFilterTest {
     SecurityContextHolder.clearContext();
 
     handlerExceptionResolver = mock(HandlerExceptionResolver.class);
-    configService = mock(ConfigService.class);
     jwtService = mock(JwtService.class);
     customUserDetailsService = mock(CustomUserDetailsService.class);
-    PermissionService permissionService = new PermissionService();
     // JwtAuthFilter is real, but we need to set services it uses to our mocks.
-    jwtAuthFilter = new JwtAuthFilter(handlerExceptionResolver, configService, jwtService, customUserDetailsService, permissionService);
+    jwtAuthFilter = new JwtAuthFilter(jwtService, customUserDetailsService, handlerExceptionResolver);
   }
 
   //
@@ -63,7 +58,6 @@ public class JwtAuthFilterTest {
     String email = "testuser@example.com";
     CustomUserDetails customUserDetails = new CustomUserDetails(1L, true, false, "Jan Kowalski", email, "p@S5wordN1c3", Set.of(TOKEN_VALID), null);
 
-    when(configService.get(ConfigConst.USER_LOCKDOWN, ConfigConst.USER_LOCKDOWN_DEF)).thenReturn(ConfigConst.FALSE);
     when(jwtService.extractEmail(TOKEN_VALID)).thenReturn(email);
     when(jwtService.isTokenValid(TOKEN_VALID, customUserDetails.getEmail())).thenReturn(true);
     when(customUserDetailsService.loadUserByUsername(email)).thenReturn(customUserDetails);
@@ -104,18 +98,14 @@ public class JwtAuthFilterTest {
     MockHttpServletResponse response = new MockHttpServletResponse();
     MockFilterChain filterChain = new MockFilterChain();
 
-    when(configService.get(ConfigConst.USER_LOCKDOWN, ConfigConst.USER_LOCKDOWN_DEF))
-        .thenReturn(ConfigConst.FALSE);
-
     // Act: Execute the filter.
     jwtAuthFilter.doFilterInternal(request, response, filterChain);
 
-    // Assert
+    // Assert: No authentication performed.
     assertThat(SecurityContextHolder.getContext().getAuthentication())
         .as("Authentication should not be created when header is missing")
         .isNull();
 
-    verify(configService).get(ConfigConst.USER_LOCKDOWN, ConfigConst.USER_LOCKDOWN_DEF);
     verifyNoInteractions(jwtService, customUserDetailsService, handlerExceptionResolver);
   }
 
@@ -127,16 +117,13 @@ public class JwtAuthFilterTest {
     MockHttpServletResponse response = new MockHttpServletResponse();
     MockFilterChain filterChain = new MockFilterChain();
 
-    when(configService.get(ConfigConst.USER_LOCKDOWN, ConfigConst.USER_LOCKDOWN_DEF))
-        .thenReturn(ConfigConst.FALSE);
-
     when(jwtService.extractEmail(TOKEN_BAD))
         .thenThrow(new RuntimeException("Malformed JWT"));
 
     // Act: Execute the filter.
     jwtAuthFilter.doFilterInternal(request, response, filterChain);
 
-    // Assert
+    // Assert: No authentication performed.
     assertThat(SecurityContextHolder.getContext().getAuthentication())
         .as("Authentication should not be created for malformed token")
         .isNull();

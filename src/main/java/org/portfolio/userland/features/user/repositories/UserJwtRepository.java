@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
  * Database interface for user JWT entry.
  */
 @Repository
-public interface UserJwtRepository extends JpaRepository<UserJwt, Long> {
+public interface UserJwtRepository extends JpaRepository<UserJwt, Long>, UserJwtCustomRepository {
 
   /**
    * Delete all expired JWTs.
