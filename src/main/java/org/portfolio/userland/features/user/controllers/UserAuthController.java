@@ -24,8 +24,8 @@ import org.springframework.web.bind.annotation.RestController;
  * REST endpoints for user authentication.
  * <p>Endpoints:</p>
  * <ul>
- *   <li><code>/api/users/login</code> - user account log in.</li>
- *   <li><code>/api/users/logout</code> - user account log out.</li>
+ *   <li><code>POST /api/users/login</code> - user account log in.</li>
+ *   <li><code>POST /api/users/logout</code> - user account log out.</li>
  * </ul>
  */
 @RestController

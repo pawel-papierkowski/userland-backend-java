@@ -16,13 +16,13 @@ import static ch.martinelli.oss.testcontainers.mailpit.assertions.MailpitAsserti
  * Tests email service for provider 'plain'.
  */
 public class EmailServicePlainTest extends BaseIntegrationTest {
+  @Autowired
+  private EmailService emailService;
+
   // Spin up the Mailpit container and auto-wire it to Spring Boot's JavaMailSender.
   @Container
   @ServiceConnection
   static MailpitContainer mailpit = new MailpitContainer();
-
-  @Autowired
-  private EmailService emailService;
 
   @Test
   public void plainEmailSimple() {

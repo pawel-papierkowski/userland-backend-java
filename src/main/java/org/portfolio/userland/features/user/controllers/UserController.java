@@ -33,15 +33,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * REST endpoints for user.
+ * REST endpoints for user. These endpoints are available without authentication.
  * <p>Endpoints:</p>
  * <ul>
- *   <li><code>/api/users/register</code> - registers user.</li>
- *   <li><code>/api/users/activate</code> - activates user.</li>
- *   <li><code>/api/users/password/link - sends email with password reset link.</code></li>
- *   <li><code>/api/users/password/confirm</code> - actually resets password.</li>
- *   <li><code>/api/users/delete/link - sends email with account deletion link.</code></li>
- *   <li><code>/api/users/delete/confirm</code> - actually deletes user account.</li>
+ *   <li><code>POST /api/users/register</code> - registers user.</li>
+ *   <li><code>POST /api/users/activate</code> - activates user.</li>
+ *   <li><code>POST /api/users/password/link</code> - sends email with password reset link.</li>
+ *   <li><code>POST /api/users/password/confirm</code> - actually resets password.</li>
+ *   <li><code>POST /api/users/delete/link</code> - sends email with account deletion link.</li>
+ *   <li><code>POST /api/users/delete/confirm</code> - actually deletes user account.</li>
  * </ul>
  */
 @RestController

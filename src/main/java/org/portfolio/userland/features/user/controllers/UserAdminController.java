@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
  * REST endpoints for user management. All endpoints here require administration permissions.
  * <p>Endpoints:</p>
  * <ul>
- *   <li><code>/api/users/all</code> - get all user.</li>
+ *   <li><code>GET /api/users/all</code> - get all users.</li>
  * </ul>
  */
 @RestController

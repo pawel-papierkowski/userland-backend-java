@@ -23,7 +23,7 @@ public class EmailServiceResendTest extends BaseIntegrationTest {
   private EmailService emailService;
 
   @MockitoBean
-  private Resend resendMock;
+  private Resend resendMock; // We do not want to actually send email.
 
   @Test
   public void resendEmailSimple() throws ResendException {

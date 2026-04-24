@@ -10,12 +10,13 @@ import java.time.ZoneId;
 import java.util.Date;
 
 /**
- * Wraps Clock and provides various useful utility functions.
+ * Wraps <code>Clock</code> and provides various useful utility functions. Application should use this service instead
+ * of using standard clock or other date/time retrieval methods.
  */
 @Service
 @RequiredArgsConstructor
 public class ClockService {
-  /** Clock bean configured in ClockConfig. */
+  /** <code>Clock</code> bean is configured in <code>ClockConfig</code>. */
   private final Clock clock;
 
   /**

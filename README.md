@@ -21,16 +21,19 @@ You can think of it as baseline for any other project, as almost anything will n
 ### Features
 
 - Standard user:
-  - User registration
-  - User activation via email
-  - User login
-  - User logout
-  - Password reset via email
-  - User account deletion (confirmation via email)
-- Different rights (standard user vs panel admin operator)
-- Admin user:
-  - Viewing list of users, including pagination and filtration
-  - User block/unblock
+  - User **registration**.
+  - User **activation** via email.
+  - User **login**.
+  - User **logout**.
+  - **Password reset** via email.
+  - User **account deletion** (confirmation via email).
+- Handling **user permissions** (standard user vs panel admin operator).
+- **Admin user**:
+  - Viewing **table of users**, including pagination and filtration.
+  - Changing data of selected user.
+    - User **lock/unlock**.
+- Other options:
+  - **System lockdown**: if turned on, only users with admin rights can call any endpoint. 
 
 ## GitHub config
 

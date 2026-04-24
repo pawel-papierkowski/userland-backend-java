@@ -1,6 +1,7 @@
 package org.portfolio.userland.config;
 
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.NonNull;
 import org.springframework.beans.factory.config.YamlPropertiesFactoryBean;
 import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
@@ -9,20 +10,22 @@ import org.springframework.context.support.ReloadableResourceBundleMessageSource
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
+import org.springframework.core.io.ResourceLoader;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.util.DefaultPropertiesPersister;
 import org.springframework.util.FileCopyUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Reader;
 import java.util.HashSet;
 import java.util.Properties;
 import java.util.Set;
 
 /**
- * Multi-language config. Normally Spring expects .properties files.
- * This configures Spring to search in base directory and all subdirectories for any
- * YAML file and treat it as translation file to use.
+ * Multi-language config. Normally Spring expects .properties files. We want to use .yaml/.yml files instead.
+ * This configuration class tells Spring to search in base directory and all subdirectories for any YAML files and treat
+ * it as translation file to use.
  */
 @Configuration
 @Slf4j
@@ -32,44 +35,17 @@ public class I18nConfig {
   /** Find all YAML files in base directory and subdirectories. The '**' tells Spring to search all subdirectories recursively. */
   private final static String LOCATION_PATTERN = "classpath*:"+BASE_DIR+"/**/*.yaml";
 
+  /** Strip the locale suffix and .yml/.yaml extension. */
+  private final static String REGEX_REPLACE = "(_[a-zA-Z]{2}(_[a-zA-Z]{2})?)?\\.ya?ml$";
+
   /**
-   * Defines message source.
+   * Defines and configures message source that can handle yml/yaml files.
    * @return Message source.
    * @throws IOException If resource resolver fails.
    */
   @Bean
   public MessageSource messageSource() throws IOException {
-    // Instantiate as an anonymous subclass to override setResourceLoader
-    ReloadableResourceBundleMessageSource messageSource = new ReloadableResourceBundleMessageSource() {
-      @Override
-      public void setResourceLoader(org.springframework.core.io.ResourceLoader resourceLoader) {
-        // Intercept whatever Spring injects (the ApplicationContext) and wrap it
-        org.springframework.core.io.ResourceLoader customLoader = new org.springframework.core.io.ResourceLoader() {
-          @Override
-          public Resource getResource(String location) {
-            if (location.endsWith(".properties")) {
-              // Try .yaml first
-              Resource yaml = resourceLoader.getResource(location.replace(".properties", ".yaml"));
-              if (yaml.exists()) return yaml;
-
-              // Try .yml second
-              Resource yml = resourceLoader.getResource(location.replace(".properties", ".yml"));
-              if (yml.exists()) return yml;
-            }
-            // Fallback to original
-            return resourceLoader.getResource(location);
-          }
-
-          @Override
-          public ClassLoader getClassLoader() {
-            return resourceLoader.getClassLoader();
-          }
-        };
-        // Pass our custom wrapper up to the parent class
-        super.setResourceLoader(customLoader);
-      }
-    };
-
+    YamlMessageSource messageSource = new YamlMessageSource();
     messageSource.setDefaultEncoding("UTF-8");
     messageSource.setFallbackToSystemLocale(false);
     messageSource.setPropertiesPersister(new YamlPropertiesPersister());
@@ -98,9 +74,9 @@ public class I18nConfig {
         // e.g., "i18n/emails/welcome_pl.yml"
         String relativePath = path.substring(i18nIndex);
 
-        // Strip the locale suffix and .yml extension
+        // Strip the locale suffix and .yml/.yaml extension
         // e.g., "i18n/emails/welcome_pl.yml" -> "i18n/emails/welcome"
-        String baseName = relativePath.replaceAll("(_[a-zA-Z]{2}(_[a-zA-Z]{2})?)?\\.ya?ml$", "");
+        String baseName = relativePath.replaceAll(REGEX_REPLACE, "");
 
         // Add the classpath prefix required by ReloadableResourceBundleMessageSource
         baseNames.add("classpath:" + baseName);
@@ -110,15 +86,58 @@ public class I18nConfig {
     return baseNames.toArray(new String[0]);
   }
 
+  //
+
+  /** Custom resource loader that can handle yml/yaml files. */
+  private static class YamlResourceLoader implements ResourceLoader {
+    /** We actually use original loader, just with some adjustments. */
+    private final ResourceLoader resourceLoader;
+
+    private YamlResourceLoader(ResourceLoader resourceLoader) {
+      this.resourceLoader = resourceLoader;
+    }
+
+    @Override
+    public Resource getResource(String location) {
+      if (location.endsWith(".properties")) {
+        // Try .yaml first.
+        Resource yaml = resourceLoader.getResource(location.replace(".properties", ".yaml"));
+        if (yaml.exists()) return yaml;
+
+        // Try .yml second.
+        Resource yml = resourceLoader.getResource(location.replace(".properties", ".yml"));
+        if (yml.exists()) return yml;
+      }
+      // Fallback to original loader.
+      return resourceLoader.getResource(location);
+    }
+
+    @Override
+    public ClassLoader getClassLoader() {
+      return resourceLoader.getClassLoader();
+    }
+  }
+
+  /** Custom message source that can handle yml/yaml files. */
+  private static class YamlMessageSource extends ReloadableResourceBundleMessageSource {
+    @Override
+    public void setResourceLoader(ResourceLoader resourceLoader) {
+      // Intercept whatever Spring injects (the ApplicationContext) and wrap it.
+      YamlResourceLoader customLoader = new YamlResourceLoader(resourceLoader);
+      // Pass our custom wrapper up to the parent class
+      super.setResourceLoader(customLoader);
+    }
+  }
+
   /** Custom inner class to parse YAML into Properties. */
   private static class YamlPropertiesPersister extends DefaultPropertiesPersister {
     @Override
-    public void load(Properties props, InputStream is) throws IOException {
+    public void load(@NonNull Properties props, @NonNull InputStream is) {
       loadYaml(props, new InputStreamResource(is));
     }
 
     @Override
-    public void load(Properties props, java.io.Reader reader) throws IOException {
+    public void load(@NonNull Properties props, @NonNull Reader reader) throws IOException {
       // We read the characters from the Reader and convert them back to a Resource.
       String yamlContent = FileCopyUtils.copyToString(reader);
       Resource resource = new ByteArrayResource(yamlContent.getBytes(java.nio.charset.StandardCharsets.UTF_8));

@@ -19,20 +19,22 @@ public class EmailProviderFactory {
   @Value("${app.email.providers.default}")
   private String defaultProvider;
 
-  /** Known providers. */
+  /** Known email providers. Key is provider name, value is provider service. */
   private final Map<String, IntEmailProvider> providers;
 
   /**
-   * We convert list of provider classes into a Map where the key is the custom provider name.
-   * @param emailProviderList Spring automatically injects a list of ALL classes that implement EmailProvider.
+   * Constructor. Map of available email providers is assembled here.
+   * <p>We convert list of provider classes into a <code>Map</code> where the key is the custom provider name. It is
+   * fully automated - if you add new provider (service that implements <code>IntEmailProvider</code>), it will be
+   * present without adding it manually.</p>
+   * @param emailProviderList Spring automatically injects a list of ALL classes that implement <code>IntEmailProvider</code>.
    */
   public EmailProviderFactory(List<IntEmailProvider> emailProviderList) {
     this.providers = emailProviderList.stream()
-        .collect(Collectors.toMap(
-            IntEmailProvider::getProviderName,
-            Function.identity()
-        ));
+        .collect(Collectors.toMap(IntEmailProvider::getProviderName, Function.identity()));
   }
+
+  //
 
   /**
    * Fetch the correct provider at runtime based on a string.

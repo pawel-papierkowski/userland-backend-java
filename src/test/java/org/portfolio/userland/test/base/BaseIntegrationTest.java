@@ -5,7 +5,9 @@ import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.AfterEach;
 import org.portfolio.userland.common.services.clock.ClockService;
 import org.portfolio.userland.common.services.clock.MutableClock;
+import org.portfolio.userland.system.config.entities.Config;
 import org.portfolio.userland.system.config.repositories.ConfigRepository;
+import org.portfolio.userland.system.config.service.ConfigConst;
 import org.portfolio.userland.test.helpers.problemDetail.ProblemDetailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
@@ -82,7 +84,29 @@ public abstract class BaseIntegrationTest {
     clock.reset();
   }
 
+  /**
+   * Reset state of database so tests don't interfere with each other.
+   */
   protected void resetDatabase() {
-    // NOP
+    cleanDatabase();
+    setupDatabase();
+  }
+
+  /**
+   * Clean up the database. Inherited methods need to call <code>super.cleanDatabase()</code> at beginning.
+   */
+  protected void cleanDatabase() {
+    configRepository.deleteAll();
+  }
+
+  /**
+   * Set up the database. Inherited methods need to call <code>super.setupDatabase()</code> at beginning.
+   */
+  protected void setupDatabase() {
+    Config config = new Config();
+    config.setName(ConfigConst.USER_LOCKDOWN);
+    config.setValue(ConfigConst.USER_LOCKDOWN_DEF);
+    config.setDescription("-");
+    configRepository.save(config);
   }
 }

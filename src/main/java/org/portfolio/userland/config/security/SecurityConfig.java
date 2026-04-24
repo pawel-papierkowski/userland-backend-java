@@ -113,6 +113,48 @@ public class SecurityConfig {
   }
 
   /**
+   * This specific filter chain defines secured endpoints that also requires operator or administrator permissions.
+   * Note there can be endpoints individually marked as <code>@PreAuthorize("hasAuthority('ROLE_OPERATOR')")</code>.
+   * @param http HTTP security data.
+   * @return Security filter chain.
+   */
+  @Bean
+  @Order(10)
+  public SecurityFilterChain operatorSecurityFilterChain(HttpSecurity http) {
+    http.csrf(AbstractHttpConfigurer::disable)
+        .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+        .securityMatcher("/api/admin/*") // any administration panel endpoint
+        .authorizeHttpRequests(requests -> requests.anyRequest().hasAnyAuthority("ROLE_OPERATOR", "ROLE_ADMIN"))
+        .exceptionHandling(ex -> ex
+            .authenticationEntryPoint(problemDetailAuthenticationEntryPoint)
+            .accessDeniedHandler(problemDetailAccessDeniedHandler)
+        )
+        .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+    return http.build();
+  }
+
+  /**
+   * This specific filter chain defines secured endpoints that also requires administrator permissions.
+   * Note there can be endpoints individually marked as <code>@PreAuthorize("hasAuthority('ROLE_ADMIN')")</code>.
+   * @param http HTTP security data.
+   * @return Security filter chain.
+   */
+  @Bean
+  @Order(11)
+  public SecurityFilterChain adminSecurityFilterChain(HttpSecurity http) {
+    http.csrf(AbstractHttpConfigurer::disable)
+        .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+        .securityMatcher("/api/system/*") // any system endpoint
+        .authorizeHttpRequests(requests -> requests.anyRequest().hasAuthority("ROLE_ADMIN"))
+        .exceptionHandling(ex -> ex
+            .authenticationEntryPoint(problemDetailAuthenticationEntryPoint)
+            .accessDeniedHandler(problemDetailAccessDeniedHandler)
+        )
+        .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+    return http.build();
+  }
+
+  /**
    * This is default security chain. All endpoints here are expected to have JWT in header, otherwise request
    * will be rejected with 401 Unauthorized. You have access to auth data inside.
    * @param http HTTP security data.
@@ -121,12 +163,12 @@ public class SecurityConfig {
   @Bean
   @Order(100) // make sure it is last
   public SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) {
-    // Anything that was not caught by security filter chains above will require authentication.
+    // Anything that was not caught by security filter chains above will require standard authentication without any
+    // special permissions.
     // In exceptionHandling() we do custom handling so GlobalExceptionHandler can process these errors and return
     // correct problem detail.
-    // - authenticationEntryPoint enforce 401 if there is no token
-    // - problemDetailAccessDeniedHandler enforce 403 if access is denied (no permission).
-    //
+    // - authenticationEntryPoint() enforce 401 if there is no token
+    // - accessDeniedHandler() enforce 403 if access is denied (no permission).
     http.csrf(AbstractHttpConfigurer::disable)
         .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .authorizeHttpRequests(requests -> requests.anyRequest().authenticated())
