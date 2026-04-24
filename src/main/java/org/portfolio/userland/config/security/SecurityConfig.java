@@ -1,6 +1,7 @@
 package org.portfolio.userland.config.security;
 
 import lombok.RequiredArgsConstructor;
+import org.portfolio.userland.system.auth.LockdownFilter;
 import org.portfolio.userland.system.jwt.JwtAuthFilter;
 import org.springframework.boot.security.autoconfigure.actuate.web.servlet.EndpointRequest;
 import org.springframework.context.annotation.Bean;
@@ -26,6 +27,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @RequiredArgsConstructor
 public class SecurityConfig {
   private final JwtAuthFilter jwtAuthFilter;
+  private final LockdownFilter lockdownFilter;
   private final ProblemDetailAuthenticationEntryPoint problemDetailAuthenticationEntryPoint;
   private final ProblemDetailAccessDeniedHandler problemDetailAccessDeniedHandler;
 
@@ -90,7 +92,8 @@ public class SecurityConfig {
             "/api/users/delete/*", // delete account
             "/api/users/login") // login user
         .authorizeHttpRequests(requests -> requests.anyRequest().permitAll())
-        .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+        .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+        .addFilterAfter(lockdownFilter, JwtAuthFilter.class);
     return http.build();
   }
 
@@ -108,7 +111,8 @@ public class SecurityConfig {
         .securityMatcher(
             "/api/users/logout") // logout user
         .authorizeHttpRequests(requests -> requests.anyRequest().permitAll())
-        .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+        .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+        .addFilterAfter(lockdownFilter, JwtAuthFilter.class);
     return http.build();
   }
 
@@ -129,7 +133,8 @@ public class SecurityConfig {
             .authenticationEntryPoint(problemDetailAuthenticationEntryPoint)
             .accessDeniedHandler(problemDetailAccessDeniedHandler)
         )
-        .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+        .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+        .addFilterAfter(lockdownFilter, JwtAuthFilter.class);
     return http.build();
   }
 
@@ -150,7 +155,8 @@ public class SecurityConfig {
             .authenticationEntryPoint(problemDetailAuthenticationEntryPoint)
             .accessDeniedHandler(problemDetailAccessDeniedHandler)
         )
-        .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+        .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+        .addFilterAfter(lockdownFilter, JwtAuthFilter.class);
     return http.build();
   }
 
@@ -176,7 +182,8 @@ public class SecurityConfig {
             .authenticationEntryPoint(problemDetailAuthenticationEntryPoint)
             .accessDeniedHandler(problemDetailAccessDeniedHandler)
         )
-        .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+        .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+        .addFilterAfter(lockdownFilter, JwtAuthFilter.class);
     return http.build();
   }
 }

@@ -2,6 +2,7 @@ package org.portfolio.userland.system;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
+import org.portfolio.userland.features.user.entities.User;
 import org.portfolio.userland.system.config.entities.Config;
 import org.portfolio.userland.system.config.service.ConfigConst;
 import org.portfolio.userland.system.dto.lockdown.EnSystemLockdownState;
@@ -115,8 +116,14 @@ public class SystemLockdownApiTest extends BaseSystemTest {
 
   @Test
   @WithMockCustomUser(authorities = { "ROLE_ADMIN" })
-  @Transactional
   public void activateLockdown() throws Exception {
+    clock.setFixedTime("2026-04-10T10:00:00Z");
+    // Arrange: Add two users, one standard and other admin. Both are logged in.
+    User expectedUserStandard = userFactory.genRandUserLogged();
+    userRepository.save(expectedUserStandard);
+    User expectedUserAdmin = userFactory.genRandUserLogged(Map.of("role", "admin"));
+    userRepository.save(expectedUserAdmin);
+
     // Arrange: Request.
     SystemLockdownReq req = new SystemLockdownReq(EnSystemLockdownState.ON);
 
@@ -132,6 +139,19 @@ public class SystemLockdownApiTest extends BaseSystemTest {
     // Assert: State of lockdown.
     Config config = configRepository.findByName(ConfigConst.USER_LOCKDOWN).orElseThrow();
     assertThat(config.getValue()).as("User lockdown config variable has wrong value").isEqualTo("1");
+
+    // Prepare expected result.
+    expectedUserStandard.getJwts().clear();
+
+    // Assert: State of users. Standard user should have their jwt data removed.
+    transactionTemplate.execute(_ -> {
+      User actualUserAdmin = userRepository.findByEmail(expectedUserAdmin.getEmail()).orElseThrow();
+      User actualUserStandard = userRepository.findByEmail(expectedUserStandard.getEmail()).orElseThrow();
+
+      userAssert.assertIt("Admin User", actualUserAdmin, expectedUserAdmin);
+      userAssert.assertIt("Standard User", actualUserStandard, expectedUserStandard);
+      return null;
+    });
   }
 
   @Test

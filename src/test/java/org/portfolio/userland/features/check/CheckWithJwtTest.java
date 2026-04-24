@@ -5,7 +5,6 @@ import org.junit.jupiter.api.Test;
 import org.portfolio.userland.features.user.BaseUserTest;
 import org.portfolio.userland.features.user.entities.EnHistoryWhat;
 import org.portfolio.userland.features.user.entities.EnUserStatus;
-import org.portfolio.userland.features.user.entities.Permission;
 import org.portfolio.userland.features.user.entities.User;
 import org.portfolio.userland.system.config.service.ConfigConst;
 import org.portfolio.userland.system.jwt.JwtService;
@@ -53,7 +52,7 @@ public class CheckWithJwtTest extends BaseUserTest {
     clock.setFixedTime("2026-04-10T10:00:00Z");
 
     // Arrange: Create a user, token and JWT entry in database, emulating user login.
-    User user = userFactory.genUserLogged();
+    User user = userFactory.genRandUserLogged();
     userRepository.save(user);
     String token = userJwtRepository.findAll().getFirst().getToken();
 
@@ -71,9 +70,7 @@ public class CheckWithJwtTest extends BaseUserTest {
     clock.setFixedTime("2026-04-10T10:00:00Z");
 
     // Arrange: Create a user, token and JWT entry in database, emulating user login.
-    Permission permissionRole = permissionRepository.findByName("role").orElseThrow();
-    User user = userFactory.genUserLogged();
-    userPermissionFactory.genPermissionEntry(user, permissionRole, "admin");
+    User user = userFactory.genRandUserLogged(Map.of("role", "admin"));
     userRepository.save(user);
     String token = userJwtRepository.findAll().getFirst().getToken();
 
@@ -93,10 +90,8 @@ public class CheckWithJwtTest extends BaseUserTest {
   void lockdownSecuredEndpointAsAdmin() throws Exception { // TODO
     clock.setFixedTime("2026-04-10T10:00:00Z");
 
-    // Arrange: Create a user, token and JWT entry in database, emulating user login.
-    Permission permissionRole = permissionRepository.findByName("role").orElseThrow();
-    User user = userFactory.genUserLogged();
-    userPermissionFactory.genPermissionEntry(user, permissionRole, "admin");
+    // Arrange: Create an admin user, token and JWT entry in database, emulating user login.
+    User user = userFactory.genRandUserLogged(Map.of("role", "admin"));
     userRepository.save(user);
     String token = userJwtRepository.findAll().getFirst().getToken();
 
@@ -135,7 +130,7 @@ public class CheckWithJwtTest extends BaseUserTest {
 
     // Arrange: Create a user and token. Note UserJwt entry is not added. This will emulate state when we logged in
     // and then logged out. Token is still valid, but we know it is revoked because it is missing from UserJwt table.
-    User user = userFactory.genUser();
+    User user = userFactory.genRandUser(EnUserStatus.ACTIVE);
     userHistoryFactory.genHistoryEvent(user, EnHistoryWhat.LOGIN);
     String token = jwtService.generateToken(user);
     userHistoryFactory.genHistoryEvent(user, EnHistoryWhat.LOGOUT);
@@ -157,7 +152,7 @@ public class CheckWithJwtTest extends BaseUserTest {
     clock.setFixedTime("2026-04-10T10:00:00Z");
 
     // Arrange: Create a real user.
-    User user = userRepository.save(userFactory.genUser());
+    User user = userRepository.save(userFactory.genRandUser(EnUserStatus.ACTIVE));
     // Arrange: Create a real token.
     String token = jwtService.generateToken(user);
 
@@ -182,7 +177,7 @@ public class CheckWithJwtTest extends BaseUserTest {
     clock.setFixedTime("2026-04-10T10:00:00Z");
 
     // Arrange: Create a real user.
-    User user = userRepository.save(userFactory.genUser());
+    User user = userRepository.save(userFactory.genRandUser(EnUserStatus.ACTIVE));
     // Arrange: Create a real token.
     String token = jwtService.generateToken(user);
 
@@ -207,7 +202,7 @@ public class CheckWithJwtTest extends BaseUserTest {
     clock.setFixedTime("2026-04-10T10:00:00Z");
 
     // Arrange: Create a user, token and JWT entry in database, emulating user login. No admin rights.
-    User user = userFactory.genUserLogged();
+    User user = userFactory.genRandUserLogged();
     userRepository.save(user);
     String token = userJwtRepository.findAll().getFirst().getToken();
 
@@ -255,7 +250,7 @@ public class CheckWithJwtTest extends BaseUserTest {
     clock.setFixedTime("2026-04-10T10:00:00Z");
 
     // Arrange: Create a user, token and JWT entry in database, emulating user login.
-    User user = userFactory.genUserLogged();
+    User user = userFactory.genRandUserLogged();
     userRepository.save(user);
     String token = userJwtRepository.findAll().getFirst().getToken();
 

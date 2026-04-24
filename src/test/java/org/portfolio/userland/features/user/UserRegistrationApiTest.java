@@ -8,6 +8,7 @@ import org.portfolio.userland.features.user.dto.common.EnFrontendFramework;
 import org.portfolio.userland.features.user.dto.register.TokenActivateReq;
 import org.portfolio.userland.features.user.dto.register.UserRegisterReq;
 import org.portfolio.userland.features.user.dto.register.UserRegisterResp;
+import org.portfolio.userland.features.user.entities.EnUserStatus;
 import org.portfolio.userland.features.user.entities.User;
 import org.portfolio.userland.features.user.events.UserActivatedEvent;
 import org.portfolio.userland.features.user.events.UserRegisteredEvent;
@@ -75,7 +76,7 @@ public class UserRegistrationApiTest extends BaseUserTest {
       assertThat(userExists).as("User should exist").isTrue();
 
       // Assert user state.
-      User expectedUser = userFactory.genUserPending(null);
+      User expectedUser = userFactory.genUser(EnUserStatus.PENDING);
       User actualUser = userRepository.findByEmail("test@example.com").orElseThrow();
       userAssert.assertIt(actualUser, expectedUser);
 
@@ -115,7 +116,7 @@ public class UserRegistrationApiTest extends BaseUserTest {
     // Assert database state.
     transactionTemplate.execute(status -> {
       // Assert user state.
-      User expectedUser = userFactory.genUserPending(null);
+      User expectedUser = userFactory.genUser(EnUserStatus.PENDING);
       expectedUser.setUsername("&lt;script&gt;alert(&#39;hacked&#39;)&lt;/script&gt;"); // make sure it is sanitized
       User actualUser = userRepository.findByEmail("test@example.com").orElseThrow();
       userAssert.assertIt(actualUser, expectedUser);
@@ -126,11 +127,11 @@ public class UserRegistrationApiTest extends BaseUserTest {
   @Test
   public void activateUser() throws Exception {
     clock.setFixedTime("2026-04-10T10:00:00Z");
-    User expectedUser = userFactory.genUser(); // already generate expected user due to date/time
+    User expectedUser = userFactory.genUser(EnUserStatus.ACTIVE); // already generate expected user due to date/time
 
     // Arrange: Create user and activation token.
-    String tokenStr = "Gl7Y3GK9dqFDEjza3KsOU6k0pM9J4Tiq";
-    userRepository.save(userFactory.genUserPending(tokenStr));
+    User user = userRepository.save(userFactory.genUser(EnUserStatus.PENDING));
+    String tokenStr = user.getTokens().getFirst().getToken();
 
     clock.setFixedTime("2026-04-10T10:05:00Z");
 
@@ -188,7 +189,7 @@ public class UserRegistrationApiTest extends BaseUserTest {
     clock.setFixedTime("2026-04-10T10:00:00Z");
 
     // Arrange: Create existing user manually.
-    userRepository.save(userFactory.genUserPending(null));
+    userRepository.save(userFactory.genUser(EnUserStatus.PENDING));
 
     // Arrange: Create the JSON payload.
     UserRegisterReq req = new UserRegisterReq("testuser", "test@example.com", "SecurePass123!", "en", null);
@@ -215,7 +216,7 @@ public class UserRegistrationApiTest extends BaseUserTest {
 
   @Test
   public void errMissingToken() throws Exception {
-    // Arrange: create token activation request.
+    // Arrange: Create token activation request.
     String tokenStr = "MISSING_TOKEN___________________";
     TokenActivateReq req = new TokenActivateReq(tokenStr, null); // pad it as it must have at least 32 chars
 
@@ -225,7 +226,7 @@ public class UserRegistrationApiTest extends BaseUserTest {
             .content(objectMapper.writeValueAsString(req)))
         .andReturn();
 
-    // Assert API Response.
+    // Assert: API Response.
     assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.NOT_FOUND.value());
 
     ProblemDetailBox expectedPdb = new ProblemDetailBox(
@@ -244,13 +245,13 @@ public class UserRegistrationApiTest extends BaseUserTest {
   public void errExpiredToken() throws Exception {
     clock.setFixedTime("2026-04-08T10:00:00Z");
 
-    // Arrange: create pending user and activation token.
-    String tokenStr = "REAL_BUT_EXPIRED_TOKEN__________";
-    userRepository.save(userFactory.genUserPending(tokenStr));
+    // Arrange: Create pending user and get activation token.
+    User user = userRepository.save(userFactory.genUser(EnUserStatus.PENDING));
+    String tokenStr = user.getTokens().getFirst().getToken();
 
     clock.setFixedTime("2026-04-10T10:00:00Z");
 
-    // Arrange: create token activation request.
+    // Arrange: Create token activation request.
     TokenActivateReq req = new TokenActivateReq(tokenStr, null); // pad it as it must have at least 32 chars
 
     // Act: Try to activate user using expired token.
@@ -259,7 +260,7 @@ public class UserRegistrationApiTest extends BaseUserTest {
              .content(objectMapper.writeValueAsString(req)))
             .andReturn();
 
-    // Assert API Response.
+    // Assert: API Response.
     assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.CONFLICT.value());
 
     ProblemDetailBox expectedPdb = new ProblemDetailBox(

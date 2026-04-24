@@ -2,6 +2,8 @@ package org.portfolio.userland.system.services;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.portfolio.userland.features.user.repositories.UserJwtRepository;
+import org.portfolio.userland.system.auth.PermissionService;
 import org.portfolio.userland.system.config.service.ConfigConst;
 import org.portfolio.userland.system.config.service.ConfigService;
 import org.portfolio.userland.system.dto.lockdown.EnSystemLockdownState;
@@ -10,13 +12,18 @@ import org.portfolio.userland.system.dto.lockdown.SystemLockdownResp;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+import java.util.Map;
+
 /**
  * Handles system lockdown.
  */
 @Service
 @RequiredArgsConstructor
 public class SystemLockdownService {
+  private final PermissionService permissionService;
   private final ConfigService configService;
+  private final UserJwtRepository userJwtRepository;
 
   /**
    * Retrieve state of system lockdown.
@@ -50,8 +57,9 @@ public class SystemLockdownService {
   /** Activate system lockdown. */
   private void lockSystem() {
     configService.set(ConfigConst.USER_LOCKDOWN, ConfigConst.TRUE);
-    // TODO: revoke all user.jwt except ones from admin users
-    // we will need custom query for that
+    // revoke all user.jwt except ones from admin users
+    Map<String, List<String>> allowedPermissions = permissionService.hasAccessToAdminPanelMap();
+    userJwtRepository.revokeAllTokensExcept(allowedPermissions);
   }
 
   /** Deactivate system lockdown. */

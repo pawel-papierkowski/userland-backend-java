@@ -6,8 +6,10 @@ import org.junit.jupiter.api.Test;
 import org.portfolio.userland.features.user.dto.login.UserLoginReq;
 import org.portfolio.userland.features.user.dto.login.UserLoginResp;
 import org.portfolio.userland.features.user.entities.EnHistoryWhat;
-import org.portfolio.userland.features.user.entities.Permission;
+import org.portfolio.userland.features.user.entities.EnUserStatus;
 import org.portfolio.userland.features.user.entities.User;
+import org.portfolio.userland.system.config.service.ConfigConst;
+import org.portfolio.userland.system.config.service.ConfigService;
 import org.portfolio.userland.system.jwt.JwtService;
 import org.portfolio.userland.test.helpers.problemDetail.ProblemDetailBox;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +29,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 public class UserLoginApiTest extends BaseUserTest {
   @Autowired
   private JwtService jwtService;
+  @Autowired
+  private ConfigService configService;
 
   @AfterEach
   public void tearDown() {
@@ -39,7 +43,7 @@ public class UserLoginApiTest extends BaseUserTest {
   public void loginNoRights() throws Exception {
     clock.setFixedTime("2026-04-10T10:00:00Z");
     // Arrange: Create active user in database that has no special permissions.
-    User expectedUser = userFactory.genUser();
+    User expectedUser = userFactory.genUser(EnUserStatus.ACTIVE);
     userRepository.save(expectedUser);
 
     clock.setFixedTime("2026-04-10T10:05:00Z");
@@ -83,10 +87,56 @@ public class UserLoginApiTest extends BaseUserTest {
   public void loginWithRights() throws Exception {
     clock.setFixedTime("2026-04-10T10:00:00Z");
     // Arrange: Create active user in database that has special permissions (operator of administration panel).
-    Permission permissionRole = permissionRepository.findByName("role").orElseThrow();
-    User expectedUser = userFactory.genUser();
-    userPermissionFactory.genPermissionEntry(expectedUser, permissionRole, "operator");
+    User expectedUser = userFactory.genUser(EnUserStatus.ACTIVE, Map.of("role", "operator"));
     userRepository.save(expectedUser);
+
+    clock.setFixedTime("2026-04-10T10:05:00Z");
+    // Arrange: Create login request.
+    UserLoginReq req = new UserLoginReq("test@example.com", "Password123!");
+
+    // Act: Log in user.
+    MvcResult mvcResult = mockMvc.perform(post("/api/users/login")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(req)))
+        .andReturn();
+
+    // Assert: API Response.
+    assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.OK.value());
+
+    UserLoginResp actualResp = objectMapper.readValue(mvcResult.getResponse().getContentAsString(), UserLoginResp.class);
+
+    // Prepare expected result (user is same, but with new LOGIN history event).
+    userHistoryFactory.genHistoryEvent(expectedUser, EnHistoryWhat.LOGIN);
+    userJwtFactory.genJwtEntry(expectedUser, actualResp.jwtToken());
+
+    // Assert: Database state.
+    transactionTemplate.execute(_ -> {
+      // Assert: User state.
+      User actualUser = userRepository.findByEmail("test@example.com").orElseThrow();
+      userAssert.assertIt(actualUser, expectedUser);
+      return null;
+    });
+
+    // Assert: Validate it is proper JWT token with correct signature and payload.
+    assertThat(jwtService.isTokenValid(actualResp.jwtToken(), expectedUser.getEmail())).as("Token must be valid").isTrue();
+    Map<String, Object> actualClaimMap = jwtService.extractAllClaims(actualResp.jwtToken());
+    Map<String, Object> expectedClaimMap = Maps.newHashMap();
+    expectedClaimMap.put("iat", 1775808300L); // issued
+    expectedClaimMap.put("exp", 1775829900L); // expires
+    expectedClaimMap.put("sub", "test@example.com"); // user account email as subject
+    expectedClaimMap.put("role", "operator"); // from permission entry
+    assertThat(actualClaimMap).as("Claim map is invalid").isEqualTo(expectedClaimMap);
+  }
+
+  @Test
+  public void loginWithRightsWhenLockdown() throws Exception {
+    clock.setFixedTime("2026-04-10T10:00:00Z");
+    // Arrange: Create active user in database that has special permissions (operator of administration panel).
+    User expectedUser = userFactory.genUser(EnUserStatus.ACTIVE, Map.of("role", "operator"));
+    userRepository.save(expectedUser);
+
+    // Arrange: lock down system. Users with operator or admin permissions should be still able to log in.
+    configService.set(ConfigConst.USER_LOCKDOWN, ConfigConst.TRUE);
 
     clock.setFixedTime("2026-04-10T10:05:00Z");
     // Arrange: Create login request.
@@ -135,7 +185,7 @@ public class UserLoginApiTest extends BaseUserTest {
     clock.setFixedTime("2026-04-08T10:00:00Z");
 
     // Arrange: create active user.
-    User expectedUser = userFactory.genUser();
+    User expectedUser = userFactory.genUser(EnUserStatus.ACTIVE);
     userRepository.save(expectedUser);
 
     clock.setFixedTime("2026-04-10T10:05:00Z");

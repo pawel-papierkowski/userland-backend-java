@@ -45,7 +45,7 @@ public class UserLogoutApiTest extends BaseUserTest {
     // Assert: Database state.
     transactionTemplate.execute(_ -> {
       // Assert: User state.
-      User actualUser = userRepository.findByEmail("test@example.com").orElseThrow();
+      User actualUser = userRepository.findByEmail(expectedUser.getEmail()).orElseThrow();
       userAssert.assertIt(actualUser, expectedUser);
       return null;
     });
