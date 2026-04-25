@@ -60,7 +60,7 @@ public abstract class BaseUserService {
    * @param nowAt Current date&time.
    * @param type Type of token.
    */
-  protected void addTokenEntry(User user, LocalDateTime nowAt, EnTokenType type) {
+  protected void addTokenEntry(User user, LocalDateTime nowAt, EnUserTokenType type) {
     UserToken userToken = createTokenData(nowAt, type);
     userToken.setUser(user);
     userTokenRepository.save(userToken);
@@ -72,7 +72,7 @@ public abstract class BaseUserService {
    * @param type Type of token.
    * @return User token entry.
    */
-  protected UserToken createTokenData(LocalDateTime nowAt, EnTokenType type) {
+  protected UserToken createTokenData(LocalDateTime nowAt, EnUserTokenType type) {
     UserToken token = new UserToken();
     token.setCreatedAt(nowAt);
     token.setExpiresAt(userHelperService.resolveExpiration(nowAt, type));
@@ -87,7 +87,7 @@ public abstract class BaseUserService {
    * @param type Type of token.
    * @param user User.
    */
-  protected void verifyTokenDoesNotExist(LocalDateTime nowAt, EnTokenType type, User user) {
+  protected void verifyTokenDoesNotExist(LocalDateTime nowAt, EnUserTokenType type, User user) {
     List<UserToken> tokens = user.getTokens();
     UserToken token = null;
     for (UserToken currToken : tokens) {
@@ -113,7 +113,7 @@ public abstract class BaseUserService {
    * Retrieve user token based on token string. Will throw exception if token is not found or is expired.
    * @param tokenStr Token string.
    */
-  protected UserToken resolveToken(LocalDateTime nowAt, EnTokenType type, String tokenStr) {
+  protected UserToken resolveToken(LocalDateTime nowAt, EnUserTokenType type, String tokenStr) {
     UserToken userToken = userTokenRepository.findByTypeAndToken(type, tokenStr)
         .orElseThrow(() -> new UserTokenMissingException(tokenStr));
     if (userToken.getExpiresAt().isBefore(nowAt)) throw new UserTokenExpiredException(tokenStr);
@@ -128,7 +128,7 @@ public abstract class BaseUserService {
    * @param nowAt Current date&time.
    * @param what What happened.
    */
-  protected void addHistoryEvent(User user, LocalDateTime nowAt, EnHistoryWhat what) {
+  protected void addHistoryEvent(User user, LocalDateTime nowAt, EnUserHistoryWhat what) {
     UserHistory historyEvent = createHistoryEvent(nowAt, what);
     historyEvent.setUser(user);
     userHistoryRepository.save(historyEvent);
@@ -140,11 +140,11 @@ public abstract class BaseUserService {
    * @param what What happened.
    * @return User history event.
    */
-  protected UserHistory createHistoryEvent(LocalDateTime nowAt, EnHistoryWhat what) {
+  protected UserHistory createHistoryEvent(LocalDateTime nowAt, EnUserHistoryWhat what) {
     UserHistory event = new UserHistory();
     event.setUuid(securityGeneratorService.uuid());
     event.setCreatedAt(nowAt);
-    event.setWho(EnHistoryWho.USER);
+    event.setWho(EnUserHistoryWho.USER);
     event.setWhat(what);
     return event;
   }

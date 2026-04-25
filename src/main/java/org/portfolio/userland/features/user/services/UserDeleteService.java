@@ -3,8 +3,8 @@ package org.portfolio.userland.features.user.services;
 import lombok.RequiredArgsConstructor;
 import org.portfolio.userland.features.user.dto.delete.UserDeleteConfirmReq;
 import org.portfolio.userland.features.user.dto.delete.UserDeleteLinkReq;
-import org.portfolio.userland.features.user.entities.EnHistoryWhat;
-import org.portfolio.userland.features.user.entities.EnTokenType;
+import org.portfolio.userland.features.user.entities.EnUserHistoryWhat;
+import org.portfolio.userland.features.user.entities.EnUserTokenType;
 import org.portfolio.userland.features.user.entities.User;
 import org.portfolio.userland.features.user.entities.UserToken;
 import org.portfolio.userland.features.user.events.UserAccountDeleteConfirmEvent;
@@ -44,13 +44,13 @@ public class UserDeleteService extends BaseUserService {
     User user = resolveUser(userDeleteLinkReq.email());
 
     LocalDateTime nowAt = clockService.getNowUTC();
-    verifyTokenDoesNotExist(nowAt, EnTokenType.DELETE, user);
+    verifyTokenDoesNotExist(nowAt, EnUserTokenType.DELETE, user);
 
-    UserToken token = createTokenData(nowAt, EnTokenType.DELETE);
+    UserToken token = createTokenData(nowAt, EnUserTokenType.DELETE);
     user.addToken(token);
     user = userRepository.save(user);
 
-    addHistoryEvent(user, nowAt, EnHistoryWhat.DELETE_REQ);
+    addHistoryEvent(user, nowAt, EnUserHistoryWhat.DELETE_REQ);
 
     triggerDeleteLinkEvent(userDeleteLinkReq, user, token);
   }
@@ -85,7 +85,7 @@ public class UserDeleteService extends BaseUserService {
   public void delete(UserDeleteConfirmReq userDeleteConfirmReq) {
     LocalDateTime nowAt = clockService.getNowUTC();
 
-    UserToken userToken = resolveToken(nowAt, EnTokenType.DELETE, userDeleteConfirmReq.token());
+    UserToken userToken = resolveToken(nowAt, EnUserTokenType.DELETE, userDeleteConfirmReq.token());
     User user = userToken.getUser();
     // Note this removes user completely from system. In real system this likely will be more complex,
     // for example account is preserved but anonymized because you must preserve invoices and other data

@@ -1,7 +1,7 @@
 package org.portfolio.userland.features.user.services;
 
 import lombok.RequiredArgsConstructor;
-import org.portfolio.userland.features.user.entities.EnTokenType;
+import org.portfolio.userland.features.user.entities.EnUserTokenType;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -33,7 +33,7 @@ public class UserHelperService {
    * @param type Type of token.
    * @return Expiration date&time.
    */
-  public LocalDateTime resolveExpiration(LocalDateTime nowAt, EnTokenType type) {
+  public LocalDateTime resolveExpiration(LocalDateTime nowAt, EnUserTokenType type) {
     return switch (type) {
       case ACTIVATE -> nowAt.plusHours(activationTokenExpires);
       case PASSWORD -> nowAt.plusMinutes(passwordResetTokenExpires);

@@ -3,8 +3,8 @@ package org.portfolio.userland.features.user.services;
 import lombok.RequiredArgsConstructor;
 import org.portfolio.userland.features.user.dto.password.UserPassResetConfirmReq;
 import org.portfolio.userland.features.user.dto.password.UserPassResetLinkReq;
-import org.portfolio.userland.features.user.entities.EnHistoryWhat;
-import org.portfolio.userland.features.user.entities.EnTokenType;
+import org.portfolio.userland.features.user.entities.EnUserHistoryWhat;
+import org.portfolio.userland.features.user.entities.EnUserTokenType;
 import org.portfolio.userland.features.user.entities.User;
 import org.portfolio.userland.features.user.entities.UserToken;
 import org.portfolio.userland.features.user.events.UserPasswordResetConfirmEvent;
@@ -48,13 +48,13 @@ public class UserPasswordService extends BaseUserService {
     User user = resolveUser(userPassResetLinkReq.email());
 
     LocalDateTime nowAt = clockService.getNowUTC();
-    verifyTokenDoesNotExist(nowAt, EnTokenType.PASSWORD, user);
+    verifyTokenDoesNotExist(nowAt, EnUserTokenType.PASSWORD, user);
 
-    UserToken token = createTokenData(nowAt, EnTokenType.PASSWORD);
+    UserToken token = createTokenData(nowAt, EnUserTokenType.PASSWORD);
     user.addToken(token);
     user = userRepository.save(user);
 
-    addHistoryEvent(user, nowAt, EnHistoryWhat.PASS_RESET_REQ);
+    addHistoryEvent(user, nowAt, EnUserHistoryWhat.PASS_RESET_REQ);
 
     triggerPassLinkEvent(userPassResetLinkReq, user, token);
   }
@@ -89,14 +89,14 @@ public class UserPasswordService extends BaseUserService {
   public void reset(UserPassResetConfirmReq userPassResetConfirmReq) {
     LocalDateTime nowAt = clockService.getNowUTC();
 
-    UserToken userToken = resolveToken(nowAt, EnTokenType.PASSWORD, userPassResetConfirmReq.token());
+    UserToken userToken = resolveToken(nowAt, EnUserTokenType.PASSWORD, userPassResetConfirmReq.token());
     User user = userToken.getUser();
     user.setModifiedAt(nowAt);
     user.setPassword(passwordEncoder.encode(userPassResetConfirmReq.password()));
     userRepository.save(user);
 
     userTokenRepository.deleteToken(userToken.getToken());
-    addHistoryEvent(user, nowAt, EnHistoryWhat.PASS_RESET);
+    addHistoryEvent(user, nowAt, EnUserHistoryWhat.PASS_RESET);
 
     triggerPassConfirmEvent(user);
   }

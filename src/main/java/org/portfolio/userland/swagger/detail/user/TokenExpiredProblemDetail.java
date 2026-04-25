@@ -3,7 +3,7 @@ package org.portfolio.userland.swagger.detail.user;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 /**
- * Shows shape of token error. For Swagger documentation.
+ * Shows shape of token expired error. For Swagger documentation.
  */
 @Schema(name = "TokenExpiredProblemDetail", description = "Token is expired")
 public record TokenExpiredProblemDetail(

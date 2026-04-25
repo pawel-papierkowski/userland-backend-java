@@ -4,8 +4,8 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import org.portfolio.userland.swagger.detail.common.AuthenticationProblemDetail;
-import org.portfolio.userland.swagger.detail.common.AuthorizationProblemDetail;
+import org.portfolio.userland.swagger.detail.user.TokenExpiredProblemDetail;
+import org.portfolio.userland.swagger.detail.user.TokenMissingProblemDetail;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -13,17 +13,17 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Swagger annotation to indicate endpoints that require only authentication via JWT token.
+ * Swagger annotation for standard token errors.
  */
 @Target({ElementType.METHOD, ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 @ApiResponses(value = {
-    @ApiResponse(responseCode = "401", description = "User is not authenticated (no token).",
+    @ApiResponse(responseCode = "404", description = "Token does not exist.",
         content = @Content(mediaType = "application/problem+json",
-            schema = @Schema(implementation = AuthenticationProblemDetail.class))),
-    @ApiResponse(responseCode = "403", description = "User is not authorized (insufficient permissions).",
+            schema = @Schema(implementation = TokenMissingProblemDetail.class))),
+    @ApiResponse(responseCode = "409", description = "Token found, but is expired.",
         content = @Content(mediaType = "application/problem+json",
-            schema = @Schema(implementation = AuthorizationProblemDetail.class)))
+            schema = @Schema(implementation = TokenExpiredProblemDetail.class)))
 })
 public @interface ApiResponsesToken {
 }

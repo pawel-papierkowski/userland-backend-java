@@ -40,7 +40,7 @@ public class UserToken {
   /** Type of token. */
   @Column(nullable = false)
   @Enumerated(EnumType.STRING)
-  private EnTokenType type;
+  private EnUserTokenType type;
 
   /** Value of token. Acts as business key. */
   @Column(unique = true, nullable = false, updatable = false)

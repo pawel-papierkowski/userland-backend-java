@@ -1,6 +1,6 @@
 package org.portfolio.userland.test.helpers.mocks;
 
-import org.portfolio.userland.system.auth.CustomUserDetails;
+import org.portfolio.userland.system.auth.data.CustomUserDetails;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;

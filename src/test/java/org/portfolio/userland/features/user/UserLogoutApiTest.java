@@ -2,7 +2,7 @@ package org.portfolio.userland.features.user;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
-import org.portfolio.userland.features.user.entities.EnHistoryWhat;
+import org.portfolio.userland.features.user.entities.EnUserHistoryWhat;
 import org.portfolio.userland.features.user.entities.User;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.web.servlet.MvcResult;
@@ -39,7 +39,7 @@ public class UserLogoutApiTest extends BaseUserTest {
     assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.OK.value());
 
     // Prepare expected result (user is same, but with new LOGOUT history event and with empty JWT table).
-    userHistoryFactory.genHistoryEvent(expectedUser, EnHistoryWhat.LOGOUT);
+    userHistoryFactory.genHistoryEvent(expectedUser, EnUserHistoryWhat.LOGOUT);
     expectedUser.getJwts().clear();
 
     // Assert: Database state.

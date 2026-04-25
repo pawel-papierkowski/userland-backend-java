@@ -32,6 +32,24 @@ CREATE TABLE aux.config (
 -- Known configuration.
 INSERT INTO aux.config (name, value, description) VALUES ('user.lockdown', '0', 'If 1, no user can log in unless they have admin permissions.');
 
+-- System history.
+CREATE TABLE aux.history (
+    -- Identificator.
+    id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    -- UUID. Business key.
+    uuid VARCHAR(128) NOT NULL UNIQUE,
+
+    -- When system history entry was created.
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    -- Who caused system history event?
+    who VARCHAR(50) NOT NULL CHECK (who IN ('OPERATOR', 'ADMIN', 'SYSTEM')),
+    -- What caused system history event?
+    what VARCHAR(50) NOT NULL CHECK (what IN ('LOCKDOWN')),
+    -- Value for system history event.
+    value TEXT NOT NULL UNIQUE
+);
+
 -- ============================================================================
 -- Tables for entities specific to our UserLand system.
 -- ============================================================================

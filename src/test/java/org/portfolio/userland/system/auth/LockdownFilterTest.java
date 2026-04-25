@@ -2,10 +2,11 @@ package org.portfolio.userland.system.auth;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.portfolio.userland.system.auth.data.CustomUserDetails;
 import org.portfolio.userland.system.config.service.ConfigConst;
 import org.portfolio.userland.system.config.service.ConfigService;
-import org.portfolio.userland.system.exceptions.SystemLockdownException;
-import org.portfolio.userland.system.exceptions.UserLockdownException;
+import org.portfolio.userland.system.lockdown.exceptions.SystemLockdownException;
+import org.portfolio.userland.system.lockdown.exceptions.UserLockdownException;
 import org.portfolio.userland.test.helpers.context.WithMockCustomUser;
 import org.portfolio.userland.test.helpers.mocks.SpringMocker;
 import org.springframework.mock.web.MockFilterChain;

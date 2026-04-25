@@ -1,6 +1,6 @@
 package org.portfolio.userland.test.helpers.context;
 
-import org.portfolio.userland.system.auth.CustomUserDetails;
+import org.portfolio.userland.system.auth.data.CustomUserDetails;
 import org.springframework.security.test.context.support.WithSecurityContext;
 
 import java.lang.annotation.ElementType;

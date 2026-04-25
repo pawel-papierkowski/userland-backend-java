@@ -1,7 +1,7 @@
 package org.portfolio.userland.features.user.exceptions;
 
 import org.portfolio.userland.common.exception.GeneralException;
-import org.portfolio.userland.features.user.entities.EnTokenType;
+import org.portfolio.userland.features.user.entities.EnUserTokenType;
 import org.springframework.http.HttpStatus;
 
 /**
@@ -9,9 +9,9 @@ import org.springframework.http.HttpStatus;
  * For example, user requests password reset twice in row.
  */
 public class UserTokenAlreadyExistsException extends GeneralException {
-  private final EnTokenType tokenType;
+  private final EnUserTokenType tokenType;
 
-  public UserTokenAlreadyExistsException(EnTokenType tokenType) {
+  public UserTokenAlreadyExistsException(EnUserTokenType tokenType) {
     super(tokenType.name());
     this.tokenType = tokenType;
   }
@@ -28,7 +28,7 @@ public class UserTokenAlreadyExistsException extends GeneralException {
 
   @Override
   public String getDetail() {
-    return "Token of type '"+tokenType.name()+"' already exists. You cannot do this action twice in row.";
+    return "Token of type '"+tokenType.name()+"' already exists and is still valid. You cannot do this action twice in row.";
   }
 
   @Override

@@ -4,17 +4,17 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.portfolio.userland.features.user.dto.login.UserLoginReq;
 import org.portfolio.userland.features.user.dto.login.UserLoginResp;
-import org.portfolio.userland.features.user.entities.EnHistoryWhat;
+import org.portfolio.userland.features.user.entities.EnUserHistoryWhat;
 import org.portfolio.userland.features.user.entities.User;
 import org.portfolio.userland.features.user.exceptions.UserWrongPasswordException;
 import org.portfolio.userland.system.auth.AuthHelper;
-import org.portfolio.userland.system.auth.CustomUserDetails;
-import org.portfolio.userland.system.auth.EnPermKind;
 import org.portfolio.userland.system.auth.PermissionService;
+import org.portfolio.userland.system.auth.data.CustomUserDetails;
+import org.portfolio.userland.system.auth.data.EnPermKind;
 import org.portfolio.userland.system.config.service.ConfigConst;
 import org.portfolio.userland.system.config.service.ConfigService;
-import org.portfolio.userland.system.exceptions.UserLockdownException;
 import org.portfolio.userland.system.jwt.JwtService;
+import org.portfolio.userland.system.lockdown.exceptions.UserLockdownException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -50,7 +50,7 @@ public class UserLoginService extends BaseUserService {
     // Add JWT in database. This will allow us to effectively revoke tokens later (logout etc).
     addJwtEntry(user, nowAt, jwtToken);
     // Add login event to user history.
-    addHistoryEvent(user, nowAt, EnHistoryWhat.LOGIN);
+    addHistoryEvent(user, nowAt, EnUserHistoryWhat.LOGIN);
     return new UserLoginResp(jwtToken);
   }
 
@@ -92,7 +92,7 @@ public class UserLoginService extends BaseUserService {
     // might be in circulation.
     LocalDateTime nowAt = clockService.getNowUTC();
     User user = resolveUser(customUserDetails.getEmail());
-    addHistoryEvent(user, nowAt, EnHistoryWhat.LOGOUT);
+    addHistoryEvent(user, nowAt, EnUserHistoryWhat.LOGOUT);
     userJwtRepository.deleteAllByUser(user.getId()); // Revoke all JWTs related to this user.
   }
 }

@@ -31,9 +31,11 @@ You can think of it as baseline for any other project, as almost anything will n
 - **Admin user**:
   - Viewing **table of users**, including pagination and filtration.
   - Changing data of selected user.
+    - User **history**. 
     - User **lock/unlock**.
-- Other options:
-  - **System lockdown**: if turned on, only users with admin rights can call any endpoint. 
+- Other options: 
+  - **System lockdown**: if turned on, only users with admin rights can call any endpoint.
+  - **System history** for global events like lockdown. 
 
 ## GitHub config
 

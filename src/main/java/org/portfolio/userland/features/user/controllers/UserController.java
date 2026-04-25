@@ -19,13 +19,13 @@ import org.portfolio.userland.features.user.entities.User;
 import org.portfolio.userland.features.user.services.UserDeleteService;
 import org.portfolio.userland.features.user.services.UserPasswordService;
 import org.portfolio.userland.features.user.services.UserRegisterService;
+import org.portfolio.userland.swagger.annotations.ApiResponsesToken;
 import org.portfolio.userland.swagger.detail.common.ValidationProblemDetail;
 import org.portfolio.userland.swagger.detail.user.EmailExistsProblemDetail;
-import org.portfolio.userland.swagger.detail.user.TokenExpiredProblemDetail;
+import org.portfolio.userland.swagger.detail.user.TokenAlreadyExistsProblemDetail;
 import org.portfolio.userland.swagger.detail.user.TokenMissingProblemDetail;
 import org.portfolio.userland.swagger.detail.user.UserDoesNotExistProblemDetail;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -82,15 +82,13 @@ public class UserController {
    */
   @PostMapping(value = "/activate", produces = "application/json")
   @Operation(summary = "Activate new user", description = "Calling this endpoint with correct token will fully activate user account.")
+  @ApiResponsesToken
   @ApiResponses(value = {
       @ApiResponse(responseCode = "200", description = "User successfully activated.",
           content = @Content(schema = @Schema(hidden = true))),
       @ApiResponse(responseCode = "404", description = "Invalid input (malformed token string) or token does not exist.",
           content = @Content(mediaType = "application/problem+json",
-                             schema = @Schema(implementation = TokenMissingProblemDetail.class))),
-      @ApiResponse(responseCode = "409", description = "Token found, but is expired.",
-          content = @Content(mediaType = "application/problem+json",
-                             schema = @Schema(implementation = TokenExpiredProblemDetail.class)))
+                             schema = @Schema(implementation = TokenMissingProblemDetail.class)))
   })
   public ResponseEntity<String> activateUser(@Valid @RequestBody TokenActivateReq tokenActivateReq) {
     userRegisterService.activate(tokenActivateReq);
@@ -107,7 +105,8 @@ public class UserController {
   @PostMapping(value = "/password/link", produces = "application/json")
   @Operation(summary = "Send password reset link", description = "Sends email with link to page where you can reset password to your account.")
   @ApiResponses(value = {
-      @ApiResponse(responseCode = "200", description = "Email successfully sent."),
+      @ApiResponse(responseCode = "200", description = "Password reset email successfully sent.",
+          content = @Content(schema = @Schema(hidden = true))),
       @ApiResponse(responseCode = "400", description = "Invalid input (missing or malformed email).",
           content = @Content(mediaType = "application/problem+json",
               schema = @Schema(implementation = ValidationProblemDetail.class))),
@@ -116,7 +115,7 @@ public class UserController {
               schema = @Schema(implementation = UserDoesNotExistProblemDetail.class))),
       @ApiResponse(responseCode = "409", description = "User is not allowed to reset password (e.g. not activated or locked) or password reset is already pending.",
           content = @Content(mediaType = "application/problem+json",
-              schema = @Schema(implementation = ProblemDetail.class)))
+              schema = @Schema(implementation = TokenAlreadyExistsProblemDetail.class)))
   })
   public ResponseEntity<String> sendPasswordResetLink(@Valid @RequestBody UserPassResetLinkReq userPassResetLinkReq) {
     userPasswordService.send(userPassResetLinkReq);
@@ -130,14 +129,13 @@ public class UserController {
    */
   @PostMapping(value = "/password/confirm", produces = "application/json")
   @Operation(summary = "Reset password", description = "Reset password.")
+  @ApiResponsesToken
   @ApiResponses(value = {
-      @ApiResponse(responseCode = "200", description = "Password reset successfully."),
+      @ApiResponse(responseCode = "200", description = "Password reset was successful.",
+          content = @Content(schema = @Schema(hidden = true))),
       @ApiResponse(responseCode = "400", description = "Invalid input (missing data).",
           content = @Content(mediaType = "application/problem+json",
-              schema = @Schema(implementation = ValidationProblemDetail.class))),
-      @ApiResponse(responseCode = "404", description = "Token does not exist.",
-          content = @Content(mediaType = "application/problem+json",
-              schema = @Schema(implementation = TokenMissingProblemDetail.class)))
+              schema = @Schema(implementation = ValidationProblemDetail.class)))
   })
   public ResponseEntity<String> passwordReset(@Valid @RequestBody UserPassResetConfirmReq userPassResetConfirmReq) {
     userPasswordService.reset(userPassResetConfirmReq);
@@ -154,7 +152,8 @@ public class UserController {
   @PostMapping(value = "/delete/link", produces = "application/json")
   @Operation(summary = "Send account deletion link", description = "Sends email with link that leads to page where you can confirm account deletion.")
   @ApiResponses(value = {
-      @ApiResponse(responseCode = "200", description = "Email successfully sent."),
+      @ApiResponse(responseCode = "200", description = "Account deletion email successfully sent.",
+          content = @Content(schema = @Schema(hidden = true))),
       @ApiResponse(responseCode = "400", description = "Invalid input (missing or malformed email).",
           content = @Content(mediaType = "application/problem+json",
               schema = @Schema(implementation = ValidationProblemDetail.class))),
@@ -163,7 +162,7 @@ public class UserController {
               schema = @Schema(implementation = UserDoesNotExistProblemDetail.class))),
       @ApiResponse(responseCode = "409", description = "User is not allowed to delete account (e.g. not activated or locked) or account deletion is already pending.",
           content = @Content(mediaType = "application/problem+json",
-              schema = @Schema(implementation = ProblemDetail.class)))
+              schema = @Schema(implementation = TokenAlreadyExistsProblemDetail.class)))
   })
   public ResponseEntity<String> sendAccountDeleteLink(@Valid @RequestBody UserDeleteLinkReq userDeleteLinkReq) {
     userDeleteService.send(userDeleteLinkReq);
@@ -177,14 +176,13 @@ public class UserController {
    */
   @PostMapping(value = "/delete/confirm", produces = "application/json")
   @Operation(summary = "Delete user", description = "Removes user from system.")
+  @ApiResponsesToken
   @ApiResponses(value = {
-      @ApiResponse(responseCode = "200", description = "Account deletion was successful."),
+      @ApiResponse(responseCode = "200", description = "Account deletion was successful.",
+          content = @Content(schema = @Schema(hidden = true))),
       @ApiResponse(responseCode = "400", description = "Invalid input (missing data).",
           content = @Content(mediaType = "application/problem+json",
-              schema = @Schema(implementation = ValidationProblemDetail.class))),
-      @ApiResponse(responseCode = "404", description = "Token does not exist.",
-          content = @Content(mediaType = "application/problem+json",
-              schema = @Schema(implementation = TokenMissingProblemDetail.class)))
+              schema = @Schema(implementation = ValidationProblemDetail.class)))
   })
   public ResponseEntity<String> accountDeleteConfirm(@Valid @RequestBody UserDeleteConfirmReq userDeleteConfirmReq) {
     userDeleteService.delete(userDeleteConfirmReq);

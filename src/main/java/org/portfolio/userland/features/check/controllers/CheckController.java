@@ -8,7 +8,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.portfolio.userland.swagger.annotations.ApiResponsesAuth;
-import org.portfolio.userland.swagger.annotations.ApiResponsesToken;
+import org.portfolio.userland.swagger.annotations.ApiResponsesAuthPerm;
+import org.portfolio.userland.swagger.detail.common.InternalServerErrorProblemDetail;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -52,7 +53,7 @@ public class CheckController {
    */
   @GetMapping(value = "/must-be-logged", produces = "application/json")
   @Operation(summary = "Must be logged", description = "You need to be logged in to successfully access this endpoint. Does nothing else.")
-  @ApiResponsesToken
+  @ApiResponsesAuth
   @ApiResponses(value = {
       @ApiResponse(responseCode = "200", description = "Access was successful.",
           content = @Content(schema = @Schema(hidden = true)))
@@ -70,7 +71,7 @@ public class CheckController {
   @GetMapping(value = "/must-be-admin", produces = "application/json")
   @PreAuthorize("hasAuthority('ROLE_ADMIN')")
   @Operation(summary = "Must be admin", description = "You need to be logged in as admin (ROLE_ADMIN) to successfully access this endpoint. Does nothing else.")
-  @ApiResponsesAuth
+  @ApiResponsesAuthPerm
   @ApiResponses(value = {
       @ApiResponse(responseCode = "200", description = "Access was successful.",
           content = @Content(schema = @Schema(hidden = true)))
@@ -78,5 +79,23 @@ public class CheckController {
   public ResponseEntity<String> mustBeAdmin() {
     // Yes, this endpoint does nothing by itself.
     return new ResponseEntity<>(HttpStatus.OK);
+  }
+
+  //
+
+  /**
+   * Deliberately throws exception.
+   * @return Response.
+   */
+  @GetMapping(value = "/exception", produces = "application/json")
+  @Operation(summary = "Throws exception", description = "Returns error.")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "500", description = "Deliberate error.",
+          content = @Content(mediaType = "application/problem+json",
+              schema = @Schema(implementation = InternalServerErrorProblemDetail.class)))
+  })
+  public ResponseEntity<String> error() {
+    // Yes, this endpoint does nothing by itself.
+    throw new IllegalArgumentException("This error message was caused deliberately (/api/checks/exception) and should not be visible externally.");
   }
 }

@@ -11,7 +11,6 @@ import org.springframework.validation.method.ParameterValidationResult;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.method.annotation.HandlerMethodValidationException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
@@ -46,9 +45,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     problemDetail.setTitle(ex.getTitle());
     problemDetail.setDetail(ex.getDetail());
     problemDetail.setType(URI.create(ex.getType()));
-    if (request instanceof ServletWebRequest servletWebRequest)
-      problemDetail.setProperty("instance", servletWebRequest.getRequest().getRequestURI());
-
+    // instance is added automatically
     HttpHeaders headers = resolveHeaders(ex);
     return ResponseEntity.of(problemDetail).headers(headers).build();
   }
@@ -65,8 +62,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     problemDetail.setTitle("Unauthorized");
     problemDetail.setDetail("Authentication is required to access this resource.");
     problemDetail.setType(URI.create("https://api.general.org/errors/unauthorized"));
-    if (request instanceof ServletWebRequest servletWebRequest)
-      problemDetail.setProperty("instance", servletWebRequest.getRequest().getRequestURI());
+    // instance is added automatically
     return problemDetail;
   }
 
@@ -83,8 +79,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     problemDetail.setTitle("Forbidden");
     problemDetail.setDetail("You do not have permission to access this resource.");
     problemDetail.setType(URI.create("https://api.general.org/errors/forbidden"));
-    if (request instanceof ServletWebRequest servletWebRequest)
-      problemDetail.setProperty("instance", servletWebRequest.getRequest().getRequestURI());
+    // instance is added automatically
     return problemDetail;
   }
 
@@ -104,8 +99,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     problemDetail.setTitle("Internal Server Error");
     problemDetail.setDetail("An unexpected error occurred while processing your request.");
     problemDetail.setType(URI.create("https://api.general.org/errors/internal"));
-    if (request instanceof ServletWebRequest servletWebRequest)
-      problemDetail.setProperty("instance", servletWebRequest.getRequest().getRequestURI());
+    // instance is added automatically
     return problemDetail;
   }
 
@@ -126,6 +120,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     problemDetail.setTitle("Field Validation Failed");
     problemDetail.setDetail("One or more fields failed validation.");
     problemDetail.setType(URI.create("https://api.general.org/errors/validation"));
+    // instance is added automatically
 
     Map<String, String> errors = new LinkedHashMap<>();
     for (FieldError error : ex.getBindingResult().getFieldErrors()) {
@@ -151,6 +146,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     problemDetail.setTitle("Request Parameter Validation Failed");
     problemDetail.setDetail("One or more request parameters failed validation.");
     problemDetail.setType(URI.create("https://api.general.org/errors/validation"));
+    // instance is added automatically
 
     Map<String, String> errors = new LinkedHashMap<>();
     // Iterate through each invalid method parameter.

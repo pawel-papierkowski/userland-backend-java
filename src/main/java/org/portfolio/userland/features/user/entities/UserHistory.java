@@ -40,12 +40,12 @@ public class UserHistory {
   /** Who caused history event? */
   @Column(nullable = false)
   @Enumerated(EnumType.STRING)
-  private EnHistoryWho who;
+  private EnUserHistoryWho who;
 
   /** What caused history event? */
   @Column(nullable = false)
   @Enumerated(EnumType.STRING)
-  private EnHistoryWhat what;
+  private EnUserHistoryWhat what;
 
   // //////////////////////////////////////////////////////////////////////////
 

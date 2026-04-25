@@ -4,7 +4,7 @@ import org.portfolio.userland.common.services.email.EmailService;
 import org.portfolio.userland.features.user.repositories.*;
 import org.portfolio.userland.test.base.BaseIntegrationTest;
 import org.portfolio.userland.test.helpers.asserts.UserAssert;
-import org.portfolio.userland.test.helpers.factories.*;
+import org.portfolio.userland.test.helpers.factories.user.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
