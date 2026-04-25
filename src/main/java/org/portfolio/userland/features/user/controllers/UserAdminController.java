@@ -9,11 +9,12 @@ import org.springframework.web.bind.annotation.RestController;
  * REST endpoints for user management. All endpoints here require administration permissions.
  * <p>Endpoints:</p>
  * <ul>
- *   <li><code>GET /api/users/all</code> - get all users.</li>
+ *   <li><code>GET /api/admin/users/all</code> - get all users. Note it returns only DTO: data present in table</li>
+ *   <li><code>GET /api/admin/user/{id}</code> - get data about single user.</li>
  * </ul>
  */
 @RestController
-@RequestMapping("/api/users")
+@RequestMapping("/api/admin/users")
 @RequiredArgsConstructor
 @Tag(name = "User Management", description = "Endpoints for managing user accounts.")
 public class UserAdminController {

@@ -19,8 +19,8 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 /**
  * Security configuration.
  * <p>Major part of security configuration is endpoint config. We assume all endpoints require authentication unless
- * specified otherwise. In particular, <code>publicSecurityFilterChain()</code> and <code>availableSecurityFilterChain()</code>
- * specify endpoints that do not require authentication.</p>
+ * specified otherwise. In particular, <code>publicSecurityFilterChain()</code> specify endpoints that do not require authentication.</p>
+ * <p>Note: filters are always applied, code like <code>addFilterBefore()</code> only determine changes in order of filters.</p>
  */
 @Configuration
 @EnableMethodSecurity
@@ -68,13 +68,16 @@ public class SecurityConfig {
   @Order(2)
   public SecurityFilterChain swaggerSecurityFilterChain(HttpSecurity http) {
     http.csrf(AbstractHttpConfigurer::disable)
-        .securityMatcher("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html")
+        .securityMatcher(
+            "/v3/api-docs/**",
+            "/swagger-ui/**",
+            "/swagger-ui.html")
         .authorizeHttpRequests(requests -> requests.anyRequest().permitAll());
     return http.build();
   }
 
   /**
-   * This specific filter chain defines public endpoints. Note these won't have auth data even if you provide token.
+   * This specific filter chain defines public endpoints.
    * By nature of register/activate/login/etc endpoints, these must be available publicly to everyone.
    * @param http HTTP security data.
    * @return Security filter chain.
@@ -90,26 +93,8 @@ public class SecurityConfig {
             "/api/users/activate", // activate user account
             "/api/users/password/*", // reset password
             "/api/users/delete/*", // delete account
-            "/api/users/login") // login user
-        .authorizeHttpRequests(requests -> requests.anyRequest().permitAll())
-        .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
-        .addFilterAfter(lockdownFilter, JwtAuthFilter.class);
-    return http.build();
-  }
-
-  /**
-   * This specific filter chain defines public endpoints that can also be accessed while being logged in.
-   * You have access to auth data inside (if JWT was provided, otherwise principal will be anonymous user).
-   * @param http HTTP security data.
-   * @return Security filter chain.
-   */
-  @Bean
-  @Order(4)
-  public SecurityFilterChain availableSecurityFilterChain(HttpSecurity http) {
-    http.csrf(AbstractHttpConfigurer::disable)
-        .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-        .securityMatcher(
-            "/api/users/logout") // logout user
+            "/api/users/login",
+            "/api/users/logout") // login user
         .authorizeHttpRequests(requests -> requests.anyRequest().permitAll())
         .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
         .addFilterAfter(lockdownFilter, JwtAuthFilter.class);
@@ -118,7 +103,8 @@ public class SecurityConfig {
 
   /**
    * This specific filter chain defines secured endpoints that also requires operator or administrator permissions.
-   * Note there can be endpoints individually marked as <code>@PreAuthorize("hasAuthority('ROLE_OPERATOR')")</code>.
+   * Note there can be also endpoints individually marked as <code>@PreAuthorize("hasAuthority('ROLE_OPERATOR')")</code>
+   * in Controllers.
    * @param http HTTP security data.
    * @return Security filter chain.
    */
@@ -140,7 +126,8 @@ public class SecurityConfig {
 
   /**
    * This specific filter chain defines secured endpoints that also requires administrator permissions.
-   * Note there can be endpoints individually marked as <code>@PreAuthorize("hasAuthority('ROLE_ADMIN')")</code>.
+   * Note there can be also endpoints individually marked as <code>@PreAuthorize("hasAuthority('ROLE_ADMIN')")</code>
+   * in Controllers.
    * @param http HTTP security data.
    * @return Security filter chain.
    */
@@ -162,7 +149,7 @@ public class SecurityConfig {
 
   /**
    * This is default security chain. All endpoints here are expected to have JWT in header, otherwise request
-   * will be rejected with 401 Unauthorized. You have access to auth data inside.
+   * will be rejected with 401 Unauthorized. No special permissions needed. You have access to auth data inside.
    * @param http HTTP security data.
    * @return Security filter chain.
    */

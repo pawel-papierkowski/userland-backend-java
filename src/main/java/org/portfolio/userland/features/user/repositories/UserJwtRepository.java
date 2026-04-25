@@ -23,4 +23,13 @@ public interface UserJwtRepository extends JpaRepository<UserJwt, Long>, UserJwt
   @Modifying(clearAutomatically = true, flushAutomatically = true)
   @Query("DELETE FROM UserJwt t WHERE t.expiresAt < :nowAt")
   int deleteExpiredJwts(@Param("nowAt") LocalDateTime nowAt);
+
+  /**
+   * Delete all JWTs for given user.
+   * @param userId User identificator.
+   * @return Count of removed JWTs.
+   */
+  @Modifying(clearAutomatically = true, flushAutomatically = true)
+  @Query("DELETE FROM UserJwt t WHERE t.user.id = :userId")
+  int deleteAllByUser(@Param("userId") Long userId);
 }

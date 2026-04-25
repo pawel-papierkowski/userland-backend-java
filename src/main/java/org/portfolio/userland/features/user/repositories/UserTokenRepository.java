@@ -51,4 +51,13 @@ public interface UserTokenRepository extends JpaRepository<UserToken, Long> {
   @Modifying(clearAutomatically = true, flushAutomatically = true)
   @Query("DELETE FROM UserToken t WHERE t.expiresAt < :nowAt")
   int deleteExpiredTokens(@Param("nowAt") LocalDateTime nowAt);
+
+  /**
+   * Delete given token.
+   * @param token Token string.
+   * @return Count of removed tokens.
+   */
+  @Modifying(clearAutomatically = true, flushAutomatically = true)
+  @Query("DELETE FROM UserToken t WHERE t.token = :token")
+  int deleteToken(@Param("token") String token);
 }

@@ -104,7 +104,7 @@ public class SystemLockdownApiTest extends BaseSystemTest {
     ProblemDetailBox expectedPdb = new ProblemDetailBox(
         HttpStatus.CONFLICT.value(),
         "System lockdown is in effect.",
-        "User with email 'test@example.com' cannot access endpoint: lockdown.",
+        "User with email 'test@example.com' cannot access endpoint due to lockdown.",
         "/api/system/lockdown",
         "https://api.userland.org/errors/user/lockdown",
         Map.of()

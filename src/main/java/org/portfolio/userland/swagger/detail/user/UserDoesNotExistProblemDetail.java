@@ -1,4 +1,4 @@
-package org.portfolio.userland.swagger.user;
+package org.portfolio.userland.swagger.detail.user;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 

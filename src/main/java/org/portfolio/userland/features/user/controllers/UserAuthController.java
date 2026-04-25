@@ -11,8 +11,8 @@ import lombok.RequiredArgsConstructor;
 import org.portfolio.userland.features.user.dto.login.UserLoginReq;
 import org.portfolio.userland.features.user.dto.login.UserLoginResp;
 import org.portfolio.userland.features.user.services.UserLoginService;
-import org.portfolio.userland.swagger.common.ValidationProblemDetail;
-import org.portfolio.userland.swagger.user.UserWrongPasswordProblemDetail;
+import org.portfolio.userland.swagger.detail.common.ValidationProblemDetail;
+import org.portfolio.userland.swagger.detail.user.UserWrongPasswordProblemDetail;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -36,7 +36,7 @@ public class UserAuthController {
   private final UserLoginService userLoginService;
 
   /**
-   * Log in user.
+   * Log in user. Note: this endpoint can be accessed even during lockdown.
    * @param userLoginReq User login request.
    * @return Response.
    */

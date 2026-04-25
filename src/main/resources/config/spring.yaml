@@ -10,6 +10,11 @@ spring:
     hibernate:
       ddl-auto: validate # never use 'update' or 'create', Flyway takes care of it
     open-in-view: false # disable Open-In-View
+    properties:
+      hibernate:
+        jdbc:
+          batch_size: 20
+        default_batch_fetch_size: 20
   flyway:
     schemas: aux
     table: flyway_schema_history

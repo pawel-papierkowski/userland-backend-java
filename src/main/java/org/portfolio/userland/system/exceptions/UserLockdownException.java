@@ -27,8 +27,8 @@ public class UserLockdownException extends GeneralException {
 
   @Override
   public String getDetail() {
-    if (StringUtils.isEmpty(email)) return "User cannot access endpoint: lockdown.";
-    return "User with email '"+email+"' cannot access endpoint: lockdown.";
+    if (StringUtils.isEmpty(email)) return "User cannot access endpoint due to lockdown.";
+    return "User with email '"+email+"' cannot access endpoint due to lockdown.";
   }
 
   @Override

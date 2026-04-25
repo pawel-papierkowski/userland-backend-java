@@ -267,7 +267,7 @@ public class CheckWithJwtTest extends BaseUserTest {
     ProblemDetailBox expectedPdb = new ProblemDetailBox(
         HttpStatus.CONFLICT.value(),
         "System lockdown is in effect.",
-        "User with email '"+user.getEmail()+"' cannot access endpoint: lockdown.",
+        "User with email '"+user.getEmail()+"' cannot access endpoint due to lockdown.",
         "/api/checks/must-be-logged",
         "https://api.userland.org/errors/user/lockdown",
         Map.of()

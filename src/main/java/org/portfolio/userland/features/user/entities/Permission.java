@@ -4,8 +4,10 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.Objects;
+
 /**
- * Known user permissions.
+ * Permissions available for users.
  */
 @Entity
 @Table(name = "permissions", schema = "iam")
@@ -28,4 +30,22 @@ public class Permission {
   /** Indicates if that permission should be included in Spring authorities. */
   @Column(nullable = false)
   private Boolean inAuthorities;
+
+  // //////////////////////////////////////////////////////////////////////////
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+
+    Permission permission = (Permission) o;
+
+    if (name == null) return false;
+    return Objects.equals(name, permission.getName());
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(name);
+  }
 }

@@ -130,12 +130,14 @@ public class UserLoginApiTest extends BaseUserTest {
 
   @Test
   public void loginWithRightsWhenLockdown() throws Exception {
+    // Login endpoint has special handling of lockdown, so we test it separately.
     clock.setFixedTime("2026-04-10T10:00:00Z");
     // Arrange: Create active user in database that has special permissions (operator of administration panel).
     User expectedUser = userFactory.genUser(EnUserStatus.ACTIVE, Map.of("role", "operator"));
     userRepository.save(expectedUser);
 
-    // Arrange: lock down system. Users with operator or admin permissions should be still able to log in.
+    // Arrange: lock down system. Anyone can still access login endpoint and users with correct permissions should be
+    // still able to log in.
     configService.set(ConfigConst.USER_LOCKDOWN, ConfigConst.TRUE);
 
     clock.setFixedTime("2026-04-10T10:05:00Z");
@@ -182,6 +184,7 @@ public class UserLoginApiTest extends BaseUserTest {
   @Test
   @Transactional
   public void errWrongPassword() throws Exception {
+    // Refuse if user provided wrong password.
     clock.setFixedTime("2026-04-08T10:00:00Z");
 
     // Arrange: create active user.
@@ -207,6 +210,44 @@ public class UserLoginApiTest extends BaseUserTest {
         "Cannot log in as user with email '"+expectedUser.getEmail()+"' due to wrong password.",
         "/api/users/login",
         "https://api.userland.org/errors/user/wrongPassword",
+        Map.of()
+    );
+    problemDetailService.assertPd(mvcResult, expectedPdb);
+  }
+
+  @Test
+  @Transactional
+  public void errLockdown() throws Exception {
+    // Login endpoint has special handling of lockdown, so we test it separately.
+    clock.setFixedTime("2026-04-08T10:00:00Z");
+
+    // Arrange: create active user.
+    User user = userFactory.genUser(EnUserStatus.ACTIVE);
+    userRepository.save(user);
+
+    // Arrange: lock down system. Anyone can still access login endpoint, but if user has no appropriate permissions,
+    // login attempt will be rejected.
+    configService.set(ConfigConst.USER_LOCKDOWN, ConfigConst.TRUE);
+
+    clock.setFixedTime("2026-04-10T10:05:00Z");
+    // Arrange: Create login request.
+    UserLoginReq req = new UserLoginReq("test@example.com", "Password123!");
+
+    // Act: Try to log in user.
+    MvcResult mvcResult = mockMvc.perform(post("/api/users/login")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(req)))
+        .andReturn();
+
+    // Assert API Response.
+    assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.CONFLICT.value());
+    // Assert: proper problem detail is present.
+    ProblemDetailBox expectedPdb = new ProblemDetailBox(
+        HttpStatus.CONFLICT.value(),
+        "System lockdown is in effect.",
+        "User with email '"+user.getEmail()+"' cannot access endpoint due to lockdown.",
+        "/api/users/login",
+        "https://api.userland.org/errors/user/lockdown",
         Map.of()
     );
     problemDetailService.assertPd(mvcResult, expectedPdb);

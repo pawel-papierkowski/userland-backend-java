@@ -7,10 +7,14 @@ import org.portfolio.userland.features.user.dto.login.UserLoginResp;
 import org.portfolio.userland.features.user.entities.EnHistoryWhat;
 import org.portfolio.userland.features.user.entities.User;
 import org.portfolio.userland.features.user.exceptions.UserWrongPasswordException;
+import org.portfolio.userland.system.auth.AuthHelper;
 import org.portfolio.userland.system.auth.CustomUserDetails;
+import org.portfolio.userland.system.auth.EnPermKind;
+import org.portfolio.userland.system.auth.PermissionService;
+import org.portfolio.userland.system.config.service.ConfigConst;
+import org.portfolio.userland.system.config.service.ConfigService;
+import org.portfolio.userland.system.exceptions.UserLockdownException;
 import org.portfolio.userland.system.jwt.JwtService;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,6 +27,8 @@ import java.time.LocalDateTime;
 @Service
 @RequiredArgsConstructor
 public class UserLoginService extends BaseUserService {
+  private final ConfigService configService;
+  private final PermissionService permissionService;
   private final JwtService jwtService;
   private final PasswordEncoder passwordEncoder;
 
@@ -35,16 +41,16 @@ public class UserLoginService extends BaseUserService {
   public UserLoginResp login(@Valid UserLoginReq userLoginReq) {
     User user = resolveUser(userLoginReq.email());
     verifyPassword(user, userLoginReq.password());
+    verifyLockdown(user);
 
     LocalDateTime nowAt = clockService.getNowUTC();
-    user.addHistory(createHistoryEvent(nowAt, EnHistoryWhat.LOGIN));
 
     // Login is successful. Generate JWT token now.
     String jwtToken = jwtService.generateToken(user);
     // Add JWT in database. This will allow us to effectively revoke tokens later (logout etc).
-    user.addJwt(createJwtEntry(nowAt, jwtToken));
-    userRepository.save(user);
-
+    addJwtEntry(user, nowAt, jwtToken);
+    // Add login event to user history.
+    addHistoryEvent(user, nowAt, EnHistoryWhat.LOGIN);
     return new UserLoginResp(jwtToken);
   }
 
@@ -58,6 +64,19 @@ public class UserLoginService extends BaseUserService {
     if (!isMatch) throw new UserWrongPasswordException(user.getEmail());
   }
 
+  /**
+   * Verify lockdown. Endpoint <code>/api/users/login</code> is exempt from lockdown, so we need to check for it separately.
+   * @param user User.
+   */
+  private void verifyLockdown(User user) {
+    // Do we have lockdown?
+    if (ConfigConst.FALSE.equals(configService.get(ConfigConst.USER_LOCKDOWN, ConfigConst.USER_LOCKDOWN_DEF))) return;
+    // So we have lockdown. If user has correct permissions, they are still allowed to log in.
+    if (permissionService.has(EnPermKind.ACCESS_TO_ADMIN_PANEL, user.getPermissions())) return;
+    // Standard user is trying to log in during lockdown, reject them.
+    throw new UserLockdownException(user.getEmail());
+  }
+
   // //////////////////////////////////////////////////////////////////////////
 
   /**
@@ -66,19 +85,14 @@ public class UserLoginService extends BaseUserService {
   @Transactional
   public void logout() {
     // If we aren't logged in, just end. Nothing to do.
-    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-    if (authentication == null || !authentication.isAuthenticated()) return;
-    Object principalObj = authentication.getPrincipal();
-    // Can happen if we call endpoints that do not handle jwtAuthFilter. See SecurityConfig.
-    if (!(principalObj instanceof CustomUserDetails)) return;
+    CustomUserDetails customUserDetails = AuthHelper.resolveUserDetails();
+    if (customUserDetails == null) return;
 
-    CustomUserDetails principal = (CustomUserDetails) authentication.getPrincipal();
-
-    // If we are logged in, add entry in history and remove JWT entries in database.
+    // If we are logged in, add entry in history and remove JWT entries in database. It will invalidate any JWT that
+    // might be in circulation.
     LocalDateTime nowAt = clockService.getNowUTC();
-    User user = resolveUser(principal.getEmail());
-    user.addHistory(createHistoryEvent(nowAt, EnHistoryWhat.LOGOUT));
-    user.getJwts().clear(); // Revoke all JWTs related to this user.
-    userRepository.save(user);
+    User user = resolveUser(customUserDetails.getEmail());
+    addHistoryEvent(user, nowAt, EnHistoryWhat.LOGOUT);
+    userJwtRepository.deleteAllByUser(user.getId()); // Revoke all JWTs related to this user.
   }
 }

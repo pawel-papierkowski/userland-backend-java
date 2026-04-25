@@ -71,7 +71,7 @@ public class CustomUserDetails implements UserDetails {
   }
 
   /**
-   * Constructor.
+   * Constructor used only by tests for mock purposes.
    * @param id User identificator.
    * @param active Is this user active?
    * @param locked Is this user locked?

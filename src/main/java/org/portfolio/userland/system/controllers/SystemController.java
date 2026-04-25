@@ -8,8 +8,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.portfolio.userland.swagger.common.AuthenticationProblemDetail;
-import org.portfolio.userland.swagger.common.AuthorizationProblemDetail;
+import org.portfolio.userland.swagger.annotations.ApiResponsesAuth;
 import org.portfolio.userland.system.dto.lockdown.SystemLockdownReq;
 import org.portfolio.userland.system.dto.lockdown.SystemLockdownResp;
 import org.portfolio.userland.system.services.SystemLockdownService;
@@ -38,14 +37,9 @@ public class SystemController {
    */
   @GetMapping(value = "/lockdown", produces = "application/json")
   @Operation(summary = "Status of lockdown", description = "Resolves status of lockdown.")
+  @ApiResponsesAuth
   @ApiResponses(value = {
-      @ApiResponse(responseCode = "200", description = "Lockdown status successfully retrieved."),
-      @ApiResponse(responseCode = "401", description = "User is not authenticated (no token).",
-          content = @Content(mediaType = "application/problem+json",
-              schema = @Schema(implementation = AuthenticationProblemDetail.class))),
-      @ApiResponse(responseCode = "403", description = "User is not authorized (no ROLE_ADMIN permission).",
-          content = @Content(mediaType = "application/problem+json",
-              schema = @Schema(implementation = AuthorizationProblemDetail.class)))
+      @ApiResponse(responseCode = "200", description = "Lockdown status successfully retrieved.")
   })
   public ResponseEntity<SystemLockdownResp> getLockdown() {
     SystemLockdownResp resp = systemLockdownService.get();
@@ -59,15 +53,10 @@ public class SystemController {
    */
   @PostMapping(value = "/lockdown", produces = "application/json")
   @Operation(summary = "New status of lockdown", description = "Changes status of lockdown.")
+  @ApiResponsesAuth
   @ApiResponses(value = {
       @ApiResponse(responseCode = "200", description = "Lockdown status successfully changed.",
-          content = @Content(schema = @Schema(hidden = true))),
-      @ApiResponse(responseCode = "401", description = "User is not authenticated (no token).",
-          content = @Content(mediaType = "application/problem+json",
-              schema = @Schema(implementation = AuthenticationProblemDetail.class))),
-      @ApiResponse(responseCode = "403", description = "User is not authorized (no ROLE_ADMIN permission).",
-          content = @Content(mediaType = "application/problem+json",
-              schema = @Schema(implementation = AuthorizationProblemDetail.class)))
+          content = @Content(schema = @Schema(hidden = true)))
   })
   public ResponseEntity<String> setLockdown(@Valid @RequestBody SystemLockdownReq systemLockdownReq) {
     systemLockdownService.set(systemLockdownReq);
