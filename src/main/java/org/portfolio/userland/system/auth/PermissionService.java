@@ -4,6 +4,8 @@ import com.google.api.client.util.Lists;
 import lombok.RequiredArgsConstructor;
 import org.portfolio.userland.features.user.constants.UserPermConst;
 import org.portfolio.userland.features.user.entities.UserPermission;
+import org.portfolio.userland.system.auth.data.CustomUserDetails;
+import org.portfolio.userland.system.auth.data.EnPermKind;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

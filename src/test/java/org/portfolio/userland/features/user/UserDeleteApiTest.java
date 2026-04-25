@@ -62,8 +62,8 @@ public class UserDeleteApiTest extends BaseUserTest {
     assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.OK.value());
 
     // Prepare expected result.
-    userTokenFactory.genTokenEntry(expectedUser, EnTokenType.DELETE, null);
-    userHistoryFactory.genHistoryEvent(expectedUser, EnHistoryWhat.DELETE_REQ);
+    userTokenFactory.genTokenEntry(expectedUser, EnUserTokenType.DELETE, null);
+    userHistoryFactory.genHistoryEvent(expectedUser, EnUserHistoryWhat.DELETE_REQ);
 
     AtomicReference<String> accDeleteToken = new AtomicReference<>();
 
@@ -99,7 +99,7 @@ public class UserDeleteApiTest extends BaseUserTest {
 
     // Arrange: Create active user in database with account deletion token already present...
     User newUser = userFactory.genUser(EnUserStatus.ACTIVE);
-    userTokenFactory.genTokenEntry(newUser, EnTokenType.DELETE, null);
+    userTokenFactory.genTokenEntry(newUser, EnUserTokenType.DELETE, null);
     userRepository.save(newUser);
 
     // ...but this token is already expired!
@@ -118,8 +118,8 @@ public class UserDeleteApiTest extends BaseUserTest {
     assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.OK.value());
 
     // Prepare expected result.
-    userTokenFactory.genTokenEntry(expectedUser, EnTokenType.DELETE, null);
-    userHistoryFactory.genHistoryEvent(expectedUser, EnHistoryWhat.DELETE_REQ);
+    userTokenFactory.genTokenEntry(expectedUser, EnUserTokenType.DELETE, null);
+    userHistoryFactory.genHistoryEvent(expectedUser, EnUserHistoryWhat.DELETE_REQ);
 
     AtomicReference<String> accDeleteToken = new AtomicReference<>();
 
@@ -154,8 +154,8 @@ public class UserDeleteApiTest extends BaseUserTest {
 
     // Arrange: Create active user in database in state indicating it requested account deletion.
     User expectedUser = userFactory.genUser(EnUserStatus.ACTIVE);
-    UserToken token = userTokenFactory.genTokenEntry(expectedUser, EnTokenType.DELETE, null);
-    userHistoryFactory.genHistoryEvent(expectedUser, EnHistoryWhat.DELETE_REQ);
+    UserToken token = userTokenFactory.genTokenEntry(expectedUser, EnUserTokenType.DELETE, null);
+    userHistoryFactory.genHistoryEvent(expectedUser, EnUserHistoryWhat.DELETE_REQ);
     userRepository.save(expectedUser);
 
     clock.setFixedTime("2026-04-10T10:05:00Z");
@@ -266,7 +266,7 @@ public class UserDeleteApiTest extends BaseUserTest {
 
     // Arrange: create user with account deletion token already present and valid.
     User expectedUser = userFactory.genUser(EnUserStatus.ACTIVE);
-    userTokenFactory.genTokenEntry(expectedUser, EnTokenType.DELETE, null);
+    userTokenFactory.genTokenEntry(expectedUser, EnUserTokenType.DELETE, null);
     userRepository.save(expectedUser);
 
     // Arrange: create account deletion request.
@@ -284,7 +284,7 @@ public class UserDeleteApiTest extends BaseUserTest {
     ProblemDetailBox expectedPdb = new ProblemDetailBox(
         HttpStatus.CONFLICT.value(),
         "Required token already exists.",
-        "Token of type 'DELETE' already exists. You cannot do this action twice in row.",
+        "Token of type 'DELETE' already exists and is still valid. You cannot do this action twice in row.",
         "/api/users/delete/link",
         "https://api.userland.org/errors/user/token/alreadyExists",
         Map.of()
@@ -301,8 +301,8 @@ public class UserDeleteApiTest extends BaseUserTest {
 
     // Arrange: create user that requested password reset.
     User expectedUser = userFactory.genUser(EnUserStatus.ACTIVE);
-    UserToken token = userTokenFactory.genTokenEntry(expectedUser, EnTokenType.DELETE, null);
-    userHistoryFactory.genHistoryEvent(expectedUser, EnHistoryWhat.DELETE_REQ);
+    UserToken token = userTokenFactory.genTokenEntry(expectedUser, EnUserTokenType.DELETE, null);
+    userHistoryFactory.genHistoryEvent(expectedUser, EnUserHistoryWhat.DELETE_REQ);
     userRepository.save(expectedUser);
 
     // Arrange: account deletion request with deliberately invalid token.

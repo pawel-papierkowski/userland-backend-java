@@ -94,8 +94,8 @@ public class UserRegisterService extends BaseUserService {
     // Simple fields like status or blocked are pre-filled already.
     user.setCreatedAt(nowAt);
     user.setModifiedAt(nowAt);
-    user.addToken(createTokenData(nowAt, EnTokenType.ACTIVATE));
-    user.addHistory(createHistoryEvent(nowAt, EnHistoryWhat.CREATED));
+    user.addToken(createTokenData(nowAt, EnUserTokenType.ACTIVATE));
+    user.addHistory(createHistoryEvent(nowAt, EnUserHistoryWhat.CREATED));
     return user;
   }
 
@@ -109,14 +109,14 @@ public class UserRegisterService extends BaseUserService {
   public void activate(TokenActivateReq tokenActivateReq) {
     LocalDateTime nowAt = clockService.getNowUTC();
 
-    UserToken userToken = resolveToken(nowAt, EnTokenType.ACTIVATE, tokenActivateReq.token());
+    UserToken userToken = resolveToken(nowAt, EnUserTokenType.ACTIVATE, tokenActivateReq.token());
     User user = userToken.getUser();
     user.setModifiedAt(nowAt);
     user.setStatus(EnUserStatus.ACTIVE);
     userRepository.save(user);
 
     userTokenRepository.deleteToken(userToken.getToken());
-    addHistoryEvent(user, nowAt, EnHistoryWhat.ACTIVATED);
+    addHistoryEvent(user, nowAt, EnUserHistoryWhat.ACTIVATED);
 
     triggerActivationEvent(tokenActivateReq, user);
   }

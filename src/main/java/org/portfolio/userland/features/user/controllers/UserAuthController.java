@@ -63,7 +63,8 @@ public class UserAuthController {
   @PostMapping(value = "/logout", produces = "application/json")
   @Operation(summary = "Logout user", description = "Perform user logout.")
   @ApiResponses(value = {
-      @ApiResponse(responseCode = "200", description = "Logout was successful.")
+      @ApiResponse(responseCode = "200", description = "Logout was successful.",
+          content = @Content(schema = @Schema(hidden = true)))
   })
   public ResponseEntity<String> logout() {
     userLoginService.logout();

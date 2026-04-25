@@ -11,7 +11,7 @@ import java.util.Map;
 public record ValidationProblemDetail(
     @Schema(example = "https://api.general.org/errors/validation")
     String type,
-    @Schema(example = "Request Parameter Validation Failed")
+    @Schema(example = "Field Validation Failed")
     String title,
     @Schema(example = "400")
     int status,

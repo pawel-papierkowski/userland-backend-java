@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.NonNull;
 import org.portfolio.userland.features.user.entities.User;
 import org.portfolio.userland.features.user.repositories.UserRepository;
+import org.portfolio.userland.system.auth.data.CustomUserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;

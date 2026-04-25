@@ -8,6 +8,7 @@ import org.portfolio.userland.common.services.clock.MutableClock;
 import org.portfolio.userland.system.config.entities.Config;
 import org.portfolio.userland.system.config.repositories.ConfigRepository;
 import org.portfolio.userland.system.config.service.ConfigConst;
+import org.portfolio.userland.system.history.repositories.SystemHistoryRepository;
 import org.portfolio.userland.test.helpers.problemDetail.ProblemDetailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
@@ -20,14 +21,17 @@ import org.testcontainers.postgresql.PostgreSQLContainer;
 /**
  * Base class for all integration tests.
  * Provides all stuff commonly needed for this kind of tests, like database handling.
- * Note we use container in Singleton Container Pattern here (without @Testcontainers) because it causes issues when running test suite
- * (multiple test files).
+ * Note we use container in Singleton Container Pattern here (without @Testcontainers) because it causes issues when
+ * running test suite (multiple test files).
  */
 @IntegrationTest
 public abstract class BaseIntegrationTest {
   /** Project config variables. */
   @Autowired
   protected ConfigRepository configRepository;
+  /** System history events. */
+  @Autowired
+  protected SystemHistoryRepository systemHistoryRepository;
 
   /** Used to simulate HTTP requests. */
   @Autowired
@@ -84,6 +88,8 @@ public abstract class BaseIntegrationTest {
     clock.reset();
   }
 
+  // //////////////////////////////////////////////////////////////////////////
+
   /**
    * Reset state of database so tests don't interfere with each other.
    */
@@ -97,6 +103,7 @@ public abstract class BaseIntegrationTest {
    */
   protected void cleanDatabase() {
     configRepository.deleteAll();
+    systemHistoryRepository.deleteAll();
   }
 
   /**

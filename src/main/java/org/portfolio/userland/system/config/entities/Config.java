@@ -8,7 +8,7 @@ import lombok.Setter;
 import java.util.Objects;
 
 /**
- * UserLand system configuration. For configuration that should go in effect immediately without restarting the system.
+ * System configuration. For configuration that should go in effect immediately without restarting the system.
  */
 @Entity
 @Table(name = "config", schema = "aux")

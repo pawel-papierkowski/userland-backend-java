@@ -89,6 +89,7 @@ public class SecurityConfig {
         .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .securityMatcher(
             "/api/checks/alive", // alive check
+            "/api/checks/exception", // exception check
             "/api/users/register", // user registration
             "/api/users/activate", // activate user account
             "/api/users/password/*", // reset password

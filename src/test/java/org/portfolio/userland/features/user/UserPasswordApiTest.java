@@ -63,8 +63,8 @@ public class UserPasswordApiTest extends BaseUserTest {
     assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.OK.value());
 
     // Prepare expected result.
-    userTokenFactory.genTokenEntry(expectedUser, EnTokenType.PASSWORD, null);
-    userHistoryFactory.genHistoryEvent(expectedUser, EnHistoryWhat.PASS_RESET_REQ);
+    userTokenFactory.genTokenEntry(expectedUser, EnUserTokenType.PASSWORD, null);
+    userHistoryFactory.genHistoryEvent(expectedUser, EnUserHistoryWhat.PASS_RESET_REQ);
 
     AtomicReference<String> passResetToken = new AtomicReference<>();
 
@@ -100,7 +100,7 @@ public class UserPasswordApiTest extends BaseUserTest {
 
     // Arrange: Create active user in database with password reset token already present...
     User newUser = userFactory.genUser(EnUserStatus.ACTIVE);
-    userTokenFactory.genTokenEntry(newUser, EnTokenType.PASSWORD, null);
+    userTokenFactory.genTokenEntry(newUser, EnUserTokenType.PASSWORD, null);
     userRepository.save(newUser);
 
     // ...but this token is already expired!
@@ -119,8 +119,8 @@ public class UserPasswordApiTest extends BaseUserTest {
     assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.OK.value());
 
     // Prepare expected result.
-    userTokenFactory.genTokenEntry(expectedUser, EnTokenType.PASSWORD, null);
-    userHistoryFactory.genHistoryEvent(expectedUser, EnHistoryWhat.PASS_RESET_REQ);
+    userTokenFactory.genTokenEntry(expectedUser, EnUserTokenType.PASSWORD, null);
+    userHistoryFactory.genHistoryEvent(expectedUser, EnUserHistoryWhat.PASS_RESET_REQ);
 
     AtomicReference<String> passResetToken = new AtomicReference<>();
 
@@ -155,8 +155,8 @@ public class UserPasswordApiTest extends BaseUserTest {
 
     // Arrange: Create active user in database in state indicating it requested password reset.
     User expectedUser = userFactory.genUser(EnUserStatus.ACTIVE);
-    UserToken token = userTokenFactory.genTokenEntry(expectedUser, EnTokenType.PASSWORD, null);
-    userHistoryFactory.genHistoryEvent(expectedUser, EnHistoryWhat.PASS_RESET_REQ);
+    UserToken token = userTokenFactory.genTokenEntry(expectedUser, EnUserTokenType.PASSWORD, null);
+    userHistoryFactory.genHistoryEvent(expectedUser, EnUserHistoryWhat.PASS_RESET_REQ);
 
     userRepository.save(expectedUser);
     String oldPassword = expectedUser.getPassword();
@@ -178,7 +178,7 @@ public class UserPasswordApiTest extends BaseUserTest {
     // Prepare expected result.
     expectedUser.setModifiedAt(clockService.getNowUTC());
     expectedUser.getTokens().clear(); // password reset token should be gone
-    userHistoryFactory.genHistoryEvent(expectedUser, EnHistoryWhat.PASS_RESET);
+    userHistoryFactory.genHistoryEvent(expectedUser, EnUserHistoryWhat.PASS_RESET);
 
     // Assert that user data is correctly updated.
     transactionTemplate.execute(status -> {
@@ -277,7 +277,7 @@ public class UserPasswordApiTest extends BaseUserTest {
 
     // Arrange: create user with password reset token already present and valid.
     User expectedUser = userFactory.genUser(EnUserStatus.ACTIVE);
-    userTokenFactory.genTokenEntry(expectedUser, EnTokenType.PASSWORD, null);
+    userTokenFactory.genTokenEntry(expectedUser, EnUserTokenType.PASSWORD, null);
     userRepository.save(expectedUser);
 
     // Arrange: create password reset request.
@@ -295,7 +295,7 @@ public class UserPasswordApiTest extends BaseUserTest {
     ProblemDetailBox expectedPdb = new ProblemDetailBox(
         HttpStatus.CONFLICT.value(),
         "Required token already exists.",
-        "Token of type 'PASSWORD' already exists. You cannot do this action twice in row.",
+        "Token of type 'PASSWORD' already exists and is still valid. You cannot do this action twice in row.",
         "/api/users/password/link",
         "https://api.userland.org/errors/user/token/alreadyExists",
         Map.of()
@@ -312,8 +312,8 @@ public class UserPasswordApiTest extends BaseUserTest {
 
     // Arrange: create user that requested password reset.
     User expectedUser = userFactory.genUser(EnUserStatus.ACTIVE);
-    UserToken token = userTokenFactory.genTokenEntry(expectedUser, EnTokenType.PASSWORD, null);
-    userHistoryFactory.genHistoryEvent(expectedUser, EnHistoryWhat.PASS_RESET_REQ);
+    UserToken token = userTokenFactory.genTokenEntry(expectedUser, EnUserTokenType.PASSWORD, null);
+    userHistoryFactory.genHistoryEvent(expectedUser, EnUserHistoryWhat.PASS_RESET_REQ);
     userRepository.save(expectedUser);
 
     // Arrange: password reset request with deliberately invalid token.

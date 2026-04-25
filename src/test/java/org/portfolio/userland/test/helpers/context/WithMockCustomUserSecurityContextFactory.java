@@ -1,6 +1,6 @@
 package org.portfolio.userland.test.helpers.context;
 
-import org.portfolio.userland.system.auth.CustomUserDetails;
+import org.portfolio.userland.system.auth.data.CustomUserDetails;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
