@@ -14,8 +14,12 @@ public class AuthHelper {
   public static CustomUserDetails resolveUserDetails() {
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
     if (authentication == null || !authentication.isAuthenticated()) return null;
+
     Object principal = authentication.getPrincipal();
+    // Can happen if we call endpoints that do not handle jwtAuthFilter. See SecurityConfig.
+    // We treat this as not logged in.
     if (!(principal instanceof CustomUserDetails)) return null;
+
     return (CustomUserDetails)principal;
   }
 }

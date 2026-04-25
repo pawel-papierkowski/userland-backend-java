@@ -33,7 +33,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
   //
 
   /**
-   * Find user by email for authorization purposes. Eagerly loads permissions and jwt data.
+   * Find user by email for authorization purposes. Eagerly loads permissions and jwt data, as these are always needed
+   * during authorization.
    * @param email Email.
    * @return User or empty optional.
    */

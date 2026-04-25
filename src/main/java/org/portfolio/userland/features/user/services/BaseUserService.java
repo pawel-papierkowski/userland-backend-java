@@ -4,6 +4,8 @@ import org.portfolio.userland.common.services.clock.ClockService;
 import org.portfolio.userland.common.services.security.SecurityGeneratorService;
 import org.portfolio.userland.features.user.entities.*;
 import org.portfolio.userland.features.user.exceptions.*;
+import org.portfolio.userland.features.user.repositories.UserHistoryRepository;
+import org.portfolio.userland.features.user.repositories.UserJwtRepository;
 import org.portfolio.userland.features.user.repositories.UserRepository;
 import org.portfolio.userland.features.user.repositories.UserTokenRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,7 +26,12 @@ public abstract class BaseUserService {
   @Autowired
   protected UserRepository userRepository;
   @Autowired
+  protected UserHistoryRepository userHistoryRepository;
+  @Autowired
   protected UserTokenRepository userTokenRepository;
+  @Autowired
+  protected UserJwtRepository userJwtRepository;
+
   @Autowired
   protected ApplicationEventPublisher eventPublisher;
 
@@ -46,6 +53,18 @@ public abstract class BaseUserService {
   }
 
   //
+
+  /**
+   * Add token entry to user.
+   * @param user User.
+   * @param nowAt Current date&time.
+   * @param type Type of token.
+   */
+  protected void addTokenEntry(User user, LocalDateTime nowAt, EnTokenType type) {
+    UserToken userToken = createTokenData(nowAt, type);
+    userToken.setUser(user);
+    userTokenRepository.save(userToken);
+  }
 
   /**
    * Create and fill token data.
@@ -104,20 +123,16 @@ public abstract class BaseUserService {
   //
 
   /**
-   * Create and fill JWT data.
+   * Add history event to user.
+   * @param user User.
    * @param nowAt Current date&time.
-   * @param jwtStr JWT string.
-   * @return User JWT entry.
+   * @param what What happened.
    */
-  protected UserJwt createJwtEntry(LocalDateTime nowAt, String jwtStr) {
-    UserJwt token = new UserJwt();
-    token.setCreatedAt(nowAt);
-    token.setExpiresAt(userHelperService.resolveJwtExpiration(nowAt));
-    token.setToken(jwtStr);
-    return token;
+  protected void addHistoryEvent(User user, LocalDateTime nowAt, EnHistoryWhat what) {
+    UserHistory historyEvent = createHistoryEvent(nowAt, what);
+    historyEvent.setUser(user);
+    userHistoryRepository.save(historyEvent);
   }
-
-  //
 
   /**
    * Create and fill history event.
@@ -132,5 +147,33 @@ public abstract class BaseUserService {
     event.setWho(EnHistoryWho.USER);
     event.setWhat(what);
     return event;
+  }
+
+  //
+
+  /**
+   * Add JWT entry to user.
+   * @param user User.
+   * @param nowAt Current date&time.
+   * @param jwtStr JWT string.
+   */
+  protected void addJwtEntry(User user, LocalDateTime nowAt, String jwtStr) {
+    UserJwt jwtEntry = createJwtEntry(nowAt, jwtStr);
+    jwtEntry.setUser(user);
+    userJwtRepository.save(jwtEntry);
+  }
+
+  /**
+   * Create and fill JWT data.
+   * @param nowAt Current date&time.
+   * @param jwtStr JWT string.
+   * @return User JWT entry.
+   */
+  protected UserJwt createJwtEntry(LocalDateTime nowAt, String jwtStr) {
+    UserJwt token = new UserJwt();
+    token.setCreatedAt(nowAt);
+    token.setExpiresAt(userHelperService.resolveJwtExpiration(nowAt));
+    token.setToken(jwtStr);
+    return token;
   }
 }

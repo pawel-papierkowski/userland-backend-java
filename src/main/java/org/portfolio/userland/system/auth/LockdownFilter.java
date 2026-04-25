@@ -6,12 +6,15 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
+import org.jspecify.annotations.NonNull;
 import org.portfolio.userland.system.config.service.ConfigConst;
 import org.portfolio.userland.system.config.service.ConfigService;
 import org.portfolio.userland.system.exceptions.SystemLockdownException;
 import org.portfolio.userland.system.exceptions.UserLockdownException;
 import org.portfolio.userland.system.jwt.JwtAuthFilter;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
+import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.stereotype.Service;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.servlet.HandlerExceptionResolver;
@@ -36,9 +39,20 @@ public class LockdownFilter extends OncePerRequestFilter {
   @Qualifier("handlerExceptionResolver")
   private final HandlerExceptionResolver handlerExceptionResolver;
 
+  /** Login endpoint matcher.*/
+  private final RequestMatcher loginMatcher = PathPatternRequestMatcher.withDefaults().matcher("/api/users/login");
+
   @Override
-  protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-    System.out.println("LockdownFilter.doFilterInternal() called.");
+  protected boolean shouldNotFilter(@NonNull HttpServletRequest request) {
+    // Login endpoint is exempt - lockdown is checked separately after confirming credentials of user and their
+    // permissions. Reason is that we want to allow users with appropriate permissions to login even during lockdown.
+    return loginMatcher.matches(request);
+  }
+
+  @Override
+  protected void doFilterInternal(@NonNull HttpServletRequest request,
+                                  @NonNull HttpServletResponse response,
+                                  @NonNull FilterChain filterChain) throws ServletException, IOException {
     final boolean isLockdown = isLockdown(); // Find out if we have system lockdown.
     if (!isLockdown) { // No lockdown, end it now.
       filterChain.doFilter(request, response);
@@ -52,7 +66,7 @@ public class LockdownFilter extends OncePerRequestFilter {
     }
 
     // We have system lockdown, but there are exceptions!
-    if (permissionService.hasAccessToAdminPanel()) { // Admin users are allowed in.
+    if (permissionService.has(EnPermKind.ACCESS_TO_ADMIN_PANEL)) { // Admin users are allowed in.
       filterChain.doFilter(request, response);
       return;
     }

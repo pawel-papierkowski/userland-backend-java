@@ -6,8 +6,8 @@ import jakarta.persistence.Query;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @Repository
 public class UserJwtCustomRepositoryImpl implements UserJwtCustomRepository {
@@ -17,7 +17,7 @@ public class UserJwtCustomRepositoryImpl implements UserJwtCustomRepository {
 
   @Override
   @Transactional
-  public int revokeAllTokensExcept(Map<String, List<String>> allowedPermissions) {
+  public int revokeAllTokensExcept(Map<String, Set<String>> allowedPermissions) {
     // If the map is empty, apply total lockdown (delete all tokens).
     if (allowedPermissions == null || allowedPermissions.isEmpty()) {
       return entityManager.createQuery("DELETE FROM UserJwt").executeUpdate();
@@ -32,9 +32,9 @@ public class UserJwtCustomRepositoryImpl implements UserJwtCustomRepository {
     jpql.append("  WHERE ");
 
     int index = 0;
-    for (Map.Entry<String, List<String>> entry : allowedPermissions.entrySet()) {
-      List<String> values = entry.getValue();
-      for (String permValue : values) {
+    for (Map.Entry<String, Set<String>> entry : allowedPermissions.entrySet()) {
+      int size = entry.getValue().size();
+      for (int i = 0; i < size; i++) {
         if (index > 0) jpql.append(" OR ");
         jpql.append("(up.permission.name = :name")
             .append(index)
@@ -50,8 +50,8 @@ public class UserJwtCustomRepositoryImpl implements UserJwtCustomRepository {
 
     // Bind the parameters securely to prevent injection.
     index = 0;
-    for (Map.Entry<String, List<String>> entry : allowedPermissions.entrySet()) {
-      List<String> values = entry.getValue();
+    for (Map.Entry<String, Set<String>> entry : allowedPermissions.entrySet()) {
+      Set<String> values = entry.getValue();
       for (String permValue : values) {
         query.setParameter("name" + index, entry.getKey());
         query.setParameter("val" + index, permValue);

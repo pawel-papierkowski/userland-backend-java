@@ -52,8 +52,9 @@ public class UserPasswordService extends BaseUserService {
 
     UserToken token = createTokenData(nowAt, EnTokenType.PASSWORD);
     user.addToken(token);
-    user.addHistory(createHistoryEvent(nowAt, EnHistoryWhat.PASS_RESET_REQ));
     user = userRepository.save(user);
+
+    addHistoryEvent(user, nowAt, EnHistoryWhat.PASS_RESET_REQ);
 
     triggerPassLinkEvent(userPassResetLinkReq, user, token);
   }
@@ -92,10 +93,11 @@ public class UserPasswordService extends BaseUserService {
     User user = userToken.getUser();
     user.setModifiedAt(nowAt);
     user.setPassword(passwordEncoder.encode(userPassResetConfirmReq.password()));
-    user.getTokens().remove(userToken);
-    user.addHistory(createHistoryEvent(nowAt, EnHistoryWhat.PASS_RESET));
-
     userRepository.save(user);
+
+    userTokenRepository.deleteToken(userToken.getToken());
+    addHistoryEvent(user, nowAt, EnHistoryWhat.PASS_RESET);
+
     triggerPassConfirmEvent(user);
   }
 

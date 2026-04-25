@@ -2,7 +2,8 @@
 -- Helper tables.
 -- ============================================================================
 
--- Auxiliary schema: UserLand system and auxiliary tables. Includes tables used by third party libraries like Flyway or ShedLock.
+-- Auxiliary schema: UserLand system and auxiliary tables. Includes tables used by third party libraries like Flyway or
+-- ShedLock.
 -- CREATE SCHEMA IF NOT EXISTS aux; -- commented as Flyway already creates it
 
 -- Small table required by net.javacrumbs.shedlock.
@@ -29,7 +30,7 @@ CREATE TABLE aux.config (
     description TEXT NOT NULL
 );
 -- Known configuration.
-INSERT INTO aux.config (name, value, description) VALUES ('user.lockdown', '0', 'If 1, no user can log in unless they have ROLE_ADMIN permission.');
+INSERT INTO aux.config (name, value, description) VALUES ('user.lockdown', '0', 'If 1, no user can log in unless they have admin permissions.');
 
 -- ============================================================================
 -- Tables for entities specific to our UserLand system.
@@ -37,6 +38,20 @@ INSERT INTO aux.config (name, value, description) VALUES ('user.lockdown', '0', 
 
 -- Identity and access management schema: handles all things related to user accounts.
 CREATE SCHEMA IF NOT EXISTS iam;
+
+-- Permissions available for users.
+CREATE TABLE iam.permissions (
+    -- Identificator.
+    id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    -- Name of permission entry. Must be unique.
+    name VARCHAR(255) NOT NULL UNIQUE,
+    -- If true, this permission should be embedded in JWT key.
+    in_jwt bool NOT NULL,
+    -- If true, this permission should be embedded in Spring authorities.
+    in_authorities bool NOT NULL
+);
+-- Known permissions.
+INSERT INTO iam.permissions (name, in_jwt, in_authorities) VALUES ('role', true, true);
 
 -- Main users table. Contains data about user accounts.
 CREATE TABLE iam.users (
@@ -122,21 +137,6 @@ CREATE TABLE iam.history (
     -- Table-level constraint for Foreign Key.
     CONSTRAINT fk_user FOREIGN KEY (id_user) REFERENCES iam.users(id) ON DELETE CASCADE
 );
-
--- User permissions.
-CREATE TABLE iam.permissions (
-    -- Identificator.
-    id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-
-    -- Name of permission entry. Must be unique.
-    name VARCHAR(255) NOT NULL UNIQUE,
-    -- If true, this permission should be embedded in JWT key.
-    in_jwt bool NOT NULL,
-    -- If true, this permission should be embedded in Spring authorities.
-    in_authorities bool NOT NULL
-);
--- Known permissions.
-INSERT INTO iam.permissions (name, in_jwt, in_authorities) VALUES ('role', true, true);
 
 -- User permission entry.
 CREATE TABLE iam.user_permissions (

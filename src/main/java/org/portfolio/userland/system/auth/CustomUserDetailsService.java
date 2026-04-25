@@ -26,7 +26,7 @@ public class CustomUserDetailsService implements UserDetailsService {
   @Override
   @Transactional
   public @NonNull CustomUserDetails loadUserByUsername(@NonNull String email) throws UsernameNotFoundException {
-    // Note we use special version of findByEmail that eagerly loads permissions and jwt as they are always used
+    // Note we use special version of findByEmail that eagerly loads permissions and jwt, as they are always used
     // in CustomUserDetails.
     User user = userRepository.findAuthByEmail(email)
         .orElseThrow(() -> new UsernameNotFoundException("User '"+email+"' not found"));

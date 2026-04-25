@@ -24,7 +24,7 @@ public class PermissionTest extends BaseUserTest {
 
   @Test
   public void unloggedHasNoAccessToAdminPanel() {
-    Boolean actualResult = permissionService.hasAccessToAdminPanel();
+    Boolean actualResult = permissionService.has(EnPermKind.ACCESS_TO_ADMIN_PANEL);
     Boolean expectedResult = false;
     assertThat(actualResult).as("Should NOT have access to admin panel.").isEqualTo(expectedResult);
   }
@@ -32,7 +32,7 @@ public class PermissionTest extends BaseUserTest {
   @Test
   @WithMockCustomUser
   public void loggedHasNoAccessToAdminPanel() {
-    Boolean actualResult = permissionService.hasAccessToAdminPanel();
+    Boolean actualResult = permissionService.has(EnPermKind.ACCESS_TO_ADMIN_PANEL);
     Boolean expectedResult = false;
     assertThat(actualResult).as("Currently logged-in user should NOT have access to admin panel.").isEqualTo(expectedResult);
   }
@@ -40,7 +40,7 @@ public class PermissionTest extends BaseUserTest {
   @Test
   @WithMockCustomUser(authorities = { "ROLE_ADMIN" })
   public void loggedHasAccessToAdminPanel() {
-    Boolean actualResult = permissionService.hasAccessToAdminPanel();
+    Boolean actualResult = permissionService.has(EnPermKind.ACCESS_TO_ADMIN_PANEL);
     Boolean expectedResult = true;
     assertThat(actualResult).as("Currently logged-in user should have access to admin panel.").isEqualTo(expectedResult);
   }

@@ -21,10 +21,18 @@ public abstract class UserRegisterMapper {
   @Autowired
   protected PasswordEncoder passwordEncoder;
 
+  @Mapping(target = "id", ignore = true)
+  @Mapping(target = "createdAt", ignore = true)
+  @Mapping(target = "modifiedAt", ignore = true)
   @Mapping(target = "username", expression = "java(HtmlUtils.htmlEscape(req.username()))")
   // email as is
   @Mapping(target = "password", expression = "java(passwordEncoder.encode(req.password()))")
   // lang as is
-  // Rest of fields is just ignored.
+  @Mapping(target = "status", ignore = true)
+  @Mapping(target = "locked", ignore = true)
+  @Mapping(target = "history", ignore = true)
+  @Mapping(target = "tokens", ignore = true)
+  @Mapping(target = "jwts", ignore = true)
+  @Mapping(target = "permissions", ignore = true)
   public abstract User toEntity(UserRegisterReq req);
 }

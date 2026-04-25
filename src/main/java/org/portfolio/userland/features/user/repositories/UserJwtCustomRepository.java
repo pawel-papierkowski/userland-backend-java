@@ -1,7 +1,7 @@
 package org.portfolio.userland.features.user.repositories;
 
-import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * More complex queries for User.
@@ -12,5 +12,5 @@ public interface UserJwtCustomRepository {
    * @param allowedPermissions Map where key is permission name and value is permission value.
    * @return Number of deleted JWT entries.
    */
-  int revokeAllTokensExcept(Map<String, List<String>> allowedPermissions);
+  int revokeAllTokensExcept(Map<String, Set<String>> allowedPermissions);
 }

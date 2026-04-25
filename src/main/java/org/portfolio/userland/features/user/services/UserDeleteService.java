@@ -48,8 +48,9 @@ public class UserDeleteService extends BaseUserService {
 
     UserToken token = createTokenData(nowAt, EnTokenType.DELETE);
     user.addToken(token);
-    user.addHistory(createHistoryEvent(nowAt, EnHistoryWhat.DELETE_REQ));
     user = userRepository.save(user);
+
+    addHistoryEvent(user, nowAt, EnHistoryWhat.DELETE_REQ);
 
     triggerDeleteLinkEvent(userDeleteLinkReq, user, token);
   }

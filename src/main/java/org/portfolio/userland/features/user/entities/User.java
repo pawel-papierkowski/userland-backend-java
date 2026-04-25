@@ -86,7 +86,7 @@ public class User {
   // //////////////////////////////////////////////////////////////////////////
 
   /**
-   * Add history entry to list of history events.
+   * Add history entry to list of history events. Call only if you expect to use history, or it was already used.
    * @param historyEntry History entry to add.
    */
   public void addHistory(UserHistory historyEntry) {
@@ -96,7 +96,7 @@ public class User {
   }
 
   /**
-   * Add token entry to list of token entries.
+   * Add token entry to list of token entries. Call only if you expect to use tokens, or it was already used.
    * @param tokenEntry Token entry to add.
    */
   public void addToken(UserToken tokenEntry) {
@@ -106,7 +106,7 @@ public class User {
   }
 
   /**
-   * Add JWT entry to list of JWT entries.
+   * Add JWT entry to list of JWT entries. Call only if you expect to use JWTs, or it was already used.
    * @param jwtEntry JWT entry to add.
    */
   public void addJwt(UserJwt jwtEntry) {
@@ -116,7 +116,7 @@ public class User {
   }
 
   /**
-   * Add permission entry to list of permission entries.
+   * Add permission entry to list of permission entries. Call only if you expect to use permissions, or it was already used.
    * @param permissionEntry Permission entry to add.
    */
   public void addPermission(UserPermission permissionEntry) {

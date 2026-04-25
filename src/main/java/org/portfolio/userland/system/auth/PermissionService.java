@@ -3,10 +3,12 @@ package org.portfolio.userland.system.auth;
 import com.google.api.client.util.Lists;
 import lombok.RequiredArgsConstructor;
 import org.portfolio.userland.features.user.constants.UserPermConst;
+import org.portfolio.userland.features.user.entities.UserPermission;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Answers questions like "can user do this"? Operates on logged-in user data.
@@ -15,45 +17,80 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class PermissionService {
   /**
-   * Checks if logged-in user has access to admin panel.
-   * @return True if given user has access to admin panel, otherwise false.
+   * Checks if logged-in user has correct permissions specified by permission kind.
+   * @return True if given user has correct permissions, otherwise false.
    */
-  public boolean hasAccessToAdminPanel() {
-    return hasAccessToAdminPanel(AuthHelper.resolveUserDetails());
+  public boolean has(EnPermKind permKind) {
+    return has(permKind, AuthHelper.resolveUserDetails());
   }
 
   /**
-   * Checks if given user has access to admin panel.
+   * Checks if given custom user details has correct permissions specified by permission kind.
    * @param customUserDetails Custom user details.
-   * @return True if given user has access to admin panel, otherwise false.
+   * @return True if given user has correct permissions, otherwise false.
    */
-  public boolean hasAccessToAdminPanel(CustomUserDetails customUserDetails) {
+  public boolean has(EnPermKind permKind, CustomUserDetails customUserDetails) {
     if (customUserDetails == null) return false; // not logged in means no access
-    return customUserDetails.hasAuthorities(mapToArray(hasAccessToAdminPanelMap()));
+    Map<String, Set<String>> rawPermissions = get(permKind);
+    return customUserDetails.hasAuthorities(mapToArray(rawPermissions));
   }
 
   /**
-   * Get permissions that have access to administration panel.
+   * Checks if given user permissions are compatible with given permission kind.
+   * @param permKind Permission kind.
+   * @param userPermissions User permissions.
+   * @return True if given user has access to admin panel, otherwise false.
+   */
+  public boolean has(EnPermKind permKind, Set<UserPermission>  userPermissions) {
+    if (userPermissions == null || userPermissions.isEmpty()) return false;
+    Map<String, Set<String>> rawPermissions = get(permKind);
+
+    for (UserPermission userPermission : userPermissions) {
+      String name = userPermission.getPermission().getName();
+      String value = userPermission.getValue();
+      if (hasPermission(rawPermissions, name, value)) return true;
+    }
+    return false;
+  }
+
+  /**
+   * Get permission map for given permission kind.
+   * @param permKind Permission kind.
    * @return Map of permissions.
    */
-  public Map<String, List<String>> hasAccessToAdminPanelMap() {
-    return Map.of(UserPermConst.ROLE, List.of(UserPermConst.OPERATOR, UserPermConst.ADMIN));
+  public Map<String, Set<String>> get(EnPermKind permKind) {
+    return switch (permKind) {
+      case ACCESS_TO_ADMIN_PANEL -> Map.of(UserPermConst.ROLE, Set.of(UserPermConst.OPERATOR, UserPermConst.ADMIN));
+    };
   }
 
   //
 
   /**
+   * Check if you have one particular permission.
+   * @param permissionMap Map of permissions.
+   * @param name Permission name.
+   * @param value Permission value.
+   * @return True if permission with given name and value is present in permissionMap, otherwise false.
+   */
+  private boolean hasPermission(Map<String, Set<String>> permissionMap, String name, String value) {
+    Set<String> values = permissionMap.get(name);
+    if (values == null || values.isEmpty()) return false;
+    return values.contains(value);
+  }
+
+  /**
    * Convert map of permissions to array of strings representing these permissions. Example:
-   * <pre>Map.of("role", List.of("operator", "admin"))</pre>
+   * <pre>Map.of("role", Set.of("operator", "admin"))</pre>
    * will be converted to
    * <pre>"ROLE_OPERATOR", "ROLE_ADMIN"</pre>
    * @param permissionsMap Permission map.
    * @return Array of strings that represent permissions.
    */
-  private String[] mapToArray(Map<String, List<String>> permissionsMap) {
+  private String[] mapToArray(Map<String, Set<String>> permissionsMap) {
     List<String> permissionsList = Lists.newArrayList();
-    for (Map.Entry<String, List<String>> entry : permissionsMap.entrySet()) {
-      List<String> values = entry.getValue();
+    for (Map.Entry<String, Set<String>> entry : permissionsMap.entrySet()) {
+      Set<String> values = entry.getValue();
       for (String permValue : values) {
         permissionsList.add(entry.getKey().toUpperCase() + "_" + permValue.toUpperCase());
       }

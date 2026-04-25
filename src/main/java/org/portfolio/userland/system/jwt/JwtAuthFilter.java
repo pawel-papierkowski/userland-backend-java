@@ -49,12 +49,10 @@ public class JwtAuthFilter extends OncePerRequestFilter {
   protected void doFilterInternal(@NonNull HttpServletRequest request,
                                   @NonNull HttpServletResponse response,
                                   @NonNull FilterChain filterChain) throws ServletException, IOException {
-    System.out.println("JwtAuthFilter.doFilterInternal() called.");
     final String authHeader = request.getHeader(HEADER_AUTH); // Get the Authorization header.
-    final boolean isLockdown = false; //isLockdown(); // Find out if we have system lockdown.
 
-    // We can be already authorized in tests using @WithMockCustomUser. Handle it separately.
-    if (handleAlreadyAuth(request, response, filterChain, isLockdown)) return;
+    // We can be already authorized in tests. Handle it separately.
+    if (handleAlreadyAuth(request, response, filterChain)) return;
 
     // If header is missing or does not start with Bearer, end it. Spring should be configured so it rejects endpoints
     // that require authorization, but user do not have it.
@@ -95,22 +93,20 @@ public class JwtAuthFilter extends OncePerRequestFilter {
   }
 
   /**
-   * Handle case when you are already authenticated. It is possible in tests.
+   * Handle case when you are already authenticated. It is possible in tests using @WithMockCustomUser.
    * @param request Request.
    * @param response Response.
    * @param filterChain Filter chain.
-   * @param isLockdown Is lockdown active?
    * @return True if user is already authenticated.
    * @throws IOException If an I/O error occurs during the processing of the request.
    * @throws ServletException If the processing fails for any other reason.
    */
   private boolean handleAlreadyAuth(HttpServletRequest request,
                                  HttpServletResponse response,
-                                 FilterChain filterChain,
-                                 boolean isLockdown) throws ServletException, IOException {
+                                 FilterChain filterChain) throws ServletException, IOException {
     Authentication auth = SecurityContextHolder.getContext().getAuthentication();
     if (auth == null) return false;
-    if (!(auth.getPrincipal() instanceof CustomUserDetails customUserDetails)) return false;
+    if (!(auth.getPrincipal() instanceof CustomUserDetails)) return false;
 
     filterChain.doFilter(request, response); // Continue the filter chain.
     return true;

@@ -113,10 +113,11 @@ public class UserRegisterService extends BaseUserService {
     User user = userToken.getUser();
     user.setModifiedAt(nowAt);
     user.setStatus(EnUserStatus.ACTIVE);
-    user.getTokens().remove(userToken);
-    user.addHistory(createHistoryEvent(nowAt, EnHistoryWhat.ACTIVATED));
-
     userRepository.save(user);
+
+    userTokenRepository.deleteToken(userToken.getToken());
+    addHistoryEvent(user, nowAt, EnHistoryWhat.ACTIVATED);
+
     triggerActivationEvent(tokenActivateReq, user);
   }
 
