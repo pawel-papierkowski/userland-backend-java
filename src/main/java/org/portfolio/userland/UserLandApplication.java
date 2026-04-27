@@ -5,21 +5,22 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 /**
  * <p>Entry point to Spring Boot application.</p>
- * <p>Note that placement of @SpringBootApplication determines root package to be scanned, including subpackages.</p>
+ * <p>Note that placement of <code>@SpringBootApplication</code> determines root package to be scanned, including subpackages.</p>
  * <p>Warning: you need correct variables in run environment.</p>
  * <p>Obligatory for plain email config (if not present, app will crash):</p>
  * <ul>
- *   <li>EMAIL_HOST</li>
- *   <li>EMAIL_USERNAME</li>
- *   <li>EMAIL_PASSWORD</li>
+ *   <li><code>EMAIL_HOST</code></li>
+ *   <li><code>EMAIL_USERNAME</code></li>
+ *   <li><code>EMAIL_PASSWORD</code></li>
  * </ul>
  * <p>Optional for database (if not present, will use local docker container):</p>
  * <ul>
- *   <li>SPRING_DATASOURCE_URL=jdbc:postgresql://example.postgresql.hosting.org:5432/userland?sslmode=require</li>
- *   <li>SPRING_DATASOURCE_USERNAME=admin</li>
- *   <li>SPRING_DATASOURCE_PASSWORD=FAKE_PASSWORD</li>
- *   <li>SPRING_DOCKER_COMPOSE_ENABLED=false</li>
+ *   <li><code>SPRING_DATASOURCE_URL</code>=jdbc:postgresql://example.postgresql.hosting.org:5432/userland?sslmode=require</li>
+ *   <li><code>SPRING_DATASOURCE_USERNAME</code>=admin</li>
+ *   <li><code>SPRING_DATASOURCE_PASSWORD</code>=SOME_PASSWORD</li>
+ *   <li><code>SPRING_DOCKER_COMPOSE_ENABLED</code>=false</li>
  * </ul>
+ * <p>See <code>README.md</code> for full list of variables used by system.</p>
  */
 @SpringBootApplication
 public class UserLandApplication {

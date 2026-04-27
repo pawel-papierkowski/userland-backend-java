@@ -77,8 +77,8 @@ public class UserLoginApiTest extends BaseUserTest {
     assertThat(jwtService.isTokenValid(actualResp.jwtToken(), expectedUser.getEmail())).as("Token must be valid").isTrue();
     Map<String, Object> actualClaimMap = jwtService.extractAllClaims(actualResp.jwtToken());
     Map<String, Object> expectedClaimMap = Maps.newHashMap();
-    expectedClaimMap.put("iat", 1775808300L); // issued
-    expectedClaimMap.put("exp", 1775829900L); // expires
+    expectedClaimMap.put("iat", 1775815500L); // issued
+    expectedClaimMap.put("exp", 1775837100L); // expires
     expectedClaimMap.put("sub", "test@example.com"); // user account email as subject
     assertThat(actualClaimMap).as("Claim map is invalid").isEqualTo(expectedClaimMap);
   }
@@ -121,8 +121,8 @@ public class UserLoginApiTest extends BaseUserTest {
     assertThat(jwtService.isTokenValid(actualResp.jwtToken(), expectedUser.getEmail())).as("Token must be valid").isTrue();
     Map<String, Object> actualClaimMap = jwtService.extractAllClaims(actualResp.jwtToken());
     Map<String, Object> expectedClaimMap = Maps.newHashMap();
-    expectedClaimMap.put("iat", 1775808300L); // issued
-    expectedClaimMap.put("exp", 1775829900L); // expires
+    expectedClaimMap.put("iat", 1775815500L); // issued
+    expectedClaimMap.put("exp", 1775837100L); // expires
     expectedClaimMap.put("sub", "test@example.com"); // user account email as subject
     expectedClaimMap.put("role", "operator"); // from permission entry
     assertThat(actualClaimMap).as("Claim map is invalid").isEqualTo(expectedClaimMap);
@@ -171,8 +171,8 @@ public class UserLoginApiTest extends BaseUserTest {
     assertThat(jwtService.isTokenValid(actualResp.jwtToken(), expectedUser.getEmail())).as("Token must be valid").isTrue();
     Map<String, Object> actualClaimMap = jwtService.extractAllClaims(actualResp.jwtToken());
     Map<String, Object> expectedClaimMap = Maps.newHashMap();
-    expectedClaimMap.put("iat", 1775808300L); // issued
-    expectedClaimMap.put("exp", 1775829900L); // expires
+    expectedClaimMap.put("iat", 1775815500L); // issued
+    expectedClaimMap.put("exp", 1775837100L); // expires
     expectedClaimMap.put("sub", "test@example.com"); // user account email as subject
     expectedClaimMap.put("role", "operator"); // from permission entry
     assertThat(actualClaimMap).as("Claim map is invalid").isEqualTo(expectedClaimMap);

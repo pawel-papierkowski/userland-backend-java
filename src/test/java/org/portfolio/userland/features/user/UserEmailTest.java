@@ -102,7 +102,7 @@ public class UserEmailTest extends BaseUserTest {
           List.of(),
           "pawel.papierkowski.portfolio@gmail.com",
           "UserLand: witamy",
-          "user/activate",
+          "user/activation",
           params,
           null
       );

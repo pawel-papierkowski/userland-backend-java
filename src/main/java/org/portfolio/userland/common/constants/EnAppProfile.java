@@ -3,7 +3,12 @@ package org.portfolio.userland.common.constants;
 import lombok.Getter;
 
 /**
- * Profile of system.
+ * <p>Profile of system. You can check if you are on production, development etc. using YAML config <code>app.main.profile</code>.</p>
+ * <p>Example:</p>
+ * <pre>
+ *   &#064;Value("${app.main.profile}")
+ *   protected EnAppProfile profile;
+ * </pre>
  */
 public enum EnAppProfile {
   /** System is running in production environment. */
