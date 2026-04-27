@@ -33,7 +33,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class UserEmailService {
   private final static String TEMPLATE_USER_REGISTRATION = "user/registration";
-  private final static String TEMPLATE_USER_ACTIVATION = "user/activate";
+  private final static String TEMPLATE_USER_ACTIVATION = "user/activation";
   private final static String TEMPLATE_USER_PASSWORD_LINK = "user/password/link";
   private final static String TEMPLATE_USER_PASSWORD_CONFIRM = "user/password/confirm";
   private final static String TEMPLATE_USER_DELETE_LINK = "user/delete/link";

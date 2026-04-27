@@ -88,6 +88,7 @@ For portfolio, email address pawel.papierkowski.portfolio@gmail.com is used and 
 
 ## Design notes
 
+- All date/time fields are **without timezone**. Frontend should convert it properly to show date/time on screen in local timezone.
 - **Kafka** was considered for demonstration purposes (email retries), but not used since it won't work well with restrictions typical of Google Cloud free tier, where this project lives. GCP is serverless, but Kafka would require system to be up at all times.
 
 ## Endpoints
