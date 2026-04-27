@@ -3,6 +3,7 @@ package org.portfolio.userland.features.check;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.portfolio.userland.common.constants.EnAppProfile;
+import org.portfolio.userland.common.constants.ValidConst;
 import org.portfolio.userland.features.check.data.CheckInfoResp;
 import org.portfolio.userland.features.user.entities.EnUserHistoryWhat;
 import org.portfolio.userland.features.user.entities.EnUserStatus;
@@ -320,9 +321,10 @@ public class CheckApiTest extends BaseCheckTest {
 
     // Assert: API Response.
     assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.OK.value());
-    // Assert: Endpoint response.
+    // Assert: Endpoint response. Note we do not check bootAt and version exactly (as they change).
     CheckInfoResp actualResp = objectMapper.readValue(mvcResult.getResponse().getContentAsString(), CheckInfoResp.class);
-    CheckInfoResp expectedResp = new CheckInfoResp(clockService.getNowUTC(), EnAppProfile.TEST);
-    assertThat(actualResp).as("Response is invalid").isEqualTo(expectedResp);
+    CheckInfoResp expectedResp = new CheckInfoResp(clockService.getNowUTC(), actualResp.bootAt(), actualResp.version(), EnAppProfile.TEST);
+    assertThat(actualResp).as("System info is invalid").isEqualTo(expectedResp);
+    assertThat(actualResp.version()).as("Version is invalid").matches(ValidConst.REG_EXPR_VERSION);
   }
 }
