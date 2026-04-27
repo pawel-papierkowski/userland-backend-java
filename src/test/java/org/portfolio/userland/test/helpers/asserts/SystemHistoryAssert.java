@@ -2,6 +2,7 @@ package org.portfolio.userland.test.helpers.asserts;
 
 import lombok.RequiredArgsConstructor;
 import org.portfolio.userland.common.constants.ValidConst;
+import org.portfolio.userland.features.user.entities.User;
 import org.portfolio.userland.system.history.entity.SystemHistory;
 import org.portfolio.userland.system.history.repositories.SystemHistoryRepository;
 import org.springframework.stereotype.Service;
@@ -16,7 +17,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @Service
 @RequiredArgsConstructor
 public class SystemHistoryAssert {
-  private static final String[] SYSTEM_HISTORY_FIELDS_IGNORE = { "id", "uuid" };
+  private static final String[] SYSTEM_HISTORY_FIELDS_IGNORE = { "id", "user", "uuid" };
 
   private final SystemHistoryRepository systemHistoryRepository;
 
@@ -60,5 +61,19 @@ public class SystemHistoryAssert {
     // Assert fields that need to be asserted separately for various reasons
     assertThat(actualHistoryEvent.getId()).as(comment + ": Id is wrong").isGreaterThan(0L);
     assertThat(actualHistoryEvent.getUuid()).as(comment + ": Event UUID is invalid").matches(ValidConst.REG_EXPR_UUID);
+    assertUser(comment, actualHistoryEvent.getUser(), expectedHistoryEvent.getUser());
+  }
+
+  /**
+   * Assert user id. Null is allowed.
+   * @param comment Comment.
+   * @param actualUser Actual user. Note it can be null.
+   * @param expectedUser Expected user. Note it can be null.
+   */
+  private void assertUser(String comment, User actualUser, User expectedUser) {
+    if (actualUser == null && expectedUser == null) return;
+    assertThat(actualUser).as(comment + ": Actual user cannot be null").isNotNull();
+    assertThat(expectedUser).as(comment + ": Expected user cannot be null").isNotNull();
+    assertThat(actualUser.getId()).as(comment + ": User Id is wrong").isEqualTo(expectedUser.getId());
   }
 }

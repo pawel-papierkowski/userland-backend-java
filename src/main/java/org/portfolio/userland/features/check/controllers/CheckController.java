@@ -7,6 +7,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.portfolio.userland.features.check.data.CheckInfoResp;
+import org.portfolio.userland.features.check.services.CheckService;
 import org.portfolio.userland.swagger.annotations.ApiResponsesAuth;
 import org.portfolio.userland.swagger.annotations.ApiResponsesAuthPerm;
 import org.portfolio.userland.swagger.detail.common.InternalServerErrorProblemDetail;
@@ -24,6 +26,8 @@ import org.springframework.web.bind.annotation.RestController;
  *   <li><code>/api/checks/alive</code> - anyone can access this endpoint.</li>
  *   <li><code>/api/checks/must-be-logged</code> - needs to be logged to access this endpoint.</li>
  *   <li><code>/api/checks/must-be-admin</code> - needs to be logged as admin to access this endpoint.</li>
+ *   <li><code>/api/checks/info</code> - basic information about system.</li>
+ *   <li><code>/api/checks/exception</code> - code deliberately throws exception. Response returns proper problem detail.</li>
  * </ul>
  */
 @RestController
@@ -31,6 +35,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 @Tag(name = "Checks", description = "Endpoints for assessing state of server and help in frontend development.")
 public class CheckController {
+  private final CheckService checkService;
 
   /**
    * Simply indicates this server is alive. No access restrictions: anyone can call this endpoint, unlogged or logged.
@@ -82,6 +87,22 @@ public class CheckController {
   }
 
   //
+
+  /**
+   * Returns basic information about this server like server date&time or profile.
+   * @return Response.
+   */
+  @GetMapping(value = "/info", produces = "application/json")
+  @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+  @Operation(summary = "Information", description = "Returns various data about system.")
+  @ApiResponsesAuthPerm
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200", description = "Access was successful.")
+  })
+  public ResponseEntity<CheckInfoResp> info() {
+    CheckInfoResp info = checkService.info();
+    return new ResponseEntity<>(info, HttpStatus.OK);
+  }
 
   /**
    * Deliberately throws exception.

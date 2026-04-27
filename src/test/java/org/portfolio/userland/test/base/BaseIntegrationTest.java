@@ -54,8 +54,8 @@ public abstract class BaseIntegrationTest {
   @Autowired
   protected ClockService clockService;
 
-  /** Used to convert Java objects to JSON. */
-  protected final ObjectMapper objectMapper = new ObjectMapper();
+  /** Used to convert Java objects to JSON. Note: for some reason autowiring ObjectMapper fails. */
+  protected final ObjectMapper objectMapper = new ObjectMapper().findAndRegisterModules();
 
   /** Defines PostgreSQL container used in tests. Note we manage it manually. */
   @ServiceConnection

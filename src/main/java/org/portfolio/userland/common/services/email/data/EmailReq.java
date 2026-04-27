@@ -1,5 +1,7 @@
 package org.portfolio.userland.common.services.email.data;
 
+import lombok.Builder;
+
 import java.util.List;
 import java.util.Map;
 
@@ -17,6 +19,7 @@ import java.util.Map;
  * @param params Parameters for template.
  * @param messageHtml HTML of email message. If null, system will try to compile template to fill this field.
  */
+@Builder(toBuilder = true)
 public record EmailReq(
     String provider,
     String lang,
@@ -32,20 +35,4 @@ public record EmailReq(
     Map<String, Object> params,
 
     String messageHtml
-) {
-  public EmailReq withMessageHtml(String messageHtml) {
-    return new EmailReq(
-        this.provider,
-        this.lang,
-        this.sender,
-        this.recipients,
-        this.recipientsCc,
-        this.recipientsBcc,
-        this.replyTo,
-        this.subject,
-        this.template,
-        this.params,
-        messageHtml
-    );
-  }
-}
+) {}

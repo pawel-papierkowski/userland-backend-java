@@ -9,7 +9,7 @@ import org.portfolio.userland.features.user.dto.common.EnFrontendFramework;
  * @param email User email.
  * @param lang User language.
  * @param activationToken Token string.
- * @param activationTokenExpires How long before activation token expires in hours.
+ * @param activationTokenExpires How long before activate token expires in hours.
  */
 public record UserRegisteredEvent(
     Long id,

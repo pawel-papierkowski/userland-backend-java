@@ -77,7 +77,7 @@ public class UserController {
 
   /**
    * Fully activates user, provided you give correct token string.
-   * @param tokenActivateReq Token activation request.
+   * @param tokenActivateReq Token activate request.
    * @return Response.
    */
   @PostMapping(value = "/activate", produces = "application/json")

@@ -84,7 +84,7 @@ public class UserEmailTest extends BaseUserTest {
     // Act: send registration email.
     userEmailService.sendActivationEmail(event);
 
-    // Assert that email (confirmation of account activation) was sent.
+    // Assert that email (confirmation of account activate) was sent.
     await().atMost(Duration.ofSeconds(3)).untilAsserted(() -> {
       ArgumentCaptor<EmailReq> captor = ArgumentCaptor.forClass(EmailReq.class);
       verify(emailService, times(1)).sendEmail(captor.capture());
@@ -102,7 +102,7 @@ public class UserEmailTest extends BaseUserTest {
           List.of(),
           "pawel.papierkowski.portfolio@gmail.com",
           "UserLand: witamy",
-          "user/activation",
+          "user/activate",
           params,
           null
       );

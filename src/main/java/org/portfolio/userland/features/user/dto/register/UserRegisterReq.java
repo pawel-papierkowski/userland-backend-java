@@ -5,6 +5,7 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
+import lombok.Builder;
 import org.portfolio.userland.common.constants.ValidConst;
 import org.portfolio.userland.features.user.dto.common.EnFrontendFramework;
 
@@ -16,6 +17,7 @@ import org.portfolio.userland.features.user.dto.common.EnFrontendFramework;
  * @param lang User language as simple language code. Example: 'pl'.
  * @param frontend Used frontend. If null/empty, will use default. Note it is not in user data.
  */
+@Builder(toBuilder = true)
 @Schema(description = "Payload required to register a new user.")
 public record UserRegisterReq(
     @NotBlank(message = "User name is required")
@@ -40,6 +42,9 @@ public record UserRegisterReq(
     @Size(min = 2, max = 2, message = "Invalid language code")
     @Schema(description = "Short language code.", example = "en")
     String lang,
+
+    @Schema(description = "If true, will activate user without bothering with registration email. Ignored on PROD. Can be null, will default to false.", example = "false")
+    Boolean activate,
 
     @Schema(description = "Used frontend framework. Can be null, will default to vue.", example = "VUE")
     EnFrontendFramework frontend

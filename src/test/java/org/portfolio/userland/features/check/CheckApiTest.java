@@ -2,7 +2,8 @@ package org.portfolio.userland.features.check;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
-import org.portfolio.userland.features.user.BaseUserTest;
+import org.portfolio.userland.common.constants.EnAppProfile;
+import org.portfolio.userland.features.check.data.CheckInfoResp;
 import org.portfolio.userland.features.user.entities.EnUserHistoryWhat;
 import org.portfolio.userland.features.user.entities.EnUserStatus;
 import org.portfolio.userland.features.user.entities.User;
@@ -20,9 +21,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
 /**
- * Test check endpoints with JWT token.
+ * Test check endpoints.
+ * Note endpoints that require login/permissions have manually arranged user instead of <code>@WithMockCustomUser.</code>
+ * This is deliberate - we are testing full flow here without mocking Spring's user detail.
  */
-public class CheckApiTest extends BaseUserTest {
+public class CheckApiTest extends BaseCheckTest {
   /** Real service to generate a valid token. */
   @Autowired
   private JwtService jwtService;
@@ -297,5 +300,29 @@ public class CheckApiTest extends BaseUserTest {
         Map.of()
     );
     problemDetailService.assertPd(mvcResult, expectedPdb);
+  }
+
+  // //////////////////////////////////////////////////////////////////////////
+
+  @Test
+  void requestInfo() throws Exception {
+    clock.setFixedTime("2026-04-10T10:00:00Z");
+
+    // Arrange: Create a user, token and JWT entry in database, emulating user login.
+    User user = userFactory.genRandUserLogged(Map.of("role", "admin"));
+    userRepository.save(user);
+    String token = userJwtRepository.findAll().getFirst().getToken();
+
+    // Act: Perform the request using MockMvc.
+    MvcResult mvcResult = mockMvc.perform(get("/api/checks/info")
+            .header("Authorization", "Bearer " + token))
+        .andReturn();
+
+    // Assert: API Response.
+    assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.OK.value());
+    // Assert: Endpoint response.
+    CheckInfoResp actualResp = objectMapper.readValue(mvcResult.getResponse().getContentAsString(), CheckInfoResp.class);
+    CheckInfoResp expectedResp = new CheckInfoResp(clockService.getNowUTC(), EnAppProfile.TEST);
+    assertThat(actualResp).as("Response is invalid").isEqualTo(expectedResp);
   }
 }

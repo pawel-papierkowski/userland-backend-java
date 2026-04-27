@@ -120,14 +120,15 @@ public class SystemLockdownApiTest extends BaseSystemTest {
   //
 
   @Test
-  @WithMockCustomUser(authorities = { "ROLE_ADMIN" })
+  @WithMockCustomUser(email = "admin@test.com", authorities = { "ROLE_ADMIN" })
   public void activateLockdown() throws Exception {
     clock.setFixedTime("2026-04-10T10:00:00Z");
     // Arrange: Add two users, one standard and other admin. Both are logged in.
     User expectedUserStandard = userFactory.genRandUserLogged();
     userRepository.save(expectedUserStandard);
     User expectedUserAdmin = userFactory.genRandUserLogged(Map.of("role", "admin"));
-    userRepository.save(expectedUserAdmin);
+    expectedUserAdmin.setEmail("admin@test.com");
+    User userAdmin = userRepository.save(expectedUserAdmin);
 
     // Arrange: Request.
     SystemLockdownReq req = new SystemLockdownReq(EnSystemLockdownState.ON);
@@ -158,16 +159,20 @@ public class SystemLockdownApiTest extends BaseSystemTest {
       return null;
     });
 
-    // Assert: Lockdown event present in system history.
-    SystemHistory expectedHistoryEvent = systemHistoryFactory.genHistoryEvent(EnHistoryWho.ADMIN, EnHistoryWhat.LOCKDOWN, "ON");
+    // Assert: Lockdown event present in system history and assigned to correct user.
+    SystemHistory expectedHistoryEvent = systemHistoryFactory.genHistoryEvent(userAdmin, EnHistoryWho.ADMIN, EnHistoryWhat.LOCKDOWN, "ON");
     systemHistoryAssert.assertAll(List.of(expectedHistoryEvent));
   }
 
   @Test
-  @WithMockCustomUser(authorities = { "ROLE_ADMIN" })
+  @WithMockCustomUser(email = "admin@test.com", authorities = { "ROLE_ADMIN" })
   @Transactional
   public void deactivateLockdown() throws Exception {
     clock.setFixedTime("2026-04-10T10:00:00Z");
+    // Arrange: Add admin user.
+    User expectedUserAdmin = userFactory.genRandUserLogged(Map.of("role", "admin"));
+    expectedUserAdmin.setEmail("admin@test.com");
+    User userAdmin = userRepository.save(expectedUserAdmin);
     // Arrange: Activate lockdown.
     configRepository.updateValueByName(ConfigConst.USER_LOCKDOWN, ConfigConst.TRUE);
 
@@ -187,8 +192,8 @@ public class SystemLockdownApiTest extends BaseSystemTest {
     Config config = configRepository.findByName(ConfigConst.USER_LOCKDOWN).orElseThrow();
     assertThat(config.getValue()).as("User lockdown config variable has wrong value").isEqualTo("0");
 
-    // Assert: Lockdown event present in system history.
-    SystemHistory expectedHistoryEvent = systemHistoryFactory.genHistoryEvent(EnHistoryWho.ADMIN, EnHistoryWhat.LOCKDOWN, "OFF");
+    // Assert: Lockdown event present in system history and assigned to correct user.
+    SystemHistory expectedHistoryEvent = systemHistoryFactory.genHistoryEvent(userAdmin, EnHistoryWho.ADMIN, EnHistoryWhat.LOCKDOWN, "OFF");
     systemHistoryAssert.assertAll(List.of(expectedHistoryEvent));
   }
 }
