@@ -1,6 +1,7 @@
 package org.portfolio.userland.features.user.services;
 
 import lombok.RequiredArgsConstructor;
+import org.portfolio.userland.features.user.dto.common.EnFrontendFramework;
 import org.portfolio.userland.features.user.dto.register.TokenActivateReq;
 import org.portfolio.userland.features.user.dto.register.UserRegisterReq;
 import org.portfolio.userland.features.user.entities.*;
@@ -15,25 +16,25 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 
 /**
- * Business logic for user registration and activation.
+ * Business logic for user registration and activate.
  * <p>User story:</p>
  * <ul>
  *   <li>User goes on user registration page and fills form.</li>
  *   <li>User clicks on registration button. Frontend calls <code>/api/users/register</code> endpoint.</li>
- *   <li>System creates pending user account, activation token and sends email with activation link. Note that link leads to frontend.</li>
- *   <li>User clicks on activation link, get redirected to frontend, frontend calls <code>/api/users/activate</code>.</li>
- *   <li>Frontend reacts appropriately to response from activation endpoint (show success or failure message).</li>
- *   <li>On successful activation, backend sends email confirming successful user account activation.</li>
+ *   <li>System creates pending user account, activate token and sends email with activate link. Note that link leads to frontend.</li>
+ *   <li>User clicks on activate link, get redirected to frontend, frontend calls <code>/api/users/activate</code>.</li>
+ *   <li>Frontend reacts appropriately to response from activate endpoint (show success or failure message).</li>
+ *   <li>On successful activate, backend sends email confirming successful user account activate.</li>
  * </ul>
- * <p>Note we do not do anything beyond registration/activation itself here. We trigger events - other services (like
- * user email service sending activation email) will react to it.</p>
+ * <p>Note we do not do anything beyond registration/activate itself here. We trigger events - other services (like
+ * user email service sending activate email) will react to it.</p>
  */
 @Service
 @RequiredArgsConstructor
 public class UserRegisterService extends BaseUserService {
   private final UserRegisterMapper userRegisterMapper;
 
-  /** How long before activation token expires in hours. */
+  /** How long before activate token expires in hours. */
   @Value("${app.user.token.activation.expires}")
   private long activationTokenExpires;
 
@@ -47,11 +48,24 @@ public class UserRegisterService extends BaseUserService {
     LocalDateTime nowAt = clockService.getNowUTC();
 
     verifyRegistration(userRegisterReq);
+    userRegisterReq = processRegistration(userRegisterReq);
+
     User user = createUserData(userRegisterReq, nowAt);
     user = userRepository.save(user);
 
-    triggerRegisterEvent(userRegisterReq, user);
+    if (userRegisterReq.activate()) triggerActivationEvent(user, userRegisterReq.frontend());
+    else triggerRegisterEvent(user, userRegisterReq);
     return user;
+  }
+
+  /**
+   * Process registration.
+   * @param userRegisterReq User registration request.
+   * @return Modified user registration request.
+   */
+  private UserRegisterReq processRegistration(UserRegisterReq userRegisterReq) {
+    Boolean activation = profile.getTest() ? userRegisterReq.activate() : false; // Never allow instant activate on PROD.
+    return userRegisterReq.toBuilder().activate(activation).build();
   }
 
   /**
@@ -61,25 +75,6 @@ public class UserRegisterService extends BaseUserService {
   private void verifyRegistration(UserRegisterReq userRegisterReq) {
     if (userRepository.existsByEmail(userRegisterReq.email()))
       throw new UserEmailAlreadyExistsException(userRegisterReq.email());
-  }
-
-  /**
-   * Triggers user registration event for anyone interested.
-   * @param userRegisterReq User registration request.
-   * @param user User data.
-   */
-  private void triggerRegisterEvent(UserRegisterReq userRegisterReq, User user) {
-    UserRegisteredEvent userRegisteredEvent = new UserRegisteredEvent(
-        user.getId(),
-        user.getUsername(),
-        user.getEmail(),
-        user.getLang(),
-        userRegisterReq.frontend(),
-        user.getTokens().getFirst().getToken(),
-        activationTokenExpires
-    );
-    // Will trigger UserEmailService.sendActivationEmail().
-    eventPublisher.publishEvent(userRegisteredEvent);
   }
 
   //
@@ -94,8 +89,11 @@ public class UserRegisterService extends BaseUserService {
     // Simple fields like status or blocked are pre-filled already.
     user.setCreatedAt(nowAt);
     user.setModifiedAt(nowAt);
-    user.addToken(createTokenData(nowAt, EnUserTokenType.ACTIVATE));
     user.addHistory(createHistoryEvent(nowAt, EnUserHistoryWhat.CREATED));
+    if (userRegisterReq.activate()) {
+      user.setStatus(EnUserStatus.ACTIVE);
+      user.addHistory(createHistoryEvent(nowAt, EnUserHistoryWhat.ACTIVATED));
+    } else user.addToken(createTokenData(nowAt, EnUserTokenType.ACTIVATE));
     return user;
   }
 
@@ -103,7 +101,7 @@ public class UserRegisterService extends BaseUserService {
 
   /**
    * Activate user that has token with given token string.
-   * @param tokenActivateReq Token activation request.
+   * @param tokenActivateReq Token activate request.
    */
   @Transactional
   public void activate(TokenActivateReq tokenActivateReq) {
@@ -118,21 +116,42 @@ public class UserRegisterService extends BaseUserService {
     userTokenRepository.deleteToken(userToken.getToken());
     addHistoryEvent(user, nowAt, EnUserHistoryWhat.ACTIVATED);
 
-    triggerActivationEvent(tokenActivateReq, user);
+    triggerActivationEvent(user, tokenActivateReq.frontend());
+  }
+
+  // //////////////////////////////////////////////////////////////////////////
+
+  /**
+   * Triggers user registration event for anyone interested.
+   * @param user User data.
+   * @param userRegisterReq User registration request.
+   */
+  private void triggerRegisterEvent(User user, UserRegisterReq userRegisterReq) {
+    UserRegisteredEvent userRegisteredEvent = new UserRegisteredEvent(
+        user.getId(),
+        user.getUsername(),
+        user.getEmail(),
+        user.getLang(),
+        userRegisterReq.frontend(),
+        user.getTokens().getFirst().getToken(),
+        activationTokenExpires
+    );
+    // Will trigger UserEmailService.sendActivationEmail().
+    eventPublisher.publishEvent(userRegisteredEvent);
   }
 
   /**
-   * Triggers user activation event for anyone interested.
-   * @param tokenActivateReq Token activation request.
+   * Triggers user activate event for anyone interested.
    * @param user User data.
+   * @param frontend Frontend.
    */
-  private void triggerActivationEvent(TokenActivateReq tokenActivateReq, User user) {
+  private void triggerActivationEvent(User user, EnFrontendFramework frontend) {
     UserActivatedEvent userActivatedEvent = new UserActivatedEvent(
         user.getId(),
         user.getUsername(),
         user.getEmail(),
         user.getLang(),
-        tokenActivateReq.frontend()
+        frontend
     );
     // Will trigger UserEmailService.sendActivationEmail().
     eventPublisher.publishEvent(userActivatedEvent);

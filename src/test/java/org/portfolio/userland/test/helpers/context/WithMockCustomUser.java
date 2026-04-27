@@ -10,6 +10,7 @@ import java.lang.annotation.Target;
 
 /**
  * Mocks logged in <code>CustomUserDetails</code>.
+ * Note that even with this you will often need to create users in database.
  * @see CustomUserDetails Custom user details.
  */
 @Target({ElementType.TYPE, ElementType.METHOD})

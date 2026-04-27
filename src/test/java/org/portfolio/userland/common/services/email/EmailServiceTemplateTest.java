@@ -61,7 +61,8 @@ public class EmailServiceTemplateTest extends BaseIntegrationTest {
     emailService.sendEmail(emailReq);
 
     // Assert: Verify the email was actually sent to the provider.
-    verify(emailProvider).send(emailReq);
+    EmailReq modEmailReq = emailReq.toBuilder().subject("[TEST] TITLE").build();
+    verify(emailProvider).send(modEmailReq);
     // We know templating engine was not run, because it would throw exception due to null template name.
   }
 
@@ -78,7 +79,7 @@ public class EmailServiceTemplateTest extends BaseIntegrationTest {
         List.of(),
         List.of(),
         "",
-        "TITLE",
+        "[TEST] TITLE",
         "test/simple",
         params,
         null); // null means system will try to use template to fill messageHtml

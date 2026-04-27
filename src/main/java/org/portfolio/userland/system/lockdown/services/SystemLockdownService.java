@@ -4,10 +4,9 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.portfolio.userland.features.user.repositories.UserJwtRepository;
-import org.portfolio.userland.system.auth.PermissionService;
+import org.portfolio.userland.system.BaseService;
 import org.portfolio.userland.system.auth.data.EnPermKind;
 import org.portfolio.userland.system.config.service.ConfigConst;
-import org.portfolio.userland.system.config.service.ConfigService;
 import org.portfolio.userland.system.history.entity.EnHistoryWhat;
 import org.portfolio.userland.system.history.entity.EnHistoryWho;
 import org.portfolio.userland.system.history.services.SystemHistoryService;
@@ -26,9 +25,7 @@ import java.util.Set;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class SystemLockdownService {
-  private final PermissionService permissionService;
-  private final ConfigService configService;
+public class SystemLockdownService extends BaseService {
   private final SystemHistoryService systemHistoryService;
 
   private final UserJwtRepository userJwtRepository;

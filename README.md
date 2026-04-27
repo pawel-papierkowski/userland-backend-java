@@ -1,8 +1,10 @@
 # USERLAND-BACKEND-JAVA
 
-This is very simple **backend project** demonstrating basics of modern Java and Spring Boot. It is intended to be used with **frontend project** that I will write later.
+This is simple **backend project** demonstrating basics of modern Java and Spring Boot. It is intended to be used with **frontend project** that I will write later.
 
-Project is in early stages. Description below sums up planned functionality, features etc.
+Project is actively developed and functionality is already partially implemented.
+
+Description below sums up intended state when project is completed: functionality, features etc.
 
 ## Basic info
 
@@ -14,9 +16,9 @@ Link to webpage: https://github.com/pawel-papierkowski/userland-backend-java
 
 ## Functionality
 
-This project fully handles user. This is where name **UserLand** comes from.
+This project fully manages user. This is where name **UserLand** comes from.
 
-You can think of it as baseline for any other project, as almost anything will need user account.
+You can think of it as baseline for any other project, as almost any project, system or application will need user accounts.
 
 ### Features
 
@@ -30,8 +32,9 @@ You can think of it as baseline for any other project, as almost anything will n
 - Handling **user permissions** (standard user vs panel admin operator).
 - **Admin user**:
   - Viewing **table of users**, including pagination and filtration.
-  - Changing data of selected user.
-    - User **history**. 
+  - Viewing data of selected user.
+    - Editing data of user. 
+    - Viewing user **history**. 
     - User **lock/unlock**.
 - Other options: 
   - **System lockdown**: if turned on, only users with admin rights can call any endpoint.
@@ -40,10 +43,12 @@ You can think of it as baseline for any other project, as almost anything will n
 ## GitHub config
 
 You need to add these Repository Secrets:
+- General configuration:
+  - **PROFILE**: Informs system what is nature of environment. Allowed values: ```PROD```, ```STAGE```, ```DEV```, ```TEST```.
 - Database:
   - **DB_USERNAME**: Name of database user.
   - **DB_PASSWORD**: Password for database user
-  - **DB_URL**: Address of database, for example jdbc:postgresql://some.host.com:5432/userland?sslmode=require .
+  - **DB_URL**: Address of database, for example ```jdbc:postgresql://some.host.com:5432/userland?sslmode=require``` .
 - Google Cloud: 
   - **GCP_PROJECT_ID**: Identificator of project on Google Cloud. Used for deploying project.
   - **GCP_WORKLOAD_IDENTITY_PROVIDER**: For WIP login on Google Cloud.
@@ -54,11 +59,11 @@ You need to add these Repository Secrets:
   - **TEP_RESEND_APIKEY**: API key for Transactional Email Provider called Resend.
 - Other:
   - **JWT_SECRET**: JWT token secret. Must have at least 256 bits (32 bytes) and be string encoded in BASE64.
-    - Best way to generate: in Linux/macOD/Git Bash terminal execute *openssl rand -base64 32*.
+    - Best way to generate: in Linux/macOD/Git Bash terminal execute ```openssl rand -base64 32```.
 
 ## Local startup
 
-Ensure Java 25 Temurin is selected.
+Ensure Java 25 Temurin is installed and selected.
 
 If you want to use real database instead of container, add in run config:
 - **Environment variables**:
@@ -67,7 +72,7 @@ If you want to use real database instead of container, add in run config:
   - SPRING_DATASOURCE_PASSWORD=[YOUR PASSWORD]
   - SPRING_DOCKER_COMPOSE_ENABLED=false
 
-If you run test deployment locally via TestUserLandApplication, you need Docker engine running on your computer.
+If you run test deployment locally via ```TestUserLandApplication```, you need Docker engine running on your computer.
 Same with running tests in general.
 
 ## Deployment

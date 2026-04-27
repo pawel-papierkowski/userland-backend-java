@@ -1,15 +1,13 @@
 package org.portfolio.userland.features.user.services;
 
-import org.portfolio.userland.common.services.clock.ClockService;
-import org.portfolio.userland.common.services.security.SecurityGeneratorService;
 import org.portfolio.userland.features.user.entities.*;
 import org.portfolio.userland.features.user.exceptions.*;
 import org.portfolio.userland.features.user.repositories.UserHistoryRepository;
 import org.portfolio.userland.features.user.repositories.UserJwtRepository;
 import org.portfolio.userland.features.user.repositories.UserRepository;
 import org.portfolio.userland.features.user.repositories.UserTokenRepository;
+import org.portfolio.userland.system.BaseService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationEventPublisher;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -17,9 +15,7 @@ import java.util.List;
 /**
  * Base for all user services.
  */
-public abstract class BaseUserService {
-  @Autowired
-  private SecurityGeneratorService securityGeneratorService;
+public abstract class BaseUserService extends BaseService {
   @Autowired
   private UserHelperService userHelperService;
 
@@ -31,12 +27,6 @@ public abstract class BaseUserService {
   protected UserTokenRepository userTokenRepository;
   @Autowired
   protected UserJwtRepository userJwtRepository;
-
-  @Autowired
-  protected ApplicationEventPublisher eventPublisher;
-
-  @Autowired
-  protected ClockService clockService;
 
   //
 

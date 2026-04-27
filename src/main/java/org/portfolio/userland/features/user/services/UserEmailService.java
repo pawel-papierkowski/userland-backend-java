@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.portfolio.userland.common.services.email.EmailService;
 import org.portfolio.userland.common.services.email.data.EmailReq;
 import org.portfolio.userland.common.services.lang.LangService;
+import org.portfolio.userland.features.user.constants.UserConst;
 import org.portfolio.userland.features.user.dto.common.EnFrontendFramework;
 import org.portfolio.userland.features.user.events.*;
 import org.springframework.beans.factory.annotation.Value;
@@ -20,8 +21,8 @@ import java.util.Map;
  * Handles emails that are related to user. Note: uses separate async thread.
  * <p>Currently handles:</p>
  * <ul>
- *   <li>User registration (sends email with activation link)</li>
- *   <li>User activation (sends email confirming successful activation of user account)</li>
+ *   <li>User registration (sends email with activate link)</li>
+ *   <li>User activate (sends email confirming successful activate of user account)</li>
  *   <li>Password reset link</li>
  *   <li>Password reset confirmation</li>
  *   <li>Account deletion link</li>
@@ -31,10 +32,8 @@ import java.util.Map;
 @Service
 @RequiredArgsConstructor
 public class UserEmailService {
-  private final static String FRONTEND_DEFAULT = EnFrontendFramework.VUE.name().toLowerCase();
-
   private final static String TEMPLATE_USER_REGISTRATION = "user/registration";
-  private final static String TEMPLATE_USER_ACTIVATION = "user/activation";
+  private final static String TEMPLATE_USER_ACTIVATION = "user/activate";
   private final static String TEMPLATE_USER_PASSWORD_LINK = "user/password/link";
   private final static String TEMPLATE_USER_PASSWORD_CONFIRM = "user/password/confirm";
   private final static String TEMPLATE_USER_DELETE_LINK = "user/delete/link";
@@ -94,21 +93,21 @@ public class UserEmailService {
   }
 
   /**
-   * Resolve full activation link. Note it is for frontend, not backend.
+   * Resolve full activate link. Note it is for frontend, not backend.
    * @param frontend Name of used frontend.
    * @param activationToken Activation token.
    * @return Activation link.
    */
   private String resolveActivationLink(EnFrontendFramework frontend, String activationToken) {
-    // Note it is linking to frontend - actual backend activation endpoint will be called by frontend.
+    // Note it is linking to frontend - actual backend activate endpoint will be called by frontend.
     return resolveWww(frontend) + "/activate?token="+activationToken;
   }
 
   //
 
   /**
-   * React on user activation event. Will send email confirming successful activation of user account.
-   * @param event User activation event data.
+   * React on user activate event. Will send email confirming successful activate of user account.
+   * @param event User activate event data.
    */
   @Async("emailTaskExecutor")
   @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
@@ -118,14 +117,14 @@ public class UserEmailService {
   }
 
   /**
-   * Prepare email request for activation.
+   * Prepare email request for activate.
    * @param event Event.
    * @return Email request.
    */
   private EmailReq resolveEmailReq(UserActivatedEvent event) {
     String subject = langService.t(event.lang(), "email.user.activation.subject");
 
-    // Prepare params required by user activation template.
+    // Prepare params required by user activate template.
     Map<String, Object> params = Maps.newHashMap();
     params.put("username", event.username());
     params.put("loginLink", resolveLoginLink(event.frontend()));
@@ -175,7 +174,7 @@ public class UserEmailService {
   private EmailReq resolveEmailReq(UserPasswordResetLinkEvent event) {
     String subject = langService.t(event.lang(), "email.user.password.link.subject");
 
-    // Prepare params required by user activation template.
+    // Prepare params required by user activate template.
     Map<String, Object> params = Maps.newHashMap();
     params.put("username", event.username());
     params.put("passwordResetLink", resolvePasswordResetLink(event.frontend(), event.passwordResetToken()));
@@ -227,7 +226,7 @@ public class UserEmailService {
   private EmailReq resolveEmailReq(UserPasswordResetConfirmEvent event) {
     String subject = langService.t(event.lang(), "email.user.password.confirm.subject");
 
-    // Prepare params required by user activation template.
+    // Prepare params required by user activate template.
     Map<String, Object> params = Maps.newHashMap();
     params.put("username", event.username());
 
@@ -266,7 +265,7 @@ public class UserEmailService {
   private EmailReq resolveEmailReq(UserAccountDeleteLinkEvent event) {
     String subject = langService.t(event.lang(), "email.user.delete.link.subject");
 
-    // Prepare params required by user activation template.
+    // Prepare params required by user activate template.
     Map<String, Object> params = Maps.newHashMap();
     params.put("username", event.username());
     params.put("accountDeleteLink", resolveAccountDeleteLink(event.frontend(), event.accountDeleteToken()));
@@ -318,7 +317,7 @@ public class UserEmailService {
   private EmailReq resolveEmailReq(UserAccountDeleteConfirmEvent event) {
     String subject = langService.t(event.lang(), "email.user.delete.confirm.subject");
 
-    // Prepare params required by user activation template.
+    // Prepare params required by user activate template.
     Map<String, Object> params = Maps.newHashMap();
     params.put("username", event.username());
 
@@ -345,7 +344,7 @@ public class UserEmailService {
    * @return WWW address of frontend. Example: https://pawel-papierkowski.github.io/frontend-userland-vue
    */
   private String resolveWww(EnFrontendFramework frontend) {
-    String suffix = frontend == null ? FRONTEND_DEFAULT : frontend.name().toLowerCase();
+    String suffix = frontend == null ? UserConst.FRONTEND_DEF.name().toLowerCase() : frontend.name().toLowerCase();
     return frontendWww + suffix;
   }
 }

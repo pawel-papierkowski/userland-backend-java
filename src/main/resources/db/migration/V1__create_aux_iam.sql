@@ -32,24 +32,6 @@ CREATE TABLE aux.config (
 -- Known configuration.
 INSERT INTO aux.config (name, value, description) VALUES ('user.lockdown', '0', 'If 1, no user can log in unless they have admin permissions.');
 
--- System history.
-CREATE TABLE aux.history (
-    -- Identificator.
-    id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    -- UUID. Business key.
-    uuid VARCHAR(128) NOT NULL UNIQUE,
-
-    -- When system history entry was created.
-    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-
-    -- Who caused system history event?
-    who VARCHAR(50) NOT NULL CHECK (who IN ('OPERATOR', 'ADMIN', 'SYSTEM')),
-    -- What caused system history event?
-    what VARCHAR(50) NOT NULL CHECK (what IN ('LOCKDOWN')),
-    -- Value for system history event.
-    value TEXT NOT NULL UNIQUE
-);
-
 -- ============================================================================
 -- Tables for entities specific to our UserLand system.
 -- ============================================================================
@@ -181,3 +163,29 @@ CREATE TABLE iam.user_permissions (
     CONSTRAINT uq_user_permission UNIQUE (id_user, id_permission, value)
 );
 
+-- ============================================================================
+-- Other system tables.
+-- ============================================================================
+
+-- System history.
+CREATE TABLE aux.history (
+    -- Identificator.
+    id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    -- UUID. Business key.
+    uuid VARCHAR(128) NOT NULL UNIQUE,
+    -- Foreign key to user table. Note it is optional!
+    id_user BIGINT,
+
+    -- When system history entry was created.
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    -- Who caused system history event?
+    who VARCHAR(50) NOT NULL CHECK (who IN ('OPERATOR', 'ADMIN', 'SYSTEM')),
+    -- What caused system history event?
+    what VARCHAR(50) NOT NULL CHECK (what IN ('LOCKDOWN')),
+    -- Value for system history event.
+    value TEXT NOT NULL UNIQUE,
+
+    -- Table-level constraint for Foreign Key.
+    CONSTRAINT fk_user FOREIGN KEY (id_user) REFERENCES iam.users(id)
+);

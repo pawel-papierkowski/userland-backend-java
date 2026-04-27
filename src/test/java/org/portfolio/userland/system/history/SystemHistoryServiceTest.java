@@ -29,10 +29,10 @@ public class SystemHistoryServiceTest extends BaseSystemTest {
   public void addHistoryEvent() {
     clock.setFixedTime("2026-04-10T10:00:00Z");
     // Arrange: Expected result.
-    SystemHistory expectedHistoryEvent = systemHistoryFactory.genHistoryEvent(EnHistoryWho.ADMIN, EnHistoryWhat.LOCKDOWN, "ON");
+    SystemHistory expectedHistoryEvent = systemHistoryFactory.genHistoryEvent(null, EnHistoryWho.ADMIN, EnHistoryWhat.LOCKDOWN, "ON");
 
     // Act: Add event.
-    systemHistoryService.addEvent(EnHistoryWho.ADMIN, EnHistoryWhat.LOCKDOWN, "ON");
+    systemHistoryService.addEvent(null, EnHistoryWho.ADMIN, EnHistoryWhat.LOCKDOWN, "ON");
 
     // Assert: Event is in database.
     systemHistoryAssert.assertAll(List.of(expectedHistoryEvent));

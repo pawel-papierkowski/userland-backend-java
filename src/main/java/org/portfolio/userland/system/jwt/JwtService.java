@@ -7,13 +7,13 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import lombok.RequiredArgsConstructor;
-import org.portfolio.userland.common.services.clock.ClockService;
 import org.portfolio.userland.features.user.entities.EnUserStatus;
 import org.portfolio.userland.features.user.entities.Permission;
 import org.portfolio.userland.features.user.entities.User;
 import org.portfolio.userland.features.user.entities.UserPermission;
 import org.portfolio.userland.features.user.exceptions.UserCannotBeLockedException;
 import org.portfolio.userland.features.user.exceptions.UserMustBeActiveException;
+import org.portfolio.userland.system.BaseService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -29,9 +29,8 @@ import java.util.function.Function;
  */
 @Service
 @RequiredArgsConstructor
-public class JwtService {
+public class JwtService extends BaseService {
   private final JwtClock jwtClock;
-  private final ClockService clockService;
 
   /** Secret key used to sign JWT tokens. Must be at least 256 bits (32 characters) long. */
   @Value("${security.jwt.secret}")

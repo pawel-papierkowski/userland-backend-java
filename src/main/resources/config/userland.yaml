@@ -2,13 +2,14 @@
 
 app:
   main:
+    profile: ${PROFILE:DEV} # so system knows if it is on production or in other environment
     www: https://pawel-papierkowski.github.io/frontend-userland- # does not exist yet
   user:
     pending:
       removal-delay: 48 # when to remove pending users since creation, in hours
     token:
       length: 32
-      activation: # user account activation
+      activation: # user account activate
         expires: 24 # in hours
       password: # user password reset
         expires: 30 # in minutes

@@ -49,6 +49,6 @@ public class EmailServicePlainTest extends BaseIntegrationTest {
         .hasMessageCount(1)
         .hasMessageFrom("tester@test.test")
         .hasMessageTo("newuser@example.com")
-        .hasMessageWithSubject("TITLE");
+        .hasMessageWithSubject("[TEST] TITLE");
   }
 }

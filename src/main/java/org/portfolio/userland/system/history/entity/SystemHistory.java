@@ -3,6 +3,7 @@ package org.portfolio.userland.system.history.entity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.portfolio.userland.features.user.entities.User;
 
 import java.time.LocalDateTime;
 import java.util.Objects;
@@ -23,6 +24,11 @@ public class SystemHistory {
   /** UUID. Acts as business key. */
   @Column(unique = true, nullable = false, updatable = false)
   private String uuid;
+
+  /** User that has this history event. */
+  @ManyToOne
+  @JoinColumn(name = "id_user")
+  private User user;
 
   //
 
