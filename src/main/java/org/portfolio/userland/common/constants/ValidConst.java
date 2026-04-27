@@ -17,4 +17,6 @@ public class ValidConst {
   public static final String REG_EXPR_UUID = "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$";
   /** Regular expression that represents valid token. Example: 'Gl7Y3GK9dqFDEjza3KsOU6k0pM9J4Tiq' is valid token. */
   public static final String REG_EXPR_TOKEN = "^[A-Za-z0-9]{32}$";
+  /** Regular expression that represents version number. Example: '0.13.4' or '3.1.0-SNAPSHOT' is valid version. */
+  public static final String REG_EXPR_VERSION = "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)(-[a-zA-Z0-9]+)?$";
 }

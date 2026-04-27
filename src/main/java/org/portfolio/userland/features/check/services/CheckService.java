@@ -3,7 +3,11 @@ package org.portfolio.userland.features.check.services;
 import lombok.RequiredArgsConstructor;
 import org.portfolio.userland.features.check.data.CheckInfoResp;
 import org.portfolio.userland.system.BaseService;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
 
 /**
  * Service for check endpoints.
@@ -11,7 +15,17 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class CheckService extends BaseService {
+  private final ApplicationContext context;
+
+  /** System version. */
+  @Value("${app.main.version}")
+  protected String version;
+
   public CheckInfoResp info() {
-    return new CheckInfoResp(clockService.getNowUTC(), profile);
+    LocalDateTime bootAt = clockService.convert(context.getStartupDate());
+    return new CheckInfoResp(clockService.getNowUTC(),
+        bootAt,
+        version,
+        profile);
   }
 }

@@ -12,7 +12,7 @@
 
 	<groupId>org.portfolio.userland</groupId>
 	<artifactId>userland-backend</artifactId>
-	<version>0.5.0</version>
+	<version>0.5.1</version>
 	<name/>
 	<description/>
 	<url/>
@@ -260,6 +260,13 @@
 	</dependencyManagement>
 
 	<build>
+		<resources>
+			<resource> <!-- Turn on Maven parsing (needed for parsing @...@). -->
+				<directory>src/main/resources</directory>
+				<filtering>true</filtering>
+			</resource>
+		</resources>
+
 		<plugins>
 			<!-- Fix for annoying JVM warning message during tests. -->
 			<!-- Find the Mockito jar in your local maven repo... -->
