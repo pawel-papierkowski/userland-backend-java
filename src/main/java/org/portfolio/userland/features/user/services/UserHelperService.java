@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 @Service
 @RequiredArgsConstructor
 public class UserHelperService {
-  /** How long before activate token expires in hours. */
+  /** How long before activation token expires in hours. */
   @Value("${app.user.token.activation.expires}")
   private long activationTokenExpires;
   /** How long before password reset token expires in minutes. */

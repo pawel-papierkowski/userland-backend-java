@@ -21,8 +21,8 @@ import java.util.Map;
  * Handles emails that are related to user. Note: uses separate async thread.
  * <p>Currently handles:</p>
  * <ul>
- *   <li>User registration (sends email with activate link)</li>
- *   <li>User activate (sends email confirming successful activate of user account)</li>
+ *   <li>User registration (sends email with activation link)</li>
+ *   <li>User activation (sends email confirming successful activation of user account)</li>
  *   <li>Password reset link</li>
  *   <li>Password reset confirmation</li>
  *   <li>Account deletion link</li>
@@ -93,38 +93,38 @@ public class UserEmailService {
   }
 
   /**
-   * Resolve full activate link. Note it is for frontend, not backend.
+   * Resolve full activation link. Note it is for frontend, not backend.
    * @param frontend Name of used frontend.
    * @param activationToken Activation token.
    * @return Activation link.
    */
   private String resolveActivationLink(EnFrontendFramework frontend, String activationToken) {
-    // Note it is linking to frontend - actual backend activate endpoint will be called by frontend.
+    // Note it is linking to frontend - actual backend endpoint for user activation will be called by frontend.
     return resolveWww(frontend) + "/activate?token="+activationToken;
   }
 
   //
 
   /**
-   * React on user activate event. Will send email confirming successful activate of user account.
-   * @param event User activate event data.
+   * React on user activation event. Will send email confirming successful activation of user account.
+   * @param event User activation event data.
    */
   @Async("emailTaskExecutor")
   @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-  public void sendActivationEmail(UserActivatedEvent event) {
+  public void sendActivatedEmail(UserActivatedEvent event) {
     EmailReq emailReq = resolveEmailReq(event);
     emailService.sendEmail(emailReq);
   }
 
   /**
-   * Prepare email request for activate.
+   * Prepare email request for activated user.
    * @param event Event.
    * @return Email request.
    */
   private EmailReq resolveEmailReq(UserActivatedEvent event) {
     String subject = langService.t(event.lang(), "email.user.activation.subject");
 
-    // Prepare params required by user activate template.
+    // Prepare params required by user activated template.
     Map<String, Object> params = Maps.newHashMap();
     params.put("username", event.username());
     params.put("loginLink", resolveLoginLink(event.frontend()));
@@ -174,7 +174,7 @@ public class UserEmailService {
   private EmailReq resolveEmailReq(UserPasswordResetLinkEvent event) {
     String subject = langService.t(event.lang(), "email.user.password.link.subject");
 
-    // Prepare params required by user activate template.
+    // Prepare params required by password reset template.
     Map<String, Object> params = Maps.newHashMap();
     params.put("username", event.username());
     params.put("passwordResetLink", resolvePasswordResetLink(event.frontend(), event.passwordResetToken()));
@@ -226,7 +226,7 @@ public class UserEmailService {
   private EmailReq resolveEmailReq(UserPasswordResetConfirmEvent event) {
     String subject = langService.t(event.lang(), "email.user.password.confirm.subject");
 
-    // Prepare params required by user activate template.
+    // Prepare params required by password reset confirmation template.
     Map<String, Object> params = Maps.newHashMap();
     params.put("username", event.username());
 
@@ -265,7 +265,7 @@ public class UserEmailService {
   private EmailReq resolveEmailReq(UserAccountDeleteLinkEvent event) {
     String subject = langService.t(event.lang(), "email.user.delete.link.subject");
 
-    // Prepare params required by user activate template.
+    // Prepare params required by user account deletion template.
     Map<String, Object> params = Maps.newHashMap();
     params.put("username", event.username());
     params.put("accountDeleteLink", resolveAccountDeleteLink(event.frontend(), event.accountDeleteToken()));
@@ -317,7 +317,7 @@ public class UserEmailService {
   private EmailReq resolveEmailReq(UserAccountDeleteConfirmEvent event) {
     String subject = langService.t(event.lang(), "email.user.delete.confirm.subject");
 
-    // Prepare params required by user activate template.
+    // Prepare params required by user account delete confirmation template.
     Map<String, Object> params = Maps.newHashMap();
     params.put("username", event.username());
 

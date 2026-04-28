@@ -44,7 +44,7 @@ public class UserDeleteService extends BaseUserService {
     User user = resolveUser(userDeleteLinkReq.email());
 
     LocalDateTime nowAt = clockService.getNowUTC();
-    verifyTokenDoesNotExist(nowAt, EnUserTokenType.DELETE, user);
+    ensureTokenDoesNotExist(nowAt, EnUserTokenType.DELETE, user);
 
     UserToken token = createTokenData(nowAt, EnUserTokenType.DELETE);
     user.addToken(token);
