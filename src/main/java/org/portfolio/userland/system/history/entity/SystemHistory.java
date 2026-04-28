@@ -3,6 +3,7 @@ package org.portfolio.userland.system.history.entity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.portfolio.userland.common.annotations.NoCoverageGenerated;
 import org.portfolio.userland.features.user.entities.User;
 
 import java.time.LocalDateTime;
@@ -55,6 +56,7 @@ public class SystemHistory {
   // //////////////////////////////////////////////////////////////////////////
 
   @Override
+  @NoCoverageGenerated
   public boolean equals(Object o) {
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
@@ -66,6 +68,7 @@ public class SystemHistory {
   }
 
   @Override
+  @NoCoverageGenerated
   public int hashCode() {
     return Objects.hash(uuid);
   }

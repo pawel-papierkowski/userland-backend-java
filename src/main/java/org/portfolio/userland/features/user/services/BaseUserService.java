@@ -37,8 +37,8 @@ public abstract class BaseUserService extends BaseService {
    */
   protected User resolveUser(String email) {
     User user = userRepository.findByEmail(email).orElseThrow(() -> new UserDoesNotExistException(email));
-    if (EnUserStatus.PENDING.equals(user.getStatus())) throw new UserMustBeActiveException(email);
-    if (user.getLocked()) throw new UserCannotBeLockedException(email);
+    if (EnUserStatus.PENDING.equals(user.getStatus())) throw new UserInvalidStatusException(email);
+    if (user.getLocked()) throw new UserLockedException(email);
     return user;
   }
 

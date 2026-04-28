@@ -9,6 +9,7 @@ import org.portfolio.userland.common.services.email.providers.EmailProviderFacto
 import org.portfolio.userland.common.services.email.providers.PlainEmailProvider;
 import org.portfolio.userland.test.base.BaseIntegrationTest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.thymeleaf.exceptions.TemplateInputException;
 
@@ -20,10 +21,11 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 /**
- * Tests if email templating engine works correctly.
+ * Tests if email templating engine works correctly. Actually sending emails is completely mocked out.
  * <p>Note: we cannot spy on real template engine, if you do <code>@MockitoSpyBean private TemplateEngine templateEngine;</code>,
  * running entire test suite with coverage will fail on this file.</p>
  */
+@TestPropertySource(properties = "app.main.profile=PROD")
 public class EmailServiceTemplateTest extends BaseIntegrationTest {
   @Autowired
   private EmailService emailService;
@@ -61,7 +63,8 @@ public class EmailServiceTemplateTest extends BaseIntegrationTest {
     emailService.sendEmail(emailReq);
 
     // Assert: Verify the email was actually sent to the provider.
-    EmailReq modEmailReq = emailReq.toBuilder().subject("[TEST] TITLE").build();
+    // Note: due to app.main.profile=PROD we do NOT add [TEST] prefix to subject.
+    EmailReq modEmailReq = emailReq.toBuilder().subject("TITLE").build();
     verify(emailProvider).send(modEmailReq);
     // We know templating engine was not run, because it would throw exception due to null template name.
   }
@@ -79,7 +82,7 @@ public class EmailServiceTemplateTest extends BaseIntegrationTest {
         List.of(),
         List.of(),
         "",
-        "[TEST] TITLE",
+        "TITLE",
         "test/simple",
         params,
         null); // null means system will try to use template to fill messageHtml

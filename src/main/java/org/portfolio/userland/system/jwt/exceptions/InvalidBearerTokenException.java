@@ -7,11 +7,8 @@ import org.springframework.http.HttpStatus;
 import java.util.Map;
 
 public class InvalidBearerTokenException extends GeneralException {
-  private final String jwtStr;
-
   public InvalidBearerTokenException(String jwtStr) {
     super(jwtStr);
-    this.jwtStr = jwtStr;
   }
 
   @Override

@@ -18,7 +18,7 @@ CREATE TABLE aux.shedlock (
     PRIMARY KEY (name)
 );
 
--- UserLand system configuration. For configuration that should go in effect immediately without restarting the system.
+-- General system configuration. For configuration that should go in effect immediately without restarting the system.
 CREATE TABLE aux.config (
     -- Identificator.
     id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
@@ -40,6 +40,8 @@ INSERT INTO aux.config (name, value, description) VALUES ('user.lockdown', '0', 
 CREATE SCHEMA IF NOT EXISTS iam;
 
 -- Permissions available for users.
+-- Field name here combines with value in iam.user_permissions to create valid permission.
+-- For example, name='role' and value='admin' results in "ROLE_ADMIN" for Spring authorization.
 CREATE TABLE iam.permissions (
     -- Identificator.
     id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,

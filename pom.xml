@@ -286,7 +286,7 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
 				<configuration>
-					<argLine>-javaagent:${org.mockito:mockito-core:jar} -Xshare:off</argLine> <!-- IDE might mark it red, but it works. -->
+					<argLine>@{argLine} -javaagent:${org.mockito:mockito-core:jar} -Xshare:off</argLine> <!-- IDE might mark it red, but it works. -->
 				</configuration>
 			</plugin>
 
@@ -360,6 +360,35 @@
 					</execution>
 				</executions>
 			</plugin>
+
+			<!-- JaCoCo coverage tool. -->
+			<plugin>
+				<groupId>org.jacoco</groupId>
+				<artifactId>jacoco-maven-plugin</artifactId>
+				<version>0.8.14</version>
+				<configuration>
+					<excludes>
+						<exclude>org/portfolio/userland/swagger/**/*</exclude><!-- Exclude the entire swagger package and all its contents. -->
+						<exclude>**/*Exception.class</exclude> <!-- Exclude exception classes. -->
+					</excludes>
+				</configuration>
+				<executions>
+					<execution> <!-- Attach JaCoCo agent before tests start -->
+						<id>prepare-agent</id>
+						<goals>
+							<goal>prepare-agent</goal>
+						</goals>
+					</execution>
+					<execution> <!-- Generate the coverage report after tests finish -->
+						<id>report</id>
+						<phase>test</phase>
+						<goals>
+							<goal>report</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+
 		</plugins>
 	</build>
 

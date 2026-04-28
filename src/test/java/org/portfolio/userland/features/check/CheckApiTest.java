@@ -153,6 +153,35 @@ public class CheckApiTest extends BaseCheckTest {
   }
 
   @Test
+  void errMalformedToken() throws Exception {
+    clock.setFixedTime("2026-04-10T10:00:00Z");
+    // No arrange here.
+
+    // Act: This endpoint expects token, but there is no token. So Spring rejects it (throwing 401 Unauthorized).
+    MvcResult mvcResult = mockMvc.perform(get("/api/checks/must-be-logged")
+            .header("Authorization", "Bearer MALFORMED_TOKEN"))
+        .andReturn();
+
+    // Assert: API Response.
+    assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.UNAUTHORIZED.value());
+    // Assert: Check the header required by RFC 6750.
+    String authHeader = mvcResult.getResponse().getHeader("WWW-Authenticate");
+    assertThat(authHeader)
+        .as("WWW-Authenticate header is missing or incorrect")
+        .isEqualTo("Bearer error=\"invalid_token\"");
+    // Assert: correct problem detail is present.
+    ProblemDetailBox expectedPdb = new ProblemDetailBox(
+        HttpStatus.UNAUTHORIZED.value(),
+        "Unauthorized",
+        "Bearer token is invalid or malformed and cannot be used.",
+        "/api/checks/must-be-logged",
+        "https://api.userland.org/errors/user/malformedToken",
+        Map.of()
+    );
+    problemDetailService.assertPd(mvcResult, expectedPdb);
+  }
+
+  @Test
   void errNoJwtInDatabase() throws Exception {
     clock.setFixedTime("2026-04-10T10:00:00Z");
 

@@ -4,12 +4,12 @@ import org.portfolio.userland.common.exception.GeneralException;
 import org.springframework.http.HttpStatus;
 
 /**
- * Thrown when user cannot be locked, but is.
+ * Thrown when user has invalid status.
  */
-public class UserCannotBeLockedException extends GeneralException {
+public class UserInvalidStatusException extends GeneralException {
   private final String email;
 
-  public UserCannotBeLockedException(String email) {
+  public UserInvalidStatusException(String email) {
     super(email);
     this.email = email;
   }
@@ -21,16 +21,16 @@ public class UserCannotBeLockedException extends GeneralException {
 
   @Override
   public String getTitle() {
-    return "User cannot be locked.";
+    return "User has invalid status.";
   }
 
   @Override
   public String getDetail() {
-    return "User with email '"+email+"' cannot be locked.";
+    return "User with email '"+email+"' must have valid status.";
   }
 
   @Override
   public String getType() {
-    return "https://api.userland.org/errors/user/cannotBeLocked";
+    return "https://api.userland.org/errors/user/invalidStatus";
   }
 }

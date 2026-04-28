@@ -72,8 +72,18 @@ If you want to use real database instead of container, add in run config:
   - SPRING_DATASOURCE_PASSWORD=[YOUR PASSWORD]
   - SPRING_DOCKER_COMPOSE_ENABLED=false
 
+## Testing
+
 If you run test deployment locally via ```TestUserLandApplication```, you need Docker engine running on your computer.
 Same with running tests in general.
+
+### Coverage
+
+For informative coverage you need to configure your coverage tool. In particular, you need to exclude:
+- ```org.portfolio.userland.swagger``` package and everything inside
+- All classes that have names ending in ```Exception```.
+
+This project uses **JaCoCo**. It is already configured in ```pom.xml```.
 
 ## Deployment
 
@@ -129,6 +139,7 @@ UserLand has endpoints available publicly to use by frontend, PostMan etc.
   - **Instancio**: easily create randomized instances of entities for tests
   - **Awaitlility**: allow testing of async code
   - **Testcontainers**: instantiate real database (or anything else needed) for tests in container
+  - **JaCoCo**: for coverage
 - Other
   - **Lombok**: reduce Jave boilerplate code
   - **JJWT**: popular JWT library
