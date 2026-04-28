@@ -48,7 +48,7 @@ public class CheckApiTest extends BaseCheckTest {
         .andReturn();
 
     // Assert: API Response.
-    assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.OK.value());
+    assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.NO_CONTENT.value());
   }
 
   @Test
@@ -66,7 +66,7 @@ public class CheckApiTest extends BaseCheckTest {
         .andReturn();
 
     // Assert: API Response.
-    assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.OK.value());
+    assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.NO_CONTENT.value());
   }
 
   @Test
@@ -84,7 +84,7 @@ public class CheckApiTest extends BaseCheckTest {
         .andReturn();
 
     // Assert: API Response.
-    assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.OK.value());
+    assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.NO_CONTENT.value());
   }
 
   //
@@ -108,7 +108,7 @@ public class CheckApiTest extends BaseCheckTest {
         .andReturn();
 
     // Assert: API Response.
-    assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.OK.value());
+    assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.NO_CONTENT.value());
   }
 
   //

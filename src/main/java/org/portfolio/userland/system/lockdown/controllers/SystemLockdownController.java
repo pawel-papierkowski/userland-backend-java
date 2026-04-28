@@ -58,8 +58,8 @@ public class SystemLockdownController {
       @ApiResponse(responseCode = "200", description = "Lockdown status successfully changed.",
           content = @Content(schema = @Schema(hidden = true)))
   })
-  public ResponseEntity<String> setLockdown(@Valid @RequestBody SystemLockdownReq systemLockdownReq) {
+  public ResponseEntity<Void> setLockdown(@Valid @RequestBody SystemLockdownReq systemLockdownReq) {
     systemLockdownService.set(systemLockdownReq);
-    return new ResponseEntity<>(HttpStatus.OK);
+    return new ResponseEntity<>(HttpStatus.NO_CONTENT);
   }
 }

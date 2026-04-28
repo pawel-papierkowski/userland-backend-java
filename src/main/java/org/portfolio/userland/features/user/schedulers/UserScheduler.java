@@ -1,4 +1,4 @@
-package org.portfolio.userland.features.user.scheduler;
+package org.portfolio.userland.features.user.schedulers;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

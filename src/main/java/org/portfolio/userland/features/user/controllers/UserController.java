@@ -90,9 +90,9 @@ public class UserController {
           content = @Content(mediaType = "application/problem+json",
                              schema = @Schema(implementation = TokenMissingProblemDetail.class)))
   })
-  public ResponseEntity<String> activateUser(@Valid @RequestBody TokenActivateReq tokenActivateReq) {
+  public ResponseEntity<Void> activateUser(@Valid @RequestBody TokenActivateReq tokenActivateReq) {
     userRegisterService.activate(tokenActivateReq);
-    return new ResponseEntity<>(HttpStatus.OK);
+    return new ResponseEntity<>(HttpStatus.NO_CONTENT);
   }
 
   //
@@ -117,9 +117,9 @@ public class UserController {
           content = @Content(mediaType = "application/problem+json",
               schema = @Schema(implementation = TokenAlreadyExistsProblemDetail.class)))
   })
-  public ResponseEntity<String> sendPasswordResetLink(@Valid @RequestBody UserPassResetLinkReq userPassResetLinkReq) {
+  public ResponseEntity<Void> sendPasswordResetLink(@Valid @RequestBody UserPassResetLinkReq userPassResetLinkReq) {
     userPasswordService.send(userPassResetLinkReq);
-    return new ResponseEntity<>(HttpStatus.OK);
+    return new ResponseEntity<>(HttpStatus.NO_CONTENT);
   }
 
   /**
@@ -137,9 +137,9 @@ public class UserController {
           content = @Content(mediaType = "application/problem+json",
               schema = @Schema(implementation = ValidationProblemDetail.class)))
   })
-  public ResponseEntity<String> passwordReset(@Valid @RequestBody UserPassResetConfirmReq userPassResetConfirmReq) {
+  public ResponseEntity<Void> passwordReset(@Valid @RequestBody UserPassResetConfirmReq userPassResetConfirmReq) {
     userPasswordService.reset(userPassResetConfirmReq);
-    return new ResponseEntity<>(HttpStatus.OK);
+    return new ResponseEntity<>(HttpStatus.NO_CONTENT);
   }
 
   //
@@ -164,9 +164,9 @@ public class UserController {
           content = @Content(mediaType = "application/problem+json",
               schema = @Schema(implementation = TokenAlreadyExistsProblemDetail.class)))
   })
-  public ResponseEntity<String> sendAccountDeleteLink(@Valid @RequestBody UserDeleteLinkReq userDeleteLinkReq) {
+  public ResponseEntity<Void> sendAccountDeleteLink(@Valid @RequestBody UserDeleteLinkReq userDeleteLinkReq) {
     userDeleteService.send(userDeleteLinkReq);
-    return new ResponseEntity<>(HttpStatus.OK);
+    return new ResponseEntity<>(HttpStatus.NO_CONTENT);
   }
 
   /**
@@ -184,8 +184,8 @@ public class UserController {
           content = @Content(mediaType = "application/problem+json",
               schema = @Schema(implementation = ValidationProblemDetail.class)))
   })
-  public ResponseEntity<String> accountDeleteConfirm(@Valid @RequestBody UserDeleteConfirmReq userDeleteConfirmReq) {
+  public ResponseEntity<Void> accountDeleteConfirm(@Valid @RequestBody UserDeleteConfirmReq userDeleteConfirmReq) {
     userDeleteService.delete(userDeleteConfirmReq);
-    return new ResponseEntity<>(HttpStatus.OK);
+    return new ResponseEntity<>(HttpStatus.NO_CONTENT);
   }
 }

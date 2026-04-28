@@ -140,7 +140,7 @@ public class SystemLockdownApiTest extends BaseSystemTest {
         .andReturn();
 
     // Assert: API Response.
-    assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.OK.value());
+    assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.NO_CONTENT.value());
 
     // Assert: State of lockdown.
     Config config = configRepository.findByName(ConfigConst.USER_LOCKDOWN).orElseThrow();
@@ -186,7 +186,7 @@ public class SystemLockdownApiTest extends BaseSystemTest {
         .andReturn();
 
     // Assert: API Response.
-    assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.OK.value());
+    assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.NO_CONTENT.value());
 
     // Assert: State of lockdown.
     Config config = configRepository.findByName(ConfigConst.USER_LOCKDOWN).orElseThrow();

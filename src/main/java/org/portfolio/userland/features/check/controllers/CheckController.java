@@ -47,9 +47,9 @@ public class CheckController {
       @ApiResponse(responseCode = "200", description = "Server is up.",
           content = @Content(schema = @Schema(hidden = true))),
   })
-  public ResponseEntity<String> alive() {
+  public ResponseEntity<Void> alive() {
     // Yes, this endpoint does nothing by itself.
-    return new ResponseEntity<>(HttpStatus.OK);
+    return new ResponseEntity<>(HttpStatus.NO_CONTENT); // deliberately OK instead of NO_CONTENT in this particular case
   }
 
   /**
@@ -63,9 +63,9 @@ public class CheckController {
       @ApiResponse(responseCode = "200", description = "Access was successful.",
           content = @Content(schema = @Schema(hidden = true)))
   })
-  public ResponseEntity<String> mustBeLogged() {
+  public ResponseEntity<Void> mustBeLogged() {
     // Yes, this endpoint does nothing by itself.
-    return new ResponseEntity<>(HttpStatus.OK);
+    return new ResponseEntity<>(HttpStatus.NO_CONTENT);
   }
 
   /**
@@ -81,9 +81,9 @@ public class CheckController {
       @ApiResponse(responseCode = "200", description = "Access was successful.",
           content = @Content(schema = @Schema(hidden = true)))
   })
-  public ResponseEntity<String> mustBeAdmin() {
+  public ResponseEntity<Void> mustBeAdmin() {
     // Yes, this endpoint does nothing by itself.
-    return new ResponseEntity<>(HttpStatus.OK);
+    return new ResponseEntity<>(HttpStatus.NO_CONTENT);
   }
 
   //
@@ -115,7 +115,7 @@ public class CheckController {
           content = @Content(mediaType = "application/problem+json",
               schema = @Schema(implementation = InternalServerErrorProblemDetail.class)))
   })
-  public ResponseEntity<String> error() {
+  public ResponseEntity<Void> error() {
     // Yes, this endpoint does nothing by itself.
     throw new IllegalArgumentException("This error message was caused deliberately (/api/checks/exception) and should not be visible externally.");
   }

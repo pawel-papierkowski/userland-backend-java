@@ -1,4 +1,4 @@
-package org.portfolio.userland.features.user.mapper;
+package org.portfolio.userland.features.user.mappers;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
