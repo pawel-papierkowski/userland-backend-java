@@ -33,6 +33,13 @@ public abstract class BaseIntegrationTest {
   @Autowired
   protected SystemHistoryRepository systemHistoryRepository;
 
+  /** Service to assert Problem Detail. */
+  @Autowired
+  protected ProblemDetailService problemDetailService;
+  /** Used for initialization of entity fields like createdAt. */
+  @Autowired
+  protected ClockService clockService;
+
   /** Used to simulate HTTP requests. */
   @Autowired
   protected MockMvc mockMvc;
@@ -42,17 +49,8 @@ public abstract class BaseIntegrationTest {
   /** For specific tasks like flushing cache. */
   @Autowired
   protected EntityManager entityManager;
-
   @Autowired
   protected TransactionTemplate transactionTemplate;
-
-  /** Service to assert Problem Detail. */
-  @Autowired
-  protected ProblemDetailService problemDetailService;
-
-  /** Used for initialization of entity fields like createdAt. */
-  @Autowired
-  protected ClockService clockService;
 
   /** Used to convert Java objects to JSON. Note: for some reason autowiring ObjectMapper fails. */
   protected final ObjectMapper objectMapper = new ObjectMapper().findAndRegisterModules();

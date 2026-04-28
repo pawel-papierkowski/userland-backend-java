@@ -55,17 +55,6 @@ public class PermissionService {
     return false;
   }
 
-  /**
-   * Get permission map for given permission kind.
-   * @param permKind Permission kind.
-   * @return Map of permissions.
-   */
-  public Map<String, Set<String>> get(EnPermKind permKind) {
-    return switch (permKind) {
-      case ACCESS_TO_ADMIN_PANEL -> Map.of(UserPermConst.ROLE, Set.of(UserPermConst.OPERATOR, UserPermConst.ADMIN));
-    };
-  }
-
   //
 
   /**
@@ -77,7 +66,7 @@ public class PermissionService {
    */
   private boolean hasPermission(Map<String, Set<String>> permissionMap, String name, String value) {
     Set<String> values = permissionMap.get(name);
-    if (values == null || values.isEmpty()) return false;
+    if (values == null) return false;
     return values.contains(value);
   }
 
@@ -98,5 +87,19 @@ public class PermissionService {
       }
     }
     return permissionsList.toArray(new String[] {});
+  }
+
+  //
+
+  /**
+   * Get permission map for given permission kind.
+   * @param permKind Permission kind.
+   * @return Map of permissions.
+   */
+  public Map<String, Set<String>> get(EnPermKind permKind) {
+    if (permKind == null) return Map.of();
+    return switch (permKind) {
+      case ACCESS_TO_ADMIN_PANEL -> Map.of(UserPermConst.ROLE, Set.of(UserPermConst.OPERATOR, UserPermConst.ADMIN));
+    };
   }
 }

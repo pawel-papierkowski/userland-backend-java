@@ -4,12 +4,12 @@ import org.portfolio.userland.common.exception.GeneralException;
 import org.springframework.http.HttpStatus;
 
 /**
- * Thrown when user must be active, but is not.
+ * Thrown when user is locked.
  */
-public class UserMustBeActiveException extends GeneralException {
+public class UserLockedException extends GeneralException {
   private final String email;
 
-  public UserMustBeActiveException(String email) {
+  public UserLockedException(String email) {
     super(email);
     this.email = email;
   }
@@ -21,16 +21,16 @@ public class UserMustBeActiveException extends GeneralException {
 
   @Override
   public String getTitle() {
-    return "User must be active.";
+    return "User is locked.";
   }
 
   @Override
   public String getDetail() {
-    return "User with email '"+email+"' must be active.";
+    return "User with email '"+email+"' is locked.";
   }
 
   @Override
   public String getType() {
-    return "https://api.userland.org/errors/user/mustBeActive";
+    return "https://api.userland.org/errors/user/locked";
   }
 }

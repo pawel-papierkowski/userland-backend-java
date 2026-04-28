@@ -26,13 +26,13 @@ public enum EnSystemLockdownState {
   /**
    * Reads string as system lockdown state enum.
    * @param stateStr String.
-   * @return Enum or null if string is not known value.
+   * @return Enum corresponding to given string.
    */
   public static EnSystemLockdownState fromStr(String stateStr) {
     return switch (stateStr) {
       case "0" -> EnSystemLockdownState.OFF;
       case "1" -> EnSystemLockdownState.ON;
-      default -> null;
+      default -> throw new IllegalArgumentException("'"+stateStr+"' is not known value for EnSystemLockdownState.");
     };
   }
 }

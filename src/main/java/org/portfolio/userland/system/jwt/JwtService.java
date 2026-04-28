@@ -11,8 +11,8 @@ import org.portfolio.userland.features.user.entities.EnUserStatus;
 import org.portfolio.userland.features.user.entities.Permission;
 import org.portfolio.userland.features.user.entities.User;
 import org.portfolio.userland.features.user.entities.UserPermission;
-import org.portfolio.userland.features.user.exceptions.UserCannotBeLockedException;
-import org.portfolio.userland.features.user.exceptions.UserMustBeActiveException;
+import org.portfolio.userland.features.user.exceptions.UserInvalidStatusException;
+import org.portfolio.userland.features.user.exceptions.UserLockedException;
 import org.portfolio.userland.system.BaseService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -66,8 +66,8 @@ public class JwtService extends BaseService {
    * @param user User data.
    */
   private void verifyUser(User user) {
-    if (!EnUserStatus.ACTIVE.equals(user.getStatus())) throw new UserMustBeActiveException(user.getEmail());
-    if (user.getLocked()) throw new UserCannotBeLockedException(user.getEmail());
+    if (!EnUserStatus.ACTIVE.equals(user.getStatus())) throw new UserInvalidStatusException(user.getEmail());
+    if (user.getLocked()) throw new UserLockedException(user.getEmail());
   }
 
   /**

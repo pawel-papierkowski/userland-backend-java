@@ -1,6 +1,7 @@
 package org.portfolio.userland.common.services.email;
 
 import ch.martinelli.oss.testcontainers.mailpit.MailpitContainer;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.portfolio.userland.common.services.email.data.EmailReq;
 import org.portfolio.userland.test.base.BaseIntegrationTest;
@@ -24,11 +25,44 @@ public class EmailServicePlainTest extends BaseIntegrationTest {
   @ServiceConnection
   static MailpitContainer mailpit = new MailpitContainer();
 
+  @AfterEach
+  void tearDown() {
+    mailpit.getClient().deleteAllMessages();
+  }
+
   @Test
   public void plainEmailSimple() {
     // Arrange: prepare email request.
     EmailReq emailReq = new EmailReq(
         "plain",
+        "pl",
+        "tester@test.test",
+        List.of("newuser@example.com"),
+        List.of(),
+        List.of(),
+        "",
+        "TITLE",
+        null,
+        null,
+        "<p>Content</p>");
+
+    // Act: simulate sending email.
+    emailService.sendEmail(emailReq);
+
+    // Assert: that email was actually sent.
+    assertThat(mailpit)
+        .hasMessages()
+        .hasMessageCount(1)
+        .hasMessageFrom("tester@test.test")
+        .hasMessageTo("newuser@example.com")
+        .hasMessageWithSubject("[TEST] TITLE"); // We add [TEST] to subject due to app.main.profile being TEST
+  }
+
+  @Test
+  public void plainEmailDefault() {
+    // Arrange: prepare email request.
+    EmailReq emailReq = new EmailReq(
+        null, // will use default provider, and it happens to be 'plain'
         "pl",
         "tester@test.test",
         List.of("newuser@example.com"),

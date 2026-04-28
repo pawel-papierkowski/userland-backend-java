@@ -9,11 +9,8 @@ import org.portfolio.userland.features.user.entities.*;
 import org.portfolio.userland.features.user.events.UserPasswordResetConfirmEvent;
 import org.portfolio.userland.features.user.events.UserPasswordResetLinkEvent;
 import org.portfolio.userland.test.helpers.problemDetail.ProblemDetailBox;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.event.ApplicationEvents;
-import org.springframework.test.context.event.RecordApplicationEvents;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,12 +23,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 /**
  * Integration test for user password reset.
  */
-@RecordApplicationEvents
 public class UserPasswordApiTest extends BaseUserTest {
-  @Autowired
-  @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection") // IDE cannot find it
-  private ApplicationEvents applicationEvents;
-
   @AfterEach
   public void tearDown() {
     resetDatabase();
@@ -228,10 +220,10 @@ public class UserPasswordApiTest extends BaseUserTest {
 
     ProblemDetailBox expectedPdb = new ProblemDetailBox(
         HttpStatus.CONFLICT.value(),
-        "User must be active.",
-        "User with email '"+expectedUser.getEmail()+"' must be active.",
+        "User has invalid status.",
+        "User with email '"+expectedUser.getEmail()+"' must have valid status.",
         "/api/users/password/link",
-        "https://api.userland.org/errors/user/mustBeActive",
+        "https://api.userland.org/errors/user/invalidStatus",
         Map.of()
     );
     problemDetailService.assertPd(mvcResult, expectedPdb);
@@ -261,10 +253,10 @@ public class UserPasswordApiTest extends BaseUserTest {
 
     ProblemDetailBox expectedPdb = new ProblemDetailBox(
         HttpStatus.CONFLICT.value(),
-        "User cannot be locked.",
-        "User with email '"+expectedUser.getEmail()+"' cannot be locked.",
+        "User is locked.",
+        "User with email '"+expectedUser.getEmail()+"' is locked.",
         "/api/users/password/link",
-        "https://api.userland.org/errors/user/cannotBeLocked",
+        "https://api.userland.org/errors/user/locked",
         Map.of()
     );
     problemDetailService.assertPd(mvcResult, expectedPdb);

@@ -6,8 +6,8 @@ import org.junit.jupiter.api.Test;
 import org.portfolio.userland.features.user.BaseUserTest;
 import org.portfolio.userland.features.user.entities.EnUserStatus;
 import org.portfolio.userland.features.user.entities.User;
-import org.portfolio.userland.features.user.exceptions.UserCannotBeLockedException;
-import org.portfolio.userland.features.user.exceptions.UserMustBeActiveException;
+import org.portfolio.userland.features.user.exceptions.UserInvalidStatusException;
+import org.portfolio.userland.features.user.exceptions.UserLockedException;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Map;
@@ -61,8 +61,8 @@ public class JwtServiceTest extends BaseUserTest {
     final User user = userFactory.genRandUser(EnUserStatus.PENDING);
 
     // Act & Assert: Try to create a real token.
-    UserMustBeActiveException actualEx = assertThrows(
-        UserMustBeActiveException.class,
+    UserInvalidStatusException actualEx = assertThrows(
+        UserInvalidStatusException.class,
         () -> jwtService.generateToken(user)
     );
   }
@@ -78,7 +78,7 @@ public class JwtServiceTest extends BaseUserTest {
 
     // Act & Assert: Try to create a real token.
     assertThrows(
-        UserCannotBeLockedException.class,
+        UserLockedException.class,
         () -> jwtService.generateToken(user)
     );
   }

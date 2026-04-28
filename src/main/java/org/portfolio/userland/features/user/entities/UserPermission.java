@@ -3,6 +3,7 @@ package org.portfolio.userland.features.user.entities;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.portfolio.userland.common.annotations.NoCoverageGenerated;
 
 import java.time.LocalDateTime;
 import java.util.Objects;
@@ -51,6 +52,7 @@ public class UserPermission {
   // //////////////////////////////////////////////////////////////////////////
 
   @Override
+  @NoCoverageGenerated
   public boolean equals(Object o) {
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
@@ -62,6 +64,7 @@ public class UserPermission {
   }
 
   @Override
+  @NoCoverageGenerated
   public int hashCode() {
     return Objects.hash(uuid);
   }

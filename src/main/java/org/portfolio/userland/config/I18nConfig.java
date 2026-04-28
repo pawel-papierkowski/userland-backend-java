@@ -23,7 +23,7 @@ import java.util.Properties;
 import java.util.Set;
 
 /**
- * Multi-language config. Normally Spring expects .properties files. We want to use .yaml/.yml files instead.
+ * Multi-language config. Normally Spring expects .properties files. We want to use .yaml files instead.
  * This configuration class tells Spring to search in base directory and all subdirectories for any YAML files and treat
  * it as translation file to use.
  */
@@ -35,8 +35,8 @@ public class I18nConfig {
   /** Find all YAML files in base directory and subdirectories. The '**' tells Spring to search all subdirectories recursively. */
   private final static String LOCATION_PATTERN = "classpath*:"+BASE_DIR+"/**/*.yaml";
 
-  /** Strip the locale suffix and .yml/.yaml extension. */
-  private final static String REGEX_REPLACE = "(_[a-zA-Z]{2}(_[a-zA-Z]{2})?)?\\.ya?ml$";
+  /** Strip the locale suffix and .yaml extension. */
+  private final static String REGEX_REPLACE = "(_[a-zA-Z]{2}(_[a-zA-Z]{2})?)?\\.yaml$";
 
   /**
    * Defines and configures message source that can handle yml/yaml files.
@@ -69,18 +69,13 @@ public class I18nConfig {
 
       // Find where BASE_DIR starts in the absolute path
       int i18nIndex = path.indexOf(BASE_DIR+"/");
-      if (i18nIndex != -1) {
-        // Extract everything from BASE_DIR to the end of the string
-        // e.g., "i18n/emails/welcome_pl.yml"
-        String relativePath = path.substring(i18nIndex);
+      if (i18nIndex == -1) continue;
 
-        // Strip the locale suffix and .yml/.yaml extension
-        // e.g., "i18n/emails/welcome_pl.yml" -> "i18n/emails/welcome"
-        String baseName = relativePath.replaceAll(REGEX_REPLACE, "");
-
-        // Add the classpath prefix required by ReloadableResourceBundleMessageSource
-        baseNames.add("classpath:" + baseName);
-      }
+      // Extract everything from BASE_DIR to the end of the string. Example: "i18n/emails/welcome_pl.yaml".
+      String relativePath = path.substring(i18nIndex);
+      // Strip the locale suffix and .yaml extension. Example: "i18n/emails/welcome_pl.yaml" -> "i18n/emails/welcome".
+      String baseName = relativePath.replaceAll(REGEX_REPLACE, "");
+      baseNames.add("classpath:" + baseName); // Add the classpath prefix required by ReloadableResourceBundleMessageSource.
     }
 
     return baseNames.toArray(new String[0]);
@@ -88,7 +83,7 @@ public class I18nConfig {
 
   //
 
-  /** Custom resource loader that can handle yml/yaml files. */
+  /** Custom resource loader that can handle YAML files. */
   private static class YamlResourceLoader implements ResourceLoader {
     /** We actually use original loader, just with some adjustments. */
     private final ResourceLoader resourceLoader;
@@ -100,13 +95,9 @@ public class I18nConfig {
     @Override
     public Resource getResource(String location) {
       if (location.endsWith(".properties")) {
-        // Try .yaml first.
+        // Try .yaml extension.
         Resource yaml = resourceLoader.getResource(location.replace(".properties", ".yaml"));
         if (yaml.exists()) return yaml;
-
-        // Try .yml second.
-        Resource yml = resourceLoader.getResource(location.replace(".properties", ".yml"));
-        if (yml.exists()) return yml;
       }
       // Fallback to original loader.
       return resourceLoader.getResource(location);

@@ -5,6 +5,7 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.Setter;
+import org.portfolio.userland.common.annotations.NoCoverageGenerated;
 import org.portfolio.userland.common.constants.ValidConst;
 
 import java.time.LocalDateTime;
@@ -128,6 +129,7 @@ public class User {
   // //////////////////////////////////////////////////////////////////////////
 
   @Override
+  @NoCoverageGenerated
   public boolean equals(Object o) {
     // Of course, I know him. He is me.
     if (this == o) return true;
@@ -143,6 +145,7 @@ public class User {
   }
 
   @Override
+  @NoCoverageGenerated
   public int hashCode() {
     // We only hash the email address, as it is our business key.
     return Objects.hash(email);

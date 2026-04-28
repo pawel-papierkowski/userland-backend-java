@@ -13,11 +13,8 @@ import org.portfolio.userland.features.user.entities.User;
 import org.portfolio.userland.features.user.events.UserActivatedEvent;
 import org.portfolio.userland.features.user.events.UserRegisteredEvent;
 import org.portfolio.userland.test.helpers.problemDetail.ProblemDetailBox;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.event.ApplicationEvents;
-import org.springframework.test.context.event.RecordApplicationEvents;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,12 +32,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
  * Integration test for user registration.
  * <p>Note: UserEmailTest tests emails generated in reaction to events.</p>
  */
-@RecordApplicationEvents
 public class UserRegistrationApiTest extends BaseUserTest {
-  @Autowired
-  @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection") // IDE cannot find it
-  private ApplicationEvents applicationEvents;
-
   @AfterEach
   public void tearDown() {
     resetDatabase();
