@@ -44,7 +44,7 @@ public class CheckController {
   @GetMapping(value = "/alive", produces = "application/json")
   @Operation(summary = "I am alive", description = "Shows that server is up.")
   @ApiResponses(value = {
-      @ApiResponse(responseCode = "200", description = "Server is up.",
+      @ApiResponse(responseCode = "204", description = "Server is up.",
           content = @Content(schema = @Schema(hidden = true))),
   })
   public ResponseEntity<Void> alive() {
@@ -60,7 +60,7 @@ public class CheckController {
   @Operation(summary = "Must be logged", description = "You need to be logged in to successfully access this endpoint. Does nothing else.")
   @ApiResponsesAuth
   @ApiResponses(value = {
-      @ApiResponse(responseCode = "200", description = "Access was successful.",
+      @ApiResponse(responseCode = "204", description = "Access was successful.",
           content = @Content(schema = @Schema(hidden = true)))
   })
   public ResponseEntity<Void> mustBeLogged() {
@@ -78,7 +78,7 @@ public class CheckController {
   @Operation(summary = "Must be admin", description = "You need to be logged in as admin (ROLE_ADMIN) to successfully access this endpoint. Does nothing else.")
   @ApiResponsesAuthPerm
   @ApiResponses(value = {
-      @ApiResponse(responseCode = "200", description = "Access was successful.",
+      @ApiResponse(responseCode = "204", description = "Access was successful.",
           content = @Content(schema = @Schema(hidden = true)))
   })
   public ResponseEntity<Void> mustBeAdmin() {

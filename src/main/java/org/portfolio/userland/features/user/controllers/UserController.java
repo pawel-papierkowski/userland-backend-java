@@ -15,7 +15,6 @@ import org.portfolio.userland.features.user.dto.password.UserPassResetLinkReq;
 import org.portfolio.userland.features.user.dto.register.TokenActivateReq;
 import org.portfolio.userland.features.user.dto.register.UserRegisterReq;
 import org.portfolio.userland.features.user.dto.register.UserRegisterResp;
-import org.portfolio.userland.features.user.entities.User;
 import org.portfolio.userland.features.user.services.UserDeleteService;
 import org.portfolio.userland.features.user.services.UserPasswordService;
 import org.portfolio.userland.features.user.services.UserRegisterService;
@@ -70,8 +69,7 @@ public class UserController {
                              schema = @Schema(implementation = EmailExistsProblemDetail.class)))
   })
   public ResponseEntity<UserRegisterResp> registerUser(@Valid @RequestBody UserRegisterReq userRegisterReq) {
-    User user = userRegisterService.register(userRegisterReq);
-    UserRegisterResp resp = new UserRegisterResp(user.getId());
+    UserRegisterResp resp = userRegisterService.register(userRegisterReq);
     return new ResponseEntity<>(resp, HttpStatus.CREATED);
   }
 
@@ -84,7 +82,7 @@ public class UserController {
   @Operation(summary = "Activate new user", description = "Calling this endpoint with correct token will fully activate user account.")
   @ApiResponsesToken
   @ApiResponses(value = {
-      @ApiResponse(responseCode = "200", description = "User successfully activated.",
+      @ApiResponse(responseCode = "204", description = "User successfully activated.",
           content = @Content(schema = @Schema(hidden = true))),
       @ApiResponse(responseCode = "404", description = "Invalid input (malformed token string) or token does not exist.",
           content = @Content(mediaType = "application/problem+json",
@@ -105,7 +103,7 @@ public class UserController {
   @PostMapping(value = "/password/link", produces = "application/json")
   @Operation(summary = "Send password reset link", description = "Sends email with link to page where you can reset password to your account.")
   @ApiResponses(value = {
-      @ApiResponse(responseCode = "200", description = "Password reset email successfully sent.",
+      @ApiResponse(responseCode = "204", description = "Password reset email successfully sent.",
           content = @Content(schema = @Schema(hidden = true))),
       @ApiResponse(responseCode = "400", description = "Invalid input (missing or malformed email).",
           content = @Content(mediaType = "application/problem+json",
@@ -131,7 +129,7 @@ public class UserController {
   @Operation(summary = "Reset password", description = "Reset password.")
   @ApiResponsesToken
   @ApiResponses(value = {
-      @ApiResponse(responseCode = "200", description = "Password reset was successful.",
+      @ApiResponse(responseCode = "204", description = "Password reset was successful.",
           content = @Content(schema = @Schema(hidden = true))),
       @ApiResponse(responseCode = "400", description = "Invalid input (missing data).",
           content = @Content(mediaType = "application/problem+json",
@@ -152,7 +150,7 @@ public class UserController {
   @PostMapping(value = "/delete/link", produces = "application/json")
   @Operation(summary = "Send account deletion link", description = "Sends email with link that leads to page where you can confirm account deletion.")
   @ApiResponses(value = {
-      @ApiResponse(responseCode = "200", description = "Account deletion email successfully sent.",
+      @ApiResponse(responseCode = "204", description = "Account deletion email successfully sent.",
           content = @Content(schema = @Schema(hidden = true))),
       @ApiResponse(responseCode = "400", description = "Invalid input (missing or malformed email).",
           content = @Content(mediaType = "application/problem+json",
@@ -178,7 +176,7 @@ public class UserController {
   @Operation(summary = "Delete user", description = "Removes user from system.")
   @ApiResponsesToken
   @ApiResponses(value = {
-      @ApiResponse(responseCode = "200", description = "Account deletion was successful.",
+      @ApiResponse(responseCode = "204", description = "Account deletion was successful.",
           content = @Content(schema = @Schema(hidden = true))),
       @ApiResponse(responseCode = "400", description = "Invalid input (missing data).",
           content = @Content(mediaType = "application/problem+json",

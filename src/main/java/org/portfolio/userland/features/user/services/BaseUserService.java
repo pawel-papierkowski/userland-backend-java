@@ -72,31 +72,42 @@ public abstract class BaseUserService extends BaseService {
   }
 
   /**
-   * Ensures given token does not exist. If valid token of given type already exists for given user, throws exception.
+   * Ensures token of given type for given user does not exist. If token exists, but is expired, it will be removed.
+   * If token exists and is still valid, throws exception.
+   * Reminder: one user can have only one token of given type at once.
    * @param nowAt Current date&time.
    * @param type Type of token.
    * @param user User.
    */
-  protected void verifyTokenDoesNotExist(LocalDateTime nowAt, EnUserTokenType type, User user) {
+  protected void ensureTokenDoesNotExist(LocalDateTime nowAt, EnUserTokenType type, User user) {
     List<UserToken> tokens = user.getTokens();
-    UserToken token = null;
-    for (UserToken currToken : tokens) {
-      if (type.equals(currToken.getType())) {
-        token = currToken;
-        break;
-      }
-    }
+    UserToken token = findToken(tokens, type);
     if (token == null) return; // no token of this type present at all, everything is fine
 
     // Expired token will be removed to make place for new token.
     if (token.getExpiresAt().isBefore(nowAt)) {
       tokens.remove(token);
-      userRepository.saveAndFlush(user); // important to flush here, otherwise Bad Things Happen
+      // Important to flush here, otherwise Bad Things Happen. It is fine if it is saved in rollback scenario, as
+      // expired tokens cannot be used anyway.
+      userRepository.saveAndFlush(user);
       return;
     }
 
     // Token still valid, throw exception.
     throw new UserTokenAlreadyExistsException(type);
+  }
+
+  /**
+   * Find token of given type from list.
+   * @param tokens List of user tokens.
+   * @param type Type of user token to find.
+   * @return User token or null if could not find.
+   */
+  private UserToken findToken(List<UserToken> tokens, EnUserTokenType type) {
+    for (UserToken currToken : tokens) {
+      if (type.equals(currToken.getType())) return currToken;
+    }
+    return null;
   }
 
   /**
@@ -113,7 +124,7 @@ public abstract class BaseUserService extends BaseService {
   //
 
   /**
-   * Add history event to user.
+   * Add history event to user. Note it persists event.
    * @param user User.
    * @param nowAt Current date&time.
    * @param what What happened.
@@ -125,7 +136,7 @@ public abstract class BaseUserService extends BaseService {
   }
 
   /**
-   * Create and fill history event.
+   * Create and fill history event. It does NOT persist event.
    * @param nowAt Current date&time.
    * @param what What happened.
    * @return User history event.

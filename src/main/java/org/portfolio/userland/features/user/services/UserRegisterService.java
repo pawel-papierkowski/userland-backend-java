@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.portfolio.userland.features.user.dto.common.EnFrontendFramework;
 import org.portfolio.userland.features.user.dto.register.TokenActivateReq;
 import org.portfolio.userland.features.user.dto.register.UserRegisterReq;
+import org.portfolio.userland.features.user.dto.register.UserRegisterResp;
 import org.portfolio.userland.features.user.entities.*;
 import org.portfolio.userland.features.user.events.UserActivatedEvent;
 import org.portfolio.userland.features.user.events.UserRegisteredEvent;
@@ -16,25 +17,25 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 
 /**
- * Business logic for user registration and activate.
+ * Business logic for user registration and activation.
  * <p>User story:</p>
  * <ul>
  *   <li>User goes on user registration page and fills form.</li>
  *   <li>User clicks on registration button. Frontend calls <code>/api/users/register</code> endpoint.</li>
- *   <li>System creates pending user account, activate token and sends email with activate link. Note that link leads to frontend.</li>
- *   <li>User clicks on activate link, get redirected to frontend, frontend calls <code>/api/users/activate</code>.</li>
- *   <li>Frontend reacts appropriately to response from activate endpoint (show success or failure message).</li>
- *   <li>On successful activate, backend sends email confirming successful user account activate.</li>
+ *   <li>System creates pending user account, activation token and sends email with activation link. Note that link leads to frontend.</li>
+ *   <li>User clicks on activation link, get redirected to frontend, frontend calls <code>/api/users/activate</code>.</li>
+ *   <li>Frontend reacts appropriately to response from <code>/api/users/activate</code> endpoint (show success or failure message).</li>
+ *   <li>On successful activation, backend sends email confirming successful user account activation.</li>
  * </ul>
- * <p>Note we do not do anything beyond registration/activate itself here. We trigger events - other services (like
- * user email service sending activate email) will react to it.</p>
+ * <p>Note we do not do anything beyond registration/activation itself here. We trigger events - other services (like
+ * user email service sending registration email) will react to it.</p>
  */
 @Service
 @RequiredArgsConstructor
 public class UserRegisterService extends BaseUserService {
   private final UserRegisterMapper userRegisterMapper;
 
-  /** How long before activate token expires in hours. */
+  /** How long before activation token expires in hours. */
   @Value("${app.user.token.activation.expires}")
   private long activationTokenExpires;
 
@@ -44,28 +45,29 @@ public class UserRegisterService extends BaseUserService {
    * @return Created user.
    */
   @Transactional
-  public User register(UserRegisterReq userRegisterReq) {
+  public UserRegisterResp register(UserRegisterReq userRegisterReq) {
     LocalDateTime nowAt = clockService.getNowUTC();
 
     verifyRegistration(userRegisterReq);
-    userRegisterReq = processRegistration(userRegisterReq);
+    userRegisterReq = modifyRegistrationReq(userRegisterReq);
 
     User user = createUserData(userRegisterReq, nowAt);
     user = userRepository.save(user);
 
     if (userRegisterReq.activate()) triggerActivationEvent(user, userRegisterReq.frontend());
     else triggerRegisterEvent(user, userRegisterReq);
-    return user;
+    return new UserRegisterResp(user.getId());
   }
 
   /**
-   * Process registration.
+   * Modify registration request.
    * @param userRegisterReq User registration request.
    * @return Modified user registration request.
    */
-  private UserRegisterReq processRegistration(UserRegisterReq userRegisterReq) {
-    Boolean activation = profile.getTest() ? userRegisterReq.activate() : false; // Never allow instant activate on PROD.
-    return userRegisterReq.toBuilder().activate(activation).build();
+  private UserRegisterReq modifyRegistrationReq(UserRegisterReq userRegisterReq) {
+    // Never allow user activation on spot during registration on PROD. This is convenience option for testing during development.
+    Boolean activate = profile.getTest() ? userRegisterReq.activate() : false;
+    return userRegisterReq.toBuilder().activate(activate).build();
   }
 
   /**
@@ -101,7 +103,7 @@ public class UserRegisterService extends BaseUserService {
 
   /**
    * Activate user that has token with given token string.
-   * @param tokenActivateReq Token activate request.
+   * @param tokenActivateReq Token activation request.
    */
   @Transactional
   public void activate(TokenActivateReq tokenActivateReq) {
@@ -122,7 +124,7 @@ public class UserRegisterService extends BaseUserService {
   // //////////////////////////////////////////////////////////////////////////
 
   /**
-   * Triggers user registration event for anyone interested.
+   * Triggers user registered event for anyone interested.
    * @param user User data.
    * @param userRegisterReq User registration request.
    */
@@ -136,12 +138,12 @@ public class UserRegisterService extends BaseUserService {
         user.getTokens().getFirst().getToken(),
         activationTokenExpires
     );
-    // Will trigger UserEmailService.sendActivationEmail().
+    // Will trigger UserEmailService.sendRegistrationEmail().
     eventPublisher.publishEvent(userRegisteredEvent);
   }
 
   /**
-   * Triggers user activate event for anyone interested.
+   * Triggers user activated event for anyone interested.
    * @param user User data.
    * @param frontend Frontend.
    */
@@ -153,7 +155,7 @@ public class UserRegisterService extends BaseUserService {
         user.getLang(),
         frontend
     );
-    // Will trigger UserEmailService.sendActivationEmail().
+    // Will trigger UserEmailService.sendActivatedEmail().
     eventPublisher.publishEvent(userActivatedEvent);
   }
 }

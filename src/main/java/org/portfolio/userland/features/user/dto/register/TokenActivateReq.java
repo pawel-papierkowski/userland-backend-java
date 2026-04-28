@@ -6,7 +6,7 @@ import jakarta.validation.constraints.Size;
 import org.portfolio.userland.features.user.dto.common.EnFrontendFramework;
 
 /**
- * Token activate request.
+ * Token activation request.
  * @param token Token string.
  */
 @Schema(description = "Payload required to register a new user.")

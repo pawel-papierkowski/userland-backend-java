@@ -14,7 +14,7 @@ import javax.sql.DataSource;
  * ShedLock configuration.
  */
 @Configuration
-@EnableSchedulerLock(defaultLockAtMostFor = "10m") // activate ShedLock
+@EnableSchedulerLock(defaultLockAtMostFor = "10m") // enable ShedLock
 public class ShedLockConfig {
   @Bean
   public LockProvider lockProvider(DataSource dataSource, PlatformTransactionManager transactionManager) {

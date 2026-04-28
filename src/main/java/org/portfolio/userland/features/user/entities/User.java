@@ -87,13 +87,13 @@ public class User {
   // //////////////////////////////////////////////////////////////////////////
 
   /**
-   * Add history entry to list of history events. Call only if you expect to use history, or it was already used.
-   * @param historyEntry History entry to add.
+   * Add history event to list of history events. Call only if you expect to use history, or it was already used.
+   * @param historyEvent History event to add.
    */
-  public void addHistory(UserHistory historyEntry) {
+  public void addHistory(UserHistory historyEvent) {
     if (history == null) this.history = new ArrayList<>();
-    history.add(historyEntry);
-    historyEntry.setUser(this);
+    history.add(historyEvent);
+    historyEvent.setUser(this);
   }
 
   /**

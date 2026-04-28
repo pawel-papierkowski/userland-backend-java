@@ -48,7 +48,7 @@ public class UserPasswordService extends BaseUserService {
     User user = resolveUser(userPassResetLinkReq.email());
 
     LocalDateTime nowAt = clockService.getNowUTC();
-    verifyTokenDoesNotExist(nowAt, EnUserTokenType.PASSWORD, user);
+    ensureTokenDoesNotExist(nowAt, EnUserTokenType.PASSWORD, user);
 
     UserToken token = createTokenData(nowAt, EnUserTokenType.PASSWORD);
     user.addToken(token);

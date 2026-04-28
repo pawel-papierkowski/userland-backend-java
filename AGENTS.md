@@ -43,7 +43,9 @@ This is a modern **Java 25**, **Spring Boot 4.0.5** application. The backend ser
 
 ## 📐 Code Style & Conventions
 - **Java Version:** Use modern Java 25 features (Records, Switch Expressions, Pattern Matching) wherever possible.
-- **Dependency Injection:** Always use Constructor Injection. Never use `@Autowired` on fields (except in Test classes).
+- **Dependency Injection:**
+  - Use Constructor Injection via `@RequiredArgsConstructor`.
+  - Never use `@Autowired` on fields. Exceptions: `Test` classes and abstract classes.
 - **Lombok:** Always use Lombok to reduce boilerplate.
     - Use `@Data` or `@Value` for DTOs.
     - Use `@RequiredArgsConstructor` for dependency injection in `@Service` and `@RestController` classes (do not use `@Autowired` on fields).

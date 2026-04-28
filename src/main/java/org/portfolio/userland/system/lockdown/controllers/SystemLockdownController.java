@@ -55,7 +55,7 @@ public class SystemLockdownController {
   @Operation(summary = "Set new status of lockdown", description = "Changes status of lockdown.")
   @ApiResponsesAuthPerm
   @ApiResponses(value = {
-      @ApiResponse(responseCode = "200", description = "Lockdown status successfully changed.",
+      @ApiResponse(responseCode = "204", description = "Lockdown status successfully changed.",
           content = @Content(schema = @Schema(hidden = true)))
   })
   public ResponseEntity<Void> setLockdown(@Valid @RequestBody SystemLockdownReq systemLockdownReq) {

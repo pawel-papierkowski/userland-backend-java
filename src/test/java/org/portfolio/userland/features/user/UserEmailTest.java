@@ -81,8 +81,8 @@ public class UserEmailTest extends BaseUserTest {
         null
     );
 
-    // Act: send registration email.
-    userEmailService.sendActivationEmail(event);
+    // Act: send 'user activated' email.
+    userEmailService.sendActivatedEmail(event);
 
     // Assert that email (confirmation of account activate) was sent.
     await().atMost(Duration.ofSeconds(3)).untilAsserted(() -> {
