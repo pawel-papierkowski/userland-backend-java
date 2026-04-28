@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 import java.util.Optional;
 
 /**
- * Project configuration service.
+ * System configuration service.
  */
 @Service
 @RequiredArgsConstructor
