@@ -52,7 +52,7 @@ public class UserPasswordApiTest extends BaseUserTest {
         .andReturn();
 
     // Assert API Response.
-    assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.OK.value());
+    assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.NO_CONTENT.value());
 
     // Prepare expected result.
     userTokenFactory.genTokenEntry(expectedUser, EnUserTokenType.PASSWORD, null);
@@ -108,7 +108,7 @@ public class UserPasswordApiTest extends BaseUserTest {
         .andReturn();
 
     // Assert API Response.
-    assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.OK.value());
+    assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.NO_CONTENT.value());
 
     // Prepare expected result.
     userTokenFactory.genTokenEntry(expectedUser, EnUserTokenType.PASSWORD, null);
@@ -165,7 +165,7 @@ public class UserPasswordApiTest extends BaseUserTest {
         .andReturn();
 
     // Assert API Response.
-    assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.OK.value());
+    assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.NO_CONTENT.value());
 
     // Prepare expected result.
     expectedUser.setModifiedAt(clockService.getNowUTC());

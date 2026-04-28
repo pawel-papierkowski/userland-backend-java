@@ -6,7 +6,7 @@ import org.portfolio.userland.features.user.entities.EnUserStatus;
 import org.portfolio.userland.features.user.entities.User;
 import org.portfolio.userland.features.user.entities.UserJwt;
 import org.portfolio.userland.features.user.entities.UserToken;
-import org.portfolio.userland.features.user.scheduler.UserScheduler;
+import org.portfolio.userland.features.user.schedulers.UserScheduler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 

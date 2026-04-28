@@ -66,8 +66,8 @@ public class UserAuthController {
       @ApiResponse(responseCode = "200", description = "Logout was successful.",
           content = @Content(schema = @Schema(hidden = true)))
   })
-  public ResponseEntity<String> logout() {
+  public ResponseEntity<Void> logout() {
     userLoginService.logout();
-    return new ResponseEntity<>(HttpStatus.OK);
+    return new ResponseEntity<>(HttpStatus.NO_CONTENT);
   }
 }

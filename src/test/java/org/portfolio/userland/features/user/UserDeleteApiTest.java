@@ -51,7 +51,7 @@ public class UserDeleteApiTest extends BaseUserTest {
         .andReturn();
 
     // Assert API Response.
-    assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.OK.value());
+    assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.NO_CONTENT.value());
 
     // Prepare expected result.
     userTokenFactory.genTokenEntry(expectedUser, EnUserTokenType.DELETE, null);
@@ -107,7 +107,7 @@ public class UserDeleteApiTest extends BaseUserTest {
         .andReturn();
 
     // Assert API Response.
-    assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.OK.value());
+    assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.NO_CONTENT.value());
 
     // Prepare expected result.
     userTokenFactory.genTokenEntry(expectedUser, EnUserTokenType.DELETE, null);
@@ -162,7 +162,7 @@ public class UserDeleteApiTest extends BaseUserTest {
         .andReturn();
 
     // Assert API Response.
-    assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.OK.value());
+    assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.NO_CONTENT.value());
 
     // Assert that user is gone.
     transactionTemplate.execute(status -> {

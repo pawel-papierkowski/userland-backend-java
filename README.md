@@ -44,11 +44,11 @@ You can think of it as baseline for any other project, as almost any project, sy
 
 You need to add these Repository Secrets:
 - General configuration:
-  - **PROFILE**: Informs system what is nature of environment. Allowed values: ```PROD```, ```STAGE```, ```DEV```, ```TEST```.
+  - **PROFILE**: Informs system what is nature of environment. Allowed values: `PROD`, `STAGE`, `DEV`, `TEST`.
 - Database:
   - **DB_USERNAME**: Name of database user.
   - **DB_PASSWORD**: Password for database user
-  - **DB_URL**: Address of database, for example ```jdbc:postgresql://some.host.com:5432/userland?sslmode=require``` .
+  - **DB_URL**: Address of database, for example `jdbc:postgresql://some.host.com:5432/userland?sslmode=require` .
 - Google Cloud: 
   - **GCP_PROJECT_ID**: Identificator of project on Google Cloud. Used for deploying project.
   - **GCP_WORKLOAD_IDENTITY_PROVIDER**: For WIP login on Google Cloud.
@@ -59,7 +59,7 @@ You need to add these Repository Secrets:
   - **TEP_RESEND_APIKEY**: API key for Transactional Email Provider called Resend.
 - Other:
   - **JWT_SECRET**: JWT token secret. Must have at least 256 bits (32 bytes) and be string encoded in BASE64.
-    - Best way to generate: in Linux/macOD/Git Bash terminal execute ```openssl rand -base64 32```.
+    - Best way to generate: in Linux/macOD/Git Bash terminal execute `openssl rand -base64 32`.
 
 ## Local startup
 
@@ -67,23 +67,23 @@ Ensure Java 25 Temurin is installed and selected.
 
 If you want to use real database instead of container, add in run config:
 - **Environment variables**:
-  - SPRING_DATASOURCE_URL=jdbc:postgresql://[URL]
-  - SPRING_DATASOURCE_USERNAME=[NAME OF POSTGRESQL ACCOUNT]
-  - SPRING_DATASOURCE_PASSWORD=[YOUR PASSWORD]
-  - SPRING_DOCKER_COMPOSE_ENABLED=false
+  - `SPRING_DATASOURCE_URL`=jdbc:postgresql://[URL]
+  - `SPRING_DATASOURCE_USERNAME`=[NAME OF POSTGRESQL ACCOUNT]
+  - `SPRING_DATASOURCE_PASSWORD`=[YOUR PASSWORD]
+  - `SPRING_DOCKER_COMPOSE_ENABLED`=false
 
 ## Testing
 
-If you run test deployment locally via ```TestUserLandApplication```, you need Docker engine running on your computer.
+If you run test deployment locally via `TestUserLandApplication`, you need Docker engine running on your computer.
 Same with running tests in general.
 
 ### Coverage
 
 For informative coverage you need to configure your coverage tool. In particular, you need to exclude:
-- ```org.portfolio.userland.swagger``` package and everything inside
-- All classes that have names ending in ```Exception```.
+- `org.portfolio.userland.swagger` package and everything inside
+- All classes that have names ending in `Exception`.
 
-This project uses **JaCoCo**. It is already configured in ```pom.xml```.
+This project uses **JaCoCo**. It is already configured in `pom.xml`.
 
 ## Deployment
 

@@ -36,7 +36,7 @@ public class UserLogoutApiTest extends BaseUserTest {
         .andReturn();
 
     // Assert: API Response.
-    assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.OK.value());
+    assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.NO_CONTENT.value());
 
     // Prepare expected result (user is same, but with new LOGOUT history event and with empty JWT table).
     userHistoryFactory.genHistoryEvent(expectedUser, EnUserHistoryWhat.LOGOUT);
@@ -60,6 +60,6 @@ public class UserLogoutApiTest extends BaseUserTest {
         .andReturn();
 
     // Assert: API Response.
-    assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.OK.value());
+    assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.NO_CONTENT.value());
   }
 }
