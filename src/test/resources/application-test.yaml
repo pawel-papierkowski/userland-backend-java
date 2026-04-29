@@ -1,0 +1,8 @@
+# Main test configuration file.
+
+spring:
+  config:
+    import:
+      - classpath:config/spring-test.yaml
+      - classpath:config/userland-test.yaml
+      - classpath:config/userland-schedulers-test.yaml

@@ -3,7 +3,7 @@ package org.portfolio.userland.common.constants;
 import lombok.Getter;
 
 /**
- * <p>Profile of system. You can check if you are on production, development etc. using YAML config <code>app.main.profile</code>.</p>
+ * <p>System profile. You can check if you are on production, development etc. using YAML config <code>app.main.profile</code>.</p>
  * <p>Example:</p>
  * <pre>
  *   &#064;Value("${app.main.profile}")
@@ -20,6 +20,7 @@ public enum EnAppProfile {
   /** System is running in test suite. */
   TEST(true);
 
+  /** If true, this profile is considered test profile. */
   @Getter
   private final Boolean test;
 

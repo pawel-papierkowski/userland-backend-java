@@ -1,7 +1,0 @@
-# Profile for tests
-
-app:
-  main:
-    profile: "TEST"
-  scheduling:
-    enabled: false # checked in SchedulerConfig

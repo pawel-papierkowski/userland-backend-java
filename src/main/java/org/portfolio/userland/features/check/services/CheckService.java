@@ -17,13 +17,18 @@ import java.time.LocalDateTime;
 public class CheckService extends BaseService {
   private final ApplicationContext context;
 
+  /** System name. */
+  @Value("${app.main.name}")
+  protected String name;
   /** System version. */
   @Value("${app.main.version}")
   protected String version;
 
   public CheckInfoResp info() {
     LocalDateTime bootAt = clockService.convert(context.getStartupDate());
-    return new CheckInfoResp(clockService.getNowUTC(),
+    return new CheckInfoResp(
+        name,
+        clockService.getNowUTC(),
         bootAt,
         version,
         profile);

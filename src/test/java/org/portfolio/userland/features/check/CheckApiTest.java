@@ -352,8 +352,8 @@ public class CheckApiTest extends BaseCheckTest {
     assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.OK.value());
     // Assert: Endpoint response. Note we do not check bootAt and version exactly (as they change).
     CheckInfoResp actualResp = objectMapper.readValue(mvcResult.getResponse().getContentAsString(), CheckInfoResp.class);
-    CheckInfoResp expectedResp = new CheckInfoResp(clockService.getNowUTC(), actualResp.bootAt(), actualResp.version(), EnAppProfile.TEST);
+    CheckInfoResp expectedResp = new CheckInfoResp("UserLand", clockService.getNowUTC(), actualResp.bootAt(), actualResp.version(), EnAppProfile.TEST);
     assertThat(actualResp).as("System info is invalid").isEqualTo(expectedResp);
-    assertThat(actualResp.version()).as("Version is invalid").matches(ValidConst.REG_EXPR_VERSION);
+    assertThat(actualResp.version()).as("Version is invalid").matches(ValidConst.REG_EXPR_VERSION); // ensure @project.version@ is correctly resolved
   }
 }

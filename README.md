@@ -1,6 +1,6 @@
 # USERLAND-BACKEND-JAVA
 
-This is simple **backend project** demonstrating basics of modern Java and Spring Boot. It is intended to be used with **frontend project** that I will write later.
+This is simple **backend project** demonstrating basics of modern Java and Spring Boot. It was made from scratch using Spring Initializr. It is intended to be used with **frontend project** that I will write later.
 
 Project is actively developed and functionality is already partially implemented.
 
@@ -12,7 +12,9 @@ Author: Paweł Papierkowski
 
 Date: 2026
 
-Link to webpage: https://github.com/pawel-papierkowski/userland-backend-java
+Link to source code: https://github.com/pawel-papierkowski/userland-backend-java
+
+Used IDE: IntelliJ IDEA
 
 ## Functionality
 
@@ -59,18 +61,24 @@ You need to add these Repository Secrets:
   - **TEP_RESEND_APIKEY**: API key for Transactional Email Provider called Resend.
 - Other:
   - **JWT_SECRET**: JWT token secret. Must have at least 256 bits (32 bytes) and be string encoded in BASE64.
-    - Best way to generate: in Linux/macOD/Git Bash terminal execute `openssl rand -base64 32`.
+    - Best way to generate: in Linux/macOS/Git Bash terminal execute `openssl rand -base64 32`.
 
 ## Local startup
 
-Ensure Java 25 Temurin is installed and selected.
+In your IDE, ensure Java 25 Temurin is installed and selected. You need to configure environment variables for your run configuration.
 
-If you want to use real database instead of container, add in run config:
-- **Environment variables**:
-  - `SPRING_DATASOURCE_URL`=jdbc:postgresql://[URL]
-  - `SPRING_DATASOURCE_USERNAME`=[NAME OF POSTGRESQL ACCOUNT]
-  - `SPRING_DATASOURCE_PASSWORD`=[YOUR PASSWORD]
-  - `SPRING_DOCKER_COMPOSE_ENABLED`=false
+- Necessary **environment variables** (without them project will fail to start or won't work properly):
+  - `EMAIL_HOST`
+  - `EMAIL_USERNAME`
+  - `EMAIL_PASSWORD`
+  - `JWT_SECRET`
+- Optional **environment variables**:
+  - If you want to use real database instead of container, add in run config:
+    - `SPRING_DATASOURCE_URL`=jdbc:postgresql://[URL]
+    - `SPRING_DATASOURCE_USERNAME`=[NAME OF POSTGRESQL ACCOUNT]
+    - `SPRING_DATASOURCE_PASSWORD`=[YOUR PASSWORD]
+    - `SPRING_DOCKER_COMPOSE_ENABLED`=false
+
 
 ## Testing
 
@@ -94,7 +102,7 @@ This app uses (free tier for all of these):
 
 **UserLand** app is deployed via **GitHub Actions**.
 
-For portfolio, email address pawel.papierkowski.portfolio@gmail.com is used and any emails from this system will have this address as sender.
+UserLand uses *pawel.papierkowski.portfolio@gmail.com* address as sender in emails sent by system.
 
 ## Design notes
 
@@ -105,8 +113,9 @@ For portfolio, email address pawel.papierkowski.portfolio@gmail.com is used and 
 
 Server address on Google Cloud: https://userland-backend-java-299988087135.europe-central2.run.app
 
-Important: due to use of free tier, first access might need a minute or so because everything needs to be spin up
-(backend is zeroed out if not used for too long).
+**Important**: due to use of free tier, first access might need a minute or so because everything needs to be spin up
+(backend is zeroed out if not used for too long). It is advised to send request first to `/api/check/alive` endpoint and
+wait for response. Now server should be up and responding normally.
 
 UserLand has endpoints available publicly to use by frontend, PostMan etc.
 - **Spring Actuator**: certain selected endpoints are available publicly, like health, metrics etc.
@@ -129,8 +138,8 @@ UserLand has endpoints available publicly to use by frontend, PostMan etc.
   - **Email**: Spring's way to send emails
   - **Security**: secures API endpoints
   - **Validation**: validate data
-  - **Actuator**: gives endpoints to check on system state
-  - **DevTools**: additional dev tools
+  - **Actuator**: provides endpoints to check on system state
+  - **DevTools**: additional dev tools like hot restart
   - **Docker Compose Support**: use containers for stuff like database when project is executed locally
 - Database:
   - **PostgreSQL**: popular relational database

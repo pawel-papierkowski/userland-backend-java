@@ -1,0 +1,6 @@
+# Configuration specific to UserLand project: scheduling for tests.
+# Note we include only variables that have different value than equivalent file in /src/main/resources/config.
+
+app:
+  scheduling: # General config.
+    enabled: false # Disables all schedulers globally, checked in SchedulerConfig.

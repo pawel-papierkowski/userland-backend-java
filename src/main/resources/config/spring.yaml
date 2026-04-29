@@ -19,7 +19,7 @@ spring:
     schemas: aux
     table: flyway_schema_history
   cloud:
-    gcp: # disable gcp stuff locally, it will be enabled on gcp profile
+    gcp: # disable gcp stuff by default, it will be enabled on gcp profile
       core:
         enabled: false
       logging:
@@ -33,10 +33,10 @@ management:
         include: "health,info,metrics,prometheus,mappings"
   info:
     env:
-      enabled: true   # Allows the /actuator/info endpoint to show environment details
+      enabled: true # Allows the /actuator/info endpoint to show environment details
 
 # Secrets are defined in GitHub (Repository Secrets).
 security:
   jwt:
-    secret: ${JWT_SECRET:qXqyG/cXonpbJY7zfChA/XoatblyieXumWmRg3mYjUc=} # Bytes encoded in BASE64. This is default in case JWT_SECRET is missing, we can use whatever locally.
+    secret: ${JWT_SECRET} # Bytes encoded in BASE64.
     expiration: 360 # 6 hours, in minutes

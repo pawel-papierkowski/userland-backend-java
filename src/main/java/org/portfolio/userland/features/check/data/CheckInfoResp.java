@@ -7,12 +7,16 @@ import java.time.LocalDateTime;
 
 /**
  * Contains basic data about this system.
- * @param nowAt Current date and time according to server.
- * @param bootAt When server boot up.
- * @param profile Profile of server.
+ * @param name Name of project.
+ * @param nowAt Current date and time according to server (UTC).
+ * @param bootAt When server boot up (UTC).
+ * @param version Version of project.
+ * @param profile Server profile.
  */
 @Schema(description = "Contains basic data about this system.")
 public record CheckInfoResp(
+    @Schema(description = "Name of system.", example = "UserLand")
+    String name,
     @Schema(description = "Server date and time.", example = "2026-04-10T10:00:00Z")
     LocalDateTime nowAt,
     @Schema(description = "When server started.", example = "2026-04-10T00:00:00Z")
