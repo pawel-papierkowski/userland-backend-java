@@ -1,7 +1,8 @@
-# Configuration specific to UserLand project: general.
+# Configuration specific to UserLand project: general config.
 
 app:
   main:
+    name: "UserLand"
     profile: ${PROFILE:DEV} # so system knows if it is on production or in other environment
     version: "@project.version@" # use version from pom.xml file
     www: https://pawel-papierkowski.github.io/frontend-userland- # does not exist yet

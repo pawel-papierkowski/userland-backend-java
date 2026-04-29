@@ -1,4 +1,5 @@
 # Main configuration file.
+
 spring:
   application:
     name: userland-backend

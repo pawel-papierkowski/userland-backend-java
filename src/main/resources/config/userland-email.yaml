@@ -1,3 +1,5 @@
+# Configuration specific to UserLand project: scheduling.
+
 spring:
   thymeleaf:
     prefix: "classpath:/templates/emails/"
@@ -5,7 +7,7 @@ spring:
     host: ${EMAIL_HOST:smtp.gmail.com}
     port: 587
     username: ${EMAIL_USERNAME:pawel.papierkowski.portfolio@gmail.com}
-    password: ${EMAIL_PASSWORD:APP_PASSWORD}
+    password: ${EMAIL_PASSWORD:APP_PASSWORD} # real App password should be in secrets provided by GitHub
     protocol: smtp
     default-encoding: UTF-8
     test-connection: true # If true, fail fast on boot if credentials are bad.

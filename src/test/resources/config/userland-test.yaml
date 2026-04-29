@@ -1,0 +1,6 @@
+# Configuration specific to UserLand project: general config for tests.
+# Note we include only variables that have different value than equivalent file in /src/main/resources/config.
+
+app:
+  main:
+    profile: "TEST"

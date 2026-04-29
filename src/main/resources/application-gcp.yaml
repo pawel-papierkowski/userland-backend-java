@@ -1,4 +1,6 @@
 # Configuration specific to Google Cloud.
+# Used only when GCP profile is active. Set in .github/workflows/deploy-gcp.yml, last step (Deploy to Cloud Run).
+
 spring:
   cloud:
     gcp:

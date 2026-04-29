@@ -1,7 +1,9 @@
 # Configuration specific to UserLand project: scheduling.
 
 app:
-  scheduler:
+  scheduling: # General config.
+    enabled: true # Explicitly enables all schedulers globally, checked in SchedulerConfig.
+  scheduler: # Config specific to particular scheduler.
     user:
       cleanup:
         users:
