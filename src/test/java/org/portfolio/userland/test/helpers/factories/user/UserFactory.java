@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.instancio.Instancio;
 import org.portfolio.userland.features.user.entities.*;
 import org.portfolio.userland.features.user.repositories.PermissionRepository;
-import org.portfolio.userland.system.jwt.JwtService;
+import org.portfolio.userland.system.auth.jwt.JwtService;
 import org.portfolio.userland.test.helpers.factories.BaseFactory;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -99,7 +99,7 @@ public class UserFactory extends BaseFactory {
     user.setLang("en");
     user.setStatus(status);
 
-    userHistoryFactory.genHistoryEvent(user, EnUserHistoryWhat.CREATED);
+    userHistoryFactory.genHistoryEvent(user, EnUserHistoryWhat.CREATE, "");
     return user;
   }
 
@@ -156,7 +156,7 @@ public class UserFactory extends BaseFactory {
         .ignore(field(User::getHistory)) // ditto
         .ignore(field(User::getPermissions)) // ditto
         .create();
-    userHistoryFactory.genHistoryEvent(randomUser, EnUserHistoryWhat.CREATED);
+    userHistoryFactory.genHistoryEvent(randomUser, EnUserHistoryWhat.CREATE, "");
     return randomUser;
   }
 
@@ -169,7 +169,7 @@ public class UserFactory extends BaseFactory {
   private void modifyStatus(User user) {
     EnUserStatus status = user.getStatus();
     if (EnUserStatus.PENDING.equals(status)) userTokenFactory.genTokenEntry(user, EnUserTokenType.ACTIVATE, null);
-    if (EnUserStatus.ACTIVE.equals(status)) userHistoryFactory.genHistoryEvent(user, EnUserHistoryWhat.ACTIVATED);
+    if (EnUserStatus.ACTIVE.equals(status)) userHistoryFactory.genHistoryEvent(user, EnUserHistoryWhat.ACTIVATE, "");
   }
 
   /**
@@ -177,7 +177,7 @@ public class UserFactory extends BaseFactory {
    * @param user User to modify.
    */
   private void modifyLogged(User user) {
-    userHistoryFactory.genHistoryEvent(user, EnUserHistoryWhat.LOGIN);
+    userHistoryFactory.genHistoryEvent(user, EnUserHistoryWhat.LOGIN, "");
     String token = jwtService.generateToken(user);
     userJwtFactory.genJwtEntry(user, token);
   }

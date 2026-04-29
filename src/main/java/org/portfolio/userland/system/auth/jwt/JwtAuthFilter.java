@@ -1,4 +1,4 @@
-package org.portfolio.userland.system.jwt;
+package org.portfolio.userland.system.auth.jwt;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -6,9 +6,9 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.NonNull;
-import org.portfolio.userland.system.auth.CustomUserDetailsService;
-import org.portfolio.userland.system.auth.data.CustomUserDetails;
-import org.portfolio.userland.system.jwt.exceptions.InvalidBearerTokenException;
+import org.portfolio.userland.system.auth.details.CustomUserDetails;
+import org.portfolio.userland.system.auth.details.CustomUserDetailsService;
+import org.portfolio.userland.system.auth.jwt.exceptions.InvalidBearerTokenException;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;

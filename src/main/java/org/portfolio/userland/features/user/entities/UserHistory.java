@@ -48,6 +48,10 @@ public class UserHistory {
   @Enumerated(EnumType.STRING)
   private EnUserHistoryWhat what;
 
+  /** Event parameters. */
+  @Column(nullable = false)
+  private String params;
+
   // //////////////////////////////////////////////////////////////////////////
 
   @Override

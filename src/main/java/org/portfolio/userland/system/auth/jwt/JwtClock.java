@@ -1,4 +1,4 @@
-package org.portfolio.userland.system.jwt;
+package org.portfolio.userland.system.auth.jwt;
 
 import io.jsonwebtoken.Clock;
 import lombok.RequiredArgsConstructor;

@@ -18,17 +18,17 @@ public class SystemHistoryFactory extends BaseFactory {
    * Generate system history event.
    * @param who Who did it?
    * @param what What happened?
-   * @param value Custom value.
-   * @return User history event.
+   * @param params Event parameters.
+   * @return System history event.
    */
-  public SystemHistory genHistoryEvent(User user, EnHistoryWho who, EnHistoryWhat what, String value) {
+  public SystemHistory genHistoryEvent(User user, EnHistoryWho who, EnHistoryWhat what, String params) {
     SystemHistory systemHistoryEvent = new SystemHistory();
     systemHistoryEvent.setUuid(securityGeneratorService.uuid());
     systemHistoryEvent.setCreatedAt(clockService.getNowUTC());
     systemHistoryEvent.setUser(user);
     systemHistoryEvent.setWho(who);
     systemHistoryEvent.setWhat(what);
-    systemHistoryEvent.setValue(value);
+    systemHistoryEvent.setParams(params);
     return systemHistoryEvent;
   }
 }

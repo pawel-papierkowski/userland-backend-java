@@ -8,9 +8,9 @@ import org.portfolio.userland.features.user.dto.login.UserLoginResp;
 import org.portfolio.userland.features.user.entities.EnUserHistoryWhat;
 import org.portfolio.userland.features.user.entities.EnUserStatus;
 import org.portfolio.userland.features.user.entities.User;
+import org.portfolio.userland.system.auth.jwt.JwtService;
 import org.portfolio.userland.system.config.service.ConfigConst;
 import org.portfolio.userland.system.config.service.ConfigService;
-import org.portfolio.userland.system.jwt.JwtService;
 import org.portfolio.userland.test.helpers.problemDetail.ProblemDetailBox;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -62,7 +62,7 @@ public class UserLoginApiTest extends BaseUserTest {
     UserLoginResp actualResp = objectMapper.readValue(mvcResult.getResponse().getContentAsString(), UserLoginResp.class);
 
     // Prepare expected result (user is same, but with new LOGIN history event and JWT entry).
-    userHistoryFactory.genHistoryEvent(expectedUser, EnUserHistoryWhat.LOGIN);
+    userHistoryFactory.genHistoryEvent(expectedUser, EnUserHistoryWhat.LOGIN, "");
     userJwtFactory.genJwtEntry(expectedUser, actualResp.jwtToken());
 
     // Assert: Database state.
@@ -106,7 +106,7 @@ public class UserLoginApiTest extends BaseUserTest {
     UserLoginResp actualResp = objectMapper.readValue(mvcResult.getResponse().getContentAsString(), UserLoginResp.class);
 
     // Prepare expected result (user is same, but with new LOGIN history event).
-    userHistoryFactory.genHistoryEvent(expectedUser, EnUserHistoryWhat.LOGIN);
+    userHistoryFactory.genHistoryEvent(expectedUser, EnUserHistoryWhat.LOGIN, "");
     userJwtFactory.genJwtEntry(expectedUser, actualResp.jwtToken());
 
     // Assert: Database state.
@@ -156,7 +156,7 @@ public class UserLoginApiTest extends BaseUserTest {
     UserLoginResp actualResp = objectMapper.readValue(mvcResult.getResponse().getContentAsString(), UserLoginResp.class);
 
     // Prepare expected result (user is same, but with new LOGIN history event).
-    userHistoryFactory.genHistoryEvent(expectedUser, EnUserHistoryWhat.LOGIN);
+    userHistoryFactory.genHistoryEvent(expectedUser, EnUserHistoryWhat.LOGIN, "");
     userJwtFactory.genJwtEntry(expectedUser, actualResp.jwtToken());
 
     // Assert: Database state.

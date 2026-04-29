@@ -1,6 +1,6 @@
 package org.portfolio.userland.system.auth;
 
-import org.portfolio.userland.system.auth.data.CustomUserDetails;
+import org.portfolio.userland.system.auth.details.CustomUserDetails;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 

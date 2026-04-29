@@ -23,4 +23,12 @@ public abstract class BaseSystemTest extends BaseIntegrationTest {
   protected UserFactory userFactory;
   @Autowired
   protected UserAssert userAssert;
+
+  //
+
+  @Override
+  protected void cleanDatabase() {
+    super.cleanDatabase();
+    userRepository.deleteAll(); // will remove everything from related tables too
+  }
 }

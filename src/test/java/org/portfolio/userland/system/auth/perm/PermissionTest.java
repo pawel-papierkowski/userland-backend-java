@@ -1,11 +1,10 @@
-package org.portfolio.userland.system.auth;
+package org.portfolio.userland.system.auth.perm;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.portfolio.userland.features.user.BaseUserTest;
 import org.portfolio.userland.features.user.entities.Permission;
 import org.portfolio.userland.features.user.entities.UserPermission;
-import org.portfolio.userland.system.auth.data.EnPermKind;
 import org.portfolio.userland.test.helpers.context.WithMockCustomUser;
 import org.springframework.beans.factory.annotation.Autowired;
 

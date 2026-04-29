@@ -7,7 +7,7 @@ import org.portfolio.userland.features.user.exceptions.UserDoesNotExistException
 import org.portfolio.userland.features.user.repositories.UserRepository;
 import org.portfolio.userland.system.BaseService;
 import org.portfolio.userland.system.auth.AuthHelper;
-import org.portfolio.userland.system.auth.data.CustomUserDetails;
+import org.portfolio.userland.system.auth.details.CustomUserDetails;
 import org.portfolio.userland.system.history.entity.EnHistoryWhat;
 import org.portfolio.userland.system.history.entity.EnHistoryWho;
 import org.portfolio.userland.system.history.entity.SystemHistory;
@@ -31,10 +31,10 @@ public class SystemHistoryService extends BaseService {
    * Add system history event. Code will attempt to resolve currently logged user beforehand.
    * @param who Who did that?
    * @param what What happened?
-   * @param value Value.
+   * @param params Event parameters.
    */
   @Transactional
-  public void addEvent(EnHistoryWho who, EnHistoryWhat what, String value) {
+  public void addEvent(EnHistoryWho who, EnHistoryWhat what, String params) {
     // Try to resolve logged user, if any exists.
     CustomUserDetails userDetails = AuthHelper.resolveUserDetails();
     User user = null;
@@ -42,7 +42,7 @@ public class SystemHistoryService extends BaseService {
       user = userRepository.findByEmail(userDetails.getEmail())
           .orElseThrow(() -> new UserDoesNotExistException(userDetails.getEmail()));
     }
-    addEvent(user, who, what, value);
+    addEvent(user, who, what, params);
   }
 
   /**
@@ -50,10 +50,10 @@ public class SystemHistoryService extends BaseService {
    * @param user User. Can be null.
    * @param who Who did that?
    * @param what What happened?
-   * @param value Value.
+   * @param params Event parameters.
    */
   @Transactional
-  public void addEvent(User user, EnHistoryWho who, EnHistoryWhat what, String value) {
+  public void addEvent(User user, EnHistoryWho who, EnHistoryWhat what, String params) {
     LocalDateTime nowAt = clockService.getNowUTC();
 
     SystemHistory systemHistoryEvent = new SystemHistory();
@@ -62,7 +62,7 @@ public class SystemHistoryService extends BaseService {
     systemHistoryEvent.setUser(user);
     systemHistoryEvent.setWho(who);
     systemHistoryEvent.setWhat(what);
-    systemHistoryEvent.setValue(value);
+    systemHistoryEvent.setParams(params);
     systemHistoryRepository.save(systemHistoryEvent);
   }
 }

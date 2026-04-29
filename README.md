@@ -29,6 +29,7 @@ You can think of it as baseline for any other project, as almost any project, sy
   - User **activation** via email.
   - User **login**.
   - User **logout**.
+  - **Editing** of your own user account.
   - **Password reset** via email.
   - User **account deletion** (confirmation via email).
 - Handling **user permissions** (standard user vs panel admin operator).

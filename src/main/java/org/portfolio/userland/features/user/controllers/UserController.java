@@ -8,16 +8,19 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.portfolio.userland.features.user.dto.common.UserDataResp;
 import org.portfolio.userland.features.user.dto.delete.UserDeleteConfirmReq;
 import org.portfolio.userland.features.user.dto.delete.UserDeleteLinkReq;
+import org.portfolio.userland.features.user.dto.edit.UserEditReq;
 import org.portfolio.userland.features.user.dto.password.UserPassResetConfirmReq;
 import org.portfolio.userland.features.user.dto.password.UserPassResetLinkReq;
 import org.portfolio.userland.features.user.dto.register.TokenActivateReq;
 import org.portfolio.userland.features.user.dto.register.UserRegisterReq;
-import org.portfolio.userland.features.user.dto.register.UserRegisterResp;
 import org.portfolio.userland.features.user.services.UserDeleteService;
+import org.portfolio.userland.features.user.services.UserEditService;
 import org.portfolio.userland.features.user.services.UserPasswordService;
 import org.portfolio.userland.features.user.services.UserRegisterService;
+import org.portfolio.userland.swagger.annotations.ApiResponsesAuth;
 import org.portfolio.userland.swagger.annotations.ApiResponsesToken;
 import org.portfolio.userland.swagger.detail.common.ValidationProblemDetail;
 import org.portfolio.userland.swagger.detail.user.EmailExistsProblemDetail;
@@ -49,6 +52,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "User Management", description = "Endpoints for creating and managing user accounts.")
 public class UserController {
   private final UserRegisterService userRegisterService;
+  private final UserEditService userEditService;
   private final UserPasswordService userPasswordService;
   private final UserDeleteService userDeleteService;
 
@@ -68,8 +72,8 @@ public class UserController {
           content = @Content(mediaType = "application/problem+json",
                              schema = @Schema(implementation = EmailExistsProblemDetail.class)))
   })
-  public ResponseEntity<UserRegisterResp> registerUser(@Valid @RequestBody UserRegisterReq userRegisterReq) {
-    UserRegisterResp resp = userRegisterService.register(userRegisterReq);
+  public ResponseEntity<UserDataResp> registerUser(@Valid @RequestBody UserRegisterReq userRegisterReq) {
+    UserDataResp resp = userRegisterService.register(userRegisterReq);
     return new ResponseEntity<>(resp, HttpStatus.CREATED);
   }
 
@@ -91,6 +95,23 @@ public class UserController {
   public ResponseEntity<Void> activateUser(@Valid @RequestBody TokenActivateReq tokenActivateReq) {
     userRegisterService.activate(tokenActivateReq);
     return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+  }
+
+  /**
+   * Edit user account.
+   * @param userEditReq User edit request.
+   * @return Response with updated user data.
+   */
+  @PostMapping(value = "/edit", produces = "application/json")
+  @Operation(summary = "Edit user data", description = "Allows editing certain fields of user entity that belongs to currently logged user.")
+  @ApiResponsesAuth
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "204", description = "User successfully edited.",
+          content = @Content(schema = @Schema(hidden = true)))
+  })
+  public ResponseEntity<UserDataResp> editUser(@Valid @RequestBody UserEditReq userEditReq) {
+    UserDataResp resp = userEditService.edit(userEditReq);
+    return new ResponseEntity<>(resp, HttpStatus.NO_CONTENT);
   }
 
   //

@@ -2,7 +2,7 @@ package org.portfolio.userland.config.security;
 
 import lombok.RequiredArgsConstructor;
 import org.portfolio.userland.system.auth.LockdownFilter;
-import org.portfolio.userland.system.jwt.JwtAuthFilter;
+import org.portfolio.userland.system.auth.jwt.JwtAuthFilter;
 import org.springframework.boot.security.autoconfigure.actuate.web.servlet.EndpointRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

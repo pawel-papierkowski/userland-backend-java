@@ -49,9 +49,9 @@ public class SystemHistory {
   @Enumerated(EnumType.STRING)
   private EnHistoryWhat what;
 
-  /** Value of event. */
+  /** Event parameters. */
   @Column(nullable = false)
-  private String value;
+  private String params;
 
   // //////////////////////////////////////////////////////////////////////////
 
