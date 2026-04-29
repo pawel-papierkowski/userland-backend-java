@@ -4,12 +4,13 @@ import org.junit.jupiter.api.Test;
 import org.portfolio.userland.features.user.dto.password.UserPassResetConfirmReq;
 import org.portfolio.userland.features.user.dto.register.UserRegisterReq;
 import org.portfolio.userland.features.user.services.UserDeleteService;
+import org.portfolio.userland.features.user.services.UserEditService;
 import org.portfolio.userland.features.user.services.UserPasswordService;
 import org.portfolio.userland.features.user.services.UserRegisterService;
-import org.portfolio.userland.system.auth.CustomUserDetailsService;
-import org.portfolio.userland.system.auth.PermissionService;
+import org.portfolio.userland.system.auth.details.CustomUserDetailsService;
+import org.portfolio.userland.system.auth.jwt.JwtService;
+import org.portfolio.userland.system.auth.perm.PermissionService;
 import org.portfolio.userland.system.config.service.ConfigService;
-import org.portfolio.userland.system.jwt.JwtService;
 import org.portfolio.userland.test.base.BaseWebTest;
 import org.portfolio.userland.test.helpers.problemDetail.ProblemDetailBox;
 import org.springframework.http.HttpStatus;
@@ -29,6 +30,8 @@ public class UserWebTest extends BaseWebTest {
   // We mock services present on UserController because we only care about testing the Controller's @Valid rules.
   @MockitoBean
   private UserRegisterService userRegisterService;
+  @MockitoBean
+  private UserEditService userEditService;
   @MockitoBean
   private UserPasswordService userPasswordService;
   @MockitoBean

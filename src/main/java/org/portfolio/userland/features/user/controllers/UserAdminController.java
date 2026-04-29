@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * REST endpoints for user management. All endpoints here require administration permissions.
+ * REST endpoints for user management. All endpoints here require administration panel access permissions.
  * <p>Endpoints:</p>
  * <ul>
  *   <li><code>GET /api/admin/users/all</code> - get all users. Note it returns only DTO: data present in table</li>
@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/admin/users")
 @RequiredArgsConstructor
-@Tag(name = "User Management", description = "Endpoints for managing user accounts.")
+@Tag(name = "User Management", description = "Endpoints for managing user accounts. Requires administration panel access permissions.")
 public class UserAdminController {
   // TODO actually implement it
 }

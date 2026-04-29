@@ -1,11 +1,11 @@
-package org.portfolio.userland.system.auth;
+package org.portfolio.userland.system.auth.perm;
 
 import com.google.api.client.util.Lists;
 import lombok.RequiredArgsConstructor;
 import org.portfolio.userland.features.user.constants.UserPermConst;
 import org.portfolio.userland.features.user.entities.UserPermission;
-import org.portfolio.userland.system.auth.data.CustomUserDetails;
-import org.portfolio.userland.system.auth.data.EnPermKind;
+import org.portfolio.userland.system.auth.AuthHelper;
+import org.portfolio.userland.system.auth.details.CustomUserDetails;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -34,7 +34,7 @@ public class PermissionService {
   public boolean has(EnPermKind permKind, CustomUserDetails customUserDetails) {
     if (customUserDetails == null) return false; // not logged in means no access
     Map<String, Set<String>> rawPermissions = get(permKind);
-    return customUserDetails.hasAuthorities(mapToArray(rawPermissions));
+    return customUserDetails.hasAnyAuthority(mapToArray(rawPermissions));
   }
 
   /**
@@ -99,7 +99,9 @@ public class PermissionService {
   public Map<String, Set<String>> get(EnPermKind permKind) {
     if (permKind == null) return Map.of();
     return switch (permKind) {
-      case ACCESS_TO_ADMIN_PANEL -> Map.of(UserPermConst.ROLE, Set.of(UserPermConst.OPERATOR, UserPermConst.ADMIN));
+      case ACCESS_TO_ADMIN_PANEL -> Map.of(PermConst.ROLE, Set.of(PermConst.ROLE_ADMIN, PermConst.ROLE_OPERATOR));
+      case USER_VIEW -> Map.of(PermConst.ROLE, Set.of(PermConst.ROLE_ADMIN), UserPermConst.USER, Set.of(UserPermConst.USER_VIEW));
+      case USER_EDIT -> Map.of(PermConst.ROLE, Set.of(PermConst.ROLE_ADMIN), UserPermConst.USER, Set.of(UserPermConst.USER_EDIT));
     };
   }
 }

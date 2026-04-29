@@ -2,6 +2,7 @@ package org.portfolio.userland.features.user.services;
 
 import org.portfolio.userland.features.user.entities.*;
 import org.portfolio.userland.features.user.exceptions.*;
+import org.portfolio.userland.features.user.mappers.UserMapper;
 import org.portfolio.userland.features.user.repositories.UserHistoryRepository;
 import org.portfolio.userland.features.user.repositories.UserJwtRepository;
 import org.portfolio.userland.features.user.repositories.UserRepository;
@@ -27,6 +28,9 @@ public abstract class BaseUserService extends BaseService {
   protected UserTokenRepository userTokenRepository;
   @Autowired
   protected UserJwtRepository userJwtRepository;
+
+  @Autowired
+  protected UserMapper userMapper;
 
   //
 
@@ -128,25 +132,29 @@ public abstract class BaseUserService extends BaseService {
    * @param user User.
    * @param nowAt Current date&time.
    * @param what What happened.
+   * @param params Event parameters.
    */
-  protected void addHistoryEvent(User user, LocalDateTime nowAt, EnUserHistoryWhat what) {
-    UserHistory historyEvent = createHistoryEvent(nowAt, what);
+  protected void addHistoryEvent(User user, LocalDateTime nowAt, EnUserHistoryWhat what, String params) {
+    UserHistory historyEvent = createHistoryEvent(nowAt, what, params);
     historyEvent.setUser(user);
     userHistoryRepository.save(historyEvent);
   }
 
   /**
    * Create and fill history event. It does NOT persist event.
+   *
    * @param nowAt Current date&time.
    * @param what What happened.
+   * @param params Event parameters.
    * @return User history event.
    */
-  protected UserHistory createHistoryEvent(LocalDateTime nowAt, EnUserHistoryWhat what) {
+  protected UserHistory createHistoryEvent(LocalDateTime nowAt, EnUserHistoryWhat what, String params) {
     UserHistory event = new UserHistory();
     event.setUuid(securityGeneratorService.uuid());
     event.setCreatedAt(nowAt);
     event.setWho(EnUserHistoryWho.USER);
     event.setWhat(what);
+    event.setParams(params);
     return event;
   }
 

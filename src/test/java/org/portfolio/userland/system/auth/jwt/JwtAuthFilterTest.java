@@ -1,10 +1,10 @@
-package org.portfolio.userland.system.jwt;
+package org.portfolio.userland.system.auth.jwt;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.portfolio.userland.system.auth.CustomUserDetailsService;
-import org.portfolio.userland.system.auth.data.CustomUserDetails;
-import org.portfolio.userland.system.jwt.exceptions.InvalidBearerTokenException;
+import org.portfolio.userland.system.auth.details.CustomUserDetails;
+import org.portfolio.userland.system.auth.details.CustomUserDetailsService;
+import org.portfolio.userland.system.auth.jwt.exceptions.InvalidBearerTokenException;
 import org.springframework.mock.web.MockFilterChain;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;

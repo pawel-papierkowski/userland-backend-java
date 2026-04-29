@@ -27,7 +27,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/system")
 @RequiredArgsConstructor
-@Tag(name = "System Lockdown Management", description = "Endpoints for system lockdown management.")
+@Tag(name = "System Lockdown Management", description = "Endpoints for system lockdown management. Requires administration permissions.")
 public class SystemLockdownController {
   private final SystemLockdownService systemLockdownService;
 
@@ -55,11 +55,14 @@ public class SystemLockdownController {
   @Operation(summary = "Set new status of lockdown", description = "Changes status of lockdown.")
   @ApiResponsesAuthPerm
   @ApiResponses(value = {
-      @ApiResponse(responseCode = "204", description = "Lockdown status successfully changed.",
+      @ApiResponse(responseCode = "200", description = "Lockdown status successfully changed.",
+          content = @Content(schema = @Schema(hidden = true))),
+      @ApiResponse(responseCode = "204", description = "Lockdown status did not change, because it was already in this state.",
           content = @Content(schema = @Schema(hidden = true)))
   })
   public ResponseEntity<Void> setLockdown(@Valid @RequestBody SystemLockdownReq systemLockdownReq) {
-    systemLockdownService.set(systemLockdownReq);
+    boolean result = systemLockdownService.set(systemLockdownReq);
+    if (result) return new ResponseEntity<>(HttpStatus.OK);
     return new ResponseEntity<>(HttpStatus.NO_CONTENT);
   }
 }

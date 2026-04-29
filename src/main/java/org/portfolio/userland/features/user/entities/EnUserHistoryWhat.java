@@ -5,9 +5,11 @@ package org.portfolio.userland.features.user.entities;
  */
 public enum EnUserHistoryWhat {
   /** User was created. */
-  CREATED,
+  CREATE,
   /** User was activated. */
-  ACTIVATED,
+  ACTIVATE,
+  /** User edited their account. */
+  EDIT,
   /** Password reset was requested. */
   PASS_RESET_REQ,
   /** Password reset was done. */

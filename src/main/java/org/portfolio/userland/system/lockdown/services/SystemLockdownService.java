@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.portfolio.userland.features.user.repositories.UserJwtRepository;
 import org.portfolio.userland.system.BaseService;
-import org.portfolio.userland.system.auth.data.EnPermKind;
+import org.portfolio.userland.system.auth.perm.EnPermKind;
 import org.portfolio.userland.system.config.service.ConfigConst;
 import org.portfolio.userland.system.history.entity.EnHistoryWhat;
 import org.portfolio.userland.system.history.entity.EnHistoryWho;
@@ -43,20 +43,22 @@ public class SystemLockdownService extends BaseService {
   /**
    * Set new state of system lockdown.
    * @param systemLockdownReq New state of system lockdown.
+   * @return True if lockdown state was changed, otherwise false.
    */
   @Transactional
-  public void set(@Valid SystemLockdownReq systemLockdownReq) {
+  public boolean set(@Valid SystemLockdownReq systemLockdownReq) {
     String lockdownValue = configService.get(ConfigConst.USER_LOCKDOWN, ConfigConst.USER_LOCKDOWN_DEF);
     EnSystemLockdownState currLockDownState = EnSystemLockdownState.fromStr(lockdownValue);
     EnSystemLockdownState newLockDownState = systemLockdownReq.state();
 
     // nothing changes
-    if (currLockDownState == null || newLockDownState == null || currLockDownState.equals(newLockDownState)) return;
+    if (currLockDownState == null || newLockDownState == null || currLockDownState.equals(newLockDownState)) return false;
 
     switch (newLockDownState) {
       case ON -> lockSystem();
       case OFF -> unlockSystem();
     }
+    return true;
   }
 
   /** Activate system lockdown. */

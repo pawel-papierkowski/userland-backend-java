@@ -35,10 +35,9 @@ This is a modern **Java 25**, **Spring Boot 4.0.5** application. The backend ser
     - `services/` - Core business logic. Classes here must be annotated with `@Service`. Services that need it may inherit directly or indirectly from `BaseService`.
 - `swagger/` - Classes used for Swagger/OpenAPI documentation.
 - `system/` - System and supporting code. Unlike features above, these are used in any kind of project.
-  - `auth/` - Handles authorization and permissions.
+  - `auth/` - Handles authorization, JWT-related code and permissions.
   - `config/` - Handles system configuration feature.
   - `history/` - Handles system history feature.
-  - `jwt/` - Handles JWT-related code.
   - `lockdown/` - Handles system lockdown feature.
 
 ## 📐 Code Style & Conventions

@@ -54,7 +54,7 @@ public class UserPasswordService extends BaseUserService {
     user.addToken(token);
     user = userRepository.save(user);
 
-    addHistoryEvent(user, nowAt, EnUserHistoryWhat.PASS_RESET_REQ);
+    addHistoryEvent(user, nowAt, EnUserHistoryWhat.PASS_RESET_REQ, "");
 
     triggerPassLinkEvent(userPassResetLinkReq, user, token);
   }
@@ -96,7 +96,7 @@ public class UserPasswordService extends BaseUserService {
     userRepository.save(user);
 
     userTokenRepository.deleteToken(userToken.getToken());
-    addHistoryEvent(user, nowAt, EnUserHistoryWhat.PASS_RESET);
+    addHistoryEvent(user, nowAt, EnUserHistoryWhat.PASS_RESET, "");
 
     triggerPassConfirmEvent(user);
   }

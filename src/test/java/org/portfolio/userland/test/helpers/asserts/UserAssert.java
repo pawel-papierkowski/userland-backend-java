@@ -64,8 +64,7 @@ public class UserAssert {
 
     // Assert fields that need to be asserted separately for various reasons
     assertThat(actualUser.getId()).as(comment + ": id is wrong").isGreaterThan(0L);
-    assertThat(actualUser.getPassword()).as(comment + ": password must be hashed").isNotEqualTo("Password123!");
-    assertThat(actualUser.getPassword()).as(comment + ": password hash must be BCrypt").startsWith("$2a$"); // Ensure MapStruct + BCrypt hashed the password!
+    assertThat(actualUser.getPassword()).as(comment + ": password must be hashed with BCrypt").startsWith("$2a$"); // Ensure password is hashed using BCrypt.
 
     // Assert collections
     assertTokens(comment, actualUser.getTokens(), expectedUser.getTokens());

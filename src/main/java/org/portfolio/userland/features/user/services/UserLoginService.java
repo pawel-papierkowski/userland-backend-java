@@ -8,12 +8,12 @@ import org.portfolio.userland.features.user.entities.EnUserHistoryWhat;
 import org.portfolio.userland.features.user.entities.User;
 import org.portfolio.userland.features.user.exceptions.UserWrongPasswordException;
 import org.portfolio.userland.system.auth.AuthHelper;
-import org.portfolio.userland.system.auth.PermissionService;
-import org.portfolio.userland.system.auth.data.CustomUserDetails;
-import org.portfolio.userland.system.auth.data.EnPermKind;
+import org.portfolio.userland.system.auth.details.CustomUserDetails;
+import org.portfolio.userland.system.auth.jwt.JwtService;
+import org.portfolio.userland.system.auth.perm.EnPermKind;
+import org.portfolio.userland.system.auth.perm.PermissionService;
 import org.portfolio.userland.system.config.service.ConfigConst;
 import org.portfolio.userland.system.config.service.ConfigService;
-import org.portfolio.userland.system.jwt.JwtService;
 import org.portfolio.userland.system.lockdown.exceptions.UserLockdownException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -50,7 +50,7 @@ public class UserLoginService extends BaseUserService {
     // Add JWT in database. This will allow us to effectively revoke tokens later (logout etc).
     addJwtEntry(user, nowAt, jwtToken);
     // Add login event to user history.
-    addHistoryEvent(user, nowAt, EnUserHistoryWhat.LOGIN);
+    addHistoryEvent(user, nowAt, EnUserHistoryWhat.LOGIN, "");
     return new UserLoginResp(jwtToken);
   }
 
@@ -92,7 +92,7 @@ public class UserLoginService extends BaseUserService {
     // might be in circulation.
     LocalDateTime nowAt = clockService.getNowUTC();
     User user = resolveUser(customUserDetails.getEmail());
-    addHistoryEvent(user, nowAt, EnUserHistoryWhat.LOGOUT);
+    addHistoryEvent(user, nowAt, EnUserHistoryWhat.LOGOUT, "");
     userJwtRepository.deleteAllByUser(user.getId()); // Revoke all JWTs related to this user.
   }
 }

@@ -1,4 +1,4 @@
-package org.portfolio.userland.system.auth.data;
+package org.portfolio.userland.system.auth.details;
 
 import com.google.common.collect.Sets;
 import lombok.Getter;
@@ -174,7 +174,7 @@ public class CustomUserDetails implements UserDetails {
    * @param authorities Many authorities.
    * @return True if user detail has at least one from given authorities, otherwise false.
    */
-  public boolean hasAuthorities(String... authorities) {
+  public boolean hasAnyAuthority(String... authorities) {
     for (String authority : authorities) {
       if (hasAuthority(authority)) return true;
     }

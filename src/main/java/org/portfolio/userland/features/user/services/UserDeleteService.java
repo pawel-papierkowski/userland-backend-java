@@ -50,7 +50,7 @@ public class UserDeleteService extends BaseUserService {
     user.addToken(token);
     user = userRepository.save(user);
 
-    addHistoryEvent(user, nowAt, EnUserHistoryWhat.DELETE_REQ);
+    addHistoryEvent(user, nowAt, EnUserHistoryWhat.DELETE_REQ, "");
 
     triggerDeleteLinkEvent(userDeleteLinkReq, user, token);
   }

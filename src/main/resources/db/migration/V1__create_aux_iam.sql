@@ -9,7 +9,7 @@
 -- Small table required by net.javacrumbs.shedlock.
 -- Prevents issues when you call scheduler in Kubernets or similar multi-node environment.
 -- It ensures only one given scheduler method is called at once.
--- See @UserScheduler for example of use of @SchedulerLock.
+-- See UserScheduler for example of @SchedulerLock use.
 CREATE TABLE aux.shedlock (
     name VARCHAR(64) NOT NULL,
     lock_until TIMESTAMP NOT NULL,
@@ -53,7 +53,8 @@ CREATE TABLE iam.permissions (
     in_authorities bool NOT NULL
 );
 -- Known permissions.
-INSERT INTO iam.permissions (name, in_jwt, in_authorities) VALUES ('role', true, true);
+INSERT INTO iam.permissions (name, in_jwt, in_authorities) VALUES ('role', true, true); -- general role
+INSERT INTO iam.permissions (name, in_jwt, in_authorities) VALUES ('user', true, true); -- what you can do in user domain
 
 -- Main users table. Contains data about user accounts.
 CREATE TABLE iam.users (
@@ -134,7 +135,9 @@ CREATE TABLE iam.history (
     -- Who caused user history event?
     who VARCHAR(50) NOT NULL CHECK (who IN ('USER', 'OPERATOR', 'SYSTEM')),
     -- What caused user history event?
-    what VARCHAR(50) NOT NULL CHECK (what IN ('CREATED', 'ACTIVATED', 'PASS_RESET_REQ', 'PASS_RESET', 'DELETE_REQ', 'LOGIN', 'LOGOUT')),
+    what VARCHAR(50) NOT NULL CHECK (what IN ('CREATE', 'ACTIVATE', 'EDIT', 'PASS_RESET_REQ', 'PASS_RESET', 'DELETE_REQ', 'LOGIN', 'LOGOUT')),
+    -- Parameters for user history event.
+    params TEXT NOT NULL,
 
     -- Table-level constraint for Foreign Key.
     CONSTRAINT fk_user FOREIGN KEY (id_user) REFERENCES iam.users(id) ON DELETE CASCADE
@@ -185,8 +188,8 @@ CREATE TABLE aux.history (
     who VARCHAR(50) NOT NULL CHECK (who IN ('OPERATOR', 'ADMIN', 'SYSTEM')),
     -- What caused system history event?
     what VARCHAR(50) NOT NULL CHECK (what IN ('LOCKDOWN')),
-    -- Value for system history event.
-    value TEXT NOT NULL UNIQUE,
+    -- Parameters for system history event.
+    params TEXT NOT NULL,
 
     -- Table-level constraint for Foreign Key.
     CONSTRAINT fk_user FOREIGN KEY (id_user) REFERENCES iam.users(id)

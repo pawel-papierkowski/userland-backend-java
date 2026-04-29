@@ -2,14 +2,13 @@ package org.portfolio.userland.features.user.services;
 
 import lombok.RequiredArgsConstructor;
 import org.portfolio.userland.features.user.dto.common.EnFrontendFramework;
+import org.portfolio.userland.features.user.dto.common.UserDataResp;
 import org.portfolio.userland.features.user.dto.register.TokenActivateReq;
 import org.portfolio.userland.features.user.dto.register.UserRegisterReq;
-import org.portfolio.userland.features.user.dto.register.UserRegisterResp;
 import org.portfolio.userland.features.user.entities.*;
 import org.portfolio.userland.features.user.events.UserActivatedEvent;
 import org.portfolio.userland.features.user.events.UserRegisteredEvent;
 import org.portfolio.userland.features.user.exceptions.UserEmailAlreadyExistsException;
-import org.portfolio.userland.features.user.mappers.UserRegisterMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,8 +32,6 @@ import java.time.LocalDateTime;
 @Service
 @RequiredArgsConstructor
 public class UserRegisterService extends BaseUserService {
-  private final UserRegisterMapper userRegisterMapper;
-
   /** How long before activation token expires in hours. */
   @Value("${app.user.token.activation.expires}")
   private long activationTokenExpires;
@@ -45,7 +42,7 @@ public class UserRegisterService extends BaseUserService {
    * @return Created user.
    */
   @Transactional
-  public UserRegisterResp register(UserRegisterReq userRegisterReq) {
+  public UserDataResp register(UserRegisterReq userRegisterReq) {
     LocalDateTime nowAt = clockService.getNowUTC();
 
     verifyRegistration(userRegisterReq);
@@ -56,7 +53,7 @@ public class UserRegisterService extends BaseUserService {
 
     if (userRegisterReq.activate()) triggerActivationEvent(user, userRegisterReq.frontend());
     else triggerRegisterEvent(user, userRegisterReq);
-    return new UserRegisterResp(user.getId());
+    return userMapper.entityToDataResp(user);
   }
 
   /**
@@ -87,14 +84,14 @@ public class UserRegisterService extends BaseUserService {
    * @return User data.
    */
   private User createUserData(UserRegisterReq userRegisterReq, LocalDateTime nowAt) {
-    User user = userRegisterMapper.toEntity(userRegisterReq);
+    User user = userMapper.registerReqToEntity(userRegisterReq);
     // Simple fields like status or blocked are pre-filled already.
     user.setCreatedAt(nowAt);
     user.setModifiedAt(nowAt);
-    user.addHistory(createHistoryEvent(nowAt, EnUserHistoryWhat.CREATED));
+    user.addHistory(createHistoryEvent(nowAt, EnUserHistoryWhat.CREATE, ""));
     if (userRegisterReq.activate()) {
       user.setStatus(EnUserStatus.ACTIVE);
-      user.addHistory(createHistoryEvent(nowAt, EnUserHistoryWhat.ACTIVATED));
+      user.addHistory(createHistoryEvent(nowAt, EnUserHistoryWhat.ACTIVATE, ""));
     } else user.addToken(createTokenData(nowAt, EnUserTokenType.ACTIVATE));
     return user;
   }
@@ -116,7 +113,7 @@ public class UserRegisterService extends BaseUserService {
     userRepository.save(user);
 
     userTokenRepository.deleteToken(userToken.getToken());
-    addHistoryEvent(user, nowAt, EnUserHistoryWhat.ACTIVATED);
+    addHistoryEvent(user, nowAt, EnUserHistoryWhat.ACTIVATE, "");
 
     triggerActivationEvent(user, tokenActivateReq.frontend());
   }

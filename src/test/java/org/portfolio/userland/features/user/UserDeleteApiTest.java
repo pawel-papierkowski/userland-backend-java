@@ -55,7 +55,7 @@ public class UserDeleteApiTest extends BaseUserTest {
 
     // Prepare expected result.
     userTokenFactory.genTokenEntry(expectedUser, EnUserTokenType.DELETE, null);
-    userHistoryFactory.genHistoryEvent(expectedUser, EnUserHistoryWhat.DELETE_REQ);
+    userHistoryFactory.genHistoryEvent(expectedUser, EnUserHistoryWhat.DELETE_REQ, "");
 
     AtomicReference<String> accDeleteToken = new AtomicReference<>();
 
@@ -111,7 +111,7 @@ public class UserDeleteApiTest extends BaseUserTest {
 
     // Prepare expected result.
     userTokenFactory.genTokenEntry(expectedUser, EnUserTokenType.DELETE, null);
-    userHistoryFactory.genHistoryEvent(expectedUser, EnUserHistoryWhat.DELETE_REQ);
+    userHistoryFactory.genHistoryEvent(expectedUser, EnUserHistoryWhat.DELETE_REQ, "");
 
     AtomicReference<String> accDeleteToken = new AtomicReference<>();
 
@@ -147,7 +147,7 @@ public class UserDeleteApiTest extends BaseUserTest {
     // Arrange: Create active user in database in state indicating it requested account deletion.
     User expectedUser = userFactory.genUser(EnUserStatus.ACTIVE);
     UserToken token = userTokenFactory.genTokenEntry(expectedUser, EnUserTokenType.DELETE, null);
-    userHistoryFactory.genHistoryEvent(expectedUser, EnUserHistoryWhat.DELETE_REQ);
+    userHistoryFactory.genHistoryEvent(expectedUser, EnUserHistoryWhat.DELETE_REQ, "");
     userRepository.save(expectedUser);
 
     clock.setFixedTime("2026-04-10T10:05:00Z");
@@ -294,7 +294,7 @@ public class UserDeleteApiTest extends BaseUserTest {
     // Arrange: create user that requested password reset.
     User expectedUser = userFactory.genUser(EnUserStatus.ACTIVE);
     UserToken token = userTokenFactory.genTokenEntry(expectedUser, EnUserTokenType.DELETE, null);
-    userHistoryFactory.genHistoryEvent(expectedUser, EnUserHistoryWhat.DELETE_REQ);
+    userHistoryFactory.genHistoryEvent(expectedUser, EnUserHistoryWhat.DELETE_REQ, "");
     userRepository.save(expectedUser);
 
     // Arrange: account deletion request with deliberately invalid token.

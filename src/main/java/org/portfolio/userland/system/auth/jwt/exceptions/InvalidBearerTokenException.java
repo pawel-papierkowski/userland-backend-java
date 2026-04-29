@@ -1,4 +1,4 @@
-package org.portfolio.userland.system.jwt.exceptions;
+package org.portfolio.userland.system.auth.jwt.exceptions;
 
 import org.portfolio.userland.common.exception.GeneralException;
 import org.springframework.http.HttpHeaders;

@@ -2,7 +2,8 @@ package org.portfolio.userland.system.auth;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.portfolio.userland.system.auth.data.CustomUserDetails;
+import org.portfolio.userland.system.auth.details.CustomUserDetails;
+import org.portfolio.userland.system.auth.perm.PermissionService;
 import org.portfolio.userland.system.config.service.ConfigConst;
 import org.portfolio.userland.system.config.service.ConfigService;
 import org.portfolio.userland.system.lockdown.exceptions.SystemLockdownException;
