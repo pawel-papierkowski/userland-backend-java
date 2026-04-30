@@ -1,7 +1,7 @@
 package org.portfolio.userland.features.user.services;
 
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.portfolio.userland.common.services.http.HttpHelperService;
 import org.portfolio.userland.features.user.dto.login.UserLoginReq;
 import org.portfolio.userland.features.user.dto.login.UserLoginResp;
 import org.portfolio.userland.features.user.entities.EnUserHistoryWhat;
@@ -31,6 +31,7 @@ public class UserLoginService extends BaseUserService {
   private final PermissionService permissionService;
   private final JwtService jwtService;
   private final PasswordEncoder passwordEncoder;
+  private final HttpHelperService httpHelperService;
 
   /**
    * Perform user login.
@@ -38,7 +39,7 @@ public class UserLoginService extends BaseUserService {
    * @return User login response.
    */
   @Transactional
-  public UserLoginResp login(@Valid UserLoginReq userLoginReq) {
+  public UserLoginResp login(UserLoginReq userLoginReq) {
     User user = userHelperService.resolveUser(userLoginReq.email());
     verifyPassword(user, userLoginReq.password());
     verifyLockdown(user);
@@ -50,7 +51,7 @@ public class UserLoginService extends BaseUserService {
     // Add JWT in database. This will allow us to effectively revoke tokens later (logout etc).
     addJwtEntry(user, nowAt, jwtToken);
     // Add login event to user history.
-    addHistoryEvent(user, nowAt, EnUserHistoryWhat.LOGIN, "");
+    addHistoryEvent(user, nowAt, EnUserHistoryWhat.LOGIN, httpHelperService.resolveHttpParams());
     return new UserLoginResp(jwtToken);
   }
 
@@ -65,7 +66,9 @@ public class UserLoginService extends BaseUserService {
   }
 
   /**
-   * Verify lockdown. Endpoint <code>/api/users/login</code> is exempt from lockdown, so we need to check for it separately.
+   * Verify lockdown. Normally lockdown will prevent calling any endpoint used in system in first place, but endpoint
+   * <code>/api/users/login</code> is exempt from lockdown, so we need to check for it separately. Exemption exists
+   * because we want to allow admin user logging in during lockdown while rejecting other users.
    * @param user User.
    */
   private void verifyLockdown(User user) {

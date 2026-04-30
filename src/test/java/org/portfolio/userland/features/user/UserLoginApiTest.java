@@ -53,7 +53,9 @@ public class UserLoginApiTest extends BaseUserTest {
     // Act: Log in user.
     MvcResult mvcResult = mockMvc.perform(post("/api/users/login")
             .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(req)))
+            .content(objectMapper.writeValueAsString(req))
+            .header("X-Forwarded-For", "192.168.1.50") // Simulate proxy IP
+            .header("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64)")) // Simulate Browser
         .andReturn();
 
     // Assert: API Response.
@@ -62,7 +64,7 @@ public class UserLoginApiTest extends BaseUserTest {
     UserLoginResp actualResp = objectMapper.readValue(mvcResult.getResponse().getContentAsString(), UserLoginResp.class);
 
     // Prepare expected result (user is same, but with new LOGIN history event and JWT entry).
-    userHistoryFactory.genHistoryEvent(expectedUser, EnUserHistoryWhat.LOGIN, "");
+    userHistoryFactory.genHistoryEvent(expectedUser, EnUserHistoryWhat.LOGIN, "IP: '192.168.1.50', User-Agent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'");
     userJwtFactory.genJwtEntry(expectedUser, actualResp.jwtToken());
 
     // Assert: Database state.
@@ -97,7 +99,9 @@ public class UserLoginApiTest extends BaseUserTest {
     // Act: Log in user.
     MvcResult mvcResult = mockMvc.perform(post("/api/users/login")
             .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(req)))
+            .content(objectMapper.writeValueAsString(req))
+            .header("X-Forwarded-For", "192.168.1.50") // Simulate proxy IP
+            .header("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64)")) // Simulate Browser
         .andReturn();
 
     // Assert: API Response.
@@ -106,7 +110,7 @@ public class UserLoginApiTest extends BaseUserTest {
     UserLoginResp actualResp = objectMapper.readValue(mvcResult.getResponse().getContentAsString(), UserLoginResp.class);
 
     // Prepare expected result (user is same, but with new LOGIN history event).
-    userHistoryFactory.genHistoryEvent(expectedUser, EnUserHistoryWhat.LOGIN, "");
+    userHistoryFactory.genHistoryEvent(expectedUser, EnUserHistoryWhat.LOGIN, "IP: '192.168.1.50', User-Agent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'");
     userJwtFactory.genJwtEntry(expectedUser, actualResp.jwtToken());
 
     // Assert: Database state.
@@ -147,7 +151,9 @@ public class UserLoginApiTest extends BaseUserTest {
     // Act: Log in user.
     MvcResult mvcResult = mockMvc.perform(post("/api/users/login")
             .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(req)))
+            .content(objectMapper.writeValueAsString(req))
+            .header("X-Forwarded-For", "192.168.1.50") // Simulate proxy IP
+            .header("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64)")) // Simulate Browser
         .andReturn();
 
     // Assert: API Response.
@@ -156,7 +162,7 @@ public class UserLoginApiTest extends BaseUserTest {
     UserLoginResp actualResp = objectMapper.readValue(mvcResult.getResponse().getContentAsString(), UserLoginResp.class);
 
     // Prepare expected result (user is same, but with new LOGIN history event).
-    userHistoryFactory.genHistoryEvent(expectedUser, EnUserHistoryWhat.LOGIN, "");
+    userHistoryFactory.genHistoryEvent(expectedUser, EnUserHistoryWhat.LOGIN, "IP: '192.168.1.50', User-Agent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'");
     userJwtFactory.genJwtEntry(expectedUser, actualResp.jwtToken());
 
     // Assert: Database state.

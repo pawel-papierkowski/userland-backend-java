@@ -1,6 +1,5 @@
 package org.portfolio.userland.system.lockdown.services;
 
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.portfolio.userland.features.user.repositories.UserJwtRepository;
@@ -46,7 +45,7 @@ public class SystemLockdownService extends BaseService {
    * @return True if lockdown state was changed, otherwise false.
    */
   @Transactional
-  public boolean set(@Valid SystemLockdownReq systemLockdownReq) {
+  public boolean set(SystemLockdownReq systemLockdownReq) {
     String lockdownValue = configService.get(ConfigConst.USER_LOCKDOWN, ConfigConst.USER_LOCKDOWN_DEF);
     EnSystemLockdownState currLockDownState = EnSystemLockdownState.fromStr(lockdownValue);
     EnSystemLockdownState newLockDownState = systemLockdownReq.state();
