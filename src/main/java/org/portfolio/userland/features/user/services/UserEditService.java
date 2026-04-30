@@ -6,7 +6,8 @@ import org.portfolio.userland.features.user.dto.common.UserDataResp;
 import org.portfolio.userland.features.user.dto.edit.UserEditReq;
 import org.portfolio.userland.features.user.entities.EnUserHistoryWhat;
 import org.portfolio.userland.features.user.entities.User;
-import org.portfolio.userland.features.user.exceptions.UserDoesNotExistException;
+import org.portfolio.userland.features.user.entities.UserProfile;
+import org.portfolio.userland.features.user.repositories.UserProfileRepository;
 import org.portfolio.userland.system.auth.AuthHelper;
 import org.portfolio.userland.system.auth.details.CustomUserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -22,9 +23,10 @@ import java.time.LocalDateTime;
 @RequiredArgsConstructor
 public class UserEditService extends BaseUserService {
   private final PasswordEncoder passwordEncoder;
+  private final UserProfileRepository userProfileRepository;
 
   /**
-   * Change selected fields of user account. This is limited version for editing your own account.
+   * Change certain fields of user and user profile. This is version for editing your own account.
    * @param userEditReq User edit request.
    * @return Updated user data.
    */
@@ -32,31 +34,69 @@ public class UserEditService extends BaseUserService {
   public UserDataResp edit(UserEditReq userEditReq) {
     CustomUserDetails userDetails = AuthHelper.resolveUserDetails();
     if (userDetails == null) throw new IllegalStateException("User details should exist!");
-    User user = userRepository.findByEmail(userDetails.getEmail())
-        .orElseThrow(() -> new UserDoesNotExistException(userDetails.getEmail()));
+    User user = userHelperService.resolveUser(userDetails.getEmail());
+    UserProfile userProfile = null; // will edit user profile only when needed
 
-    if (userEditReq.anyPresent()) {
-      String params = "";
+    boolean userPresent = userEditReq.userPresent();
+    boolean userProfilePresent = userEditReq.userProfilePresent();
+    String params = "";
+    if (userPresent || userProfilePresent) {
       LocalDateTime nowAt = clockService.getNowUTC();
       user.setModifiedAt(nowAt);
-      if (StringUtils.isNotEmpty(userEditReq.username())) {
-        user.setUsername(userEditReq.username());
-        params += "username ";
-      }
-      if (StringUtils.isNotEmpty(userEditReq.password())) {
-        user.setPassword(passwordEncoder.encode(userEditReq.password()));
-        params += "password ";
-      }
-      if (StringUtils.isNotEmpty(userEditReq.lang())) {
-        user.setLang(userEditReq.lang());
-        params += "lang ";
+      if (userPresent) params += editUser(userEditReq, user);
+      if (userProfilePresent) {
+        userProfile = userProfileRepository.findById(user.getId()).orElseThrow();
+        params += editUserProfile(userEditReq, userProfile);
       }
 
-      params = params.trim().replace(" ", ", ");
       user = userRepository.save(user);
+      if (userProfile != null) userProfileRepository.save(userProfile);
+      params = params.trim().replace(" ", ", ");
       addHistoryEvent(user, nowAt, EnUserHistoryWhat.EDIT, params);
     }
 
-    return userMapper.entityToDataResp(user);
+    return userMapper.userToDataResp(user);
+  }
+
+  /**
+   * Edit data of <code>User</code> entity.
+   * @param userEditReq User edit request.
+   * @param user User.
+   * @return History event params.
+   */
+  private String editUser(UserEditReq userEditReq, User user) {
+    String params = "";
+    if (StringUtils.isNotEmpty(userEditReq.username())) {
+      user.setUsername(userEditReq.username());
+      params += "username ";
+    }
+    if (StringUtils.isNotEmpty(userEditReq.password())) {
+      user.setPassword(passwordEncoder.encode(userEditReq.password()));
+      params += "password ";
+    }
+    if (StringUtils.isNotEmpty(userEditReq.lang())) {
+      user.setLang(userEditReq.lang());
+      params += "lang ";
+    }
+    return params;
+  }
+
+  /**
+   * Edit data of <code>UserProfile</code> entity.
+   * @param userEditReq User edit request.
+   * @param userProfile User profile.
+   * @return History event params.
+   */
+  private String editUserProfile(UserEditReq userEditReq, UserProfile userProfile) {
+    String params = "";
+    if (StringUtils.isNotEmpty(userEditReq.name())) {
+      userProfile.setName(userEditReq.name());
+      params += "name ";
+    }
+    if (StringUtils.isNotEmpty(userEditReq.surname())) {
+      userProfile.setSurname(userEditReq.surname());
+      params += "surname ";
+    }
+    return params;
   }
 }

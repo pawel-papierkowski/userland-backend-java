@@ -12,7 +12,14 @@ import java.time.LocalDateTime;
 import java.util.*;
 
 /**
- * User account.
+ * <p>User account. Contains technical data.</p>
+ * <p>Note: you need to handle <code>UserProfile</code> separately. Shouldn't be hard, as you have guarantee that
+ * <code>UserProfile</code> for given <code>User</code> has exactly same id as <code>User</code>. It is done in this way
+ * to ensure we do not load/use/save profile unnecessarily.</p>
+ * <p>To load user profile:</p>
+ * <pre>
+ *   userProfile = userProfileRepository.findById(user.getId()).orElseThrow();
+ * </pre>
  */
 @Entity
 @Table(name = "users", schema = "iam") // "user" is a reserved keyword in PostgreSQL, always use "users"
@@ -32,9 +39,9 @@ public class User {
   @Column(nullable = false)
   private LocalDateTime modifiedAt;
 
-  //
+  // basic data
 
-  /** Name of user visible on frontend. */
+  /** Name of user (can be also nickname) visible on frontend, shown to other uses, in email etc. */
   @Column(nullable = false)
   @NotBlank(message = "Username cannot be empty")
   private String username;
@@ -45,17 +52,12 @@ public class User {
   @Email(regexp = ValidConst.REG_EXPR_EMAIL, message = "Must be a valid email address")
   private String email;
 
-  /** Password. Note: this will store BCrypt hash, not the plain text. */
+  /** Password. Note: this stores BCrypt hash, not the plain text. */
   @Column(nullable = false)
   @NotBlank(message = "Password cannot be empty")
   private String password;
 
-  /** Used language. If empty/unknown, will fall back to English. */
-  @Column(nullable = false)
-  @NotBlank(message = "Language cannot be empty")
-  private String lang;
-
-  //
+  // state
 
   /** Status of user. */
   @Column(nullable = false)
@@ -66,7 +68,14 @@ public class User {
   @Column(nullable = false)
   private Boolean locked = false;
 
-  // related tables
+  // options
+
+  /** Used language. If empty/unknown, will fall back to English. */
+  @Column(nullable = false)
+  @NotBlank(message = "Language cannot be empty")
+  private String lang;
+
+  // related tables (note profile is missing)
 
   /** History of this user. */
   @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)

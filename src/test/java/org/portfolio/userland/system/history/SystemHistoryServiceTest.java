@@ -31,10 +31,10 @@ public class SystemHistoryServiceTest extends BaseSystemTest {
     // Arrange: Expected result.
     SystemHistory expectedHistoryEvent = systemHistoryFactory.genHistoryEvent(null, EnHistoryWho.ADMIN, EnHistoryWhat.LOCKDOWN, "ON");
 
-    // Act: Add event.
+    // Act: Add system history event to database.
     systemHistoryService.addEvent(null, EnHistoryWho.ADMIN, EnHistoryWhat.LOCKDOWN, "ON");
 
-    // Assert: Event is in database.
+    // Assert: System history event is in database.
     systemHistoryAssert.assertAll(List.of(expectedHistoryEvent));
   }
 }

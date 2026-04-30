@@ -41,12 +41,12 @@ public abstract class UserMapper {
   @Mapping(target = "tokens", ignore = true)
   @Mapping(target = "jwts", ignore = true)
   @Mapping(target = "permissions", ignore = true)
-  public abstract User registerReqToEntity(UserRegisterReq req);
+  public abstract User registerReqToUser(UserRegisterReq req);
 
   /**
    * Maps <code>User</code> entity to user data response.
    * @param user <code>User</code> entity.
    * @return User data response.
    */
-  public abstract UserDataResp entityToDataResp(User user);
+  public abstract UserDataResp userToDataResp(User user);
 }

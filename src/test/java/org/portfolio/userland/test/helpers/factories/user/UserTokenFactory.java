@@ -22,7 +22,7 @@ public class UserTokenFactory extends BaseFactory {
    * Generate user token entry and assign it to user.
    * @param user User.
    * @param type Token type.
-   * @param tokenStr Token string.
+   * @param tokenStr Token string. Can be null, will generate token string.
    * @return User token entry.
    */
   public UserToken genTokenEntry(User user, EnUserTokenType type, String tokenStr) {

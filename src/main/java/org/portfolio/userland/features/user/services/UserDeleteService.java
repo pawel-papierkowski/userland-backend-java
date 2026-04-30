@@ -41,7 +41,7 @@ public class UserDeleteService extends BaseUserService {
    */
   @Transactional
   public void send(UserDeleteLinkReq userDeleteLinkReq) {
-    User user = resolveUser(userDeleteLinkReq.email());
+    User user = userHelperService.resolveUser(userDeleteLinkReq.email());
 
     LocalDateTime nowAt = clockService.getNowUTC();
     ensureTokenDoesNotExist(nowAt, EnUserTokenType.DELETE, user);
@@ -87,7 +87,9 @@ public class UserDeleteService extends BaseUserService {
 
     UserToken userToken = resolveToken(nowAt, EnUserTokenType.DELETE, userDeleteConfirmReq.token());
     User user = userToken.getUser();
-    // Note this removes user completely from system. In real system this likely will be more complex,
+    userHelperService.verifyUser(user); // must have valid state
+
+    // Note this removes user completely from system without trace. In real system this likely will be more complex,
     // for example account is preserved but anonymized because you must preserve invoices and other data
     // required by law.
     userRepository.delete(user);

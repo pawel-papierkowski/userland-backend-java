@@ -60,7 +60,7 @@ public class UserDeleteApiTest extends BaseUserTest {
     AtomicReference<String> accDeleteToken = new AtomicReference<>();
 
     // Assert that user data is correctly updated.
-    transactionTemplate.execute(status -> {
+    transactionTemplate.execute(_ -> {
       User actualUser = userRepository.findByEmail("test@example.com").orElseThrow();
       userAssert.assertIt(actualUser, expectedUser);
 
@@ -116,7 +116,7 @@ public class UserDeleteApiTest extends BaseUserTest {
     AtomicReference<String> accDeleteToken = new AtomicReference<>();
 
     // Assert that user data is correctly updated.
-    transactionTemplate.execute(status -> {
+    transactionTemplate.execute(_ -> {
       User actualUser = userRepository.findByEmail("test@example.com").orElseThrow();
       userAssert.assertIt(actualUser, expectedUser);
 
@@ -164,9 +164,12 @@ public class UserDeleteApiTest extends BaseUserTest {
     // Assert API Response.
     assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.NO_CONTENT.value());
 
-    // Assert that user is gone.
-    transactionTemplate.execute(status -> {
-      assertThat(userRepository.findByEmail("test@example.com").isPresent()).as("User should be deleted").isFalse();
+    // Assert that user and related data is gone.
+    transactionTemplate.execute(_ -> {
+      assertThat(userRepository.findAll().size()).as("User should be deleted").isEqualTo(0);
+      assertThat(userProfileRepository.findAll().size()).as("User profile should be deleted").isEqualTo(0);
+      assertThat(userTokenRepository.findAll().size()).as("User tokens should be deleted").isEqualTo(0);
+      assertThat(userHistoryRepository.findAll().size()).as("User history should be deleted").isEqualTo(0);
       return null;
     });
 

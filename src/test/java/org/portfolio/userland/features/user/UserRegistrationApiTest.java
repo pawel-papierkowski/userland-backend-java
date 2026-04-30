@@ -10,6 +10,7 @@ import org.portfolio.userland.features.user.dto.register.TokenActivateReq;
 import org.portfolio.userland.features.user.dto.register.UserRegisterReq;
 import org.portfolio.userland.features.user.entities.EnUserStatus;
 import org.portfolio.userland.features.user.entities.User;
+import org.portfolio.userland.features.user.entities.UserProfile;
 import org.portfolio.userland.features.user.events.UserActivatedEvent;
 import org.portfolio.userland.features.user.events.UserRegisteredEvent;
 import org.portfolio.userland.test.helpers.problemDetail.ProblemDetailBox;
@@ -63,16 +64,15 @@ public class UserRegistrationApiTest extends BaseUserTest {
     AtomicReference<String> activationToken = new AtomicReference<>();
 
     // Assert database state.
-    transactionTemplate.execute(status -> {
+    transactionTemplate.execute(_ -> {
       // We wrap it in transactionTemplate because we cannot use @Transactional on this test, as it would break await() later.
-      boolean userExists = userRepository.existsByEmail("test@example.com");
-      assertThat(userExists).as("User should exist").isTrue();
+
+      // Prepare expected result.
+      User expectedUser = userFactory.genUser(EnUserStatus.PENDING);
+      UserProfile expectedUserProfile = userProfileFactory.genProfile(expectedUser);
 
       // Assert user state.
-      User expectedUser = userFactory.genUser(EnUserStatus.PENDING);
-      User actualUser = userRepository.findByEmail("test@example.com").orElseThrow();
-      userAssert.assertIt(actualUser, expectedUser);
-
+      User actualUser = assertAllUser("test@example.com", expectedUser, expectedUserProfile);
       activationToken.set(actualUser.getTokens().getFirst().getToken());
       return null;
     });
@@ -114,14 +114,13 @@ public class UserRegistrationApiTest extends BaseUserTest {
     assertThat(actualResp.id()).as("User id is wrong").isGreaterThan(0L); // in this way we do not have to know exact id
 
     // Assert database state.
-    transactionTemplate.execute(status -> {
-      boolean userExists = userRepository.existsByEmail("test@example.com");
-      assertThat(userExists).as("User should exist").isTrue();
+    transactionTemplate.execute(_ -> {
+      // Prepare expected result.
+      User expectedUser = userFactory.genUser(EnUserStatus.ACTIVE);
+      UserProfile expectedUserProfile = userProfileFactory.genProfile(expectedUser);
 
       // Assert user state.
-      User expectedUser = userFactory.genUser(EnUserStatus.ACTIVE);
-      User actualUser = userRepository.findByEmail("test@example.com").orElseThrow();
-      userAssert.assertIt(actualUser, expectedUser);
+      assertAllUser("test@example.com", expectedUser, expectedUserProfile);
       return null;
     });
 
@@ -153,12 +152,13 @@ public class UserRegistrationApiTest extends BaseUserTest {
         .andReturn();
 
     // Assert database state.
-    transactionTemplate.execute(status -> {
-      // Assert user state.
+    transactionTemplate.execute(_ -> {
+      // Prepare expected result.
       User expectedUser = userFactory.genUser(EnUserStatus.PENDING);
       expectedUser.setUsername("&lt;script&gt;alert(&#39;hacked&#39;)&lt;/script&gt;"); // make sure it is sanitized
-      User actualUser = userRepository.findByEmail("test@example.com").orElseThrow();
-      userAssert.assertIt(actualUser, expectedUser);
+      UserProfile expectedUserProfile = userProfileFactory.genProfile(expectedUser);
+      // Assert user state.
+      assertAllUser("test@example.com", expectedUser, expectedUserProfile);
       return null;
     });
   }
@@ -168,8 +168,10 @@ public class UserRegistrationApiTest extends BaseUserTest {
     clock.setFixedTime("2026-04-10T10:00:00Z");
     User expectedUser = userFactory.genUser(EnUserStatus.ACTIVE); // already generate expected user due to date/time
 
-    // Arrange: Create user and activate token.
-    User user = userRepository.save(userFactory.genUser(EnUserStatus.PENDING));
+    // Arrange: Create user, profile and activation token.
+    User user = userFactory.genUser(EnUserStatus.PENDING);
+    UserProfile expectedUserProfile = userProfileFactory.genRandProfile(user);
+    userProfileRepository.save(expectedUserProfile);
     String tokenStr = user.getTokens().getFirst().getToken();
 
     clock.setFixedTime("2026-04-10T10:05:00Z");
@@ -186,14 +188,13 @@ public class UserRegistrationApiTest extends BaseUserTest {
     // Assert API Response.
     assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.NO_CONTENT.value());
 
-    // Prepare expected result.
-    expectedUser.setModifiedAt(clockService.getNowUTC());
-    expectedUser.getHistory().get(1).setCreatedAt(clockService.getNowUTC()); // activate event happened now
-
     // Assert that user data is correctly updated.
-    transactionTemplate.execute(status -> {
-      User actualUser = userRepository.findByEmail("test@example.com").orElseThrow();
-      userAssert.assertIt(actualUser, expectedUser);
+    transactionTemplate.execute(_ -> {
+      // Prepare expected result.
+      expectedUser.setModifiedAt(clockService.getNowUTC());
+      expectedUser.getHistory().get(1).setCreatedAt(clockService.getNowUTC()); // activate event happened now
+      // Assert user state.
+      assertAllUser("test@example.com", expectedUser, expectedUserProfile);
       // Assert that activate token is removed.
       assertThat(userTokenRepository.count()).as("Count of all user tokens is wrong").isEqualTo(0);
       return null;

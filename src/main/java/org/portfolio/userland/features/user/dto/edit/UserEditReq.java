@@ -12,10 +12,16 @@ import org.portfolio.userland.common.constants.ValidConst;
  * @param username Username.
  * @param password User password.
  * @param lang User language as simple language code. Example: 'pl'.
+ * @param name User name.
+ * @param surname User surname.
  */
 @Schema(description = "Payload required to edit user.")
 public record UserEditReq(
-  @Schema(description = "Name shown on frontend.", example = "John Doe")
+  // USER DATA
+
+  // basic
+
+  @Schema(description = "Name shown on frontend. Can be nickname or similar.", example = "John Doe")
   String username,
 
   @Size(min = 8, max = 100, message = "Password must be between 8 and 100 characters")
@@ -26,18 +32,38 @@ public record UserEditReq(
   @Schema(description = "Password.", example = "StrongP@ssw0rd")
   String password,
 
+  // options
+
   @Size(min = 2, max = 2, message = "Invalid language code")
   @Schema(description = "Short language code.", example = "en")
-  String lang
+  String lang,
+
+  // USER PROFILE DATA
+
+  @Schema(description = "Name of user.", example = "John")
+  String name,
+
+  @Schema(description = "Surname of user.", example = "Smith")
+  String surname
 ) {
   /**
-   * Check if at least one field is not empty.
+   * Check if at least one field of user data is not empty.
    * @return True if at least one field is not empty, otherwise false.
    */
-  public boolean anyPresent() {
+  public boolean userPresent() {
     if (StringUtils.isNotEmpty(username)) return true;
     if (StringUtils.isNotEmpty(password)) return true;
     if (StringUtils.isNotEmpty(lang)) return true;
+    return false;
+  }
+
+  /**
+   * Check if at least one field of user profile data is not empty.
+   * @return True if at least one field is not empty, otherwise false.
+   */
+  public boolean userProfilePresent() {
+    if (StringUtils.isNotEmpty(name)) return true;
+    if (StringUtils.isNotEmpty(surname)) return true;
     return false;
   }
 }

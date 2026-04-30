@@ -39,7 +39,7 @@ public class UserLoginService extends BaseUserService {
    */
   @Transactional
   public UserLoginResp login(@Valid UserLoginReq userLoginReq) {
-    User user = resolveUser(userLoginReq.email());
+    User user = userHelperService.resolveUser(userLoginReq.email());
     verifyPassword(user, userLoginReq.password());
     verifyLockdown(user);
 
@@ -91,7 +91,7 @@ public class UserLoginService extends BaseUserService {
     // If we are logged in, add entry in history and remove JWT entries in database. It will invalidate any JWT that
     // might be in circulation.
     LocalDateTime nowAt = clockService.getNowUTC();
-    User user = resolveUser(customUserDetails.getEmail());
+    User user = userHelperService.resolveUser(customUserDetails.getEmail());
     addHistoryEvent(user, nowAt, EnUserHistoryWhat.LOGOUT, "");
     userJwtRepository.deleteAllByUser(user.getId()); // Revoke all JWTs related to this user.
   }

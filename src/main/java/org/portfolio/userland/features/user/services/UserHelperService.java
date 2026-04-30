@@ -1,7 +1,13 @@
 package org.portfolio.userland.features.user.services;
 
 import lombok.RequiredArgsConstructor;
+import org.portfolio.userland.features.user.entities.EnUserStatus;
 import org.portfolio.userland.features.user.entities.EnUserTokenType;
+import org.portfolio.userland.features.user.entities.User;
+import org.portfolio.userland.features.user.exceptions.UserDoesNotExistException;
+import org.portfolio.userland.features.user.exceptions.UserInvalidStatusException;
+import org.portfolio.userland.features.user.exceptions.UserLockedException;
+import org.portfolio.userland.features.user.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -26,6 +32,32 @@ public class UserHelperService {
   /** How long before JWT token expires in minutes. */
   @Value("${security.jwt.expiration}")
   private long jwtExpiration;
+
+  private final UserRepository userRepository;
+
+  //
+
+  /**
+   * Resolves user and verifies user state.
+   * @param email User email.
+   * @return User.
+   */
+  public User resolveUser(String email) {
+    User user = userRepository.findByEmail(email).orElseThrow(() -> new UserDoesNotExistException(email));
+    verifyUser(user);
+    return user;
+  }
+
+  /**
+   * Verifies user state. If user state is invalid, throws exception.
+   * @param user User.
+   */
+  public void verifyUser(User user) {
+    if (!EnUserStatus.ACTIVE.equals(user.getStatus())) throw new UserInvalidStatusException(user.getEmail());
+    if (user.getLocked()) throw new UserLockedException(user.getEmail());
+  }
+
+  //
 
   /**
    * Finds out when given token type expires.

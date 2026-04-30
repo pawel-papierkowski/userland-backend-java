@@ -64,6 +64,7 @@ CREATE TABLE iam.users (
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     -- When user account was last modified.
     modified_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
     -- Username visible on frontend. Must be present.
     username VARCHAR(100) NOT NULL,
     -- User email. 'UNIQUE' ensures no two users can register with the same email. Business key.
@@ -72,10 +73,27 @@ CREATE TABLE iam.users (
     password VARCHAR(100) NOT NULL,
     -- Language code like 'en'.
     lang VARCHAR(2) NOT NULL,
+
     -- Status of user.
     status VARCHAR(50) NOT NULL DEFAULT 'PENDING' CHECK (status IN ('PENDING', 'ACTIVE')),
     -- Is user locked?
     locked BOOLEAN NOT NULL DEFAULT FALSE
+);
+
+-- User profile table. Contains business data about users. Note user do not have any id_profile column (since profile id
+-- is same as main user id) - you are one responsible for ensuring all users have profiles if required.
+CREATE TABLE iam.profiles (
+    -- Identificator AND Foreign Key.
+    -- It is not GENERATED ALWAYS AS IDENTITY because it inherits the ID from iam.users.
+    id BIGINT PRIMARY KEY,
+
+    -- Name of user.
+    name VARCHAR(100),
+    -- Surname of user.
+    surname VARCHAR(100),
+
+    -- Table-level constraint making the Primary Key also act as the Foreign Key.
+    CONSTRAINT fk_profile_user FOREIGN KEY (id) REFERENCES iam.users(id) ON DELETE CASCADE
 );
 
 -- Tokens for user.

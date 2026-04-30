@@ -3,7 +3,6 @@ package org.portfolio.userland.system.history.services;
 import lombok.RequiredArgsConstructor;
 import org.portfolio.userland.common.services.security.SecurityGeneratorService;
 import org.portfolio.userland.features.user.entities.User;
-import org.portfolio.userland.features.user.exceptions.UserDoesNotExistException;
 import org.portfolio.userland.features.user.repositories.UserRepository;
 import org.portfolio.userland.system.BaseService;
 import org.portfolio.userland.system.auth.AuthHelper;
@@ -28,7 +27,7 @@ public class SystemHistoryService extends BaseService {
   private final UserRepository userRepository;
 
   /**
-   * Add system history event. Code will attempt to resolve currently logged user beforehand.
+   * Add system history event to database. Code will attempt to resolve currently logged user beforehand.
    * @param who Who did that?
    * @param what What happened?
    * @param params Event parameters.
@@ -38,15 +37,12 @@ public class SystemHistoryService extends BaseService {
     // Try to resolve logged user, if any exists.
     CustomUserDetails userDetails = AuthHelper.resolveUserDetails();
     User user = null;
-    if (userDetails != null) {
-      user = userRepository.findByEmail(userDetails.getEmail())
-          .orElseThrow(() -> new UserDoesNotExistException(userDetails.getEmail()));
-    }
+    if (userDetails != null) user = userRepository.findByEmail(userDetails.getEmail()).orElse(null);
     addEvent(user, who, what, params);
   }
 
   /**
-   * Add system history event.
+   * Add system history event to database.
    * @param user User. Can be null.
    * @param who Who did that?
    * @param what What happened?
@@ -63,6 +59,6 @@ public class SystemHistoryService extends BaseService {
     systemHistoryEvent.setWho(who);
     systemHistoryEvent.setWhat(what);
     systemHistoryEvent.setParams(params);
-    systemHistoryRepository.save(systemHistoryEvent);
+    systemHistoryRepository.saveAndFlush(systemHistoryEvent);
   }
 }

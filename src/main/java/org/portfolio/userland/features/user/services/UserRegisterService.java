@@ -50,10 +50,13 @@ public class UserRegisterService extends BaseUserService {
 
     User user = createUserData(userRegisterReq, nowAt);
     user = userRepository.save(user);
+    UserProfile userProfile = new UserProfile();
+    userProfile.setUser(user);
+    userProfileRepository.save(userProfile);
 
     if (userRegisterReq.activate()) triggerActivationEvent(user, userRegisterReq.frontend());
     else triggerRegisterEvent(user, userRegisterReq);
-    return userMapper.entityToDataResp(user);
+    return userMapper.userToDataResp(user);
   }
 
   /**
@@ -84,7 +87,7 @@ public class UserRegisterService extends BaseUserService {
    * @return User data.
    */
   private User createUserData(UserRegisterReq userRegisterReq, LocalDateTime nowAt) {
-    User user = userMapper.registerReqToEntity(userRegisterReq);
+    User user = userMapper.registerReqToUser(userRegisterReq);
     // Simple fields like status or blocked are pre-filled already.
     user.setCreatedAt(nowAt);
     user.setModifiedAt(nowAt);
@@ -122,6 +125,7 @@ public class UserRegisterService extends BaseUserService {
 
   /**
    * Triggers user registered event for anyone interested.
+   *
    * @param user User data.
    * @param userRegisterReq User registration request.
    */
@@ -141,6 +145,7 @@ public class UserRegisterService extends BaseUserService {
 
   /**
    * Triggers user activated event for anyone interested.
+   *
    * @param user User data.
    * @param frontend Frontend.
    */

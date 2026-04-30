@@ -61,7 +61,7 @@ public class UserPasswordApiTest extends BaseUserTest {
     AtomicReference<String> passResetToken = new AtomicReference<>();
 
     // Assert that user data is correctly updated.
-    transactionTemplate.execute(status -> {
+    transactionTemplate.execute(_ -> {
       User actualUser = userRepository.findByEmail("test@example.com").orElseThrow();
       userAssert.assertIt(actualUser, expectedUser);
 
@@ -117,7 +117,7 @@ public class UserPasswordApiTest extends BaseUserTest {
     AtomicReference<String> passResetToken = new AtomicReference<>();
 
     // Assert that user data is correctly updated.
-    transactionTemplate.execute(status -> {
+    transactionTemplate.execute(_ -> {
       User actualUser = userRepository.findByEmail("test@example.com").orElseThrow();
       userAssert.assertIt(actualUser, expectedUser);
 
@@ -173,7 +173,7 @@ public class UserPasswordApiTest extends BaseUserTest {
     userHistoryFactory.genHistoryEvent(expectedUser, EnUserHistoryWhat.PASS_RESET, "");
 
     // Assert that user data is correctly updated.
-    transactionTemplate.execute(status -> {
+    transactionTemplate.execute(_ -> {
       User actualUser = userRepository.findByEmail("test@example.com").orElseThrow();
       userAssert.assertIt(actualUser, expectedUser);
       // ensure password hash changed

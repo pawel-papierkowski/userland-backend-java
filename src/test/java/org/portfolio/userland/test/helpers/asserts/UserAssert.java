@@ -12,8 +12,9 @@ import java.util.Set;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Assert users and related entities.
- * NOTE: if test do not have @Transactional, you need to use TransactionTemplate:
+ * <p>Assert users and related entities.</p>
+ * <p>Note: user profile is checked separately.</p>
+ * <p>If test do not have <code>@Transactional</code>, you need to use <code>TransactionTemplate</code>:</p>
  * <pre>
  *  private final TransactionTemplate transactionTemplate;
  *  transactionTemplate.execute(_ -> {

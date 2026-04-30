@@ -142,7 +142,7 @@ public class UserFactory extends BaseFactory {
    * @return User with random data. Note collections are not touched.
    */
   private User genBaseRandUser(EnUserStatus status) {
-    User randomUser = Instancio.of(User.class)
+    User user = Instancio.of(User.class)
         .ignore(field(User::getId)) // let Hibernate take care of that
         .set(field(User::getCreatedAt), clockService.getNowUTC())
         .set(field(User::getModifiedAt), clockService.getNowUTC())
@@ -156,8 +156,9 @@ public class UserFactory extends BaseFactory {
         .ignore(field(User::getHistory)) // ditto
         .ignore(field(User::getPermissions)) // ditto
         .create();
-    userHistoryFactory.genHistoryEvent(randomUser, EnUserHistoryWhat.CREATE, "");
-    return randomUser;
+    // all other fields are filled randomly
+    userHistoryFactory.genHistoryEvent(user, EnUserHistoryWhat.CREATE, "");
+    return user;
   }
 
   // //////////////////////////////////////////////////////////////////////////

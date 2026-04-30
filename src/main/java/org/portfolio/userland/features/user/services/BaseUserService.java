@@ -1,12 +1,11 @@
 package org.portfolio.userland.features.user.services;
 
 import org.portfolio.userland.features.user.entities.*;
-import org.portfolio.userland.features.user.exceptions.*;
+import org.portfolio.userland.features.user.exceptions.UserTokenAlreadyExistsException;
+import org.portfolio.userland.features.user.exceptions.UserTokenExpiredException;
+import org.portfolio.userland.features.user.exceptions.UserTokenMissingException;
 import org.portfolio.userland.features.user.mappers.UserMapper;
-import org.portfolio.userland.features.user.repositories.UserHistoryRepository;
-import org.portfolio.userland.features.user.repositories.UserJwtRepository;
-import org.portfolio.userland.features.user.repositories.UserRepository;
-import org.portfolio.userland.features.user.repositories.UserTokenRepository;
+import org.portfolio.userland.features.user.repositories.*;
 import org.portfolio.userland.system.BaseService;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -18,10 +17,9 @@ import java.util.List;
  */
 public abstract class BaseUserService extends BaseService {
   @Autowired
-  private UserHelperService userHelperService;
-
-  @Autowired
   protected UserRepository userRepository;
+  @Autowired
+  protected UserProfileRepository userProfileRepository;
   @Autowired
   protected UserHistoryRepository userHistoryRepository;
   @Autowired
@@ -31,20 +29,6 @@ public abstract class BaseUserService extends BaseService {
 
   @Autowired
   protected UserMapper userMapper;
-
-  //
-
-  /**
-   * Resolves user and verifies user state.
-   * @param email User email.
-   * @return User.
-   */
-  protected User resolveUser(String email) {
-    User user = userRepository.findByEmail(email).orElseThrow(() -> new UserDoesNotExistException(email));
-    if (EnUserStatus.PENDING.equals(user.getStatus())) throw new UserInvalidStatusException(email);
-    if (user.getLocked()) throw new UserLockedException(email);
-    return user;
-  }
 
   //
 
