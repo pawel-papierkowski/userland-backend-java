@@ -8,8 +8,6 @@ import org.portfolio.userland.features.user.repositories.UserConfigRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Optional;
-
 /**
  * Business logic for user configuration.
  */
@@ -24,11 +22,11 @@ public class UserConfigService extends BaseUserService {
    * @param defaultValue Returns this if configuration variable is missing.
    * @return Value of configuration variable.
    */
-  @Transactional
+  @Transactional(readOnly = true)
   public String get(User user, String name, String defaultValue) {
-    Optional<UserConfig> configEntryOpt = userConfigRepository.findByUserIdAndName(user.getId(), name);
-    if (configEntryOpt.isPresent()) return configEntryOpt.get().getValue();
-    return defaultValue;
+    return userConfigRepository.findByUserIdAndName(user.getId(), name)
+        .map(UserConfig::getValue)
+        .orElse(defaultValue);
   }
 
   /**
@@ -37,25 +35,24 @@ public class UserConfigService extends BaseUserService {
    * @param defaultValue Returns this if configuration variable is missing.
    * @return Value of configuration variable as Long. If value cannot be presented as Long, returns defaultValue.
    */
-  @Transactional
+  @Transactional(readOnly = true)
   public Long getLong(User user, String name, Long defaultValue) {
     String defaultValueStr = defaultValue == null ? null : defaultValue.toString();
     String valueStr = get(user, name, defaultValueStr);
     if (StringUtils.isEmpty(valueStr)) return defaultValue;
-    Long value = defaultValue;
+
     try {
-      value = Long.parseLong(valueStr);
+      return Long.parseLong(valueStr);
     } catch (NumberFormatException ex) {
       // Swallow.
+      return defaultValue;
     }
-    return value;
   }
 
   //
 
   /**
    * Set configuration variable. If it does not exist, it will be created.
-   * Warning: if you resolved user.configs before, it might now be stale.
    * @param name Name of configuration variable.
    * @param newValue New value of configuration variable.
    */
@@ -64,10 +61,10 @@ public class UserConfigService extends BaseUserService {
     UserConfig configEntry = userConfigRepository.findByUserIdAndName(user.getId(), name).orElse(null);
     if (configEntry == null) {
       configEntry = new UserConfig();
-      configEntry.setUser(user);
       configEntry.setName(name);
+      user.addConfig(configEntry);
     }
     configEntry.setValue(newValue);
-    userConfigRepository.saveAndFlush(configEntry);
+    userConfigRepository.save(configEntry);
   }
 }

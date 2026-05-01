@@ -14,5 +14,5 @@ public abstract class UserProfileMapper {
    * @param userProfile <code>UserProfile</code> entity.
    * @return User profile data response.
    */
-  public abstract UserProfileDataResp userToDataResp(UserProfile userProfile);
+  public abstract UserProfileDataResp profileToDataResp(UserProfile userProfile);
 }

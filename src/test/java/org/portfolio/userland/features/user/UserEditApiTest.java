@@ -147,7 +147,7 @@ public class UserEditApiTest extends BaseUserTest {
 
     // Assert: Endpoint response.
     UserDataResp actualResp = objectMapper.readValue(mvcResult.getResponse().getContentAsString(), UserDataResp.class);
-    UserProfileDataResp profile = userProfileMapper.userToDataResp(expectedUserProfile);
+    UserProfileDataResp profile = userProfileMapper.profileToDataResp(expectedUserProfile);
     profile = profile.toBuilder().name("Tom").build(); // only one field changed
     UserDataResp expectedResp = new UserDataResp("Jane", "test@example.com", "en", profile);
     assertThat(actualResp).as("User data is invalid").usingRecursiveComparison().isEqualTo(expectedResp);

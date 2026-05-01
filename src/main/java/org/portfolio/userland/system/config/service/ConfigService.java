@@ -17,7 +17,7 @@ public class ConfigService {
   private final ConfigRepository configRepository;
 
   /**
-   * Get value of configuration variable.
+   * Get value of configuration variable. It won't create missing configuration variable.
    * @param name Name of configuration variable.
    * @param defaultValue Returns this if configuration variable is missing.
    * @return Value of configuration variable.

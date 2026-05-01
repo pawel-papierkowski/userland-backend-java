@@ -108,10 +108,13 @@ public class UserConfigTest extends BaseUserTest {
   @Test
   public void setMissingConfig() {
     clock.setFixedTime("2026-04-10T10:00:00Z");
-    // Arrange: Create active user in database that has some config entry.
-    User expectedUser = userFactory.genRandUser(EnUserStatus.ACTIVE);
+    User expectedUser = userFactory.genUser(EnUserStatus.ACTIVE);
     expectedUser.addConfig(userConfigFactory.genConfig(expectedUser, "test.variable", "1"));
-    User user = userRepository.save(expectedUser);
+
+    // Arrange: Create active user in database that has some config entry.
+    User user = userFactory.genUser(EnUserStatus.ACTIVE);
+    user.addConfig(userConfigFactory.genConfig(user, "test.variable", "1"));
+    user = userRepository.save(user);
 
     // Act: set config that do not exist.
     userConfigService.set(user, "other.variable", "zz");

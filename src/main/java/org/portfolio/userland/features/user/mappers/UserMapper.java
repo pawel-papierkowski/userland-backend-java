@@ -36,6 +36,7 @@ public abstract class UserMapper {
   // lang as is
   @Mapping(target = "status", ignore = true)
   @Mapping(target = "locked", ignore = true)
+  @Mapping(target = "configs", ignore = true)
   @Mapping(target = "history", ignore = true)
   @Mapping(target = "tokens", ignore = true)
   @Mapping(target = "jwts", ignore = true)

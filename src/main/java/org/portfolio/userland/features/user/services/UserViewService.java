@@ -19,15 +19,17 @@ public class UserViewService extends BaseUserService {
    * View certain fields of user and user profile. This is version for viewing your own account.
    * @return User and user profile data.
    */
-  @Transactional
+  @Transactional(readOnly = true)
   public UserDataResp view() {
+    // SecurityConfig ensures we always have user details for endpoint that calls this method.
     CustomUserDetails userDetails = AuthHelper.resolveUserDetails();
-    if (userDetails == null) throw new IllegalStateException("User details should exist!");
+    if (userDetails == null) throw new IllegalStateException("User details should exist!"); // should not ever happen
+
     User user = userHelperService.resolveUser(userDetails.getEmail(), false);
     UserProfile userProfile = userProfileRepository.findById(user.getId()).orElseThrow();
 
     UserDataResp userDataResp = userMapper.userToDataResp(user);
-    userDataResp = userDataResp.toBuilder().profile(userProfileMapper.userToDataResp(userProfile)).build();
+    userDataResp = userDataResp.toBuilder().profile(userProfileMapper.profileToDataResp(userProfile)).build();
     return userDataResp;
   }
 }

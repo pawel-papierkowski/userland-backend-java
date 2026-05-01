@@ -17,6 +17,12 @@ import java.time.LocalDateTime;
 
 /**
  * Business logic for editing of user account (both user and user profile).
+ * <p>Notes:</p>
+ * <ul>
+ *   <li>Email change is not handled here. If it is implemented, it will be elsewhere, as it requires more complex flow
+ *   (sending email with confirmation link to new address).</li>
+ *   <li>We do not expect frequent/concurrent updates for UserProfile. Locking should not be needed.</li>
+ * </ul>
  */
 @Service
 @RequiredArgsConstructor
@@ -30,8 +36,10 @@ public class UserEditService extends BaseUserService {
    */
   @Transactional
   public UserDataResp edit(UserEditReq userEditReq) {
+    // SecurityConfig ensures we always have user details for endpoint that calls this method.
     CustomUserDetails userDetails = AuthHelper.resolveUserDetails();
-    if (userDetails == null) throw new IllegalStateException("User details should exist!");
+    if (userDetails == null) throw new IllegalStateException("User details should exist!"); // should not ever happen
+
     User user = userHelperService.resolveUser(userDetails.getEmail(), false);
     UserProfile userProfile = null; // will edit user profile only when needed
 
@@ -43,7 +51,7 @@ public class UserEditService extends BaseUserService {
       user.setModifiedAt(nowAt);
       if (userPresent) params += editUser(userEditReq, user);
       if (userProfilePresent) {
-        userProfile = userProfileRepository.findById(user.getId()).orElseThrow();
+        userProfile = userProfileRepository.findById(user.getId()).orElseThrow(); // profile should always exist
         params += editUserProfile(userEditReq, userProfile);
       }
 
@@ -54,7 +62,7 @@ public class UserEditService extends BaseUserService {
     }
 
     UserDataResp userDataResp = userMapper.userToDataResp(user);
-    if (userProfile != null) userDataResp = userDataResp.toBuilder().profile(userProfileMapper.userToDataResp(userProfile)).build();
+    if (userProfile != null) userDataResp = userDataResp.toBuilder().profile(userProfileMapper.profileToDataResp(userProfile)).build();
     return userDataResp;
   }
 

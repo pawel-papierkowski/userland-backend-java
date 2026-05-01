@@ -1,6 +1,7 @@
 package org.portfolio.userland.features.user.entities;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.Setter;
 import org.portfolio.userland.common.annotations.NoCoverageGenerated;
@@ -9,7 +10,7 @@ import java.util.Objects;
 
 /**
  * User configuration entry.
- * TODO: no suitable business key exist, what to do?
+ * TODO: no suitable business key exist, what to do? Name is not enough and I really would like to avoid uuid.
  */
 @Entity
 @Table(name = "config", schema = "iam")
@@ -30,10 +31,12 @@ public class UserConfig {
 
   /** Name of user configuration entry. Acts as business key. */
   @Column(nullable = false)
+  @NotBlank(message = "Name cannot be empty")
   private String name;
 
   /** Value of user configuration entry. */
   @Column(nullable = false)
+  @NotBlank(message = "Value cannot be empty")
   private String value;
 
   // //////////////////////////////////////////////////////////////////////////

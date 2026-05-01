@@ -106,6 +106,8 @@ public class SecurityConfig {
    * This specific filter chain defines secured endpoints that also requires operator or administrator permissions.
    * Note there can be also endpoints individually marked as <code>@PreAuthorize("hasAuthority('ROLE_OPERATOR')")</code>
    * in Controllers.
+   * <p>You have access to auth data inside such endpoints:</p>
+   * <pre>CustomUserDetails userDetails = AuthHelper.resolveUserDetails();</pre>
    * @param http HTTP security data.
    * @return Security filter chain.
    */
@@ -129,6 +131,8 @@ public class SecurityConfig {
    * This specific filter chain defines secured endpoints that also requires administrator permissions.
    * Note there can be also endpoints individually marked as <code>@PreAuthorize("hasAuthority('ROLE_ADMIN')")</code>
    * in Controllers.
+   * <p>You have access to auth data inside such endpoints:</p>
+   * <pre>CustomUserDetails userDetails = AuthHelper.resolveUserDetails();</pre>
    * @param http HTTP security data.
    * @return Security filter chain.
    */
@@ -150,7 +154,9 @@ public class SecurityConfig {
 
   /**
    * This is default security chain. All endpoints here are expected to have JWT in header, otherwise request
-   * will be rejected with 401 Unauthorized. No special permissions needed. You have access to auth data inside.
+   * will be rejected with 401 Unauthorized. No special permissions needed.
+   * <p>You have access to auth data inside such endpoints:</p>
+   * <pre>CustomUserDetails userDetails = AuthHelper.resolveUserDetails();</pre>
    * @param http HTTP security data.
    * @return Security filter chain.
    */
