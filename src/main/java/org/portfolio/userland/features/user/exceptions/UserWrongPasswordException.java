@@ -5,6 +5,8 @@ import org.springframework.http.HttpStatus;
 
 /**
  * Thrown when wrong password was given.
+ * Note: used also when user account does not exist or other issue with account is present. In this way email enumeration
+ * attack is prevented, as you cannot determine if account with given email exists.
  */
 public class UserWrongPasswordException extends GeneralException {
   public UserWrongPasswordException() {

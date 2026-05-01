@@ -1,6 +1,7 @@
 package org.portfolio.userland.features.check.data;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Builder;
 import org.portfolio.userland.common.constants.EnAppProfile;
 
 import java.time.LocalDateTime;
@@ -13,6 +14,7 @@ import java.time.LocalDateTime;
  * @param version Version of project.
  * @param profile Server profile.
  */
+@Builder(toBuilder = true)
 @Schema(description = "Contains basic data about this system.")
 public record CheckInfoResp(
     @Schema(description = "Name of system.", example = "UserLand")

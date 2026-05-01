@@ -5,6 +5,7 @@ import org.portfolio.userland.features.user.exceptions.UserTokenAlreadyExistsExc
 import org.portfolio.userland.features.user.exceptions.UserTokenExpiredException;
 import org.portfolio.userland.features.user.exceptions.UserTokenMissingException;
 import org.portfolio.userland.features.user.mappers.UserMapper;
+import org.portfolio.userland.features.user.mappers.UserProfileMapper;
 import org.portfolio.userland.features.user.repositories.*;
 import org.portfolio.userland.system.BaseService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +30,8 @@ public abstract class BaseUserService extends BaseService {
 
   @Autowired
   protected UserMapper userMapper;
+  @Autowired
+  protected UserProfileMapper userProfileMapper;
 
   //
 

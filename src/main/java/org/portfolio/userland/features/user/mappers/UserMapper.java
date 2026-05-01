@@ -11,7 +11,6 @@ import org.springframework.web.util.HtmlUtils;
 
 /**
  * Maps requests to <code>User</code> and <code>User</code> to responses.
- *
  */
 @Mapper(componentModel = "spring", imports = {HtmlUtils.class})
 public abstract class UserMapper {
@@ -48,5 +47,6 @@ public abstract class UserMapper {
    * @param user <code>User</code> entity.
    * @return User data response.
    */
+  @Mapping(target = "profile", ignore = true)
   public abstract UserDataResp userToDataResp(User user);
 }

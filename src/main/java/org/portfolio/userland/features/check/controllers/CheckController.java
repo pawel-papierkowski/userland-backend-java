@@ -23,11 +23,11 @@ import org.springframework.web.bind.annotation.RestController;
  * Endpoints for assessing state of server and help in frontend development. Also, useful for some tests.
  * <p>Endpoints:</p>
  * <ul>
- *   <li><code>/api/checks/alive</code> - anyone can access this endpoint.</li>
- *   <li><code>/api/checks/must-be-logged</code> - needs to be logged to access this endpoint.</li>
- *   <li><code>/api/checks/must-be-admin</code> - needs to be logged as admin to access this endpoint.</li>
- *   <li><code>/api/checks/info</code> - basic information about system.</li>
- *   <li><code>/api/checks/exception</code> - code deliberately throws exception. Response returns proper problem detail.</li>
+ *   <li><code>GET /api/checks/alive</code> - anyone can access this endpoint.</li>
+ *   <li><code>GET /api/checks/must-be-logged</code> - needs to be logged to access this endpoint.</li>
+ *   <li><code>GET /api/checks/must-be-admin</code> - needs to be logged as admin to access this endpoint.</li>
+ *   <li><code>GET /api/checks/info</code> - basic information about system.</li>
+ *   <li><code>GET /api/checks/exception</code> - code deliberately throws exception. Response returns proper problem detail.</li>
  * </ul>
  */
 @RestController

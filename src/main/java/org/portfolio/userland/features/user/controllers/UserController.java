@@ -16,23 +16,15 @@ import org.portfolio.userland.features.user.dto.password.UserPassResetConfirmReq
 import org.portfolio.userland.features.user.dto.password.UserPassResetLinkReq;
 import org.portfolio.userland.features.user.dto.register.TokenActivateReq;
 import org.portfolio.userland.features.user.dto.register.UserRegisterReq;
-import org.portfolio.userland.features.user.services.UserDeleteService;
-import org.portfolio.userland.features.user.services.UserEditService;
-import org.portfolio.userland.features.user.services.UserPasswordService;
-import org.portfolio.userland.features.user.services.UserRegisterService;
+import org.portfolio.userland.features.user.services.*;
 import org.portfolio.userland.swagger.annotations.ApiResponsesAuth;
 import org.portfolio.userland.swagger.annotations.ApiResponsesToken;
 import org.portfolio.userland.swagger.detail.common.ValidationProblemDetail;
-import org.portfolio.userland.swagger.detail.user.EmailExistsProblemDetail;
 import org.portfolio.userland.swagger.detail.user.TokenAlreadyExistsProblemDetail;
 import org.portfolio.userland.swagger.detail.user.TokenMissingProblemDetail;
-import org.portfolio.userland.swagger.detail.user.UserDoesNotExistProblemDetail;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * REST endpoints for user. These endpoints are available without authentication.
@@ -40,10 +32,12 @@ import org.springframework.web.bind.annotation.RestController;
  * <ul>
  *   <li><code>POST /api/users/register</code> - registers user.</li>
  *   <li><code>POST /api/users/activate</code> - activates user.</li>
+ *   <li><code>GET /api/users/view</code> - view user and user profile data.</li>
+ *   <li><code>PATCH /api/users/edit</code> - edit user and user profile data.</li>
  *   <li><code>POST /api/users/password/link</code> - sends email with password reset link.</li>
- *   <li><code>POST /api/users/password/confirm</code> - actually resets password.</li>
+ *   <li><code>PATCH /api/users/password/confirm</code> - actually resets password.</li>
  *   <li><code>POST /api/users/delete/link</code> - sends email with account deletion link.</li>
- *   <li><code>POST /api/users/delete/confirm</code> - actually deletes user account.</li>
+ *   <li><code>DELETE /api/users/delete/confirm</code> - actually deletes user account.</li>
  * </ul>
  */
 @RestController
@@ -52,6 +46,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "User Management", description = "Endpoints for creating and managing user accounts.")
 public class UserController {
   private final UserRegisterService userRegisterService;
+  private final UserViewService userViewService;
   private final UserEditService userEditService;
   private final UserPasswordService userPasswordService;
   private final UserDeleteService userDeleteService;
@@ -62,16 +57,13 @@ public class UserController {
    * @return Response.
    */
   @PostMapping(value = "/register", produces = "application/json")
-  @Operation(summary = "Register a new user", description = "Creates a new user account.")
+  @Operation(summary = "Register a new user", description = "If account with given email does not exist, creates a new user account and sends email with activation link. Otherwise sends email with warning about someone trying to create account.")
   @ApiResponses(value = {
-      @ApiResponse(responseCode = "201", description = "User successfully registered.",
+      @ApiResponse(responseCode = "201", description = "User successfully registered OR user with that email already exists.",
           content = @Content(schema = @Schema(hidden = true))),
       @ApiResponse(responseCode = "400", description = "Invalid input (e.g., missing email, weak password).",
           content = @Content(mediaType = "application/problem+json",
-                             schema = @Schema(implementation = ValidationProblemDetail.class))),
-      @ApiResponse(responseCode = "409", description = "Email already exists in the system.",
-          content = @Content(mediaType = "application/problem+json",
-                             schema = @Schema(implementation = EmailExistsProblemDetail.class)))
+                             schema = @Schema(implementation = ValidationProblemDetail.class)))
   })
   public ResponseEntity<Void> registerUser(@Valid @RequestBody UserRegisterReq userRegisterReq) {
     userRegisterService.register(userRegisterReq);
@@ -89,7 +81,7 @@ public class UserController {
   @ApiResponses(value = {
       @ApiResponse(responseCode = "204", description = "User successfully activated.",
           content = @Content(schema = @Schema(hidden = true))),
-      @ApiResponse(responseCode = "404", description = "Invalid input (malformed token string) or token does not exist.",
+      @ApiResponse(responseCode = "400", description = "Invalid input (malformed token string).",
           content = @Content(mediaType = "application/problem+json",
                              schema = @Schema(implementation = TokenMissingProblemDetail.class)))
   })
@@ -99,20 +91,37 @@ public class UserController {
   }
 
   /**
+   * View user account.
+   * @return Response with user and user profile data.
+   */
+  @GetMapping(value = "/view", produces = "application/json")
+  @Operation(summary = "View user data", description = "View user and user profile data for currently logged user.")
+  @ApiResponsesAuth
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200", description = "User and user profile data successfully retrieved.")
+  })
+  public ResponseEntity<UserDataResp> viewUser() {
+    UserDataResp resp = userViewService.view();
+    return new ResponseEntity<>(resp, HttpStatus.OK);
+  }
+
+  /**
    * Edit user account.
    * @param userEditReq User edit request.
    * @return Response with updated user data.
    */
-  @PostMapping(value = "/edit", produces = "application/json")
-  @Operation(summary = "Edit user data", description = "Allows editing certain fields of user entity that belongs to currently logged user.")
+  @PatchMapping(value = "/edit", produces = "application/json")
+  @Operation(summary = "Edit user data", description = "Allows editing certain fields of user or user profile entity for currently logged user.")
   @ApiResponsesAuth
   @ApiResponses(value = {
-      @ApiResponse(responseCode = "204", description = "User successfully edited.",
-          content = @Content(schema = @Schema(hidden = true)))
+      @ApiResponse(responseCode = "200", description = "User successfully edited."),
+      @ApiResponse(responseCode = "400", description = "Invalid input (weak password).",
+          content = @Content(mediaType = "application/problem+json",
+              schema = @Schema(implementation = ValidationProblemDetail.class)))
   })
   public ResponseEntity<UserDataResp> editUser(@Valid @RequestBody UserEditReq userEditReq) {
     UserDataResp resp = userEditService.edit(userEditReq);
-    return new ResponseEntity<>(resp, HttpStatus.NO_CONTENT);
+    return new ResponseEntity<>(resp, HttpStatus.OK);
   }
 
   //
@@ -123,17 +132,14 @@ public class UserController {
    * @return Response.
    */
   @PostMapping(value = "/password/link", produces = "application/json")
-  @Operation(summary = "Send password reset link", description = "Sends email with link to page where you can reset password to your account.")
+  @Operation(summary = "Send password reset link", description = "Sends email with link to page where you can reset password to your account. Note that trying to use unknown email will fail silently to prevent email enumeration attack.")
   @ApiResponses(value = {
-      @ApiResponse(responseCode = "204", description = "Password reset email successfully sent.",
+      @ApiResponse(responseCode = "204", description = "Password reset email successfully sent OR request was ignored due to unknown email address.",
           content = @Content(schema = @Schema(hidden = true))),
       @ApiResponse(responseCode = "400", description = "Invalid input (missing or malformed email).",
           content = @Content(mediaType = "application/problem+json",
               schema = @Schema(implementation = ValidationProblemDetail.class))),
-      @ApiResponse(responseCode = "404", description = "User with given email does not exist.",
-          content = @Content(mediaType = "application/problem+json",
-              schema = @Schema(implementation = UserDoesNotExistProblemDetail.class))),
-      @ApiResponse(responseCode = "409", description = "User is not allowed to reset password (e.g. not activated or locked) or password reset is already pending.",
+      @ApiResponse(responseCode = "409", description = "Password reset is already pending.",
           content = @Content(mediaType = "application/problem+json",
               schema = @Schema(implementation = TokenAlreadyExistsProblemDetail.class)))
   })
@@ -147,7 +153,7 @@ public class UserController {
    * @param userPassResetConfirmReq User password reset request.
    * @return Response.
    */
-  @PostMapping(value = "/password/confirm", produces = "application/json")
+  @PatchMapping(value = "/password/confirm", produces = "application/json")
   @Operation(summary = "Reset password", description = "Reset password.")
   @ApiResponsesToken
   @ApiResponses(value = {
@@ -170,17 +176,14 @@ public class UserController {
    * @return Response.
    */
   @PostMapping(value = "/delete/link", produces = "application/json")
-  @Operation(summary = "Send account deletion link", description = "Sends email with link that leads to page where you can confirm account deletion.")
+  @Operation(summary = "Send account deletion link", description = "Sends email with link that leads to page where you can confirm account deletion. Note that trying to use unknown email will fail silently to prevent email enumeration attack.")
   @ApiResponses(value = {
-      @ApiResponse(responseCode = "204", description = "Account deletion email successfully sent.",
+      @ApiResponse(responseCode = "204", description = "Account deletion email successfully sent OR request was ignored due to unknown email address.",
           content = @Content(schema = @Schema(hidden = true))),
       @ApiResponse(responseCode = "400", description = "Invalid input (missing or malformed email).",
           content = @Content(mediaType = "application/problem+json",
               schema = @Schema(implementation = ValidationProblemDetail.class))),
-      @ApiResponse(responseCode = "404", description = "User with given email does not exist.",
-          content = @Content(mediaType = "application/problem+json",
-              schema = @Schema(implementation = UserDoesNotExistProblemDetail.class))),
-      @ApiResponse(responseCode = "409", description = "User is not allowed to delete account (e.g. not activated or locked) or account deletion is already pending.",
+      @ApiResponse(responseCode = "409", description = "Account deletion is already pending.",
           content = @Content(mediaType = "application/problem+json",
               schema = @Schema(implementation = TokenAlreadyExistsProblemDetail.class)))
   })
@@ -194,7 +197,7 @@ public class UserController {
    * @param userDeleteConfirmReq User account deletion request.
    * @return Response.
    */
-  @PostMapping(value = "/delete/confirm", produces = "application/json")
+  @DeleteMapping(value = "/delete/confirm", produces = "application/json")
   @Operation(summary = "Delete user", description = "Removes user from system.")
   @ApiResponsesToken
   @ApiResponses(value = {

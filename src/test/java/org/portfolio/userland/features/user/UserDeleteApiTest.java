@@ -17,6 +17,7 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
 /**
@@ -52,6 +53,7 @@ public class UserDeleteApiTest extends BaseUserTest {
 
     // Assert API Response.
     assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.NO_CONTENT.value());
+    assertThat(mvcResult.getResponse().getContentAsString()).as("Response body should be empty").isEqualTo("");
 
     // Prepare expected result.
     userTokenFactory.genTokenEntry(expectedUser, EnUserTokenType.DELETE, null);
@@ -108,6 +110,7 @@ public class UserDeleteApiTest extends BaseUserTest {
 
     // Assert API Response.
     assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.NO_CONTENT.value());
+    assertThat(mvcResult.getResponse().getContentAsString()).as("Response body should be empty").isEqualTo("");
 
     // Prepare expected result.
     userTokenFactory.genTokenEntry(expectedUser, EnUserTokenType.DELETE, null);
@@ -156,13 +159,14 @@ public class UserDeleteApiTest extends BaseUserTest {
     UserDeleteConfirmReq req = new UserDeleteConfirmReq(token.getToken());
 
     // Act: Request password reset.
-    MvcResult mvcResult = mockMvc.perform(post("/api/users/delete/confirm")
+    MvcResult mvcResult = mockMvc.perform(delete("/api/users/delete/confirm")
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(req)))
         .andReturn();
 
     // Assert API Response.
     assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.NO_CONTENT.value());
+    assertThat(mvcResult.getResponse().getContentAsString()).as("Response body should be empty").isEqualTo("");
 
     // Assert that user and related data is gone.
     transactionTemplate.execute(_ -> {
@@ -191,6 +195,25 @@ public class UserDeleteApiTest extends BaseUserTest {
 
   @Test
   @Transactional
+  public void errAccDeleteForUnknownEmail() throws Exception {
+    clock.setFixedTime("2026-04-08T10:00:00Z");
+
+    // Arrange: create account deletion request.
+    UserDeleteLinkReq req = new UserDeleteLinkReq("none@test.com", null);
+
+    // Act: Try to send account deletion email to account that do not exist in database.
+    MvcResult mvcResult = mockMvc.perform(post("/api/users/delete/link")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(req)))
+        .andReturn();
+
+    // Assert API Response. Yes, this response is correct (avoids email enumeration attack).
+    assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.NO_CONTENT.value());
+    assertThat(mvcResult.getResponse().getContentAsString()).as("Response body should be empty").isEqualTo("");
+  }
+
+  @Test
+  @Transactional
   public void errAccDeleteForPendingUser() throws Exception {
     clock.setFixedTime("2026-04-08T10:00:00Z");
 
@@ -207,18 +230,9 @@ public class UserDeleteApiTest extends BaseUserTest {
             .content(objectMapper.writeValueAsString(req)))
         .andReturn();
 
-    // Assert API Response.
-    assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.CONFLICT.value());
-
-    ProblemDetailBox expectedPdb = new ProblemDetailBox(
-        HttpStatus.CONFLICT.value(),
-        "User has invalid status.",
-        "User with email '"+expectedUser.getEmail()+"' must have valid status.",
-        "/api/users/delete/link",
-        "https://api.userland.org/errors/user/invalidStatus",
-        Map.of()
-    );
-    problemDetailService.assertPd(mvcResult, expectedPdb);
+    // Assert API Response. Yes, this response is correct.
+    assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.NO_CONTENT.value());
+    assertThat(mvcResult.getResponse().getContentAsString()).as("Response body should be empty").isEqualTo("");
   }
 
   @Test
@@ -240,18 +254,9 @@ public class UserDeleteApiTest extends BaseUserTest {
             .content(objectMapper.writeValueAsString(req)))
         .andReturn();
 
-    // Assert API Response.
-    assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.CONFLICT.value());
-
-    ProblemDetailBox expectedPdb = new ProblemDetailBox(
-        HttpStatus.CONFLICT.value(),
-        "User is locked.",
-        "User with email '"+expectedUser.getEmail()+"' is locked.",
-        "/api/users/delete/link",
-        "https://api.userland.org/errors/user/locked",
-        Map.of()
-    );
-    problemDetailService.assertPd(mvcResult, expectedPdb);
+    // Assert API Response. Yes, this response is correct.
+    assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.NO_CONTENT.value());
+    assertThat(mvcResult.getResponse().getContentAsString()).as("Response body should be empty").isEqualTo("");
   }
 
   @Test
@@ -304,7 +309,7 @@ public class UserDeleteApiTest extends BaseUserTest {
     UserDeleteConfirmReq req = new UserDeleteConfirmReq(token.getToken()+"N");
 
     // Act: Try to delete user.
-    MvcResult mvcResult = mockMvc.perform(post("/api/users/delete/confirm")
+    MvcResult mvcResult = mockMvc.perform(delete("/api/users/delete/confirm")
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(req)))
         .andReturn();

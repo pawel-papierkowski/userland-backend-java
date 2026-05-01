@@ -52,7 +52,7 @@ public class SystemLockdownApiTest extends BaseSystemTest {
 
     // Assert: Endpoint response.
     SystemLockdownResp actualResp = objectMapper.readValue(mvcResult.getResponse().getContentAsString(), SystemLockdownResp.class);
-    SystemLockdownResp expectedResp = new SystemLockdownResp(EnSystemLockdownState.OFF);
+    SystemLockdownResp expectedResp = SystemLockdownResp.builder().state(EnSystemLockdownState.OFF).build();
     assertThat(actualResp).as("Response is invalid").isEqualTo(expectedResp);
   }
 
@@ -72,7 +72,7 @@ public class SystemLockdownApiTest extends BaseSystemTest {
 
     // Assert: Endpoint response.
     SystemLockdownResp actualResp = objectMapper.readValue(mvcResult.getResponse().getContentAsString(), SystemLockdownResp.class);
-    SystemLockdownResp expectedResp = new SystemLockdownResp(EnSystemLockdownState.ON);
+    SystemLockdownResp expectedResp = SystemLockdownResp.builder().state(EnSystemLockdownState.ON).build();
     assertThat(actualResp).as("Response is invalid").isEqualTo(expectedResp);
   }
 
@@ -132,7 +132,7 @@ public class SystemLockdownApiTest extends BaseSystemTest {
     User userAdmin = userRepository.save(expectedUserAdmin);
 
     // Arrange: Request.
-    SystemLockdownReq req = new SystemLockdownReq(EnSystemLockdownState.ON);
+    SystemLockdownReq req = SystemLockdownReq.builder().state(EnSystemLockdownState.ON).build();
 
     // Act: Set system lockdown.
     MvcResult mvcResult = mockMvc.perform(post("/api/system/lockdown")
@@ -179,7 +179,7 @@ public class SystemLockdownApiTest extends BaseSystemTest {
     configRepository.updateValueByName(ConfigConst.USER_LOCKDOWN, ConfigConst.TRUE);
 
     // Arrange: Request.
-    SystemLockdownReq req = new SystemLockdownReq(EnSystemLockdownState.OFF);
+    SystemLockdownReq req = SystemLockdownReq.builder().state(EnSystemLockdownState.OFF).build();
 
     // Act: Set system lockdown.
     MvcResult mvcResult = mockMvc.perform(post("/api/system/lockdown")
@@ -211,7 +211,7 @@ public class SystemLockdownApiTest extends BaseSystemTest {
     userRepository.save(expectedUserAdmin);
 
     // Arrange: Request.
-    SystemLockdownReq req = new SystemLockdownReq(EnSystemLockdownState.OFF);
+    SystemLockdownReq req = SystemLockdownReq.builder().state(EnSystemLockdownState.OFF).build();
 
     // Act: Set system lockdown.
     MvcResult mvcResult = mockMvc.perform(post("/api/system/lockdown")
@@ -221,6 +221,7 @@ public class SystemLockdownApiTest extends BaseSystemTest {
 
     // Assert: API Response.
     assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.NO_CONTENT.value());
+    assertThat(mvcResult.getResponse().getContentAsString()).as("Response body should be empty").isEqualTo("");
 
     // Assert: State of lockdown.
     Config config = configRepository.findByName(ConfigConst.USER_LOCKDOWN).orElseThrow();

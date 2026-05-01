@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
+import lombok.Builder;
 import org.portfolio.userland.common.constants.ValidConst;
 
 /**
@@ -11,6 +12,7 @@ import org.portfolio.userland.common.constants.ValidConst;
  * @param token Token string.
  * @param password Password.
  */
+@Builder(toBuilder = true)
 @Schema(description = "Payload required to reset password.")
 public record UserPassResetConfirmReq(
   @NotBlank(message = "Token string is required")

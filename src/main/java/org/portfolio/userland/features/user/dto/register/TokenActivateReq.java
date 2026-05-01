@@ -3,12 +3,14 @@ package org.portfolio.userland.features.user.dto.register;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import lombok.Builder;
 import org.portfolio.userland.features.user.dto.common.EnFrontendFramework;
 
 /**
  * Token activation request.
  * @param token Token string.
  */
+@Builder(toBuilder = true)
 @Schema(description = "Payload required to register a new user.")
 public record TokenActivateReq(
   @NotBlank(message = "Token string is required")

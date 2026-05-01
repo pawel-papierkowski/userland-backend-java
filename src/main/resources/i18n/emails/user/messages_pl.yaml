@@ -11,6 +11,11 @@ email:
       greeting: "Cześć, <b>{0}</b>!"
       l1: "Konto zostało pomyślnie aktywowane. Bardzo się cieszymy, że jesteś z nami."
       l2: "Możesz się zalogować do UserLand tutaj:"
+    alreadyRegistered:
+      subject: "UserLand: witamy"
+      greeting: "Cześć, <b>{0}</b>!"
+      l1: "Niedawno ktoś próbował zarejestrować konto z użyciem tego emaila. Już masz konto w UserLand."
+      l2: "Możesz się zalogować do UserLand tutaj:"
     password:
       link:
         subject: "UserLand: reset hasła"

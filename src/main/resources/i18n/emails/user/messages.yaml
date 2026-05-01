@@ -11,6 +11,11 @@ email:
       greeting: "Hello, <b>{0}</b>!"
       l1: "Account was activated successfully. We are excited to have you on board."
       l2: "You can log in to UserLand here:"
+    alreadyRegistered:
+      subject: "UserLand: welcome"
+      greeting: "Hello, <b>{0}</b>!"
+      l1: "Someone recently tried to register an account with this email. You already have an account in UserLand."
+      l2: "You can log in to UserLand here:"
     password:
       link:
         subject: "UserLand: password reset"

@@ -3,6 +3,7 @@ package org.portfolio.userland.features.user.dto.password;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import lombok.Builder;
 import org.portfolio.userland.common.constants.ValidConst;
 import org.portfolio.userland.features.user.dto.common.EnFrontendFramework;
 
@@ -11,6 +12,7 @@ import org.portfolio.userland.features.user.dto.common.EnFrontendFramework;
  * @param email Email.
  * @param frontend Used frontend. If null/empty, will use default.
  */
+@Builder(toBuilder = true)
 @Schema(description = "Payload required to send email with link for password reset.")
 public record UserPassResetLinkReq(
   @NotBlank(message = "Email is required")

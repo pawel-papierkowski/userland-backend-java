@@ -3,6 +3,7 @@ package org.portfolio.userland.features.user.dto.login;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import lombok.Builder;
 import org.portfolio.userland.common.constants.ValidConst;
 
 /**
@@ -10,6 +11,7 @@ import org.portfolio.userland.common.constants.ValidConst;
  * @param email Email.
  * @param password Password.
  */
+@Builder(toBuilder = true)
 @Schema(description = "Request for user login. Uses email as login name.")
 public record UserLoginReq(
   @NotBlank(message = "Email is required")

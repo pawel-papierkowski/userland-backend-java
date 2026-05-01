@@ -189,6 +189,36 @@ public class UserLoginApiTest extends BaseUserTest {
 
   @Test
   @Transactional
+  public void errMissingAccount() throws Exception {
+    // Refuse if user do not exist.
+    clock.setFixedTime("2026-04-08T10:00:00Z");
+
+    clock.setFixedTime("2026-04-10T10:05:00Z");
+    // Arrange: Create login request.
+    UserLoginReq req = new UserLoginReq("test@example.com", "5oMeP@ssw0rd");
+
+    // Act: Try to log in user.
+    MvcResult mvcResult = mockMvc.perform(post("/api/users/login")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(req)))
+        .andReturn();
+
+    // Assert API Response.
+    assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.CONFLICT.value());
+    // Assert: proper problem detail is present. Yes, "Wrong password." error is correct.
+    ProblemDetailBox expectedPdb = new ProblemDetailBox(
+        HttpStatus.CONFLICT.value(),
+        "Wrong password.",
+        "Cannot login due to wrong password.",
+        "/api/users/login",
+        "https://api.userland.org/errors/user/wrongPassword",
+        Map.of()
+    );
+    problemDetailService.assertPd(mvcResult, expectedPdb);
+  }
+
+  @Test
+  @Transactional
   public void errWrongPassword() throws Exception {
     // Refuse if user provided wrong password.
     clock.setFixedTime("2026-04-08T10:00:00Z");
@@ -244,13 +274,13 @@ public class UserLoginApiTest extends BaseUserTest {
 
     // Assert API Response.
     assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.CONFLICT.value());
-    // Assert: proper problem detail is present.
+    // Assert: proper problem detail is present. Yes, "Wrong password." error is correct.
     ProblemDetailBox expectedPdb = new ProblemDetailBox(
         HttpStatus.CONFLICT.value(),
-        "User is locked.",
-        "User with email '"+expectedUser.getEmail()+"' is locked.",
+        "Wrong password.",
+        "Cannot login due to wrong password.",
         "/api/users/login",
-        "https://api.userland.org/errors/user/locked",
+        "https://api.userland.org/errors/user/wrongPassword",
         Map.of()
     );
     problemDetailService.assertPd(mvcResult, expectedPdb);
@@ -278,13 +308,13 @@ public class UserLoginApiTest extends BaseUserTest {
 
     // Assert API Response.
     assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.CONFLICT.value());
-    // Assert: proper problem detail is present.
+    // Assert: proper problem detail is present. Yes, "Wrong password." error is correct.
     ProblemDetailBox expectedPdb = new ProblemDetailBox(
         HttpStatus.CONFLICT.value(),
-        "User has invalid status.",
-        "User with email '"+expectedUser.getEmail()+"' must have valid status.",
+        "Wrong password.",
+        "Cannot login due to wrong password.",
         "/api/users/login",
-        "https://api.userland.org/errors/user/invalidStatus",
+        "https://api.userland.org/errors/user/wrongPassword",
         Map.of()
     );
     problemDetailService.assertPd(mvcResult, expectedPdb);

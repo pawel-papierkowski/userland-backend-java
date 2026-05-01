@@ -16,7 +16,6 @@ import org.springframework.stereotype.Service;
 public class UserHistoryFactory extends BaseFactory {
   /**
    * Generate user history event and assign it to user.
-   *
    * @param user User.
    * @param what What happened?
    * @param params History event parameters.

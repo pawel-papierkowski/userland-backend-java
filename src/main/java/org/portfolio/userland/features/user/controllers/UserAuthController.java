@@ -41,13 +41,13 @@ public class UserAuthController {
    * @return Response.
    */
   @PostMapping(value = "/login", produces = "application/json")
-  @Operation(summary = "Login user", description = "Accepts credentials, validates them, logs in user and returns a signed JWT.")
+  @Operation(summary = "Login user", description = "Accepts credentials, validates them, logs in user and returns a signed JWT. If user with given email does not exist, behaves as if wrong password was given to prevent email enumeration attack.")
   @ApiResponses(value = {
       @ApiResponse(responseCode = "200", description = "Login was successful."),
       @ApiResponse(responseCode = "400", description = "Invalid input (missing data).",
           content = @Content(mediaType = "application/problem+json",
               schema = @Schema(implementation = ValidationProblemDetail.class))),
-      @ApiResponse(responseCode = "409", description = "Wrong password.",
+      @ApiResponse(responseCode = "409", description = "Wrong password OR user does not exist.",
           content = @Content(mediaType = "application/problem+json",
               schema = @Schema(implementation = UserWrongPasswordProblemDetail.class)))
   })

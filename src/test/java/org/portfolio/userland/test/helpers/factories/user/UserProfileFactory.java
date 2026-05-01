@@ -30,6 +30,23 @@ public class UserProfileFactory {
   /**
    * Generate the full profile.
    * @param user User.
+   * @param name Name of user.
+   * @param surname Surname of user.
+   * @return Profile for given user.
+   */
+  public UserProfile genProfile(User user, String name, String surname) {
+    UserProfile userProfile = new UserProfile();
+    userProfile.setId(user.getId());
+    userProfile.setUser(user);
+    userProfile.setName(name);
+    userProfile.setSurname(surname);
+    // all other fields are null
+    return userProfile;
+  }
+
+  /**
+   * Generate the full random profile.
+   * @param user User.
    * @return Profile for given user.
    */
   public UserProfile genRandProfile(User user) {

@@ -3,11 +3,13 @@ package org.portfolio.userland.features.user.dto.delete;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import lombok.Builder;
 
 /**
  * User account delete confirmation request.
  * @param token Token string.
  */
+@Builder(toBuilder = true)
 @Schema(description = "Payload required to delete account.")
 public record UserDeleteConfirmReq(
   @NotBlank(message = "Token string is required")

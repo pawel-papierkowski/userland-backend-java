@@ -35,6 +35,7 @@ import java.util.Map;
 public class UserEmailService {
   private final static String TEMPLATE_USER_REGISTRATION = "user/registration";
   private final static String TEMPLATE_USER_ACTIVATION = "user/activation";
+  private final static String TEMPLATE_USER_ALREADY_REGISTERED = "user/alreadyRegistered";
   private final static String TEMPLATE_USER_PASSWORD_LINK = "user/password/link";
   private final static String TEMPLATE_USER_PASSWORD_CONFIRM = "user/password/confirm";
   private final static String TEMPLATE_USER_DELETE_LINK = "user/delete/link";
@@ -131,10 +132,10 @@ public class UserEmailService {
     params.put("loginLink", resolveLoginLink(event.frontend()));
 
     return new EmailReq(
-        null, // use default provider
+        null,
         event.lang(),
         emailSender,
-        List.of(event.email()), // where email will be sent
+        List.of(event.email()),
         List.of(),
         List.of(),
         emailSender,
@@ -144,14 +145,44 @@ public class UserEmailService {
         null);
   }
 
+  //
+
   /**
-   * Resolve login link. Note it is for frontend, not backend.
-   * @param frontend Name of used frontend.
-   * @return Login link.
+   * React on user already registered event. Will send email warning that someone tried to register user account.
+   * @param event User activation event data.
    */
-  private String resolveLoginLink(EnFrontendFramework frontend) {
-    // Note it is linking to frontend - actual backend login endpoint will be called by frontend.
-    return resolveWww(frontend) + "/login";
+  @Async("emailTaskExecutor")
+  @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+  public void sendActivatedEmail(UserAlreadyRegisteredEvent event) {
+    EmailReq emailReq = resolveEmailReq(event);
+    emailService.sendEmail(emailReq);
+  }
+
+  /**
+   * Prepare email request for activated user.
+   * @param event Event.
+   * @return Email request.
+   */
+  private EmailReq resolveEmailReq(UserAlreadyRegisteredEvent event) {
+    String subject = langService.t(event.lang(), "email.user.alreadyRegistered.subject");
+
+    // Prepare params required by user activated template.
+    Map<String, Object> params = Maps.newHashMap();
+    params.put("username", event.username());
+    params.put("loginLink", resolveLoginLink(event.frontend()));
+
+    return new EmailReq(
+        null, // use default provider
+        event.lang(),
+        emailSender,
+        List.of(event.email()),
+        List.of(),
+        List.of(),
+        emailSender,
+        subject,
+        TEMPLATE_USER_ALREADY_REGISTERED,
+        params,
+        null);
   }
 
   // //////////////////////////////////////////////////////////////////////////
@@ -182,10 +213,10 @@ public class UserEmailService {
     params.put("passResetTokenExpires", event.passwordResetTokenExpires());
 
     return new EmailReq(
-        null, // use default provider
+        null,
         event.lang(),
         emailSender,
-        List.of(event.email()), // where email will be sent
+        List.of(event.email()),
         List.of(),
         List.of(),
         emailSender,
@@ -232,10 +263,10 @@ public class UserEmailService {
     params.put("username", event.username());
 
     return new EmailReq(
-        null, // use default provider
+        null,
         event.lang(),
         emailSender,
-        List.of(event.email()), // where email will be sent
+        List.of(event.email()),
         List.of(),
         List.of(),
         emailSender,
@@ -273,10 +304,10 @@ public class UserEmailService {
     params.put("accountDeleteTokenExpires", event.accountDeleteTokenExpires());
 
     return new EmailReq(
-        null, // use default provider
+        null,
         event.lang(),
         emailSender,
-        List.of(event.email()), // where email will be sent
+        List.of(event.email()),
         List.of(),
         List.of(),
         emailSender,
@@ -323,10 +354,10 @@ public class UserEmailService {
     params.put("username", event.username());
 
     return new EmailReq(
-        null, // use default provider
+        null,
         event.lang(),
         emailSender,
-        List.of(event.email()), // where email will be sent
+        List.of(event.email()),
         List.of(),
         List.of(),
         emailSender,
@@ -337,6 +368,16 @@ public class UserEmailService {
   }
 
   // //////////////////////////////////////////////////////////////////////////
+
+  /**
+   * Resolve login link. Note it is for frontend, not backend.
+   * @param frontend Name of used frontend.
+   * @return Login link.
+   */
+  private String resolveLoginLink(EnFrontendFramework frontend) {
+    // Note it is linking to frontend - actual backend login endpoint will be called by frontend.
+    return resolveWww(frontend) + "/login";
+  }
 
   /**
    * Resolve WWW address of frontend. It consists of base www address (frontendWww) and suffix indicating what frontend

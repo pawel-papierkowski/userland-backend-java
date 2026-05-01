@@ -11,6 +11,7 @@ import org.portfolio.userland.features.user.entities.EnUserStatus;
 import org.portfolio.userland.features.user.entities.User;
 import org.portfolio.userland.features.user.entities.UserProfile;
 import org.portfolio.userland.features.user.events.UserActivatedEvent;
+import org.portfolio.userland.features.user.events.UserAlreadyRegisteredEvent;
 import org.portfolio.userland.features.user.events.UserRegisteredEvent;
 import org.portfolio.userland.test.helpers.problemDetail.ProblemDetailBox;
 import org.springframework.http.HttpStatus;
@@ -180,6 +181,7 @@ public class UserRegistrationApiTest extends BaseUserTest {
 
     // Assert API Response.
     assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.NO_CONTENT.value());
+    assertThat(mvcResult.getResponse().getContentAsString()).as("Response body should be empty").isEqualTo("");
 
     // Assert that user data is correctly updated.
     transactionTemplate.execute(_ -> {
@@ -213,16 +215,15 @@ public class UserRegistrationApiTest extends BaseUserTest {
     });
   }
 
-  // //////////////////////////////////////////////////////////////////////////
-  // FAILURES
-
   @Test
-  @Transactional
-  public void errUserWithEmailAlreadyExists() throws Exception {
+  public void userWithEmailAlreadyExists() throws Exception {
     clock.setFixedTime("2026-04-10T10:00:00Z");
+    User expectedUser = userFactory.genUser(EnUserStatus.ACTIVE);
 
     // Arrange: Create existing user manually.
-    userRepository.save(userFactory.genUser(EnUserStatus.PENDING));
+    User user = userFactory.genUser(EnUserStatus.ACTIVE);
+    UserProfile expectedUserProfile = userProfileFactory.genRandProfile(user);
+    userProfileRepository.save(expectedUserProfile);
 
     // Arrange: Create the JSON payload.
     UserRegisterReq req = new UserRegisterReq("testuser", "test@example.com", "SecurePass123!", "en", false, null);
@@ -231,21 +232,40 @@ public class UserRegistrationApiTest extends BaseUserTest {
     MvcResult mvcResult = mockMvc.perform(post("/api/users/register")
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(req)))
-            .andReturn();
+        .andReturn();
 
     // Assert API Response.
-    assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.CONFLICT.value());
+    assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.CREATED.value());
 
-    ProblemDetailBox expectedPdb = new ProblemDetailBox(
-        HttpStatus.CONFLICT.value(),
-        "User with given email already exists.",
-        "Email 'test@example.com' already exists.",
-        "/api/users/register",
-        "https://api.userland.org/errors/user/email/alreadyExists",
-        Map.of()
-    );
-    problemDetailService.assertPd(mvcResult, expectedPdb);
+    // Assert that user data is untouched.
+    transactionTemplate.execute(_ -> {
+      // Assert user state.
+      assertAllUser("test@example.com", expectedUser, expectedUserProfile);
+      return null;
+    });
+
+    // Assert that the correct event was published.
+    assertThat(applicationEvents.stream(UserAlreadyRegisteredEvent.class))
+        .as("Event is invalid")
+        .hasSize(1)
+        .first()
+        .satisfies(event -> {
+          assertThat(event.id()).isGreaterThan(0L);
+          assertThat(event.username()).isEqualTo("Jane");
+          assertThat(event.email()).isEqualTo("test@example.com");
+          assertThat(event.lang()).isEqualTo("en");
+          assertThat(event.frontend()).isNull(); // will use default frontend for www link
+        });
+
+    // Assert that email (confirmation of account activate) was sent.
+    await().atMost(Duration.ofSeconds(3)).untilAsserted(() -> {
+      ArgumentCaptor<EmailReq> captor = ArgumentCaptor.forClass(EmailReq.class);
+      verify(emailService, times(1)).sendEmail(captor.capture());
+    });
   }
+
+  // //////////////////////////////////////////////////////////////////////////
+  // FAILURES
 
   @Test
   public void errMissingToken() throws Exception {

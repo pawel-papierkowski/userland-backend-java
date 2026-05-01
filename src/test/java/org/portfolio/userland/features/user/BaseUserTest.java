@@ -3,6 +3,7 @@ package org.portfolio.userland.features.user;
 import org.portfolio.userland.common.services.email.EmailService;
 import org.portfolio.userland.features.user.entities.User;
 import org.portfolio.userland.features.user.entities.UserProfile;
+import org.portfolio.userland.features.user.mappers.UserProfileMapper;
 import org.portfolio.userland.features.user.repositories.*;
 import org.portfolio.userland.test.base.BaseIntegrationTest;
 import org.portfolio.userland.test.helpers.asserts.UserAssert;
@@ -45,6 +46,9 @@ public abstract class BaseUserTest extends BaseIntegrationTest {
   protected UserPermissionFactory userPermissionFactory;
   @Autowired
   protected UserHistoryFactory userHistoryFactory;
+
+  @Autowired
+  protected UserProfileMapper userProfileMapper;
 
   @Autowired
   protected UserAssert userAssert;

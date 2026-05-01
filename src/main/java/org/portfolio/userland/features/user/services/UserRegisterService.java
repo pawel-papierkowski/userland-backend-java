@@ -168,7 +168,7 @@ public class UserRegisterService extends BaseUserService {
   }
 
   /**
-   * Triggers already registered user event for anyone interested.
+   * Triggers user already registered event for anyone interested.
    * @param user User data.
    * @param frontend Frontend.
    */

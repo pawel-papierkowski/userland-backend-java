@@ -24,13 +24,18 @@ public class CheckService extends BaseService {
   @Value("${app.main.version}")
   protected String version;
 
+  /**
+   * Resolve basic information about system.
+   * @return Various basic information.
+   */
   public CheckInfoResp info() {
     LocalDateTime bootAt = clockService.convert(context.getStartupDate());
-    return new CheckInfoResp(
-        name,
-        clockService.getNowUTC(),
-        bootAt,
-        version,
-        profile);
+    return CheckInfoResp.builder()
+        .name(name)
+        .nowAt(clockService.getNowUTC())
+        .bootAt(bootAt)
+        .version(version)
+        .profile(profile)
+        .build();
   }
 }

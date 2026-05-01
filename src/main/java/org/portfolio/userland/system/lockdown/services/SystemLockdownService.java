@@ -36,7 +36,7 @@ public class SystemLockdownService extends BaseService {
   @Transactional
   public SystemLockdownResp get() {
     String lockdownValue = configService.get(ConfigConst.USER_LOCKDOWN, ConfigConst.USER_LOCKDOWN_DEF);
-    return new SystemLockdownResp(EnSystemLockdownState.fromStr(lockdownValue));
+    return SystemLockdownResp.builder().state(EnSystemLockdownState.fromStr(lockdownValue)).build();
   }
 
   /**

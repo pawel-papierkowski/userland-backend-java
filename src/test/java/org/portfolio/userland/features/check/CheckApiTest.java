@@ -49,6 +49,7 @@ public class CheckApiTest extends BaseCheckTest {
 
     // Assert: API Response.
     assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.NO_CONTENT.value());
+    assertThat(mvcResult.getResponse().getContentAsString()).as("Response body should be empty").isEqualTo("");
   }
 
   @Test
@@ -67,6 +68,7 @@ public class CheckApiTest extends BaseCheckTest {
 
     // Assert: API Response.
     assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.NO_CONTENT.value());
+    assertThat(mvcResult.getResponse().getContentAsString()).as("Response body should be empty").isEqualTo("");
   }
 
   @Test
@@ -85,6 +87,7 @@ public class CheckApiTest extends BaseCheckTest {
 
     // Assert: API Response.
     assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.NO_CONTENT.value());
+    assertThat(mvcResult.getResponse().getContentAsString()).as("Response body should be empty").isEqualTo("");
   }
 
   //
@@ -109,6 +112,7 @@ public class CheckApiTest extends BaseCheckTest {
 
     // Assert: API Response.
     assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.NO_CONTENT.value());
+    assertThat(mvcResult.getResponse().getContentAsString()).as("Response body should be empty").isEqualTo("");
   }
 
   //
@@ -352,7 +356,13 @@ public class CheckApiTest extends BaseCheckTest {
     assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.OK.value());
     // Assert: Endpoint response. Note we do not check bootAt and version exactly (as they change).
     CheckInfoResp actualResp = objectMapper.readValue(mvcResult.getResponse().getContentAsString(), CheckInfoResp.class);
-    CheckInfoResp expectedResp = new CheckInfoResp("UserLand", clockService.getNowUTC(), actualResp.bootAt(), actualResp.version(), EnAppProfile.TEST);
+    CheckInfoResp expectedResp = CheckInfoResp.builder()
+        .name("UserLand")
+        .nowAt(clockService.getNowUTC())
+        .bootAt(actualResp.bootAt())
+        .version(actualResp.version())
+        .profile(EnAppProfile.TEST)
+        .build();
     assertThat(actualResp).as("System info is invalid").isEqualTo(expectedResp);
     assertThat(actualResp.version()).as("Version is invalid").matches(ValidConst.REG_EXPR_VERSION); // ensure @project.version@ is correctly resolved
   }

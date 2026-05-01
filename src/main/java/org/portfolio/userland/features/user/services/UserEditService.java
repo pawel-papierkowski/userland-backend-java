@@ -7,7 +7,6 @@ import org.portfolio.userland.features.user.dto.edit.UserEditReq;
 import org.portfolio.userland.features.user.entities.EnUserHistoryWhat;
 import org.portfolio.userland.features.user.entities.User;
 import org.portfolio.userland.features.user.entities.UserProfile;
-import org.portfolio.userland.features.user.repositories.UserProfileRepository;
 import org.portfolio.userland.system.auth.AuthHelper;
 import org.portfolio.userland.system.auth.details.CustomUserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -17,13 +16,12 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 
 /**
- * Business logic for editing of user account.
+ * Business logic for editing of user account (both user and user profile).
  */
 @Service
 @RequiredArgsConstructor
 public class UserEditService extends BaseUserService {
   private final PasswordEncoder passwordEncoder;
-  private final UserProfileRepository userProfileRepository;
 
   /**
    * Change certain fields of user and user profile. This is version for editing your own account.
@@ -55,7 +53,9 @@ public class UserEditService extends BaseUserService {
       addHistoryEvent(user, nowAt, EnUserHistoryWhat.EDIT, params);
     }
 
-    return userMapper.userToDataResp(user);
+    UserDataResp userDataResp = userMapper.userToDataResp(user);
+    if (userProfile != null) userDataResp = userDataResp.toBuilder().profile(userProfileMapper.userToDataResp(userProfile)).build();
+    return userDataResp;
   }
 
   /**

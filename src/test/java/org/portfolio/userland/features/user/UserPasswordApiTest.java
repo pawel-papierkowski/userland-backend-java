@@ -18,6 +18,7 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
 /**
@@ -53,6 +54,7 @@ public class UserPasswordApiTest extends BaseUserTest {
 
     // Assert API Response.
     assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.NO_CONTENT.value());
+    assertThat(mvcResult.getResponse().getContentAsString()).as("Response body should be empty").isEqualTo("");
 
     // Prepare expected result.
     userTokenFactory.genTokenEntry(expectedUser, EnUserTokenType.PASSWORD, null);
@@ -109,6 +111,7 @@ public class UserPasswordApiTest extends BaseUserTest {
 
     // Assert API Response.
     assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.NO_CONTENT.value());
+    assertThat(mvcResult.getResponse().getContentAsString()).as("Response body should be empty").isEqualTo("");
 
     // Prepare expected result.
     userTokenFactory.genTokenEntry(expectedUser, EnUserTokenType.PASSWORD, null);
@@ -159,13 +162,14 @@ public class UserPasswordApiTest extends BaseUserTest {
     UserPassResetConfirmReq req = new UserPassResetConfirmReq(token.getToken(), "N3vP@ssw0rd");
 
     // Act: Request password reset.
-    MvcResult mvcResult = mockMvc.perform(post("/api/users/password/confirm")
+    MvcResult mvcResult = mockMvc.perform(patch("/api/users/password/confirm")
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(req)))
         .andReturn();
 
     // Assert API Response.
     assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.NO_CONTENT.value());
+    assertThat(mvcResult.getResponse().getContentAsString()).as("Response body should be empty").isEqualTo("");
 
     // Prepare expected result.
     expectedUser.setModifiedAt(clockService.getNowUTC());
@@ -199,6 +203,25 @@ public class UserPasswordApiTest extends BaseUserTest {
 
   @Test
   @Transactional
+  public void errPassResetForUnknownEmail() throws Exception {
+    clock.setFixedTime("2026-04-08T10:00:00Z");
+
+    // Arrange: create password reset request.
+    UserPassResetLinkReq req = new UserPassResetLinkReq("none@test.com", null);
+
+    // Act: Try to send password reset email to account that do not exist in database.
+    MvcResult mvcResult = mockMvc.perform(post("/api/users/password/link")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(req)))
+        .andReturn();
+
+    // Assert API Response. Yes, this response is correct.
+    assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.NO_CONTENT.value());
+    assertThat(mvcResult.getResponse().getContentAsString()).as("Response body should be empty").isEqualTo("");
+  }
+
+  @Test
+  @Transactional
   public void errPassResetForPendingUser() throws Exception {
     clock.setFixedTime("2026-04-08T10:00:00Z");
 
@@ -215,18 +238,9 @@ public class UserPasswordApiTest extends BaseUserTest {
             .content(objectMapper.writeValueAsString(req)))
         .andReturn();
 
-    // Assert API Response.
-    assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.CONFLICT.value());
-
-    ProblemDetailBox expectedPdb = new ProblemDetailBox(
-        HttpStatus.CONFLICT.value(),
-        "User has invalid status.",
-        "User with email '"+expectedUser.getEmail()+"' must have valid status.",
-        "/api/users/password/link",
-        "https://api.userland.org/errors/user/invalidStatus",
-        Map.of()
-    );
-    problemDetailService.assertPd(mvcResult, expectedPdb);
+    // Assert API Response. Yes, this response is correct.
+    assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.NO_CONTENT.value());
+    assertThat(mvcResult.getResponse().getContentAsString()).as("Response body should be empty").isEqualTo("");
   }
 
   @Test
@@ -248,18 +262,9 @@ public class UserPasswordApiTest extends BaseUserTest {
             .content(objectMapper.writeValueAsString(req)))
         .andReturn();
 
-    // Assert API Response.
-    assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.CONFLICT.value());
-
-    ProblemDetailBox expectedPdb = new ProblemDetailBox(
-        HttpStatus.CONFLICT.value(),
-        "User is locked.",
-        "User with email '"+expectedUser.getEmail()+"' is locked.",
-        "/api/users/password/link",
-        "https://api.userland.org/errors/user/locked",
-        Map.of()
-    );
-    problemDetailService.assertPd(mvcResult, expectedPdb);
+    // Assert API Response. Yes, this response is correct (avoids email enumeration attack).
+    assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.NO_CONTENT.value());
+    assertThat(mvcResult.getResponse().getContentAsString()).as("Response body should be empty").isEqualTo("");
   }
 
   @Test
@@ -312,7 +317,7 @@ public class UserPasswordApiTest extends BaseUserTest {
     UserPassResetConfirmReq req = new UserPassResetConfirmReq(token.getToken()+"N", "abcABC123!");
 
     // Act: Try to set new password.
-    MvcResult mvcResult = mockMvc.perform(post("/api/users/password/confirm")
+    MvcResult mvcResult = mockMvc.perform(patch("/api/users/password/confirm")
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(req)))
         .andReturn();
