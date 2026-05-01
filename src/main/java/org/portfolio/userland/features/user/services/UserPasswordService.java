@@ -45,7 +45,8 @@ public class UserPasswordService extends BaseUserService {
    */
   @Transactional
   public void send(UserPassResetLinkReq userPassResetLinkReq) {
-    User user = userHelperService.resolveUser(userPassResetLinkReq.email());
+    User user = userHelperService.resolveUser(userPassResetLinkReq.email(), true);
+    if (user == null) return; // prevent email enumeration attack
 
     LocalDateTime nowAt = clockService.getNowUTC();
     ensureTokenDoesNotExist(nowAt, EnUserTokenType.PASSWORD, user);
@@ -91,7 +92,7 @@ public class UserPasswordService extends BaseUserService {
 
     UserToken userToken = resolveToken(nowAt, EnUserTokenType.PASSWORD, userPassResetConfirmReq.token());
     User user = userToken.getUser();
-    userHelperService.verifyUser(user); // must have valid state
+    userHelperService.verifyUser(user, false); // must have valid state
 
     user.setModifiedAt(nowAt);
     user.setPassword(passwordEncoder.encode(userPassResetConfirmReq.password()));

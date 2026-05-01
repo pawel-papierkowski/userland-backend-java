@@ -8,6 +8,7 @@ import org.portfolio.userland.features.user.dto.common.EnFrontendFramework;
  * @param username Username.
  * @param email User email.
  * @param lang User language.
+ * @param frontend Frontend.
  * @param passwordResetToken Token string.
  * @param passwordResetTokenExpires How long before password reset token expires in minutes.
  */

@@ -5,7 +5,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.portfolio.userland.common.services.email.data.EmailReq;
 import org.portfolio.userland.features.user.dto.common.EnFrontendFramework;
-import org.portfolio.userland.features.user.dto.common.UserDataResp;
 import org.portfolio.userland.features.user.dto.register.TokenActivateReq;
 import org.portfolio.userland.features.user.dto.register.UserRegisterReq;
 import org.portfolio.userland.features.user.entities.EnUserStatus;
@@ -56,10 +55,7 @@ public class UserRegistrationApiTest extends BaseUserTest {
 
     // Assert API response.
     assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.CREATED.value());
-    UserDataResp actualResp = objectMapper.readValue(mvcResult.getResponse().getContentAsString(), UserDataResp.class);
-    UserDataResp expectedResp = new UserDataResp(1L, "Jane", "test@example.com", "en");
-    assertThat(actualResp).as("Response is wrong").usingRecursiveComparison().ignoringFields("id").isEqualTo(expectedResp);
-    assertThat(actualResp.id()).as("User id is wrong").isGreaterThan(0L); // in this way we do not have to know exact id
+    assertThat(mvcResult.getResponse().getContentAsString()).as("Response body should be empty").isEqualTo("");
 
     AtomicReference<String> activationToken = new AtomicReference<>();
 
@@ -108,10 +104,7 @@ public class UserRegistrationApiTest extends BaseUserTest {
 
     // Assert API response.
     assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.CREATED.value());
-    UserDataResp actualResp = objectMapper.readValue(mvcResult.getResponse().getContentAsString(), UserDataResp.class);
-    UserDataResp expectedResp = new UserDataResp(1L, "Jane", "test@example.com", "en");
-    assertThat(actualResp).as("Response is wrong").usingRecursiveComparison().ignoringFields("id").isEqualTo(expectedResp);
-    assertThat(actualResp.id()).as("User id is wrong").isGreaterThan(0L); // in this way we do not have to know exact id
+    assertThat(mvcResult.getResponse().getContentAsString()).as("Response body should be empty").isEqualTo("");
 
     // Assert database state.
     transactionTemplate.execute(_ -> {

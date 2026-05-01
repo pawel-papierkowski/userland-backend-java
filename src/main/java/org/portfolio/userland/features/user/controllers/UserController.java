@@ -64,7 +64,8 @@ public class UserController {
   @PostMapping(value = "/register", produces = "application/json")
   @Operation(summary = "Register a new user", description = "Creates a new user account.")
   @ApiResponses(value = {
-      @ApiResponse(responseCode = "201", description = "User successfully registered."),
+      @ApiResponse(responseCode = "201", description = "User successfully registered.",
+          content = @Content(schema = @Schema(hidden = true))),
       @ApiResponse(responseCode = "400", description = "Invalid input (e.g., missing email, weak password).",
           content = @Content(mediaType = "application/problem+json",
                              schema = @Schema(implementation = ValidationProblemDetail.class))),
@@ -72,9 +73,9 @@ public class UserController {
           content = @Content(mediaType = "application/problem+json",
                              schema = @Schema(implementation = EmailExistsProblemDetail.class)))
   })
-  public ResponseEntity<UserDataResp> registerUser(@Valid @RequestBody UserRegisterReq userRegisterReq) {
-    UserDataResp resp = userRegisterService.register(userRegisterReq);
-    return new ResponseEntity<>(resp, HttpStatus.CREATED);
+  public ResponseEntity<Void> registerUser(@Valid @RequestBody UserRegisterReq userRegisterReq) {
+    userRegisterService.register(userRegisterReq);
+    return new ResponseEntity<>(HttpStatus.CREATED);
   }
 
   /**

@@ -4,9 +4,9 @@ import lombok.RequiredArgsConstructor;
 import org.portfolio.userland.features.user.entities.EnUserStatus;
 import org.portfolio.userland.features.user.entities.EnUserTokenType;
 import org.portfolio.userland.features.user.entities.User;
-import org.portfolio.userland.features.user.exceptions.UserDoesNotExistException;
 import org.portfolio.userland.features.user.exceptions.UserInvalidStatusException;
 import org.portfolio.userland.features.user.exceptions.UserLockedException;
+import org.portfolio.userland.features.user.exceptions.UserNotFoundException;
 import org.portfolio.userland.features.user.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -40,21 +40,37 @@ public class UserHelperService {
   /**
    * Resolves user and verifies user state.
    * @param email User email.
-   * @return User.
+   * @param failSilently If true, method will return null instead of throwing exception if user with given email does
+   *                    not exist.
+   * @return User or null if user could not be found.
    */
-  public User resolveUser(String email) {
-    User user = userRepository.findByEmail(email).orElseThrow(() -> new UserDoesNotExistException(email));
-    verifyUser(user);
+  public User resolveUser(String email, boolean failSilently) {
+    User user;
+
+    if (failSilently) user = userRepository.findByEmail(email).orElse(null);
+    else user = userRepository.findByEmail(email).orElseThrow(() -> new UserNotFoundException(email));
+    if (user == null) return null; // failed to find user
+
+    if (!verifyUser(user, failSilently)) return null;
     return user;
   }
 
   /**
-   * Verifies user state. If user state is invalid, throws exception.
+   * Verifies user state. If user state is invalid, throws exception or returns false.
    * @param user User.
+   * @param failSilently If true, in case of invalid user state return false instead of throwing exception.
+   * @return True if verification succeed, otherwise false. Applicable only if <code>failSilently == true</code>.
    */
-  public void verifyUser(User user) {
-    if (!EnUserStatus.ACTIVE.equals(user.getStatus())) throw new UserInvalidStatusException(user.getEmail());
-    if (user.getLocked()) throw new UserLockedException(user.getEmail());
+  public boolean verifyUser(User user, boolean failSilently) {
+    if (!EnUserStatus.ACTIVE.equals(user.getStatus())) {
+      if (failSilently) return false;
+      throw new UserInvalidStatusException(user.getEmail());
+    }
+    if (user.getLocked()) {
+      if (failSilently) return false;
+      throw new UserLockedException(user.getEmail());
+    }
+    return true;
   }
 
   //

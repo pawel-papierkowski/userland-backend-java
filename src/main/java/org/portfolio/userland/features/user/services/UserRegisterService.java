@@ -2,13 +2,12 @@ package org.portfolio.userland.features.user.services;
 
 import lombok.RequiredArgsConstructor;
 import org.portfolio.userland.features.user.dto.common.EnFrontendFramework;
-import org.portfolio.userland.features.user.dto.common.UserDataResp;
 import org.portfolio.userland.features.user.dto.register.TokenActivateReq;
 import org.portfolio.userland.features.user.dto.register.UserRegisterReq;
 import org.portfolio.userland.features.user.entities.*;
 import org.portfolio.userland.features.user.events.UserActivatedEvent;
+import org.portfolio.userland.features.user.events.UserAlreadyRegisteredEvent;
 import org.portfolio.userland.features.user.events.UserRegisteredEvent;
-import org.portfolio.userland.features.user.exceptions.UserEmailAlreadyExistsException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -39,13 +38,22 @@ public class UserRegisterService extends BaseUserService {
   /**
    * Registers user in UserLand system.
    * @param userRegisterReq User registration request.
-   * @return Created user.
    */
   @Transactional
-  public UserDataResp register(UserRegisterReq userRegisterReq) {
-    LocalDateTime nowAt = clockService.getNowUTC();
+  public void register(UserRegisterReq userRegisterReq) {
+    // We need to react properly in case there is already user with given email in system.
+    // We cannot return error as it would allow email enumeration attack.
+    boolean alreadyRegistered = userRepository.existsByEmail(userRegisterReq.email());
+    if (alreadyRegistered) alreadyRegistered(userRegisterReq);
+    else actuallyRegister(userRegisterReq);
+  }
 
-    verifyRegistration(userRegisterReq);
+  /**
+   * Register new user.
+   * @param userRegisterReq User registration request.
+   */
+  private void actuallyRegister(UserRegisterReq userRegisterReq) {
+    LocalDateTime nowAt = clockService.getNowUTC();
     userRegisterReq = modifyRegistrationReq(userRegisterReq);
 
     User user = createUserData(userRegisterReq, nowAt);
@@ -56,7 +64,16 @@ public class UserRegisterService extends BaseUserService {
 
     if (userRegisterReq.activate()) triggerActivationEvent(user, userRegisterReq.frontend());
     else triggerRegisterEvent(user, userRegisterReq);
-    return userMapper.userToDataResp(user);
+  }
+
+  /**
+   * Act in case user is already registered.
+   * @param userRegisterReq User registration request.
+   */
+  private void alreadyRegistered(UserRegisterReq userRegisterReq) {
+    User user = userHelperService.resolveUser(userRegisterReq.email(), true);
+    if (user == null) return; // should not happen
+    triggerAlreadyRegisteredEvent(user, userRegisterReq.frontend());
   }
 
   /**
@@ -68,15 +85,6 @@ public class UserRegisterService extends BaseUserService {
     // Never allow user activation on spot during registration on PROD. This is convenience option for testing during development.
     Boolean activate = profile.getTest() ? userRegisterReq.activate() : false;
     return userRegisterReq.toBuilder().activate(activate).build();
-  }
-
-  /**
-   * Verifies state of user, ensuring it is allowed to be registered in system.
-   * @param userRegisterReq User registration request.
-   */
-  private void verifyRegistration(UserRegisterReq userRegisterReq) {
-    if (userRepository.existsByEmail(userRegisterReq.email()))
-      throw new UserEmailAlreadyExistsException(userRegisterReq.email());
   }
 
   //
@@ -125,7 +133,6 @@ public class UserRegisterService extends BaseUserService {
 
   /**
    * Triggers user registered event for anyone interested.
-   *
    * @param user User data.
    * @param userRegisterReq User registration request.
    */
@@ -145,7 +152,6 @@ public class UserRegisterService extends BaseUserService {
 
   /**
    * Triggers user activated event for anyone interested.
-   *
    * @param user User data.
    * @param frontend Frontend.
    */
@@ -159,5 +165,22 @@ public class UserRegisterService extends BaseUserService {
     );
     // Will trigger UserEmailService.sendActivatedEmail().
     eventPublisher.publishEvent(userActivatedEvent);
+  }
+
+  /**
+   * Triggers already registered user event for anyone interested.
+   * @param user User data.
+   * @param frontend Frontend.
+   */
+  private void triggerAlreadyRegisteredEvent(User user, EnFrontendFramework frontend) {
+    UserAlreadyRegisteredEvent userAlreadyRegisteredEvent = new UserAlreadyRegisteredEvent(
+        user.getId(),
+        user.getUsername(),
+        user.getEmail(),
+        user.getLang(),
+        frontend
+    );
+    // Will trigger UserEmailService.sendAlreadyRegisteredEmail().
+    eventPublisher.publishEvent(userAlreadyRegisteredEvent);
   }
 }

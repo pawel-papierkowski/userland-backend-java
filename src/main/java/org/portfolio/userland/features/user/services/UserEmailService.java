@@ -23,6 +23,7 @@ import java.util.Map;
  * <ul>
  *   <li>User registration (sends email with activation link)</li>
  *   <li>User activation (sends email confirming successful activation of user account)</li>
+ *   <li>User already registered (sends email informing about registration try)</li>
  *   <li>Password reset link</li>
  *   <li>Password reset confirmation</li>
  *   <li>Account deletion link</li>

@@ -8,6 +8,7 @@ import org.portfolio.userland.features.user.dto.common.EnFrontendFramework;
  * @param username Username.
  * @param email User email.
  * @param lang User language.
+ * @param frontend Frontend.
  * @param activationToken Token string.
  * @param activationTokenExpires How long before activation token expires in hours.
  */

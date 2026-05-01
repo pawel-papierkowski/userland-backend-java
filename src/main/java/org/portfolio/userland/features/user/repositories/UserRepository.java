@@ -17,7 +17,7 @@ import java.util.Optional;
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
   /**
-   * Helpful for registration validation.
+   * Check if user with that email already exists.
    * @param email Email.
    * @return True if user with that email already exists, otherwise false.
    */

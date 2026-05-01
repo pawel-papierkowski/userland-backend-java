@@ -7,11 +7,8 @@ import org.springframework.http.HttpStatus;
  * Thrown when wrong password was given.
  */
 public class UserWrongPasswordException extends GeneralException {
-  private final String email;
-
-  public UserWrongPasswordException(String email) {
-    super(email);
-    this.email = email;
+  public UserWrongPasswordException() {
+    super("");
   }
 
   @Override
@@ -26,7 +23,7 @@ public class UserWrongPasswordException extends GeneralException {
 
   @Override
   public String getDetail() {
-    return "Cannot log in as user with email '"+email+"' due to wrong password.";
+    return "Cannot login due to wrong password.";
   }
 
   @Override

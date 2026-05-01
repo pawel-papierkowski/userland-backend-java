@@ -40,7 +40,11 @@ public class UserLoginService extends BaseUserService {
    */
   @Transactional
   public UserLoginResp login(UserLoginReq userLoginReq) {
-    User user = userHelperService.resolveUser(userLoginReq.email());
+    // We want to make sure attacker cannot distinguish case when email does not exist and case when wrong password was
+    // given. We just say that was wrong password in both cases.
+    User user = userHelperService.resolveUser(userLoginReq.email(), true);
+    if (user == null) throw new UserWrongPasswordException(); // prevent email enumeration attack
+
     verifyPassword(user, userLoginReq.password());
     verifyLockdown(user);
 
@@ -62,7 +66,7 @@ public class UserLoginService extends BaseUserService {
    */
   private void verifyPassword(User user, String rawPassword) {
     boolean isMatch = passwordEncoder.matches(rawPassword, user.getPassword());
-    if (!isMatch) throw new UserWrongPasswordException(user.getEmail());
+    if (!isMatch) throw new UserWrongPasswordException();
   }
 
   /**
@@ -94,7 +98,7 @@ public class UserLoginService extends BaseUserService {
     // If we are logged in, add entry in history and remove JWT entries in database. It will invalidate any JWT that
     // might be in circulation.
     LocalDateTime nowAt = clockService.getNowUTC();
-    User user = userHelperService.resolveUser(customUserDetails.getEmail());
+    User user = userHelperService.resolveUser(customUserDetails.getEmail(), false);
     addHistoryEvent(user, nowAt, EnUserHistoryWhat.LOGOUT, "");
     userJwtRepository.deleteAllByUser(user.getId()); // Revoke all JWTs related to this user.
   }

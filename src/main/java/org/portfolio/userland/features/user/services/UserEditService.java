@@ -34,7 +34,7 @@ public class UserEditService extends BaseUserService {
   public UserDataResp edit(UserEditReq userEditReq) {
     CustomUserDetails userDetails = AuthHelper.resolveUserDetails();
     if (userDetails == null) throw new IllegalStateException("User details should exist!");
-    User user = userHelperService.resolveUser(userDetails.getEmail());
+    User user = userHelperService.resolveUser(userDetails.getEmail(), false);
     UserProfile userProfile = null; // will edit user profile only when needed
 
     boolean userPresent = userEditReq.userPresent();

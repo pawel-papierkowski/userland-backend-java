@@ -6,10 +6,10 @@ import org.springframework.http.HttpStatus;
 /**
  * Thrown when user cannot be found.
  */
-public class UserDoesNotExistException extends GeneralException {
+public class UserNotFoundException extends GeneralException {
   private final String email;
 
-  public UserDoesNotExistException(String email) {
+  public UserNotFoundException(String email) {
     super(email);
     this.email = email;
   }
@@ -21,7 +21,7 @@ public class UserDoesNotExistException extends GeneralException {
 
   @Override
   public String getTitle() {
-    return "User does not exist.";
+    return "User cannot be found.";
   }
 
   @Override
