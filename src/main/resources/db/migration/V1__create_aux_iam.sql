@@ -96,6 +96,24 @@ CREATE TABLE iam.profiles (
     CONSTRAINT fk_profile_user FOREIGN KEY (id) REFERENCES iam.users(id) ON DELETE CASCADE
 );
 
+-- User configuration.
+CREATE TABLE iam.config (
+    -- Identificator.
+    id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    -- Foreign key to user table.
+    id_user BIGINT NOT NULL,
+
+    -- Name of user configuration entry.
+    name VARCHAR(255) NOT NULL,
+    -- Value of user configuration entry.
+    value TEXT NOT NULL,
+
+    -- Table-level constraint for Foreign Key.
+    CONSTRAINT fk_user FOREIGN KEY (id_user) REFERENCES iam.users(id) ON DELETE CASCADE,
+    -- There can be only one name for given user at once.
+    CONSTRAINT uq_user_config_name UNIQUE (id_user, name)
+);
+
 -- Tokens for user.
 CREATE TABLE iam.tokens (
     -- Identificator.

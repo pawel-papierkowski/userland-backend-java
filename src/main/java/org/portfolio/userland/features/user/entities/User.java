@@ -35,7 +35,7 @@ public class User {
   @Column(nullable = false, updatable = false)
   private LocalDateTime createdAt;
 
-  /** Date&time of account last modification. */
+  /** Date&time of account last modification. Note: only changes to user or user profile entity. */
   @Column(nullable = false)
   private LocalDateTime modifiedAt;
 
@@ -77,27 +77,46 @@ public class User {
 
   // related tables (note profile is missing)
 
+  /** Configuration of this user. */
+  @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+  @OrderBy("id ASC")
+  private List<UserConfig> configs = new ArrayList<>();
+
   /** History of this user. */
   @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+  @OrderBy("id ASC")
   private List<UserHistory> history = new ArrayList<>();
 
   /** Tokens that this user has. Same user can have only one token of given type at once. */
   @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+  @OrderBy("id ASC")
   private List<UserToken> tokens = new ArrayList<>();
 
   /** JWT assigned to this user. */
   @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+  @OrderBy("id ASC")
   private Set<UserJwt> jwts = new HashSet<>();
 
   /** Permissions that this user has. */
   @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+  @OrderBy("id ASC")
   private Set<UserPermission> permissions = new HashSet<>();
 
   // //////////////////////////////////////////////////////////////////////////
 
   /**
+   * Add configuration entry to list of configuration entries. Call only if you expect to use configuration, or it was already used.
+   * @param configEntry User configuration entry to add.
+   */
+  public void addConfig(UserConfig configEntry) {
+    if (configs == null) this.configs = new ArrayList<>();
+    configs.add(configEntry);
+    configEntry.setUser(this);
+  }
+
+  /**
    * Add history event to list of history events. Call only if you expect to use history, or it was already used.
-   * @param historyEvent History event to add.
+   * @param historyEvent User history event to add.
    */
   public void addHistory(UserHistory historyEvent) {
     if (history == null) this.history = new ArrayList<>();
@@ -107,7 +126,7 @@ public class User {
 
   /**
    * Add token entry to list of token entries. Call only if you expect to use tokens, or it was already used.
-   * @param tokenEntry Token entry to add.
+   * @param tokenEntry User token entry to add.
    */
   public void addToken(UserToken tokenEntry) {
     if (tokens == null) this.tokens = new ArrayList<>();
@@ -117,7 +136,7 @@ public class User {
 
   /**
    * Add JWT entry to list of JWT entries. Call only if you expect to use JWTs, or it was already used.
-   * @param jwtEntry JWT entry to add.
+   * @param jwtEntry User JWT entry to add.
    */
   public void addJwt(UserJwt jwtEntry) {
     if (jwts == null) this.jwts = new HashSet<>();
@@ -127,7 +146,7 @@ public class User {
 
   /**
    * Add permission entry to list of permission entries. Call only if you expect to use permissions, or it was already used.
-   * @param permissionEntry Permission entry to add.
+   * @param permissionEntry User permission entry to add.
    */
   public void addPermission(UserPermission permissionEntry) {
     if (permissions == null) this.permissions = new HashSet<>();

@@ -26,11 +26,13 @@ public abstract class BaseUserTest extends BaseIntegrationTest {
   @Autowired
   protected UserProfileRepository userProfileRepository;
   @Autowired
+  protected UserConfigRepository userConfigRepository;
+  @Autowired
+  protected UserHistoryRepository userHistoryRepository;
+  @Autowired
   protected UserTokenRepository userTokenRepository;
   @Autowired
   protected UserJwtRepository userJwtRepository;
-  @Autowired
-  protected UserHistoryRepository userHistoryRepository;
   @Autowired
   protected PermissionRepository permissionRepository;
 
@@ -39,13 +41,15 @@ public abstract class BaseUserTest extends BaseIntegrationTest {
   @Autowired
   protected UserProfileFactory userProfileFactory;
   @Autowired
+  protected UserConfigFactory userConfigFactory;
+  @Autowired
+  protected UserHistoryFactory userHistoryFactory;
+  @Autowired
   protected UserTokenFactory userTokenFactory;
   @Autowired
   protected UserJwtFactory userJwtFactory;
   @Autowired
   protected UserPermissionFactory userPermissionFactory;
-  @Autowired
-  protected UserHistoryFactory userHistoryFactory;
 
   @Autowired
   protected UserProfileMapper userProfileMapper;

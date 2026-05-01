@@ -3,6 +3,7 @@ package org.portfolio.userland.features.user;
 import com.google.common.collect.Maps;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
+import org.portfolio.userland.features.user.constants.UserConfigConst;
 import org.portfolio.userland.features.user.dto.login.UserLoginReq;
 import org.portfolio.userland.features.user.dto.login.UserLoginResp;
 import org.portfolio.userland.features.user.entities.EnUserHistoryWhat;
@@ -181,6 +182,53 @@ public class UserLoginApiTest extends BaseUserTest {
     expectedClaimMap.put("exp", 1775837100L); // expires
     expectedClaimMap.put("sub", "test@example.com"); // user account email as subject
     expectedClaimMap.put("role", "operator"); // from permission entry
+    assertThat(actualClaimMap).as("Claim map is invalid").isEqualTo(expectedClaimMap);
+  }
+
+  @Test
+  public void loginCustomExpiration() throws Exception {
+    clock.setFixedTime("2026-04-10T10:00:00Z");
+    // Arrange: Create active user in database that has custom expiration in user config.
+    User expectedUser = userFactory.genUser(EnUserStatus.ACTIVE);
+    expectedUser.addConfig(userConfigFactory.genConfig(expectedUser, UserConfigConst.JWT_EXPIRE, "60")); // 1 hour
+    userRepository.save(expectedUser);
+
+    clock.setFixedTime("2026-04-10T10:05:00Z");
+    // Arrange: Create login request.
+    UserLoginReq req = new UserLoginReq("test@example.com", "Password123!");
+
+    // Act: Log in user.
+    MvcResult mvcResult = mockMvc.perform(post("/api/users/login")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(req))
+            .header("X-Forwarded-For", "192.168.1.50") // Simulate proxy IP
+            .header("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64)")) // Simulate Browser
+        .andReturn();
+
+    // Assert: API Response.
+    assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.OK.value());
+
+    UserLoginResp actualResp = objectMapper.readValue(mvcResult.getResponse().getContentAsString(), UserLoginResp.class);
+
+    // Prepare expected result (user is same, but with new LOGIN history event and JWT entry).
+    userHistoryFactory.genHistoryEvent(expectedUser, EnUserHistoryWhat.LOGIN, "IP: '192.168.1.50', User-Agent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'");
+    userJwtFactory.genJwtEntry(expectedUser, actualResp.jwtToken());
+
+    // Assert: Database state.
+    transactionTemplate.execute(_ -> {
+      // Assert: User state.
+      User actualUser = userRepository.findByEmail("test@example.com").orElseThrow();
+      userAssert.assertIt(actualUser, expectedUser);
+      return null;
+    });
+
+    // Assert: Validate it is proper JWT token with correct signature and payload.
+    assertThat(jwtService.isTokenValid(actualResp.jwtToken(), expectedUser.getEmail())).as("Token must be valid").isTrue();
+    Map<String, Object> actualClaimMap = jwtService.extractAllClaims(actualResp.jwtToken());
+    Map<String, Object> expectedClaimMap = Maps.newHashMap();
+    expectedClaimMap.put("iat", 1775815500L); // issued
+    expectedClaimMap.put("exp", 1775819100L); // expires in 1 hour
+    expectedClaimMap.put("sub", "test@example.com"); // user account email as subject
     assertThat(actualClaimMap).as("Claim map is invalid").isEqualTo(expectedClaimMap);
   }
 

@@ -51,6 +51,27 @@ public class JwtServiceTest extends BaseUserTest {
     assertThat(actualClaimMap).as("Claim map is invalid").isEqualTo(expectedClaimMap);
   }
 
+  @Test
+  void generateValidTokenWithCustomExpiration() {
+    clock.setFixedTime("2026-04-10T10:05:00Z");
+
+    // Arrange: Create a real user and token for that user.
+    User user = userRepository.save(userFactory.genRandUser(EnUserStatus.ACTIVE));
+    String token = jwtService.generateToken(user, 60L); // only one hour
+
+    // Act: Check if token is valid.
+    boolean isValid = jwtService.isTokenValid(token, user.getEmail());
+
+    // Assert: Validity and claims of token.
+    assertThat(isValid).as("Token must be valid").isTrue();
+    Map<String, Object> actualClaimMap = jwtService.extractAllClaims(token);
+    Map<String, Object> expectedClaimMap = Maps.newHashMap();
+    expectedClaimMap.put("iat", 1775815500L); // issued
+    expectedClaimMap.put("exp", 1775819100L); // expires in hour
+    expectedClaimMap.put("sub", user.getEmail()); // user account email as subject
+    assertThat(actualClaimMap).as("Claim map is invalid").isEqualTo(expectedClaimMap);
+  }
+
   //
 
   @Test

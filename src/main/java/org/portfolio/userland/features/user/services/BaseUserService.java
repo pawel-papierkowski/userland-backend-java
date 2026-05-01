@@ -129,7 +129,6 @@ public abstract class BaseUserService extends BaseService {
 
   /**
    * Create and fill history event. It does NOT persist event.
-   *
    * @param nowAt Current date&time.
    * @param what What happened.
    * @param params Event parameters.

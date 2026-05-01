@@ -26,10 +26,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 @Service
 @RequiredArgsConstructor
 public class UserAssert {
-  private static final String[] USER_FIELDS_IGNORE = { "id", "password", "tokens", "jwts", "history", "permissions" };
+  private static final String[] USER_FIELDS_IGNORE = { "id", "password", "configs", "history", "tokens", "jwts", "permissions" };
+  private static final String[] USER_CONFIG_FIELDS_IGNORE = { "id", "user" };
+  private static final String[] USER_HISTORY_FIELDS_IGNORE = { "id", "user", "uuid" };
   private static final String[] USER_TOKEN_FIELDS_IGNORE = { "id", "user", "token" };
   private static final String[] USER_JWT_FIELDS_IGNORE = { "id", "user" };
-  private static final String[] USER_HISTORY_FIELDS_IGNORE = { "id", "user", "uuid" };
   private static final String[] USER_PERMISSION_FIELDS_IGNORE = { "id", "user", "permission", "uuid" };
 
   private static final Comparator<UserJwt> USER_JWT_COMPARATOR =
@@ -63,15 +64,81 @@ public class UserAssert {
         .ignoringFields(USER_FIELDS_IGNORE)
         .isEqualTo(expectedUser);
 
-    // Assert fields that need to be asserted separately for various reasons
+    // Assert fields that need to be asserted separately for various reasons.
     assertThat(actualUser.getId()).as(comment + ": id is wrong").isGreaterThan(0L);
     assertThat(actualUser.getPassword()).as(comment + ": password must be hashed with BCrypt").startsWith("$2a$"); // Ensure password is hashed using BCrypt.
 
-    // Assert collections
+    // Assert collections.
+    assertConfig(comment, actualUser.getConfigs(), expectedUser.getConfigs());
+    assertHistory(comment, actualUser.getHistory(), expectedUser.getHistory());
     assertTokens(comment, actualUser.getTokens(), expectedUser.getTokens());
     assertJwt(comment, actualUser.getJwts(), expectedUser.getJwts());
-    assertHistory(comment, actualUser.getHistory(), expectedUser.getHistory());
     assertPermissions(comment, actualUser.getPermissions(), expectedUser.getPermissions());
+  }
+
+  //
+
+  /**
+   * Assert all configuration entries.
+   * @param actualConfigs Actual configuration entries.
+   * @param expectedConfigs Expected configuration entries.
+   */
+  private void assertConfig(String comment, List<UserConfig> actualConfigs, List<UserConfig> expectedConfigs) {
+    assertThat(actualConfigs.size()).as(comment + ": count of configs is wrong").isEqualTo(expectedConfigs.size());
+    for (int i=0; i<actualConfigs.size(); i++) {
+      UserConfig actualConfig = actualConfigs.get(i);
+      UserConfig expectedConfig = expectedConfigs.get(i);
+      assertConfigEntry(comment, i, actualConfig, expectedConfig);
+    }
+  }
+
+  /**
+   * Assert one configuration entry.
+   * @param ix Index.
+   * @param actualConfig Actual configuration entry.
+   * @param expectedConfig Expected configuration entry.
+   */
+  private void assertConfigEntry(String comment, int ix, UserConfig actualConfig, UserConfig expectedConfig) {
+    assertThat(actualConfig)
+        .as(comment + ": Configuration entry has invalid state")
+        .usingRecursiveComparison()
+        .ignoringFields(USER_CONFIG_FIELDS_IGNORE)
+        .isEqualTo(expectedConfig);
+
+    assertThat(actualConfig.getId()).as(comment + ": Config["+ix+"] entry id is wrong").isGreaterThan(0L);
+  }
+
+  //
+
+  /**
+   * Assert all history events.
+   * @param actualHistory Actual history.
+   * @param expectedHistory Expected history.
+   */
+  private void assertHistory(String comment, List<UserHistory> actualHistory, List<UserHistory> expectedHistory) {
+    assertThat(actualHistory.size()).as(comment + ": count of history events is wrong").isEqualTo(expectedHistory.size());
+    for (int i=0; i<actualHistory.size(); i++) {
+      UserHistory actualHistoryEvent = actualHistory.get(i);
+      UserHistory expectedHistoryEvent = expectedHistory.get(i);
+      assertHistoryEvent(comment, i, actualHistoryEvent, expectedHistoryEvent);
+    }
+  }
+
+  /**
+   * Assert one history event.
+   * @param ix Index.
+   * @param actualHistoryEvent Actual history event.
+   * @param expectedHistoryEvent Expected history event.
+   */
+  private void assertHistoryEvent(String comment, int ix, UserHistory actualHistoryEvent, UserHistory expectedHistoryEvent) {
+    assertThat(actualHistoryEvent)
+        .as(comment + ": History event has invalid state")
+        .usingRecursiveComparison()
+        .ignoringFields(USER_HISTORY_FIELDS_IGNORE)
+        .isEqualTo(expectedHistoryEvent);
+
+    assertThat(actualHistoryEvent.getId()).as(comment + ": History["+ix+"] event id is wrong").isGreaterThan(0L);
+    assertThat(actualHistoryEvent.getUuid()).as(comment + ": History["+ix+"] event UUID is invalid").matches(ValidConst.REG_EXPR_UUID);
   }
 
   //
@@ -140,39 +207,6 @@ public class UserAssert {
         .isEqualTo(expectedJwt);
 
     assertThat(actualJwt.getId()).as(comment + ": Jwt["+ix+"] entry id is wrong").isGreaterThan(0L);
-  }
-
-  //
-
-  /**
-   * Assert all history events.
-   * @param actualHistory Actual history.
-   * @param expectedHistory Expected history.
-   */
-  private void assertHistory(String comment, List<UserHistory> actualHistory, List<UserHistory> expectedHistory) {
-    assertThat(actualHistory.size()).as(comment + ": count of history events is wrong").isEqualTo(expectedHistory.size());
-    for (int i=0; i<actualHistory.size(); i++) {
-      UserHistory actualHistoryEvent = actualHistory.get(i);
-      UserHistory expectedHistoryEvent = expectedHistory.get(i);
-      assertHistoryEvent(comment, i, actualHistoryEvent, expectedHistoryEvent);
-    }
-  }
-
-  /**
-   * Assert one history event.
-   * @param ix Index.
-   * @param actualHistoryEvent Actual history event.
-   * @param expectedHistoryEvent Expected history event.
-   */
-  private void assertHistoryEvent(String comment, int ix, UserHistory actualHistoryEvent, UserHistory expectedHistoryEvent) {
-    assertThat(actualHistoryEvent)
-        .as(comment + ": History event has invalid state")
-        .usingRecursiveComparison()
-        .ignoringFields(USER_HISTORY_FIELDS_IGNORE)
-        .isEqualTo(expectedHistoryEvent);
-
-    assertThat(actualHistoryEvent.getId()).as(comment + ": History["+ix+"] event id is wrong").isGreaterThan(0L);
-    assertThat(actualHistoryEvent.getUuid()).as(comment + ": History["+ix+"] event UUID is invalid").matches(ValidConst.REG_EXPR_UUID);
   }
 
   //

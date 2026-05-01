@@ -151,9 +151,10 @@ public class UserFactory extends BaseFactory {
         .set(field(User::getLang), "en")
         .set(field(User::getStatus), status)
         .set(field(User::getLocked), false)
-        .ignore(field(User::getTokens)) // we fill it manually
-        .ignore(field(User::getJwts)) // ditto
+        .ignore(field(User::getConfigs)) // we fill it manually
         .ignore(field(User::getHistory)) // ditto
+        .ignore(field(User::getTokens)) // ditto
+        .ignore(field(User::getJwts)) // ditto
         .ignore(field(User::getPermissions)) // ditto
         .create();
     // all other fields are filled randomly

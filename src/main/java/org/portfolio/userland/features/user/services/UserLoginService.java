@@ -2,6 +2,7 @@ package org.portfolio.userland.features.user.services;
 
 import lombok.RequiredArgsConstructor;
 import org.portfolio.userland.common.services.http.HttpHelperService;
+import org.portfolio.userland.features.user.constants.UserConfigConst;
 import org.portfolio.userland.features.user.dto.login.UserLoginReq;
 import org.portfolio.userland.features.user.dto.login.UserLoginResp;
 import org.portfolio.userland.features.user.entities.EnUserHistoryWhat;
@@ -27,11 +28,14 @@ import java.time.LocalDateTime;
 @Service
 @RequiredArgsConstructor
 public class UserLoginService extends BaseUserService {
+  private final UserConfigService userConfigService;
+
   private final ConfigService configService;
   private final PermissionService permissionService;
   private final JwtService jwtService;
-  private final PasswordEncoder passwordEncoder;
   private final HttpHelperService httpHelperService;
+
+  private final PasswordEncoder passwordEncoder;
 
   /**
    * Perform user login.
@@ -51,7 +55,7 @@ public class UserLoginService extends BaseUserService {
     LocalDateTime nowAt = clockService.getNowUTC();
 
     // Login is successful. Generate JWT token now.
-    String jwtToken = jwtService.generateToken(user);
+    String jwtToken = generateJwt(user);
     // Add JWT in database. This will allow us to effectively revoke tokens later (logout etc).
     addJwtEntry(user, nowAt, jwtToken);
     // Add login event to user history.
@@ -82,6 +86,16 @@ public class UserLoginService extends BaseUserService {
     if (permissionService.has(EnPermKind.ACCESS_TO_ADMIN_PANEL, user.getPermissions())) return;
     // Standard user is trying to log in during lockdown, reject them.
     throw new UserLockdownException(user.getEmail());
+  }
+
+  /**
+   * Generate JWT token.
+   * @param user User.
+   * @return JWT token.
+   */
+  private String generateJwt(User user) {
+    Long jwtExpire = userConfigService.getLong(user, UserConfigConst.JWT_EXPIRE, null);
+    return jwtService.generateToken(user, jwtExpire);
   }
 
   // //////////////////////////////////////////////////////////////////////////

@@ -23,7 +23,7 @@ public class InvalidBearerTokenException extends GeneralException {
 
   @Override
   public String getDetail() {
-    return "Bearer token is invalid or malformed and cannot be used.";
+    return "Bearer token is expired, invalid or malformed and cannot be used.";
   }
 
   @Override

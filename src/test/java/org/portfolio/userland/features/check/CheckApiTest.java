@@ -177,7 +177,7 @@ public class CheckApiTest extends BaseCheckTest {
     ProblemDetailBox expectedPdb = new ProblemDetailBox(
         HttpStatus.UNAUTHORIZED.value(),
         "Unauthorized",
-        "Bearer token is invalid or malformed and cannot be used.",
+        "Bearer token is expired, invalid or malformed and cannot be used.",
         "/api/checks/must-be-logged",
         "https://api.userland.org/errors/user/malformedToken",
         Map.of()

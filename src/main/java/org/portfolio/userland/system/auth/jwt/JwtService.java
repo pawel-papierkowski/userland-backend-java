@@ -45,10 +45,20 @@ public class JwtService extends BaseService {
    * @return Generated JWT token.
    */
   public String generateToken(User user) {
+    return generateToken(user, null);
+  }
+
+  /**
+   * Generate JWT token based on user data.
+   * @param user User data.
+   * @param customExpiration Custom expiration period in minutes. Can be null, will use default expiration.
+   * @return Generated JWT token.
+   */
+  public String generateToken(User user, Long customExpiration) {
     verifyUser(user);
 
     LocalDateTime issuedAt = clockService.getNowUTC();
-    LocalDateTime expiresAt = issuedAt.plusMinutes(jwtExpiration);
+    LocalDateTime expiresAt = resolveExpiresAt(issuedAt, customExpiration);
     Date issueDate = clockService.convert(issuedAt);
     Date expirationDate = clockService.convert(expiresAt);
 
@@ -59,6 +69,12 @@ public class JwtService extends BaseService {
         .expiration(expirationDate)
         .signWith(resolveSigningKey())
         .compact();
+  }
+
+  private LocalDateTime resolveExpiresAt(LocalDateTime issuedAt, Long customExpiration) {
+    long actualExpiration = jwtExpiration;
+    if (customExpiration != null) actualExpiration = customExpiration;
+    return issuedAt.plusMinutes(actualExpiration);
   }
 
   /**
