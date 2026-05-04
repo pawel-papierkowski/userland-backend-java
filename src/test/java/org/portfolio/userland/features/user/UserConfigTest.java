@@ -109,18 +109,18 @@ public class UserConfigTest extends BaseUserTest {
   public void setMissingConfig() {
     clock.setFixedTime("2026-04-10T10:00:00Z");
     User expectedUser = userFactory.genUser(EnUserStatus.ACTIVE);
-    expectedUser.addConfig(userConfigFactory.genConfig(expectedUser, "test.variable", "1"));
+    userConfigFactory.genConfig(expectedUser, "test.variable", "1");
 
     // Arrange: Create active user in database that has some config entry.
     User user = userFactory.genUser(EnUserStatus.ACTIVE);
-    user.addConfig(userConfigFactory.genConfig(user, "test.variable", "1"));
+    userConfigFactory.genConfig(user, "test.variable", "1");
     user = userRepository.save(user);
 
     // Act: set config that do not exist.
     userConfigService.set(user, "other.variable", "zz");
 
     // Prepare expected state.
-    expectedUser.addConfig(userConfigFactory.genConfig(expectedUser, "other.variable", "zz"));
+    userConfigFactory.genConfig(expectedUser, "other.variable", "zz");
 
     // Assert: Database state.
     transactionTemplate.execute(_ -> {
@@ -136,7 +136,7 @@ public class UserConfigTest extends BaseUserTest {
     clock.setFixedTime("2026-04-10T10:00:00Z");
     // Arrange: Create active user in database that has some config entry.
     User expectedUser = userFactory.genRandUser(EnUserStatus.ACTIVE);
-    expectedUser.addConfig(userConfigFactory.genConfig(expectedUser, "test.variable", "1"));
+    userConfigFactory.genConfig(expectedUser, "test.variable", "1");
     User user = userRepository.save(expectedUser);
 
     // Act: set config that exists.

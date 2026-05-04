@@ -147,8 +147,11 @@ public class UserDeleteApiTest extends BaseUserTest {
   public void actuallyDeleteUser() throws Exception {
     clock.setFixedTime("2026-04-10T10:00:00Z");
 
-    // Arrange: Create active user in database in state indicating it requested account deletion.
+    // Arrange: Create active user in database in state indicating it requested account deletion. Also add entries to other related tables.
     User expectedUser = userFactory.genUser(EnUserStatus.ACTIVE);
+    userConfigFactory.genConfig(expectedUser, "some.config.name", "some.config.value");
+    userJwtFactory.genJwtEntry(expectedUser, "FAKE_JWT");
+    userPermissionFactory.genPermissionEntry(expectedUser, permissionRepository.findByName("role").orElseThrow(), "operator");
     UserToken token = userTokenFactory.genTokenEntry(expectedUser, EnUserTokenType.DELETE, null);
     userHistoryFactory.genHistoryEvent(expectedUser, EnUserHistoryWhat.DELETE_REQ, "");
     userRepository.save(expectedUser);
@@ -172,8 +175,11 @@ public class UserDeleteApiTest extends BaseUserTest {
     transactionTemplate.execute(_ -> {
       assertThat(userRepository.findAll().size()).as("User should be deleted").isEqualTo(0);
       assertThat(userProfileRepository.findAll().size()).as("User profile should be deleted").isEqualTo(0);
-      assertThat(userTokenRepository.findAll().size()).as("User tokens should be deleted").isEqualTo(0);
+      assertThat(userConfigRepository.findAll().size()).as("User configuration should be deleted").isEqualTo(0);
       assertThat(userHistoryRepository.findAll().size()).as("User history should be deleted").isEqualTo(0);
+      assertThat(userTokenRepository.findAll().size()).as("User tokens should be deleted").isEqualTo(0);
+      assertThat(userJwtRepository.findAll().size()).as("User tokens should be deleted").isEqualTo(0);
+      assertThat(userPermissionRepository.findAll().size()).as("User permissions should be deleted").isEqualTo(0);
       return null;
     });
 

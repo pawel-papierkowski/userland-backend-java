@@ -74,7 +74,7 @@ In your IDE, ensure Java 25 Temurin is installed and selected. You need to confi
   - `EMAIL_PASSWORD`
   - `JWT_SECRET`
 - Optional **environment variables**:
-  - If you want to use real database instead of container, add in run config:
+  - If you want to use real database instead of database in container, add in run config:
     - `SPRING_DATASOURCE_URL`=jdbc:postgresql://[URL]
     - `SPRING_DATASOURCE_USERNAME`=[NAME OF POSTGRESQL ACCOUNT]
     - `SPRING_DATASOURCE_PASSWORD`=[YOUR PASSWORD]

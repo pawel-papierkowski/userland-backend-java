@@ -8,6 +8,7 @@ import org.portfolio.userland.features.user.entities.User;
 
 import java.time.LocalDateTime;
 import java.util.Objects;
+import java.util.UUID;
 
 /**
  * System history event.
@@ -22,9 +23,9 @@ public class SystemHistory {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
-  /** UUID. Acts as business key. */
+  /** UUID v4. Acts as business key. */
   @Column(unique = true, nullable = false, updatable = false)
-  private String uuid;
+  private UUID uuid;
 
   /** User that has this history event. */
   @ManyToOne

@@ -7,6 +7,7 @@ import org.portfolio.userland.common.annotations.NoCoverageGenerated;
 
 import java.time.LocalDateTime;
 import java.util.Objects;
+import java.util.UUID;
 
 /**
  * User history event.
@@ -21,9 +22,9 @@ public class UserHistory {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
-  /** UUID. Acts as business key. */
+  /** UUID v4. Acts as business key. */
   @Column(unique = true, nullable = false, updatable = false)
-  private String uuid;
+  private UUID uuid;
 
   /** User that has this history event. */
   @ManyToOne

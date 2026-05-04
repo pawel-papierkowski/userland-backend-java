@@ -27,7 +27,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @RequiredArgsConstructor
 public class UserAssert {
   private static final String[] USER_FIELDS_IGNORE = { "id", "password", "configs", "history", "tokens", "jwts", "permissions" };
-  private static final String[] USER_CONFIG_FIELDS_IGNORE = { "id", "user" };
+  private static final String[] USER_CONFIG_FIELDS_IGNORE = { "id", "user", "uuid" };
   private static final String[] USER_HISTORY_FIELDS_IGNORE = { "id", "user", "uuid" };
   private static final String[] USER_TOKEN_FIELDS_IGNORE = { "id", "user", "token" };
   private static final String[] USER_JWT_FIELDS_IGNORE = { "id", "user" };
@@ -106,6 +106,7 @@ public class UserAssert {
         .isEqualTo(expectedConfig);
 
     assertThat(actualConfig.getId()).as(comment + ": Config["+ix+"] entry id is wrong").isGreaterThan(0L);
+    assertThat(actualConfig.getUuid()).as(comment + ": Config["+ix+"] event UUID is invalid").isNotNull();
   }
 
   //
@@ -138,7 +139,7 @@ public class UserAssert {
         .isEqualTo(expectedHistoryEvent);
 
     assertThat(actualHistoryEvent.getId()).as(comment + ": History["+ix+"] event id is wrong").isGreaterThan(0L);
-    assertThat(actualHistoryEvent.getUuid()).as(comment + ": History["+ix+"] event UUID is invalid").matches(ValidConst.REG_EXPR_UUID);
+    assertThat(actualHistoryEvent.getUuid()).as(comment + ": History["+ix+"] event UUID is invalid").isNotNull();
   }
 
   //
@@ -242,7 +243,7 @@ public class UserAssert {
         .isEqualTo(expectedPermission);
 
     assertThat(actualPermission.getId()).as(comment + ": Right["+ix+"] entry id is wrong").isGreaterThan(0L);
-    assertThat(actualPermission.getUuid()).as(comment + ": Right["+ix+"] entry UUID is invalid").matches(ValidConst.REG_EXPR_UUID);
+    assertThat(actualPermission.getUuid()).as(comment + ": Right["+ix+"] entry UUID is invalid").isNotNull();
   }
 
   //

@@ -29,7 +29,7 @@ public class SecurityGeneratorService {
    * Generate type 4 UUID.
    * @return UUID.
    */
-  public String uuid() {
-    return UUID.randomUUID().toString();
+  public UUID uuid() {
+    return UUID.randomUUID();
   }
 }

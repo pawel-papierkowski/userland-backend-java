@@ -6,7 +6,9 @@ import lombok.Getter;
 import lombok.Setter;
 import org.portfolio.userland.common.annotations.NoCoverageGenerated;
 
+import java.time.LocalDateTime;
 import java.util.Objects;
+import java.util.UUID;
 
 /**
  * User configuration entry.
@@ -22,10 +24,20 @@ public class UserConfig {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
+  /** UUID v4. Acts as business key. */
+  @Column(unique = true, nullable = false, updatable = false)
+  private UUID uuid;
+
   /** User that has this configuration entry. */
   @ManyToOne
   @JoinColumn(name = "id_user")
   private User user;
+
+  //
+
+  /** Date&time of user config entry creation. */
+  @Column(nullable = false, updatable = false)
+  private LocalDateTime createdAt;
 
   //
 
@@ -49,13 +61,13 @@ public class UserConfig {
 
     UserConfig userConfig = (UserConfig) o;
 
-    if (name == null) return false;
-    return Objects.equals(name, userConfig.getName());
+    if (uuid == null) return false;
+    return Objects.equals(uuid, userConfig.getUuid());
   }
 
   @Override
   @NoCoverageGenerated
   public int hashCode() {
-    return Objects.hash(name);
+    return Objects.hash(uuid);
   }
 }

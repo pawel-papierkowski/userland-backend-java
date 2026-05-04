@@ -61,6 +61,8 @@ public class UserConfigService extends BaseUserService {
     UserConfig configEntry = userConfigRepository.findByUserIdAndName(user.getId(), name).orElse(null);
     if (configEntry == null) {
       configEntry = new UserConfig();
+      configEntry.setUuid(securityGeneratorService.uuid());
+      configEntry.setCreatedAt(clockService.getNowUTC());
       configEntry.setName(name);
       user.addConfig(configEntry);
     }

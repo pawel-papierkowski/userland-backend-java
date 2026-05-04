@@ -34,6 +34,8 @@ public abstract class BaseUserTest extends BaseIntegrationTest {
   @Autowired
   protected UserJwtRepository userJwtRepository;
   @Autowired
+  protected UserPermissionRepository userPermissionRepository;
+  @Autowired
   protected PermissionRepository permissionRepository;
 
   @Autowired
@@ -71,7 +73,7 @@ public abstract class BaseUserTest extends BaseIntegrationTest {
   @Override
   protected void cleanDatabase() {
     super.cleanDatabase();
-    userRepository.deleteAll(); // will remove everything from related tables too
+    userRepository.deleteAll(); // will remove everything from related tables too, as these have cascading deletes
   }
 
   //

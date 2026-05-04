@@ -1,7 +1,6 @@
 package org.portfolio.userland.test.helpers.asserts;
 
 import lombok.RequiredArgsConstructor;
-import org.portfolio.userland.common.constants.ValidConst;
 import org.portfolio.userland.features.user.entities.User;
 import org.portfolio.userland.system.history.entity.SystemHistory;
 import org.portfolio.userland.system.history.repositories.SystemHistoryRepository;
@@ -60,7 +59,7 @@ public class SystemHistoryAssert {
 
     // Assert fields that need to be asserted separately for various reasons
     assertThat(actualHistoryEvent.getId()).as(comment + ": Id is wrong").isGreaterThan(0L);
-    assertThat(actualHistoryEvent.getUuid()).as(comment + ": Event UUID is invalid").matches(ValidConst.REG_EXPR_UUID);
+    assertThat(actualHistoryEvent.getUuid()).as(comment + ": Event UUID is invalid").isNotNull();
     assertUser(comment, actualHistoryEvent.getUser(), expectedHistoryEvent.getUser());
   }
 

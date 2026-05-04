@@ -100,8 +100,13 @@ CREATE TABLE iam.profiles (
 CREATE TABLE iam.config (
     -- Identificator.
     id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    -- UUID v4. Business key.
+    uuid UUID NOT NULL DEFAULT gen_random_uuid() UNIQUE,
     -- Foreign key to user table.
     id_user BIGINT NOT NULL,
+
+    -- When user configuration entry was created.
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     -- Name of user configuration entry.
     name VARCHAR(255) NOT NULL,
@@ -160,8 +165,8 @@ CREATE TABLE iam.jwt (
 CREATE TABLE iam.history (
     -- Identificator.
     id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    -- UUID. Business key.
-    uuid VARCHAR(128) NOT NULL UNIQUE,
+    -- UUID v4. Business key.
+    uuid UUID NOT NULL DEFAULT gen_random_uuid() UNIQUE,
     -- Foreign key to user table.
     id_user BIGINT NOT NULL,
 
@@ -183,8 +188,8 @@ CREATE TABLE iam.history (
 CREATE TABLE iam.user_permissions (
     -- Identificator.
     id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    -- UUID. Business key.
-    uuid VARCHAR(128) NOT NULL UNIQUE,
+    -- UUID v4. Business key.
+    uuid UUID NOT NULL DEFAULT gen_random_uuid() UNIQUE,
     -- Foreign key to user table.
     id_user BIGINT NOT NULL,
     -- Foreign key to permission table.
@@ -212,8 +217,8 @@ CREATE TABLE iam.user_permissions (
 CREATE TABLE aux.history (
     -- Identificator.
     id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    -- UUID. Business key.
-    uuid VARCHAR(128) NOT NULL UNIQUE,
+    -- UUID v4. Business key.
+    uuid UUID NOT NULL DEFAULT gen_random_uuid() UNIQUE,
     -- Foreign key to user table. Note it is optional!
     id_user BIGINT,
 

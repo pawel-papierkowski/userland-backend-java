@@ -190,7 +190,7 @@ public class UserLoginApiTest extends BaseUserTest {
     clock.setFixedTime("2026-04-10T10:00:00Z");
     // Arrange: Create active user in database that has custom expiration in user config.
     User expectedUser = userFactory.genUser(EnUserStatus.ACTIVE);
-    expectedUser.addConfig(userConfigFactory.genConfig(expectedUser, UserConfigConst.JWT_EXPIRE, "60")); // 1 hour
+    userConfigFactory.genConfig(expectedUser, UserConfigConst.JWT_EXPIRE, "60"); // 1 hour
     userRepository.save(expectedUser);
 
     clock.setFixedTime("2026-04-10T10:05:00Z");
