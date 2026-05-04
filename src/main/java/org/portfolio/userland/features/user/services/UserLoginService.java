@@ -16,7 +16,6 @@ import org.portfolio.userland.system.auth.perm.PermissionService;
 import org.portfolio.userland.system.config.service.ConfigConst;
 import org.portfolio.userland.system.config.service.ConfigService;
 import org.portfolio.userland.system.lockdown.exceptions.UserLockdownException;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,8 +34,6 @@ public class UserLoginService extends BaseUserService {
   private final JwtService jwtService;
   private final HttpHelperService httpHelperService;
 
-  private final PasswordEncoder passwordEncoder;
-
   /**
    * Perform user login.
    * @param userLoginReq User login request.
@@ -49,7 +46,7 @@ public class UserLoginService extends BaseUserService {
     User user = userHelperService.resolveUser(userLoginReq.email(), true);
     if (user == null) throw new UserWrongPasswordException(); // prevent email enumeration attack
 
-    verifyPassword(user, userLoginReq.password());
+    userHelperService.verifyPassword(user, userLoginReq.password());
     verifyLockdown(user);
 
     LocalDateTime nowAt = clockService.getNowUTC();
@@ -61,16 +58,6 @@ public class UserLoginService extends BaseUserService {
     // Add login event to user history.
     addHistoryEvent(user, nowAt, EnUserHistoryWhat.LOGIN, httpHelperService.resolveHttpParams());
     return new UserLoginResp(jwtToken);
-  }
-
-  /**
-   * Verifies if password is correct. If it is not, throws exception.
-   * @param user User data.
-   * @param rawPassword Given password.
-   */
-  private void verifyPassword(User user, String rawPassword) {
-    boolean isMatch = passwordEncoder.matches(rawPassword, user.getPassword());
-    if (!isMatch) throw new UserWrongPasswordException();
   }
 
   /**

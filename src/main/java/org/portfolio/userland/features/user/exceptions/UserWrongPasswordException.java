@@ -25,7 +25,7 @@ public class UserWrongPasswordException extends GeneralException {
 
   @Override
   public String getDetail() {
-    return "Cannot login due to wrong password.";
+    return "Wrong password was used. Access denied.";
   }
 
   @Override

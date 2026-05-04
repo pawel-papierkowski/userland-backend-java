@@ -147,7 +147,7 @@ public class UserRegisterService extends BaseUserService {
         user.getTokens().getFirst().getToken(),
         activationTokenExpires
     );
-    // Will trigger UserEmailService.sendRegistrationEmail().
+    // Will trigger UserSendEmailService.sendRegistrationEmail().
     eventPublisher.publishEvent(userRegisteredEvent);
   }
 
@@ -164,7 +164,7 @@ public class UserRegisterService extends BaseUserService {
         user.getLang(),
         frontend
     );
-    // Will trigger UserEmailService.sendActivatedEmail().
+    // Will trigger UserSendEmailService.sendActivatedEmail().
     eventPublisher.publishEvent(userActivatedEvent);
   }
 
@@ -181,7 +181,7 @@ public class UserRegisterService extends BaseUserService {
         user.getLang(),
         frontend
     );
-    // Will trigger UserEmailService.sendAlreadyRegisteredEmail().
+    // Will trigger UserSendEmailService.sendAlreadyRegisteredEmail().
     eventPublisher.publishEvent(userAlreadyRegisteredEvent);
   }
 }

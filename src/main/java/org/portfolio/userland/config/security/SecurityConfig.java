@@ -11,8 +11,6 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
@@ -30,15 +28,6 @@ public class SecurityConfig {
   private final LockdownFilter lockdownFilter;
   private final ProblemDetailAuthenticationEntryPoint problemDetailAuthenticationEntryPoint;
   private final ProblemDetailAccessDeniedHandler problemDetailAccessDeniedHandler;
-
-  /**
-   * Defines password encoder bean.
-   * @return Password encoder bean.
-   */
-  @Bean
-  public PasswordEncoder passwordEncoder() {
-    return new BCryptPasswordEncoder(); // we can safely hash passwords with this
-  }
 
   //
 

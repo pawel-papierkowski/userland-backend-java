@@ -1,0 +1,11 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="#{email.user.email.warningNew.subject}">UserLand: email change requested</title>
+</head>
+<body>
+<p th:utext="#{email.user.email.warningNew.greeting(${username})}">Hello, <b>User</b>!</p>
+<p th:utext="#{email.user.email.warningNew.l1}">Someone (hopefully you) just tried to change their account email to this address. However, this email is already associated with an active account. If this was you, you can ignore this or log in to your existing account. If this wasn't you, someone might have mistyped their email.</p>
+</body>
+</html>

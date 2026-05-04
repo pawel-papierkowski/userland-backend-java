@@ -8,7 +8,7 @@ import org.portfolio.userland.common.constants.ValidConst;
 import org.portfolio.userland.features.user.dto.common.EnFrontendFramework;
 
 /**
- * Email with link for password reset request.
+ * Password reset request.
  * @param email Email.
  * @param frontend Used frontend. If null/empty, will use default.
  */

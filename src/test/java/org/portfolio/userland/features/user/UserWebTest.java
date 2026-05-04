@@ -34,6 +34,8 @@ public class UserWebTest extends BaseWebTest {
   @MockitoBean
   private UserEditService userEditService;
   @MockitoBean
+  private UserEmailService userEmailService;
+  @MockitoBean
   private UserPasswordService userPasswordService;
   @MockitoBean
   private UserDeleteService userDeleteService;

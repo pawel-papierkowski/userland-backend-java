@@ -18,6 +18,7 @@ import java.time.LocalDateTime;
 public class UserTokenFactory extends BaseFactory {
   private final UserHelperService userHelperService;
 
+
   /**
    * Generate user token entry and assign it to user.
    * @param user User.
@@ -26,13 +27,26 @@ public class UserTokenFactory extends BaseFactory {
    * @return User token entry.
    */
   public UserToken genTokenEntry(User user, EnUserTokenType type, String tokenStr) {
+    return genTokenEntry(user, type, tokenStr, null);
+  }
+
+  /**
+   * Generate user token entry and assign it to user.
+   * @param user User.
+   * @param type Token type.
+   * @param tokenStr Token string. Can be null, will generate token string.
+   * @param payload Token payload.
+   * @return User token entry.
+   */
+  public UserToken genTokenEntry(User user, EnUserTokenType type, String tokenStr, String payload) {
     LocalDateTime nowAt = clockService.getNowUTC();
 
     UserToken userToken = new UserToken();
     userToken.setCreatedAt(nowAt);
-    userToken.setExpiresAt(userHelperService.resolveExpiration(nowAt, type));
+    userToken.setExpiresAt(userHelperService.resolveExpirationSince(nowAt, type));
     userToken.setType(type);
     userToken.setToken(tokenStr == null ? securityGeneratorService.token() : tokenStr);
+    userToken.setPayload(payload);
     user.addToken(userToken);
     return userToken;
   }

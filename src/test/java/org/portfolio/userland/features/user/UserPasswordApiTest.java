@@ -33,7 +33,7 @@ public class UserPasswordApiTest extends BaseUserTest {
   // //////////////////////////////////////////////////////////////////////////
 
   @Test
-  public void sendPasswordResetEmail() throws Exception {
+  public void requestPasswordReset() throws Exception {
     clock.setFixedTime("2026-04-10T10:00:00Z");
     User expectedUser = userFactory.genUser(EnUserStatus.ACTIVE);
 
@@ -43,7 +43,7 @@ public class UserPasswordApiTest extends BaseUserTest {
 
     clock.setFixedTime("2026-04-11T11:30:00Z");
 
-    // Arrange: Create password reset link request.
+    // Arrange: Create password reset request.
     UserPassResetLinkReq req = new UserPassResetLinkReq(newUser.getEmail(), null);
 
     // Act: Request password reset link.
@@ -97,7 +97,7 @@ public class UserPasswordApiTest extends BaseUserTest {
     userTokenFactory.genTokenEntry(newUser, EnUserTokenType.PASSWORD, null);
     userRepository.save(newUser);
 
-    // ...but this token is already expired!
+    // ...but this token is already expired! So we can safely delete it.
     clock.setFixedTime("2026-04-11T11:30:00Z");
 
     // Arrange: Create password reset link request.
@@ -288,7 +288,6 @@ public class UserPasswordApiTest extends BaseUserTest {
 
     // Assert API Response.
     assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.CONFLICT.value());
-
     ProblemDetailBox expectedPdb = new ProblemDetailBox(
         HttpStatus.CONFLICT.value(),
         "Required token already exists.",
@@ -324,7 +323,6 @@ public class UserPasswordApiTest extends BaseUserTest {
 
     // Assert API Response.
     assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.NOT_FOUND.value());
-
     ProblemDetailBox expectedPdb = new ProblemDetailBox(
         HttpStatus.NOT_FOUND.value(),
         "User token is missing.",

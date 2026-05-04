@@ -257,7 +257,7 @@ public class UserLoginApiTest extends BaseUserTest {
     ProblemDetailBox expectedPdb = new ProblemDetailBox(
         HttpStatus.CONFLICT.value(),
         "Wrong password.",
-        "Cannot login due to wrong password.",
+        "Wrong password was used. Access denied.",
         "/api/users/login",
         "https://api.userland.org/errors/user/wrongPassword",
         Map.of()
@@ -291,7 +291,7 @@ public class UserLoginApiTest extends BaseUserTest {
     ProblemDetailBox expectedPdb = new ProblemDetailBox(
         HttpStatus.CONFLICT.value(),
         "Wrong password.",
-        "Cannot login due to wrong password.",
+        "Wrong password was used. Access denied.",
         "/api/users/login",
         "https://api.userland.org/errors/user/wrongPassword",
         Map.of()
@@ -326,7 +326,7 @@ public class UserLoginApiTest extends BaseUserTest {
     ProblemDetailBox expectedPdb = new ProblemDetailBox(
         HttpStatus.CONFLICT.value(),
         "Wrong password.",
-        "Cannot login due to wrong password.",
+        "Wrong password was used. Access denied.",
         "/api/users/login",
         "https://api.userland.org/errors/user/wrongPassword",
         Map.of()
@@ -360,7 +360,7 @@ public class UserLoginApiTest extends BaseUserTest {
     ProblemDetailBox expectedPdb = new ProblemDetailBox(
         HttpStatus.CONFLICT.value(),
         "Wrong password.",
-        "Cannot login due to wrong password.",
+        "Wrong password was used. Access denied.",
         "/api/users/login",
         "https://api.userland.org/errors/user/wrongPassword",
         Map.of()

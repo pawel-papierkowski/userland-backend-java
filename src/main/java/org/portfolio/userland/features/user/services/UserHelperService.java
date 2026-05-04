@@ -7,8 +7,13 @@ import org.portfolio.userland.features.user.entities.User;
 import org.portfolio.userland.features.user.exceptions.UserInvalidStatusException;
 import org.portfolio.userland.features.user.exceptions.UserLockedException;
 import org.portfolio.userland.features.user.exceptions.UserNotFoundException;
+import org.portfolio.userland.features.user.exceptions.UserWrongPasswordException;
 import org.portfolio.userland.features.user.repositories.UserRepository;
+import org.portfolio.userland.system.auth.AuthHelper;
+import org.portfolio.userland.system.auth.details.CustomUserDetails;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -19,6 +24,9 @@ import java.time.LocalDateTime;
 @Service
 @RequiredArgsConstructor
 public class UserHelperService {
+  @Autowired
+  protected PasswordEncoder passwordEncoder;
+
   /** How long before activation token expires in hours. */
   @Value("${app.user.token.activation.expires}")
   private long activationTokenExpires;
@@ -41,7 +49,21 @@ public class UserHelperService {
   //
 
   /**
-   * Resolves user and verifies user state.
+   * Resolves user by user detail. In other words, user must be logged in.
+   * @param failSilently If true, method will return null instead of throwing exception if user does not exist.
+   * @return User or null if user could not be found.
+   */
+  public User resolveUser(boolean failSilently) {
+    CustomUserDetails userDetails = AuthHelper.resolveUserDetails();
+    if (userDetails == null) {
+      if (failSilently) return null;
+      throw new IllegalStateException("User details should exist!");
+    }
+    return resolveUser(userDetails.getEmail(), failSilently);
+  }
+
+  /**
+   * Resolves user by email and verifies user state.
    * @param email User email.
    * @param failSilently If true, method will return null instead of throwing exception if user with given email does
    *                    not exist.
@@ -79,12 +101,38 @@ public class UserHelperService {
   //
 
   /**
+   * Verifies if password is correct. If it is not, throws exception.
+   * @param user User data.
+   * @param rawPassword Given password.
+   */
+  public void verifyPassword(User user, String rawPassword) {
+    boolean isMatch = passwordEncoder.matches(rawPassword, user.getPassword());
+    if (!isMatch) throw new UserWrongPasswordException();
+  }
+
+  //
+
+  /**
+   * Finds out expiration time.
+   * @param type Type of token.
+   * @return Time in time units. Check description of given type to see what unit is used (minutes or hours).
+   */
+  public long resolveExpirationTime(EnUserTokenType type) {
+    return switch (type) {
+      case ACTIVATE -> activationTokenExpires;
+      case EMAIL -> emailChangeTokenExpires;
+      case PASSWORD -> passwordResetTokenExpires;
+      case DELETE -> deletionTokenExpires;
+    };
+  }
+
+  /**
    * Finds out when given token type expires.
    * @param nowAt Current date&time.
    * @param type Type of token.
    * @return Expiration date&time.
    */
-  public LocalDateTime resolveExpiration(LocalDateTime nowAt, EnUserTokenType type) {
+  public LocalDateTime resolveExpirationSince(LocalDateTime nowAt, EnUserTokenType type) {
     return switch (type) {
       case ACTIVATE -> nowAt.plusHours(activationTokenExpires);
       case EMAIL -> nowAt.plusMinutes(emailChangeTokenExpires);

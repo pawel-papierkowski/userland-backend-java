@@ -41,6 +41,7 @@ public class UserSendEmailService {
   private final static String TEMPLATE_USER_ALREADY_REGISTERED = "user/alreadyRegistered";
 
   private final static String TEMPLATE_USER_EMAIL_WARNING = "user/email/warning"; // to old (current) address
+  private final static String TEMPLATE_USER_EMAIL_WARNING_NEW = "user/email/warningNew"; // to new address
   private final static String TEMPLATE_USER_EMAIL_LINK = "user/email/link"; // to new address
   private final static String TEMPLATE_USER_EMAIL_CONFIRM = "user/email/confirm"; // to new (and now current) address
 
@@ -214,7 +215,7 @@ public class UserSendEmailService {
   }
 
   /**
-   * Prepare email for sending email change warning.
+   * Prepare email for sending email change warning to OLD email.
    * @param event Event.
    * @return Email request.
    */
@@ -276,6 +277,78 @@ public class UserSendEmailService {
   private String resolveEmailChangeLink(EnFrontendFramework frontend, String emailChangeToken) {
     // Note it is linking to frontend - actual backend email change endpoint will be called by frontend.
     return resolveWww(frontend) + "/emailChange?token="+emailChangeToken;
+  }
+
+  //
+
+  /**
+   * React on email change fail event. Will send two emails:
+   * <ul>
+   *   <li>first to OLD email account with warning about change of email</li>
+   *   <li>second to NEW email account with warning about change of email</li>
+   * </ul>
+   *
+   * @param event Email change request event data.
+   */
+  @Async("emailTaskExecutor")
+  @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+  public void sendEmailChangeFail(UserEmailChangeFailEvent event) {
+    EmailReq emailWarnOldReq = resolveEmailWarnOldReq(event);
+    emailService.sendEmail(emailWarnOldReq);
+    EmailReq emailWarnNewReq = resolveEmailWarnNewReq(event);
+    emailService.sendEmail(emailWarnNewReq);
+  }
+
+  /**
+   * Prepare email for sending email change warning to OLD email.
+   * @param event Event.
+   * @return Email request.
+   */
+  private EmailReq resolveEmailWarnOldReq(UserEmailChangeFailEvent event) {
+    String subject = langService.t(event.lang(), "email.user.email.warning.subject");
+
+    // Prepare params required by email change warning template.
+    Map<String, Object> params = Maps.newHashMap();
+    params.put("username", event.username());
+
+    return new EmailReq(
+        null,
+        event.lang(),
+        emailSender,
+        List.of(event.email()), // OLD email account
+        List.of(),
+        List.of(),
+        emailSender,
+        subject,
+        TEMPLATE_USER_EMAIL_WARNING,
+        params,
+        null);
+  }
+
+  /**
+   * Prepare email for sending email change warning to NEW email.
+   * @param event Event.
+   * @return Email request.
+   */
+  private EmailReq resolveEmailWarnNewReq(UserEmailChangeFailEvent event) {
+    String subject = langService.t(event.lang(), "email.user.email.warningNew.subject");
+
+    // Prepare params required by email change warning template.
+    Map<String, Object> params = Maps.newHashMap();
+    params.put("username", event.username());
+
+    return new EmailReq(
+        null,
+        event.lang(),
+        emailSender,
+        List.of(event.newEmail()), // NEW email account
+        List.of(),
+        List.of(),
+        emailSender,
+        subject,
+        TEMPLATE_USER_EMAIL_WARNING_NEW,
+        params,
+        null);
   }
 
   //

@@ -224,6 +224,69 @@ public class UserSendEmailTest extends BaseUserTest {
   }
 
   @Test
+  public void sendEmailChangeFail() {
+    // Arrange: event data.
+    UserEmailChangeFailEvent event = new UserEmailChangeFailEvent(
+        1L,
+        "Jane",
+        "test@example.com",
+        "en",
+        null,
+        "other@example.com"
+    );
+
+    // Act: send email change request emails. Will send two emails: warning and link.
+    userSendEmailService.sendEmailChangeFail(event);
+
+    // Assert that both emails (warning about email change and link to email change page) were sent.
+    await().atMost(Duration.ofSeconds(3)).untilAsserted(() -> {
+      ArgumentCaptor<EmailReq> captor = ArgumentCaptor.forClass(EmailReq.class);
+      verify(emailService, times(2)).sendEmail(captor.capture());
+
+      // Prepare actual and expected data.
+      List<EmailReq> allCapturedEmails = captor.getAllValues();
+      EmailReq actualWarningOldReq = allCapturedEmails.get(0);
+      EmailReq actualWarningNewReq = allCapturedEmails.get(1);
+
+      Map<String, Object> paramsWarning = Maps.newHashMap();
+      paramsWarning.put("username", "Jane");
+      EmailReq expectedEmailWarningOldReq = new EmailReq(
+          null,
+          "en",
+          "pawel.papierkowski.portfolio@gmail.com",
+          List.of("test@example.com"), // OLD email
+          List.of(),
+          List.of(),
+          "pawel.papierkowski.portfolio@gmail.com",
+          "UserLand: email change requested",
+          "user/email/warning",
+          paramsWarning,
+          null
+      );
+
+      Map<String, Object> paramsLink = Maps.newHashMap();
+      paramsLink.put("username", "Jane");
+      EmailReq expectedEmailWarningNewReq = new EmailReq(
+          null,
+          "en",
+          "pawel.papierkowski.portfolio@gmail.com",
+          List.of("other@example.com"), // NEW email
+          List.of(),
+          List.of(),
+          "pawel.papierkowski.portfolio@gmail.com",
+          "UserLand: email change requested",
+          "user/email/warningNew",
+          paramsLink,
+          null
+      );
+
+      // Assert that correct email requests were sent.
+      assertThat(actualWarningOldReq).isEqualTo(expectedEmailWarningOldReq);
+      assertThat(actualWarningNewReq).isEqualTo(expectedEmailWarningNewReq);
+    });
+  }
+
+  @Test
   public void sendEmailChangeConfirmation() {
     // Arrange: event data.
     UserEmailChangeConfirmEvent event = new UserEmailChangeConfirmEvent(

@@ -3,7 +3,6 @@ package org.portfolio.userland.test.helpers.factories.user;
 import lombok.RequiredArgsConstructor;
 import org.portfolio.userland.features.user.entities.User;
 import org.portfolio.userland.features.user.entities.UserJwt;
-import org.portfolio.userland.features.user.services.UserHelperService;
 import org.portfolio.userland.test.helpers.factories.BaseFactory;
 import org.springframework.stereotype.Service;
 
@@ -15,8 +14,6 @@ import java.time.LocalDateTime;
 @Service
 @RequiredArgsConstructor
 public class UserJwtFactory extends BaseFactory {
-  private final UserHelperService userHelperService;
-
   /**
    * Generate user JWT entry and assign it to user.
    * @param user User.

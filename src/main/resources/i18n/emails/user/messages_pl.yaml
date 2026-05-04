@@ -21,6 +21,10 @@ email:
         subject: "UserLand: zmiana e-maila"
         greeting: "Cześć, <b>{0}</b>!"
         l1: "Wysłano prośbę o zmianę adresu e-mail powiązanego z tym kontem. Jeśli to Ty, możesz zignorować tę wiadomość. Jeśli nie Ty złożyłeś taką prośbę, skontaktuj się niezwłocznie z pomocą techniczną."
+      warningNew:
+        subject: "UserLand: zmiana e-maila"
+        greeting: "Cześć, <b>{0}</b>!"
+        l1: "Ktoś (mamy nadzieję, że to Ty) próbował właśnie zmienić adres e-mail swojego konta na ten. Jednak ten adres jest już powiązany z aktywnym kontem. Jeśli to Ty, możesz zignorować tę wiadomość lub zalogować się na swoje istniejące konto. Jeśli to nie Ty, prawdopodobnie ktoś po prostu pomylił się podczas wpisywania adresu."
       link:
         subject: "UserLand: zmiana e-maila"
         greeting: "Cześć, <b>{0}</b>!"

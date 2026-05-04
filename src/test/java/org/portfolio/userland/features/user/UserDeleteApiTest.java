@@ -32,7 +32,7 @@ public class UserDeleteApiTest extends BaseUserTest {
   // //////////////////////////////////////////////////////////////////////////
 
   @Test
-  public void sendAccountDeletionEmail() throws Exception {
+  public void requestAccountDeletion() throws Exception {
     clock.setFixedTime("2026-04-10T10:00:00Z");
     User expectedUser = userFactory.genUser(EnUserStatus.ACTIVE);
 
@@ -42,10 +42,10 @@ public class UserDeleteApiTest extends BaseUserTest {
 
     clock.setFixedTime("2026-04-11T11:30:00Z");
 
-    // Arrange: Create account deletion link request.
+    // Arrange: Create account deletion request.
     UserDeleteLinkReq req = new UserDeleteLinkReq(newUser.getEmail(), null);
 
-    // Act: Request password reset link.
+    // Act: Request account deletion link.
     MvcResult mvcResult = mockMvc.perform(post("/api/users/delete/link")
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(req)))
@@ -87,7 +87,7 @@ public class UserDeleteApiTest extends BaseUserTest {
   }
 
   @Test
-  public void sendAccountDeletionEmailWhenExpiredToken() throws Exception {
+  public void requestAccountDeletionWhenExpiredToken() throws Exception {
     clock.setFixedTime("2026-04-10T10:00:00Z");
     User expectedUser = userFactory.genUser(EnUserStatus.ACTIVE);
 
@@ -96,13 +96,13 @@ public class UserDeleteApiTest extends BaseUserTest {
     userTokenFactory.genTokenEntry(newUser, EnUserTokenType.DELETE, null);
     userRepository.save(newUser);
 
-    // ...but this token is already expired!
+    // ...but this token is already expired! So we can safely delete it.
     clock.setFixedTime("2026-04-11T11:30:00Z");
 
     // Arrange: Create account deletion link request.
     UserDeleteLinkReq req = new UserDeleteLinkReq(newUser.getEmail(), null);
 
-    // Act: Request password reset link.
+    // Act: Request account deletion link.
     MvcResult mvcResult = mockMvc.perform(post("/api/users/delete/link")
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(req)))
@@ -158,10 +158,10 @@ public class UserDeleteApiTest extends BaseUserTest {
 
     clock.setFixedTime("2026-04-10T10:05:00Z");
 
-    // Arrange: Create password reset request.
+    // Arrange: Create account delete confirm request.
     UserDeleteConfirmReq req = new UserDeleteConfirmReq(token.getToken());
 
-    // Act: Request password reset.
+    // Act: Request account delete confirm.
     MvcResult mvcResult = mockMvc.perform(delete("/api/users/delete/confirm")
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(req)))
@@ -305,7 +305,7 @@ public class UserDeleteApiTest extends BaseUserTest {
   public void errAccDeleteWithMissingToken() throws Exception {
     clock.setFixedTime("2026-04-08T10:00:00Z");
 
-    // Arrange: create user that requested password reset.
+    // Arrange: create user that requested account deletion.
     User expectedUser = userFactory.genUser(EnUserStatus.ACTIVE);
     UserToken token = userTokenFactory.genTokenEntry(expectedUser, EnUserTokenType.DELETE, null);
     userHistoryFactory.genHistoryEvent(expectedUser, EnUserHistoryWhat.DELETE_REQ, "");

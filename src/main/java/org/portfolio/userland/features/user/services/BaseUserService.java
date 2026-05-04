@@ -54,11 +54,23 @@ public abstract class BaseUserService extends BaseService {
    * @return User token entry.
    */
   protected UserToken createTokenData(LocalDateTime nowAt, EnUserTokenType type) {
+    return createTokenData(nowAt, type, null);
+  }
+
+  /**
+   * Create and fill token data, including payload.
+   * @param nowAt Current date&time.
+   * @param type Type of token.
+   * @param payload Payload of token.
+   * @return User token entry.
+   */
+  protected UserToken createTokenData(LocalDateTime nowAt, EnUserTokenType type, String payload) {
     UserToken token = new UserToken();
     token.setCreatedAt(nowAt);
-    token.setExpiresAt(userHelperService.resolveExpiration(nowAt, type));
+    token.setExpiresAt(userHelperService.resolveExpirationSince(nowAt, type));
     token.setType(type);
     token.setToken(securityGeneratorService.token());
+    token.setPayload(payload);
     return token;
   }
 

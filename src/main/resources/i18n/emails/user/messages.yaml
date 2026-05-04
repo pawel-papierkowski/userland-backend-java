@@ -21,6 +21,10 @@ email:
         subject: "UserLand: email change requested"
         greeting: "Hello, <b>{0}</b>!"
         l1: "A request was made to change the email associated with this account. If this was you, you can ignore this. If you did not request this, please contact support immediately."
+      warningNew:
+        subject: "UserLand: email change requested"
+        greeting: "Hello, <b>{0}</b>!"
+        l1: "Someone (hopefully you) just tried to change their account email to this address. However, this email is already associated with an active account. If this was you, you can ignore this or log in to your existing account. If this wasn't you, someone might have mistyped their email."
       link:
         subject: "UserLand: email change requested"
         greeting: "Hello, <b>{0}</b>!"

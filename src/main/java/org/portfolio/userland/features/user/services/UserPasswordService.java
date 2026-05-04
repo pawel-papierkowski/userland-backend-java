@@ -9,7 +9,6 @@ import org.portfolio.userland.features.user.entities.User;
 import org.portfolio.userland.features.user.entities.UserToken;
 import org.portfolio.userland.features.user.events.UserPasswordResetConfirmEvent;
 import org.portfolio.userland.features.user.events.UserPasswordResetRequestEvent;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,14 +33,10 @@ import java.time.LocalDateTime;
 public class UserPasswordService extends BaseUserService {
   private final PasswordEncoder passwordEncoder;
 
-  /** How long before password reset token expires in minutes. */
-  @Value("${app.user.token.password.expires}")
-  private long passwordResetTokenExpires;
-
   /**
    * Creates password reset token and (indirectly, via event) sends email with password reset link to user with given
    * email.
-   * @param userPassResetLinkReq User password reset link request.
+   * @param userPassResetLinkReq User password reset request.
    */
   @Transactional
   public void send(UserPassResetLinkReq userPassResetLinkReq) {
@@ -57,16 +52,16 @@ public class UserPasswordService extends BaseUserService {
 
     addHistoryEvent(user, nowAt, EnUserHistoryWhat.PASS_RESET_REQ, "");
 
-    triggerPassLinkEvent(userPassResetLinkReq, user, token);
+    triggerPassResetReqEvent(userPassResetLinkReq, user, token);
   }
 
   /**
    * Triggers password reset link event for anyone interested.
-   * @param userPassResetLinkReq User password reset link request.
+   * @param userPassResetLinkReq User password reset request.
    * @param user User data.
    * @param token User token data.
    */
-  private void triggerPassLinkEvent(UserPassResetLinkReq userPassResetLinkReq, User user, UserToken token) {
+  private void triggerPassResetReqEvent(UserPassResetLinkReq userPassResetLinkReq, User user, UserToken token) {
     UserPasswordResetRequestEvent userPasswordResetRequestEvent = new UserPasswordResetRequestEvent(
         user.getId(),
         user.getUsername(),
@@ -74,9 +69,9 @@ public class UserPasswordService extends BaseUserService {
         user.getLang(),
         userPassResetLinkReq.frontend(),
         token.getToken(),
-        passwordResetTokenExpires
+        userHelperService.resolveExpirationTime(EnUserTokenType.PASSWORD)
     );
-    // Will trigger UserEmailService.sendPasswordResetLink().
+    // Will trigger UserSendEmailService.sendPasswordResetRequest().
     eventPublisher.publishEvent(userPasswordResetRequestEvent);
   }
 
@@ -84,7 +79,7 @@ public class UserPasswordService extends BaseUserService {
 
   /**
    * Actually resets password. It is verified by presence of appropriate token.
-   * @param userPassResetConfirmReq User password reset request.
+   * @param userPassResetConfirmReq User password reset confirmation request.
    */
   @Transactional
   public void reset(UserPassResetConfirmReq userPassResetConfirmReq) {
@@ -101,21 +96,21 @@ public class UserPasswordService extends BaseUserService {
     userTokenRepository.deleteToken(userToken.getToken());
     addHistoryEvent(user, nowAt, EnUserHistoryWhat.PASS_RESET, "");
 
-    triggerPassConfirmEvent(user);
+    triggerPassResetConfirmEvent(user);
   }
 
   /**
    * Triggers password reset confirmation event for anyone interested.
    * @param user User data.
    */
-  private void triggerPassConfirmEvent(User user) {
+  private void triggerPassResetConfirmEvent(User user) {
     UserPasswordResetConfirmEvent userPasswordResetConfirmEvent = new UserPasswordResetConfirmEvent(
         user.getId(),
         user.getUsername(),
         user.getEmail(),
         user.getLang()
     );
-    // Will trigger UserEmailService.sendPasswordResetConfirmation().
+    // Will trigger UserSendEmailService.sendPasswordResetConfirm().
     eventPublisher.publishEvent(userPasswordResetConfirmEvent);
   }
 }

@@ -53,7 +53,7 @@ public class UserDeleteService extends BaseUserService {
 
     addHistoryEvent(user, nowAt, EnUserHistoryWhat.DELETE_REQ, "");
 
-    triggerDeleteLinkEvent(userDeleteLinkReq, user, token);
+    triggerDeleteReqEvent(userDeleteLinkReq, user, token);
   }
 
   /**
@@ -62,7 +62,7 @@ public class UserDeleteService extends BaseUserService {
    * @param user User data.
    * @param token User token data.
    */
-  private void triggerDeleteLinkEvent(UserDeleteLinkReq userDeleteLinkReq, User user, UserToken token) {
+  private void triggerDeleteReqEvent(UserDeleteLinkReq userDeleteLinkReq, User user, UserToken token) {
     UserAccountDeleteRequestEvent userAccountDeleteRequestEvent = new UserAccountDeleteRequestEvent(
         user.getId(),
         user.getUsername(),
@@ -72,7 +72,7 @@ public class UserDeleteService extends BaseUserService {
         token.getToken(),
         deletionTokenExpires
     );
-    // Will trigger UserEmailService.sendAccountDeleteLink().
+    // Will trigger UserSendEmailService.sendAccountDeleteRequest().
     eventPublisher.publishEvent(userAccountDeleteRequestEvent);
   }
 
@@ -109,7 +109,7 @@ public class UserDeleteService extends BaseUserService {
         user.getEmail(),
         user.getLang()
     );
-    // Will trigger UserEmailService.sendAccountDeleteConfirmation().
+    // Will trigger UserSendEmailService.sendAccountDeleteConfirm().
     eventPublisher.publishEvent(userAccountDeleteConfirmEvent);
   }
 }

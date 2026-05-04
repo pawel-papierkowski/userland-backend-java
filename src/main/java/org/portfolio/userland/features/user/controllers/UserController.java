@@ -12,6 +12,8 @@ import org.portfolio.userland.features.user.dto.common.UserDataResp;
 import org.portfolio.userland.features.user.dto.delete.UserDeleteConfirmReq;
 import org.portfolio.userland.features.user.dto.delete.UserDeleteLinkReq;
 import org.portfolio.userland.features.user.dto.edit.UserEditReq;
+import org.portfolio.userland.features.user.dto.email.UserEmailChangeConfirmReq;
+import org.portfolio.userland.features.user.dto.email.UserEmailChangeLinkReq;
 import org.portfolio.userland.features.user.dto.password.UserPassResetConfirmReq;
 import org.portfolio.userland.features.user.dto.password.UserPassResetLinkReq;
 import org.portfolio.userland.features.user.dto.register.TokenActivateReq;
@@ -48,6 +50,7 @@ public class UserController {
   private final UserRegisterService userRegisterService;
   private final UserViewService userViewService;
   private final UserEditService userEditService;
+  private final UserEmailService userEmailService;
   private final UserPasswordService userPasswordService;
   private final UserDeleteService userDeleteService;
 
@@ -127,12 +130,56 @@ public class UserController {
   //
 
   /**
+   * Sends emails about email change (warning and link).
+   * @param userEmailChangeLinkReq User email change link request.
+   * @return Response.
+   */
+  @PostMapping(value = "/email/link", produces = "application/json")
+  @Operation(summary = "Send email change link", description = "Sends emails with warning and link to page where you can change email for your account. Note that trying to use already existing email or wrong password will fail silently to prevent email enumeration attack.")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "204", description = "Email change emails successfully sent OR request was ignored due to wrong email address or wrong password.",
+          content = @Content(schema = @Schema(hidden = true))),
+      @ApiResponse(responseCode = "400", description = "Invalid input (missing or malformed email).",
+          content = @Content(mediaType = "application/problem+json",
+              schema = @Schema(implementation = ValidationProblemDetail.class))),
+      @ApiResponse(responseCode = "409", description = "Email change is already pending.",
+          content = @Content(mediaType = "application/problem+json",
+              schema = @Schema(implementation = TokenAlreadyExistsProblemDetail.class)))
+  })
+  public ResponseEntity<Void> sendEmailChangeLink(@Valid @RequestBody UserEmailChangeLinkReq userEmailChangeLinkReq) {
+    userEmailService.send(userEmailChangeLinkReq);
+    return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+  }
+
+  /**
+   * Actually change email.
+   * @param userEmailChangeConfirmReq User email change request.
+   * @return Response.
+   */
+  @PatchMapping(value = "/email/confirm", produces = "application/json")
+  @Operation(summary = "Confirm email change", description = "Confirms email change.")
+  @ApiResponsesToken
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "204", description = "Email change was successful.",
+          content = @Content(schema = @Schema(hidden = true))),
+      @ApiResponse(responseCode = "400", description = "Invalid input (missing data).",
+          content = @Content(mediaType = "application/problem+json",
+              schema = @Schema(implementation = ValidationProblemDetail.class)))
+  })
+  public ResponseEntity<Void> emailChangeConfirm(@Valid @RequestBody UserEmailChangeConfirmReq userEmailChangeConfirmReq) {
+    userEmailService.confirm(userEmailChangeConfirmReq);
+    return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+  }
+
+  //
+
+  /**
    * Sends email with password reset link.
    * @param userPassResetLinkReq User password link request.
    * @return Response.
    */
   @PostMapping(value = "/password/link", produces = "application/json")
-  @Operation(summary = "Send password reset link", description = "Sends email with link to page where you can reset password to your account. Note that trying to use unknown email will fail silently to prevent email enumeration attack.")
+  @Operation(summary = "Send password reset link", description = "Sends email with link to page where you can reset password for your account. Note that trying to use unknown email will fail silently to prevent email enumeration attack.")
   @ApiResponses(value = {
       @ApiResponse(responseCode = "204", description = "Password reset email successfully sent OR request was ignored due to unknown email address.",
           content = @Content(schema = @Schema(hidden = true))),
@@ -163,7 +210,7 @@ public class UserController {
           content = @Content(mediaType = "application/problem+json",
               schema = @Schema(implementation = ValidationProblemDetail.class)))
   })
-  public ResponseEntity<Void> passwordReset(@Valid @RequestBody UserPassResetConfirmReq userPassResetConfirmReq) {
+  public ResponseEntity<Void> passwordResetConfirm(@Valid @RequestBody UserPassResetConfirmReq userPassResetConfirmReq) {
     userPasswordService.reset(userPassResetConfirmReq);
     return new ResponseEntity<>(HttpStatus.NO_CONTENT);
   }
