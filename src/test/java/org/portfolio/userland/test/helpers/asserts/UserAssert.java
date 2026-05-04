@@ -26,12 +26,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 @Service
 @RequiredArgsConstructor
 public class UserAssert {
-  private static final String[] USER_FIELDS_IGNORE = { "id", "password", "configs", "history", "tokens", "jwts", "permissions" };
-  private static final String[] USER_CONFIG_FIELDS_IGNORE = { "id", "user", "uuid" };
-  private static final String[] USER_HISTORY_FIELDS_IGNORE = { "id", "user", "uuid" };
+  private static final String[] USER_FIELDS_IGNORE = { "id", "uuid", "password", "configs", "history", "tokens", "jwts", "permissions" };
+  private static final String[] USER_CONFIG_FIELDS_IGNORE = { "id", "uuid", "user" };
+  private static final String[] USER_HISTORY_FIELDS_IGNORE = { "id", "uuid", "user" };
   private static final String[] USER_TOKEN_FIELDS_IGNORE = { "id", "user", "token" };
   private static final String[] USER_JWT_FIELDS_IGNORE = { "id", "user" };
-  private static final String[] USER_PERMISSION_FIELDS_IGNORE = { "id", "user", "permission", "uuid" };
+  private static final String[] USER_PERMISSION_FIELDS_IGNORE = { "id", "uuid", "user", "permission" };
 
   private static final Comparator<UserJwt> USER_JWT_COMPARATOR =
       Comparator.comparing(UserJwt::getToken);
@@ -66,6 +66,7 @@ public class UserAssert {
 
     // Assert fields that need to be asserted separately for various reasons.
     assertThat(actualUser.getId()).as(comment + ": id is wrong").isGreaterThan(0L);
+    assertThat(actualUser.getUuid()).as(comment + ": UUID is invalid").isNotNull();
     assertThat(actualUser.getPassword()).as(comment + ": password must be hashed with BCrypt").startsWith("$2a$"); // Ensure password is hashed using BCrypt.
 
     // Assert collections.

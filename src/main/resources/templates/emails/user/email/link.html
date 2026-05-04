@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="#{email.user.email.link.subject}">UserLand: email change requested</title>
+</head>
+<body>
+<p th:utext="#{email.user.email.link.greeting(${username})}">Hello, <b>User</b>!</p>
+<p><span th:utext="#{email.user.email.link.l1}">Please confirm change of email here:</span> <a th:href="${emailChangeLink}" th:text="${emailChangeLink}">LINK_EMAIL_CHANGE</a>.</p>
+<p th:utext="#{email.user.email.link.l2(${emailChangeTokenExpires})}">Link will be valid for 15 minutes.</p>
+</body>
+</html>

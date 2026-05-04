@@ -8,7 +8,7 @@ import org.portfolio.userland.features.user.entities.EnUserTokenType;
 import org.portfolio.userland.features.user.entities.User;
 import org.portfolio.userland.features.user.entities.UserToken;
 import org.portfolio.userland.features.user.events.UserAccountDeleteConfirmEvent;
-import org.portfolio.userland.features.user.events.UserAccountDeleteLinkEvent;
+import org.portfolio.userland.features.user.events.UserAccountDeleteRequestEvent;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -63,7 +63,7 @@ public class UserDeleteService extends BaseUserService {
    * @param token User token data.
    */
   private void triggerDeleteLinkEvent(UserDeleteLinkReq userDeleteLinkReq, User user, UserToken token) {
-    UserAccountDeleteLinkEvent userAccountDeleteLinkEvent = new UserAccountDeleteLinkEvent(
+    UserAccountDeleteRequestEvent userAccountDeleteRequestEvent = new UserAccountDeleteRequestEvent(
         user.getId(),
         user.getUsername(),
         user.getEmail(),
@@ -73,7 +73,7 @@ public class UserDeleteService extends BaseUserService {
         deletionTokenExpires
     );
     // Will trigger UserEmailService.sendAccountDeleteLink().
-    eventPublisher.publishEvent(userAccountDeleteLinkEvent);
+    eventPublisher.publishEvent(userAccountDeleteRequestEvent);
   }
 
   // //////////////////////////////////////////////////////////////////////////

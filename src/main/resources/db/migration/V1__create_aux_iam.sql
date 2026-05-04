@@ -60,6 +60,8 @@ INSERT INTO iam.permissions (name, in_jwt, in_authorities) VALUES ('user', true,
 CREATE TABLE iam.users (
     -- Identificator.
     id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    -- UUID v4. Business key.
+    uuid UUID NOT NULL DEFAULT gen_random_uuid() UNIQUE,
     -- When user account was created.
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     -- When user account was last modified.
@@ -132,9 +134,11 @@ CREATE TABLE iam.tokens (
     expires_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     -- Token type.
-    type VARCHAR(50) NOT NULL CHECK (type IN ('ACTIVATE', 'PASSWORD', 'DELETE')),
+    type VARCHAR(50) NOT NULL CHECK (type IN ('ACTIVATE', 'EMAIL', 'PASSWORD', 'DELETE')),
     -- Token value itself. Business key.
     token VARCHAR(128) NOT NULL UNIQUE,
+    -- Token payload. Only some token types (for example EMAIL) need it. Rest has NULL here.
+    payload TEXT,
 
     -- Table-level constraint for Foreign Key.
     CONSTRAINT fk_user FOREIGN KEY (id_user) REFERENCES iam.users(id) ON DELETE CASCADE,
@@ -176,7 +180,7 @@ CREATE TABLE iam.history (
     -- Who caused user history event?
     who VARCHAR(50) NOT NULL CHECK (who IN ('USER', 'OPERATOR', 'SYSTEM')),
     -- What caused user history event?
-    what VARCHAR(50) NOT NULL CHECK (what IN ('CREATE', 'ACTIVATE', 'EDIT', 'PASS_RESET_REQ', 'PASS_RESET', 'DELETE_REQ', 'LOGIN', 'LOGOUT')),
+    what VARCHAR(50) NOT NULL CHECK (what IN ('CREATE', 'ACTIVATE', 'EDIT', 'EMAIL_CHANGE_REQ', 'EMAIL_CHANGE', 'PASS_RESET_REQ', 'PASS_RESET', 'DELETE_REQ', 'LOGIN', 'LOGOUT')),
     -- Parameters for user history event.
     params TEXT NOT NULL,
 

@@ -6,7 +6,7 @@ import org.portfolio.userland.features.user.dto.delete.UserDeleteConfirmReq;
 import org.portfolio.userland.features.user.dto.delete.UserDeleteLinkReq;
 import org.portfolio.userland.features.user.entities.*;
 import org.portfolio.userland.features.user.events.UserAccountDeleteConfirmEvent;
-import org.portfolio.userland.features.user.events.UserAccountDeleteLinkEvent;
+import org.portfolio.userland.features.user.events.UserAccountDeleteRequestEvent;
 import org.portfolio.userland.test.helpers.problemDetail.ProblemDetailBox;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -71,7 +71,7 @@ public class UserDeleteApiTest extends BaseUserTest {
     });
 
     // Assert that the correct event was published.
-    assertThat(applicationEvents.stream(UserAccountDeleteLinkEvent.class))
+    assertThat(applicationEvents.stream(UserAccountDeleteRequestEvent.class))
         .as("Event is invalid")
         .hasSize(1)
         .first()
@@ -128,7 +128,7 @@ public class UserDeleteApiTest extends BaseUserTest {
     });
 
     // Assert that the correct event was published.
-    assertThat(applicationEvents.stream(UserAccountDeleteLinkEvent.class))
+    assertThat(applicationEvents.stream(UserAccountDeleteRequestEvent.class))
         .as("Event is invalid")
         .hasSize(1)
         .first()

@@ -13,6 +13,8 @@ app:
       length: 32
       activation: # user account activate
         expires: 24 # in hours
+      email: # user email change
+        expires: 30 # in minutes
       password: # user password reset
         expires: 30 # in minutes
       deletion: # user account deletion

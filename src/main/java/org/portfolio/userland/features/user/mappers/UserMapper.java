@@ -21,13 +21,14 @@ public abstract class UserMapper {
    * Maps registration request to <code>User</code> entity.
    * <p>Notes:</p>
    * <ul>
-   *   <li>Username is sanitized, as it is shown in emails or on frontend as is.</li>
+   *   <li>Username is sanitized, since it is shown in emails or frontend as is.</li>
    *   <li>Password is hashed properly.</li>
    * </ul>
    * @param req Registration request.
    * @return <code>User</code> entity.
    */
   @Mapping(target = "id", ignore = true)
+  @Mapping(target = "uuid", ignore = true)
   @Mapping(target = "createdAt", ignore = true)
   @Mapping(target = "modifiedAt", ignore = true)
   @Mapping(target = "username", expression = "java(HtmlUtils.htmlEscape(req.username()))")

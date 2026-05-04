@@ -31,6 +31,10 @@ public class User {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
+  /** UUID v4. Acts as business key. */
+  @Column(unique = true, nullable = false, updatable = false)
+  private UUID uuid;
+
   /** Date&time of account creation. */
   @Column(nullable = false, updatable = false)
   private LocalDateTime createdAt;
@@ -46,8 +50,8 @@ public class User {
   @NotBlank(message = "Username cannot be empty")
   private String username;
 
-  /** E-mail. Also acts as login. Unique and cannot be changed. Serves as business key. */
-  @Column(unique = true, nullable = false, updatable = false)
+  /** E-mail. Also acts as login. Unique. */
+  @Column(unique = true, nullable = false)
   @NotBlank(message = "Email cannot be empty")
   @Email(regexp = ValidConst.REG_EXPR_EMAIL, message = "Must be a valid email address")
   private String email;
@@ -82,7 +86,7 @@ public class User {
   @OrderBy("id ASC")
   private List<UserConfig> configs = new ArrayList<>();
 
-  /** History of this user. */
+  /** History of this user. Has potential to be large. */
   @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
   @OrderBy("id ASC")
   private List<UserHistory> history = new ArrayList<>();
@@ -166,16 +170,16 @@ public class User {
 
     User user = (User) o;
 
-    // If THIS email is null, it's a transient entity and can only equal itself (caught above).
-    if (email == null) return false;
-    // We only compare the email address, as it is our business key.
-    return Objects.equals(email, user.getEmail());
+    // If THIS uuid is null, it's a transient entity and can only equal itself (caught above).
+    if (uuid == null) return false;
+    // We only compare the uuid, as it is our business key.
+    return Objects.equals(uuid, user.getUuid());
   }
 
   @Override
   @NoCoverageGenerated
   public int hashCode() {
-    // We only hash the email address, as it is our business key.
-    return Objects.hash(email);
+    // We only hash the uuid, as it is our business key.
+    return Objects.hash(uuid);
   }
 }

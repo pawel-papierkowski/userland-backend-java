@@ -10,6 +10,10 @@ public enum EnUserHistoryWhat {
   ACTIVATE,
   /** User edited their account. */
   EDIT,
+  /** Email change was requested. */
+  EMAIL_CHANGE_REQ,
+  /** Email change was done. */
+  EMAIL_CHANGE,
   /** Password reset was requested. */
   PASS_RESET_REQ,
   /** Password reset was done. */

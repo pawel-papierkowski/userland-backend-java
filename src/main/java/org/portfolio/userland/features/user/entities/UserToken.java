@@ -47,6 +47,10 @@ public class UserToken {
   @Column(unique = true, nullable = false, updatable = false)
   private String token;
 
+  /** Payload of token. Only some types of tokens need payload. */
+  @Column
+  private String payload;
+
   // //////////////////////////////////////////////////////////////////////////
 
   @Override

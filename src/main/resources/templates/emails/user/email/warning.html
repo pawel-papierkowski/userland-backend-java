@@ -1,0 +1,11 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="#{email.user.email.warning.subject}">UserLand: email change requested</title>
+</head>
+<body>
+<p th:utext="#{email.user.email.warning.greeting(${username})}">Hello, <b>User</b>!</p>
+<p th:utext="#{email.user.email.warning.l1}">A request was made to change the email associated with this account. If this was you, you can ignore this. If you did not request this, please contact support immediately.</p>
+</body>
+</html>

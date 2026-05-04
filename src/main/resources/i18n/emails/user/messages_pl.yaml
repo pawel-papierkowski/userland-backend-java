@@ -16,6 +16,20 @@ email:
       greeting: "Cześć, <b>{0}</b>!"
       l1: "Niedawno ktoś próbował zarejestrować konto z użyciem tego emaila. Już masz konto w UserLand."
       l2: "Możesz się zalogować do UserLand tutaj:"
+    email:
+      warning:
+        subject: "UserLand: zmiana e-maila"
+        greeting: "Cześć, <b>{0}</b>!"
+        l1: "Wysłano prośbę o zmianę adresu e-mail powiązanego z tym kontem. Jeśli to Ty, możesz zignorować tę wiadomość. Jeśli nie Ty złożyłeś taką prośbę, skontaktuj się niezwłocznie z pomocą techniczną."
+      link:
+        subject: "UserLand: zmiana e-maila"
+        greeting: "Cześć, <b>{0}</b>!"
+        l1: "Prosimy potwierdzić zamiar zmiany e-maila tutaj:"
+        l2: "Łącze będzie ważne przez {0} minut."
+      confirm:
+        subject: "UserLand: e-mail zmieniony"
+        greeting: "Cześć, <b>{0}</b>!"
+        l1: "E-mail do Twojego konta został pomyślnie zmieniony."
     password:
       link:
         subject: "UserLand: reset hasła"

@@ -12,7 +12,7 @@ import org.portfolio.userland.features.user.dto.common.EnFrontendFramework;
  * @param accountDeleteToken Token string.
  * @param accountDeleteTokenExpires How long before password reset token expires in minutes.
  */
-public record UserAccountDeleteLinkEvent(
+public record UserAccountDeleteRequestEvent(
     Long id,
     String username,
     String email,

@@ -22,6 +22,9 @@ public class UserHelperService {
   /** How long before activation token expires in hours. */
   @Value("${app.user.token.activation.expires}")
   private long activationTokenExpires;
+  /** How long before email change token expires in minutes. */
+  @Value("${app.user.token.email.expires}")
+  private long emailChangeTokenExpires;
   /** How long before password reset token expires in minutes. */
   @Value("${app.user.token.password.expires}")
   private long passwordResetTokenExpires;
@@ -84,6 +87,7 @@ public class UserHelperService {
   public LocalDateTime resolveExpiration(LocalDateTime nowAt, EnUserTokenType type) {
     return switch (type) {
       case ACTIVATE -> nowAt.plusHours(activationTokenExpires);
+      case EMAIL -> nowAt.plusMinutes(emailChangeTokenExpires);
       case PASSWORD -> nowAt.plusMinutes(passwordResetTokenExpires);
       case DELETE -> nowAt.plusMinutes(deletionTokenExpires);
     };

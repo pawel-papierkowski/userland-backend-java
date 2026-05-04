@@ -12,7 +12,7 @@ import org.portfolio.userland.features.user.dto.common.EnFrontendFramework;
  * @param passwordResetToken Token string.
  * @param passwordResetTokenExpires How long before password reset token expires in minutes.
  */
-public record UserPasswordResetLinkEvent(
+public record UserPasswordResetRequestEvent(
     Long id,
     String username,
     String email,

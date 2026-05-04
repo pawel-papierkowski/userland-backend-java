@@ -97,6 +97,7 @@ public class UserRegisterService extends BaseUserService {
   private User createUserData(UserRegisterReq userRegisterReq, LocalDateTime nowAt) {
     User user = userMapper.registerReqToUser(userRegisterReq);
     // Simple fields like status or blocked are pre-filled already.
+    user.setUuid(securityGeneratorService.uuid());
     user.setCreatedAt(nowAt);
     user.setModifiedAt(nowAt);
     user.addHistory(createHistoryEvent(nowAt, EnUserHistoryWhat.CREATE, ""));

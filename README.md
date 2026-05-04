@@ -30,6 +30,7 @@ You can think of it as baseline for any other project, as almost any project, sy
   - User **login**.
   - User **logout**.
   - **Editing** of your own user account.
+  - **Email change**.
   - **Password reset** via email.
   - User **account deletion** (confirmation via email).
 - Handling **user permissions** (standard user vs panel admin operator).

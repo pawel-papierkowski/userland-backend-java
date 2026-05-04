@@ -7,7 +7,7 @@ import org.portfolio.userland.features.user.dto.password.UserPassResetConfirmReq
 import org.portfolio.userland.features.user.dto.password.UserPassResetLinkReq;
 import org.portfolio.userland.features.user.entities.*;
 import org.portfolio.userland.features.user.events.UserPasswordResetConfirmEvent;
-import org.portfolio.userland.features.user.events.UserPasswordResetLinkEvent;
+import org.portfolio.userland.features.user.events.UserPasswordResetRequestEvent;
 import org.portfolio.userland.test.helpers.problemDetail.ProblemDetailBox;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -72,7 +72,7 @@ public class UserPasswordApiTest extends BaseUserTest {
     });
 
     // Assert that the correct event was published.
-    assertThat(applicationEvents.stream(UserPasswordResetLinkEvent.class))
+    assertThat(applicationEvents.stream(UserPasswordResetRequestEvent.class))
         .as("Event is invalid")
         .hasSize(1)
         .first()
@@ -129,7 +129,7 @@ public class UserPasswordApiTest extends BaseUserTest {
     });
 
     // Assert that the correct event was published.
-    assertThat(applicationEvents.stream(UserPasswordResetLinkEvent.class))
+    assertThat(applicationEvents.stream(UserPasswordResetRequestEvent.class))
         .as("Event is invalid")
         .hasSize(1)
         .first()

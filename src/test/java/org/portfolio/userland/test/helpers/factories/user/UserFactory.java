@@ -91,6 +91,7 @@ public class UserFactory extends BaseFactory {
    */
   private User genBaseUser(EnUserStatus status, String username, String email) {
     User user = new User();
+    user.setUuid(securityGeneratorService.uuid());
     user.setCreatedAt(clockService.getNowUTC());
     user.setModifiedAt(clockService.getNowUTC());
     user.setUsername(username);
@@ -144,6 +145,7 @@ public class UserFactory extends BaseFactory {
   private User genBaseRandUser(EnUserStatus status) {
     User user = Instancio.of(User.class)
         .ignore(field(User::getId)) // let Hibernate take care of that
+        .set(field(User::getUuid), securityGeneratorService.uuid())
         .set(field(User::getCreatedAt), clockService.getNowUTC())
         .set(field(User::getModifiedAt), clockService.getNowUTC())
         .generate(field(User::getEmail), gen -> gen.net().email())

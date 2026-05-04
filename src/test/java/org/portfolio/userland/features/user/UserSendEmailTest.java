@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.portfolio.userland.common.services.email.data.EmailReq;
 import org.portfolio.userland.features.user.events.*;
-import org.portfolio.userland.features.user.services.UserEmailService;
+import org.portfolio.userland.features.user.services.UserSendEmailService;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.time.Duration;
@@ -21,9 +21,9 @@ import static org.mockito.Mockito.verify;
  * Verifies if UserEmailService constructs correct EmailReq and calls emailService based on event data.
  * Note: methods of this service are called from appropriate events.
  */
-public class UserEmailTest extends BaseUserTest {
+public class UserSendEmailTest extends BaseUserTest {
   @Autowired
-  private UserEmailService userEmailService;
+  private UserSendEmailService userSendEmailService;
 
   @Test
   public void sendRegistrationEmail() {
@@ -39,7 +39,7 @@ public class UserEmailTest extends BaseUserTest {
     );
 
     // Act: send registration email.
-    userEmailService.sendRegistrationEmail(event);
+    userSendEmailService.sendRegistrationEmail(event);
 
     // Assert that email (account registration) was sent.
     await().atMost(Duration.ofSeconds(3)).untilAsserted(() -> {
@@ -82,7 +82,7 @@ public class UserEmailTest extends BaseUserTest {
     );
 
     // Act: send 'user activated' email.
-    userEmailService.sendActivatedEmail(event);
+    userSendEmailService.sendActivatedEmail(event);
 
     // Assert that email (confirmation of account activate) was sent.
     await().atMost(Duration.ofSeconds(3)).untilAsserted(() -> {
@@ -112,12 +112,163 @@ public class UserEmailTest extends BaseUserTest {
     });
   }
 
+  @Test
+  public void sendAlreadyRegisteredEmail() {
+    // Arrange: event data.
+    UserAlreadyRegisteredEvent event = new UserAlreadyRegisteredEvent(
+        1L,
+        "Jan Kowalski",
+        "jan.kowalski@google.com",
+        "pl",
+        null
+    );
+
+    // Act: send 'already registered' email.
+    userSendEmailService.sendAlreadyRegisteredEmail(event);
+
+    // Assert that email (confirmation of account activate) was sent.
+    await().atMost(Duration.ofSeconds(3)).untilAsserted(() -> {
+      ArgumentCaptor<EmailReq> captor = ArgumentCaptor.forClass(EmailReq.class);
+      verify(emailService, times(1)).sendEmail(captor.capture());
+
+      // Assert that correct email request was sent.
+      Map<String, Object> params = Maps.newHashMap();
+      params.put("username", "Jan Kowalski");
+      params.put("loginLink", "https://pawel-papierkowski.github.io/frontend-userland-vue/login");
+      EmailReq expectedEmailReq = new EmailReq(
+          null,
+          "pl",
+          "pawel.papierkowski.portfolio@gmail.com",
+          List.of("jan.kowalski@google.com"),
+          List.of(),
+          List.of(),
+          "pawel.papierkowski.portfolio@gmail.com",
+          "UserLand: witamy",
+          "user/alreadyRegistered",
+          params,
+          null
+      );
+
+      EmailReq actualEmailReq = captor.getValue();
+      assertThat(actualEmailReq).isEqualTo(expectedEmailReq);
+    });
+  }
+
+  //
+
+  @Test
+  public void sendEmailChangeRequest() {
+    // Arrange: event data.
+    UserEmailChangeRequestEvent event = new UserEmailChangeRequestEvent(
+        1L,
+        "Jane",
+        "test@example.com",
+        "en",
+        null,
+        "other@example.com",
+        "nDVAZXAEt1VvrYrazvxmU8yruiur9cJg",
+        30
+    );
+
+    // Act: send email change request emails. Will send two emails: warning and link.
+    userSendEmailService.sendEmailChangeRequest(event);
+
+    // Assert that both emails (warning about email change and link to email change page) were sent.
+    await().atMost(Duration.ofSeconds(3)).untilAsserted(() -> {
+      ArgumentCaptor<EmailReq> captor = ArgumentCaptor.forClass(EmailReq.class);
+      verify(emailService, times(2)).sendEmail(captor.capture());
+
+      // Prepare actual and expected data.
+      List<EmailReq> allCapturedEmails = captor.getAllValues();
+      EmailReq actualWarningReq = allCapturedEmails.get(0);
+      EmailReq actualLinkReq = allCapturedEmails.get(1);
+
+      Map<String, Object> paramsWarning = Maps.newHashMap();
+      paramsWarning.put("username", "Jane");
+      EmailReq expectedEmailWarningReq = new EmailReq(
+          null,
+          "en",
+          "pawel.papierkowski.portfolio@gmail.com",
+          List.of("test@example.com"), // OLD email
+          List.of(),
+          List.of(),
+          "pawel.papierkowski.portfolio@gmail.com",
+          "UserLand: email change requested",
+          "user/email/warning",
+          paramsWarning,
+          null
+      );
+
+      Map<String, Object> paramsLink = Maps.newHashMap();
+      paramsLink.put("username", "Jane");
+      paramsLink.put("emailChangeLink", "https://pawel-papierkowski.github.io/frontend-userland-vue/emailChange?token=nDVAZXAEt1VvrYrazvxmU8yruiur9cJg");
+      paramsLink.put("emailChangeTokenExpires", 30L);
+      EmailReq expectedEmailLinkReq = new EmailReq(
+          null,
+          "en",
+          "pawel.papierkowski.portfolio@gmail.com",
+          List.of("other@example.com"), // NEW email
+          List.of(),
+          List.of(),
+          "pawel.papierkowski.portfolio@gmail.com",
+          "UserLand: email change requested",
+          "user/email/link",
+          paramsLink,
+          null
+      );
+
+      // Assert that correct email requests were sent.
+      assertThat(actualWarningReq).isEqualTo(expectedEmailWarningReq);
+      assertThat(actualLinkReq).isEqualTo(expectedEmailLinkReq);
+    });
+  }
+
+  @Test
+  public void sendEmailChangeConfirmation() {
+    // Arrange: event data.
+    UserEmailChangeConfirmEvent event = new UserEmailChangeConfirmEvent(
+        1L,
+        "Jane",
+        "test@example.com",
+        "en"
+    );
+
+    // Act: send password reset confirm email.
+    userSendEmailService.sendEmailChangeConfirm(event);
+
+    // Assert that email (password reset confirmation) was sent.
+    await().atMost(Duration.ofSeconds(3)).untilAsserted(() -> {
+      ArgumentCaptor<EmailReq> captor = ArgumentCaptor.forClass(EmailReq.class);
+      verify(emailService, times(1)).sendEmail(captor.capture());
+
+      // Assert that correct email request was sent.
+      Map<String, Object> params = Maps.newHashMap();
+      params.put("username", "Jane");
+      EmailReq expectedEmailReq = new EmailReq(
+          null,
+          "en",
+          "pawel.papierkowski.portfolio@gmail.com",
+          List.of("test@example.com"),
+          List.of(),
+          List.of(),
+          "pawel.papierkowski.portfolio@gmail.com",
+          "UserLand: email changed",
+          "user/email/confirm",
+          params,
+          null
+      );
+
+      EmailReq actualEmailReq = captor.getValue();
+      assertThat(actualEmailReq).isEqualTo(expectedEmailReq);
+    });
+  }
+
   //
 
   @Test
   public void sendPasswordResetLink() {
     // Arrange: event data.
-    UserPasswordResetLinkEvent event = new UserPasswordResetLinkEvent(
+    UserPasswordResetRequestEvent event = new UserPasswordResetRequestEvent(
         1L,
         "Jane",
         "test@example.com",
@@ -127,8 +278,8 @@ public class UserEmailTest extends BaseUserTest {
         30
     );
 
-    // Act: send registration email.
-    userEmailService.sendPasswordResetLink(event);
+    // Act: send password reset link email.
+    userSendEmailService.sendPasswordResetRequest(event);
 
     // Assert that email (link to password reset page) was sent.
     await().atMost(Duration.ofSeconds(3)).untilAsserted(() -> {
@@ -148,7 +299,7 @@ public class UserEmailTest extends BaseUserTest {
           List.of(),
           List.of(),
           "pawel.papierkowski.portfolio@gmail.com",
-          "UserLand: password reset",
+          "UserLand: password reset requested",
           "user/password/link",
           params,
           null
@@ -169,8 +320,8 @@ public class UserEmailTest extends BaseUserTest {
         "en"
     );
 
-    // Act: send registration email.
-    userEmailService.sendPasswordResetConfirmation(event);
+    // Act: send password reset confirm email.
+    userSendEmailService.sendPasswordResetConfirm(event);
 
     // Assert that email (password reset confirmation) was sent.
     await().atMost(Duration.ofSeconds(3)).untilAsserted(() -> {
@@ -204,7 +355,7 @@ public class UserEmailTest extends BaseUserTest {
   @Test
   public void sendAccountDeleteLink() {
     // Arrange: event data.
-    UserAccountDeleteLinkEvent event = new UserAccountDeleteLinkEvent(
+    UserAccountDeleteRequestEvent event = new UserAccountDeleteRequestEvent(
         1L,
         "Jane",
         "test@example.com",
@@ -214,8 +365,8 @@ public class UserEmailTest extends BaseUserTest {
         30
     );
 
-    // Act: send registration email.
-    userEmailService.sendAccountDeleteLink(event);
+    // Act: send account deletion link email.
+    userSendEmailService.sendAccountDeleteRequest(event);
 
     // Assert that email (link to account deletion page) was sent.
     await().atMost(Duration.ofSeconds(3)).untilAsserted(() -> {
@@ -235,7 +386,7 @@ public class UserEmailTest extends BaseUserTest {
           List.of(),
           List.of(),
           "pawel.papierkowski.portfolio@gmail.com",
-          "UserLand: account deletion",
+          "UserLand: account deletion requested",
           "user/delete/link",
           params,
           null
@@ -256,8 +407,8 @@ public class UserEmailTest extends BaseUserTest {
         "en"
     );
 
-    // Act: send registration email.
-    userEmailService.sendAccountDeleteConfirmation(event);
+    // Act: send account delete confirmation email.
+    userSendEmailService.sendAccountDeleteConfirm(event);
 
     // Assert that email (account deletion confirmation) was sent.
     await().atMost(Duration.ofSeconds(3)).untilAsserted(() -> {

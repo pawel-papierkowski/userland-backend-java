@@ -8,7 +8,7 @@ import org.portfolio.userland.features.user.entities.EnUserTokenType;
 import org.portfolio.userland.features.user.entities.User;
 import org.portfolio.userland.features.user.entities.UserToken;
 import org.portfolio.userland.features.user.events.UserPasswordResetConfirmEvent;
-import org.portfolio.userland.features.user.events.UserPasswordResetLinkEvent;
+import org.portfolio.userland.features.user.events.UserPasswordResetRequestEvent;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -67,7 +67,7 @@ public class UserPasswordService extends BaseUserService {
    * @param token User token data.
    */
   private void triggerPassLinkEvent(UserPassResetLinkReq userPassResetLinkReq, User user, UserToken token) {
-    UserPasswordResetLinkEvent userPasswordResetLinkEvent = new UserPasswordResetLinkEvent(
+    UserPasswordResetRequestEvent userPasswordResetRequestEvent = new UserPasswordResetRequestEvent(
         user.getId(),
         user.getUsername(),
         user.getEmail(),
@@ -77,7 +77,7 @@ public class UserPasswordService extends BaseUserService {
         passwordResetTokenExpires
     );
     // Will trigger UserEmailService.sendPasswordResetLink().
-    eventPublisher.publishEvent(userPasswordResetLinkEvent);
+    eventPublisher.publishEvent(userPasswordResetRequestEvent);
   }
 
   // //////////////////////////////////////////////////////////////////////////
