@@ -9,6 +9,5 @@
     <appender-ref ref="CONSOLE" />
   </root>
 
-  <!-- Keep application's logs at INFO. -->
-  <logger name="org.portfolio.userland" level="INFO"/>
+  <include resource="logback/logback-general.xml" />
 </configuration>

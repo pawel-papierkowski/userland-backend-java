@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<included>
+  <!-- Keep application's logs at INFO. -->
+  <logger name="org.portfolio.userland" level="INFO"/>
+
+  <!-- Currently tracked stuff. -->
+  <logger name="org.portfolio.userland.features.user.services.UserRegisterService" level="TRACE"/>
+  <logger name="org.portfolio.userland.features.user.services.UserSendEmailService" level="TRACE"/>
+  <logger name="org.portfolio.userland.common.services.email.providers" level="TRACE"/>
+</included>

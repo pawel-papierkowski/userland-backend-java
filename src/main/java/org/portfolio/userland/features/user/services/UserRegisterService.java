@@ -51,6 +51,18 @@ public class UserRegisterService extends BaseUserService {
   }
 
   /**
+   * Act in case user is already registered.
+   * @param userRegisterReq User registration request.
+   */
+  private void alreadyRegistered(UserRegisterReq userRegisterReq) {
+    log.trace("User '{}' is already registered.", userRegisterReq.email());
+
+    User user = userHelperService.resolveUser(userRegisterReq.email(), true);
+    if (user == null) return; // should not happen
+    triggerAlreadyRegisteredEvent(user, userRegisterReq.frontend());
+  }
+
+  /**
    * Register new user.
    * @param userRegisterReq User registration request.
    */
@@ -64,18 +76,13 @@ public class UserRegisterService extends BaseUserService {
     userProfile.setUser(user);
     userProfileRepository.save(userProfile);
 
-    if (userRegisterReq.activate()) triggerActivationEvent(user, userRegisterReq.frontend());
-    else triggerRegisterEvent(user, userRegisterReq);
-  }
-
-  /**
-   * Act in case user is already registered.
-   * @param userRegisterReq User registration request.
-   */
-  private void alreadyRegistered(UserRegisterReq userRegisterReq) {
-    User user = userHelperService.resolveUser(userRegisterReq.email(), true);
-    if (user == null) return; // should not happen
-    triggerAlreadyRegisteredEvent(user, userRegisterReq.frontend());
+    if (userRegisterReq.activate()) {
+      log.trace("User '{}' registered and activated successfully.", userRegisterReq.email());
+      triggerActivationEvent(user, userRegisterReq.frontend());
+    } else {
+      log.trace("User '{}' registered successfully.", userRegisterReq.email());
+      triggerRegisterEvent(user, userRegisterReq);
+    }
   }
 
   /**
@@ -88,8 +95,6 @@ public class UserRegisterService extends BaseUserService {
     Boolean activate = build.getTest() ? userRegisterReq.activate() : false;
     return userRegisterReq.toBuilder().activate(activate).build();
   }
-
-  //
 
   /**
    * Create and fill user data.
@@ -128,6 +133,8 @@ public class UserRegisterService extends BaseUserService {
 
     userTokenRepository.deleteToken(userToken.getToken());
     addHistoryEvent(user, nowAt, EnUserHistoryWhat.ACTIVATE, "");
+
+    log.trace("User '{}' activated successfully.", user.getEmail());
 
     triggerActivationEvent(user, tokenActivateReq.frontend());
   }

@@ -2,6 +2,7 @@ package org.portfolio.userland.common.services.email.providers;
 
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.portfolio.userland.common.services.email.data.EmailReq;
 import org.portfolio.userland.common.services.email.exception.EmailSendFailureException;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Service;
  */
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class PlainEmailProvider implements IntEmailProvider {
   @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection") // IDE is dumb
   private final JavaMailSender mailSender;
@@ -43,6 +45,8 @@ public class PlainEmailProvider implements IntEmailProvider {
 
       // Send it.
       mailSender.send(message);
+
+      log.trace("Sent email to '{}'. Template: '{}', lang: '{}'.", emailReq.recipients().getFirst(), emailReq.template(), emailReq.lang());
     } catch (jakarta.mail.MessagingException ex) {
       // MimeMessageHelper throws checked exceptions, so we must handle them.
       throw new EmailSendFailureException("JavaMailSender", ex);
