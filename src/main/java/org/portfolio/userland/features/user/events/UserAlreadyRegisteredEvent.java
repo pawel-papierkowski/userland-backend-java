@@ -16,4 +16,4 @@ public record UserAlreadyRegisteredEvent(
     String email,
     String lang,
     EnFrontendFramework frontend
-) {}
+) implements BaseUserEvent {}

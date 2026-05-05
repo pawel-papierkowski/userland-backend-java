@@ -2,10 +2,10 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title th:text="#{email.user.delete.confirm.subject}">UserLand: account deleted</title>
+    <title th:text="#{email.user.delete.confirm.subject(${systemName})}">SystemName: account deleted</title>
 </head>
 <body>
 <p th:utext="#{email.user.delete.confirm.greeting(${username})}">Hello, <b>User</b>!</p>
-<p th:utext="#{email.user.delete.confirm.l1}">Account was succesfully removed from UserLand system.</p>
+<p th:utext="#{email.user.delete.confirm.l1(${systemName})}">Account was succesfully removed from <b>SystemName</b> system.</p>
 </body>
 </html>

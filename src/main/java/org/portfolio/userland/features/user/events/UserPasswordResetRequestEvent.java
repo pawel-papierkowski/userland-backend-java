@@ -20,4 +20,4 @@ public record UserPasswordResetRequestEvent(
     EnFrontendFramework frontend,
     String passwordResetToken,
     long passwordResetTokenExpires
-) {}
+) implements BaseUserEvent {}

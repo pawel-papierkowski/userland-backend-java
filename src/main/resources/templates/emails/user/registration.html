@@ -2,11 +2,11 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title th:text="#{email.user.registration.subject}">UserLand: account activation</title>
+    <title th:text="#{email.user.registration.subject(${systemName})}">SystemName: account activation</title>
 </head>
 <body>
   <p th:utext="#{email.user.registration.greeting(${username})}">Hello, <b>User</b>!</p>
-  <p th:utext="#{email.user.registration.l1}">Account was activated successfully. We are excited to have you on board.</p>
+  <p th:utext="#{email.user.registration.l1(${systemName})}">Thank you for interest in <b>SystemName</b>.</p>
   <p><span th:utext="#{email.user.registration.l2}">Please activate your account here:</span> <a th:href="${activationLink}" th:text="${activationLink}">LINK_ACTIVATION</a>.</p>
   <p th:utext="#{email.user.registration.l3(${activationTokenExpires})}">Link will be valid for 24 hours.</p>
 </body>

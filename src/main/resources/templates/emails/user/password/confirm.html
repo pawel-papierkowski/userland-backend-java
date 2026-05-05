@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title th:text="#{email.user.password.confirm.subject}">UserLand: password changed</title>
+    <title th:text="#{email.user.password.confirm.subject(${systemName})}">SystemName: password changed</title>
 </head>
 <body>
 <p th:utext="#{email.user.password.confirm.greeting(${username})}">Hello, <b>User</b>!</p>

@@ -18,4 +18,4 @@ public record UserEmailChangeFailEvent(
     String lang,
     EnFrontendFramework frontend,
     String newEmail
-) {}
+) implements BaseUserEvent {}

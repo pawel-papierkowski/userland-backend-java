@@ -15,4 +15,4 @@ public record UserActivatedEvent(
     String email,
     String lang,
     EnFrontendFramework frontend
-) {}
+) implements BaseUserEvent {}

@@ -1,56 +1,56 @@
 email:
   user:
     registration:
-      subject: "UserLand: rejestracja konta"
+      subject: "{0}: rejestracja konta"
       greeting: "Cześć, <b>{0}</b>!"
-      l1: "Dziękujemy za zainteresowanie UserLandem."
+      l1: "Dziękujemy za zainteresowanie <b>{0}</b>em."
       l2: "Prosimy aktywować konto tutaj:"
       l3: "Łącze będzie ważne przez {0} godzin."
     activation:
-      subject: "UserLand: witamy"
+      subject: "{0}: witamy"
       greeting: "Cześć, <b>{0}</b>!"
       l1: "Konto zostało pomyślnie aktywowane. Bardzo się cieszymy, że jesteś z nami."
-      l2: "Możesz się zalogować do UserLand tutaj:"
+      l2: "Możesz się zalogować do <b>{0}</b> tutaj:"
     alreadyRegistered:
-      subject: "UserLand: witamy"
+      subject: "{0}: witamy"
       greeting: "Cześć, <b>{0}</b>!"
-      l1: "Niedawno ktoś próbował zarejestrować konto z użyciem tego emaila. Już masz konto w UserLand."
-      l2: "Możesz się zalogować do UserLand tutaj:"
+      l1: "Niedawno ktoś próbował zarejestrować konto z użyciem tego emaila. Już masz konto w <b>{0}</b>."
+      l2: "Możesz się zalogować do <b>{0}</b> tutaj:"
     email:
       warning:
-        subject: "UserLand: zmiana e-maila"
+        subject: "{0}: zmiana e-maila"
         greeting: "Cześć, <b>{0}</b>!"
         l1: "Wysłano prośbę o zmianę adresu e-mail powiązanego z tym kontem. Jeśli to Ty, możesz zignorować tę wiadomość. Jeśli nie Ty złożyłeś taką prośbę, skontaktuj się niezwłocznie z pomocą techniczną."
       warningNew:
-        subject: "UserLand: zmiana e-maila"
+        subject: "{0}: zmiana e-maila"
         greeting: "Cześć, <b>{0}</b>!"
         l1: "Ktoś (mamy nadzieję, że to Ty) próbował właśnie zmienić adres e-mail swojego konta na ten. Jednak ten adres jest już powiązany z aktywnym kontem. Jeśli to Ty, możesz zignorować tę wiadomość lub zalogować się na swoje istniejące konto. Jeśli to nie Ty, prawdopodobnie ktoś po prostu pomylił się podczas wpisywania adresu."
       link:
-        subject: "UserLand: zmiana e-maila"
+        subject: "{0}: zmiana e-maila"
         greeting: "Cześć, <b>{0}</b>!"
         l1: "Prosimy potwierdzić zamiar zmiany e-maila tutaj:"
         l2: "Łącze będzie ważne przez {0} minut."
       confirm:
-        subject: "UserLand: e-mail zmieniony"
+        subject: "{0}: e-mail zmieniony"
         greeting: "Cześć, <b>{0}</b>!"
         l1: "E-mail do Twojego konta został pomyślnie zmieniony."
     password:
       link:
-        subject: "UserLand: reset hasła"
+        subject: "{0}: reset hasła"
         greeting: "Cześć, <b>{0}</b>!"
         l1: "Prosimy zresetować hasło tutaj:"
         l2: "Łącze będzie ważne przez {0} minut."
       confirm:
-        subject: "UserLand: hasło zmienione"
+        subject: "{0}: hasło zmienione"
         greeting: "Cześć, <b>{0}</b>!"
         l1: "Hasło do Twojego konta zostało pomyślnie zmienione."
     delete:
       link:
-        subject: "UserLand: usuwanie konta"
+        subject: "{0}: usuwanie konta"
         greeting: "Cześć, <b>{0}</b>!"
         l1: "Prosimy kliknąć te łącze, by usunąć konto:"
         l2: "Łącze będzie ważne przez {0} minut."
       confirm:
-        subject: "UserLand: konto usunięte"
+        subject: "{0}: konto usunięte"
         greeting: "Cześć, <b>{0}</b>!"
-        l1: "Konto zostało usunięte z systemu UserLand."
+        l1: "Konto zostało usunięte z systemu <b>{0}</b>."

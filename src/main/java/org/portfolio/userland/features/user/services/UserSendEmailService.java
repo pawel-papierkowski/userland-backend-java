@@ -53,6 +53,9 @@ public class UserSendEmailService {
   private final EmailService emailService;
   private final LangService langService;
 
+  /** Name of system. */
+  @Value("${app.main.name}")
+  protected String systemName;
   /** Base frontend address. */
   @Value("${app.main.www}")
   private String frontendWww;
@@ -81,11 +84,10 @@ public class UserSendEmailService {
    * @return Email request.
    */
   private EmailReq resolveEmailReq(UserRegisteredEvent event) {
-    String subject = langService.t(event.lang(), "email.user.registration.subject");
+    String subject = translateSubject(event, "email.user.registration.subject");
 
     // Prepare params required by user registration template.
-    Map<String, Object> params = Maps.newHashMap();
-    params.put("username", event.username());
+    Map<String, Object> params = genParamsMap(event);
     params.put("activationLink", resolveActivationLink(event.frontend(), event.activationToken()));
     params.put("activationTokenExpires", event.activationTokenExpires());
 
@@ -133,11 +135,10 @@ public class UserSendEmailService {
    * @return Email request.
    */
   private EmailReq resolveEmailReq(UserActivatedEvent event) {
-    String subject = langService.t(event.lang(), "email.user.activation.subject");
+    String subject = translateSubject(event, "email.user.activation.subject");
 
     // Prepare params required by user activated template.
-    Map<String, Object> params = Maps.newHashMap();
-    params.put("username", event.username());
+    Map<String, Object> params = genParamsMap(event);
     params.put("loginLink", resolveLoginLink(event.frontend()));
 
     return new EmailReq(
@@ -173,11 +174,10 @@ public class UserSendEmailService {
    * @return Email request.
    */
   private EmailReq resolveEmailReq(UserAlreadyRegisteredEvent event) {
-    String subject = langService.t(event.lang(), "email.user.alreadyRegistered.subject");
+    String subject = translateSubject(event, "email.user.alreadyRegistered.subject");
 
     // Prepare params required by user activated template.
-    Map<String, Object> params = Maps.newHashMap();
-    params.put("username", event.username());
+    Map<String, Object> params = genParamsMap(event);
     params.put("loginLink", resolveLoginLink(event.frontend()));
 
     return new EmailReq(
@@ -220,11 +220,10 @@ public class UserSendEmailService {
    * @return Email request.
    */
   private EmailReq resolveEmailWarnReq(UserEmailChangeRequestEvent event) {
-    String subject = langService.t(event.lang(), "email.user.email.warning.subject");
+    String subject = translateSubject(event, "email.user.email.warning.subject");
 
     // Prepare params required by email change warning template.
-    Map<String, Object> params = Maps.newHashMap();
-    params.put("username", event.username());
+    Map<String, Object> params = genParamsMap(event);
 
     return new EmailReq(
         null,
@@ -246,11 +245,10 @@ public class UserSendEmailService {
    * @return Email request.
    */
   private EmailReq resolveEmailLinkReq(UserEmailChangeRequestEvent event) {
-    String subject = langService.t(event.lang(), "email.user.email.link.subject");
+    String subject = translateSubject(event, "email.user.email.link.subject");
 
     // Prepare params required by email change link template.
-    Map<String, Object> params = Maps.newHashMap();
-    params.put("username", event.username());
+    Map<String, Object> params = genParamsMap(event);
     params.put("emailChangeLink", resolveEmailChangeLink(event.frontend(), event.emailChangeToken()));
     params.put("emailChangeTokenExpires", event.emailChangeTokenExpires());
 
@@ -305,11 +303,10 @@ public class UserSendEmailService {
    * @return Email request.
    */
   private EmailReq resolveEmailWarnOldReq(UserEmailChangeFailEvent event) {
-    String subject = langService.t(event.lang(), "email.user.email.warning.subject");
+    String subject = translateSubject(event, "email.user.email.warning.subject");
 
     // Prepare params required by email change warning template.
-    Map<String, Object> params = Maps.newHashMap();
-    params.put("username", event.username());
+    Map<String, Object> params = genParamsMap(event);
 
     return new EmailReq(
         null,
@@ -331,11 +328,10 @@ public class UserSendEmailService {
    * @return Email request.
    */
   private EmailReq resolveEmailWarnNewReq(UserEmailChangeFailEvent event) {
-    String subject = langService.t(event.lang(), "email.user.email.warningNew.subject");
+    String subject = translateSubject(event, "email.user.email.warningNew.subject");
 
     // Prepare params required by email change warning template.
-    Map<String, Object> params = Maps.newHashMap();
-    params.put("username", event.username());
+    Map<String, Object> params = genParamsMap(event);
 
     return new EmailReq(
         null,
@@ -370,11 +366,10 @@ public class UserSendEmailService {
    * @return Email request.
    */
   private EmailReq resolveEmailChangeConfirmReq(UserEmailChangeConfirmEvent event) {
-    String subject = langService.t(event.lang(), "email.user.email.confirm.subject");
+    String subject = translateSubject(event, "email.user.email.confirm.subject");
 
     // Prepare params required by email change warning template.
-    Map<String, Object> params = Maps.newHashMap();
-    params.put("username", event.username());
+    Map<String, Object> params = genParamsMap(event);
 
     return new EmailReq(
         null,
@@ -409,11 +404,10 @@ public class UserSendEmailService {
    * @return Email request.
    */
   private EmailReq resolveEmailReq(UserPasswordResetRequestEvent event) {
-    String subject = langService.t(event.lang(), "email.user.password.link.subject");
+    String subject = translateSubject(event, "email.user.password.link.subject");
 
     // Prepare params required by password reset template.
-    Map<String, Object> params = Maps.newHashMap();
-    params.put("username", event.username());
+    Map<String, Object> params = genParamsMap(event);
     params.put("passwordResetLink", resolvePasswordResetLink(event.frontend(), event.passwordResetToken()));
     params.put("passResetTokenExpires", event.passwordResetTokenExpires());
 
@@ -461,11 +455,10 @@ public class UserSendEmailService {
    * @return Email request.
    */
   private EmailReq resolveEmailReq(UserPasswordResetConfirmEvent event) {
-    String subject = langService.t(event.lang(), "email.user.password.confirm.subject");
+    String subject = translateSubject(event, "email.user.password.confirm.subject");
 
     // Prepare params required by password reset confirmation template.
-    Map<String, Object> params = Maps.newHashMap();
-    params.put("username", event.username());
+    Map<String, Object> params = genParamsMap(event);
 
     return new EmailReq(
         null,
@@ -500,11 +493,10 @@ public class UserSendEmailService {
    * @return Email request.
    */
   private EmailReq resolveEmailReq(UserAccountDeleteRequestEvent event) {
-    String subject = langService.t(event.lang(), "email.user.delete.link.subject");
+    String subject = translateSubject(event, "email.user.delete.link.subject");
 
     // Prepare params required by user account deletion template.
-    Map<String, Object> params = Maps.newHashMap();
-    params.put("username", event.username());
+    Map<String, Object> params = genParamsMap(event);
     params.put("accountDeleteLink", resolveAccountDeleteLink(event.frontend(), event.accountDeleteToken()));
     params.put("accountDeleteTokenExpires", event.accountDeleteTokenExpires());
 
@@ -552,11 +544,10 @@ public class UserSendEmailService {
    * @return Email request.
    */
   private EmailReq resolveEmailReq(UserAccountDeleteConfirmEvent event) {
-    String subject = langService.t(event.lang(), "email.user.delete.confirm.subject");
+    String subject = translateSubject(event, "email.user.delete.confirm.subject");
 
     // Prepare params required by user account delete confirmation template.
-    Map<String, Object> params = Maps.newHashMap();
-    params.put("username", event.username());
+    Map<String, Object> params = genParamsMap(event);
 
     return new EmailReq(
         null,
@@ -573,6 +564,27 @@ public class UserSendEmailService {
   }
 
   // //////////////////////////////////////////////////////////////////////////
+
+  /**
+   * Translate subject of email (as title in HTML is not used).
+   * @param event User event.
+   * @param key Translation key.
+   * @return Translated subject.
+   */
+  private String translateSubject(BaseUserEvent event, String key) {
+    return langService.t(event.lang(), key, new Object[] { systemName });
+  }
+
+  /**
+   * Generate params map with common parameters.
+   * @return Params map.
+   */
+  private Map<String, Object> genParamsMap(BaseUserEvent event) {
+    Map<String, Object> params = Maps.newHashMap();
+    params.put("systemName", systemName);
+    params.put("username", event.username());
+    return params;
+  }
 
   /**
    * Resolve login link. Note it is for frontend, not backend.

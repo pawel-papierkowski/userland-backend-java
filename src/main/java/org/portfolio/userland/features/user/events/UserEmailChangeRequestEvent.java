@@ -22,4 +22,4 @@ public record UserEmailChangeRequestEvent(
     String newEmail,
     String emailChangeToken,
     long emailChangeTokenExpires
-) {}
+) implements BaseUserEvent {}

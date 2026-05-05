@@ -20,4 +20,4 @@ public record UserAccountDeleteRequestEvent(
     EnFrontendFramework frontend,
     String accountDeleteToken,
     long accountDeleteTokenExpires
-) {}
+) implements BaseUserEvent {}

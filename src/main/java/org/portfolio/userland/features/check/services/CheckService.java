@@ -19,10 +19,10 @@ public class CheckService extends BaseService {
 
   /** System name. */
   @Value("${app.main.name}")
-  protected String name;
+  protected String systemName;
   /** System version. */
   @Value("${app.main.version}")
-  protected String version;
+  protected String systemVersion;
 
   /**
    * Resolve basic information about system.
@@ -31,10 +31,10 @@ public class CheckService extends BaseService {
   public CheckInfoResp info() {
     LocalDateTime bootAt = clockService.convert(context.getStartupDate());
     return CheckInfoResp.builder()
-        .name(name)
+        .name(systemName)
         .nowAt(clockService.getNowUTC())
         .bootAt(bootAt)
-        .version(version)
+        .version(systemVersion)
         .profile(profile)
         .build();
   }

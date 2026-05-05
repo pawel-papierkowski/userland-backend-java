@@ -36,7 +36,7 @@ public class UserRegisterService extends BaseUserService {
   private long activationTokenExpires;
 
   /**
-   * Registers user in UserLand system.
+   * Registers user in system.
    * @param userRegisterReq User registration request.
    */
   @Transactional

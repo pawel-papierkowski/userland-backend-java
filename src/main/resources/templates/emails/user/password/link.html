@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title th:text="#{email.user.password.link.subject}">UserLand: password reset requested</title>
+    <title th:text="#{email.user.password.link.subject(${systemName})}">SystemName: password reset requested</title>
 </head>
 <body>
 <p th:utext="#{email.user.password.link.greeting(${username})}">Hello, <b>User</b>!</p>

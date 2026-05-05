@@ -2,11 +2,11 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title th:text="#{email.user.activation.subject}">UserLand: welcome</title>
+    <title th:text="#{email.user.activation.subject(${systemName})}">SystemName: welcome</title>
 </head>
 <body>
   <p th:utext="#{email.user.activation.greeting(${username})}">Hello, <b>User</b>!</p>
   <p th:utext="#{email.user.activation.l1}">Account was activated successfully. We are excited to have you on board.</p>
-  <p><span th:utext="#{email.user.activation.l2}">You can log in to UserLand here:</span> <a th:href="${loginLink}" th:text="${loginLink}">LINK_LOGIN</a>.</p>
+  <p><span th:utext="#{email.user.activation.l2(${systemName})}">You can log in to <b>SystemName</b> here:</span> <a th:href="${loginLink}" th:text="${loginLink}">LINK_LOGIN</a>.</p>
 </body>
 </html>

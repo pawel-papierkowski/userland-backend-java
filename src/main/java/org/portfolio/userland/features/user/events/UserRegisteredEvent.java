@@ -20,4 +20,4 @@ public record UserRegisteredEvent(
     EnFrontendFramework frontend,
     String activationToken,
     Long activationTokenExpires
-) {}
+) implements BaseUserEvent {}

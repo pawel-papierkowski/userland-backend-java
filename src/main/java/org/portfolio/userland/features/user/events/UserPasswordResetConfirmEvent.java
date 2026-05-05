@@ -12,4 +12,4 @@ public record UserPasswordResetConfirmEvent(
     String username,
     String email,
     String lang
-) {}
+) implements BaseUserEvent {}

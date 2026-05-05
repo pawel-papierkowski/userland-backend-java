@@ -1,56 +1,56 @@
 email:
   user:
     registration:
-      subject: "UserLand: account registration"
+      subject: "{0}: account registration"
       greeting: "Hello, <b>{0}</b>!"
-      l1: "Thank you for interest in UserLand."
+      l1: "Thank you for interest in {0}."
       l2: "Please activate your account here:"
       l3: "Link will be valid for {0} hours."
     activation:
-      subject: "UserLand: welcome"
+      subject: "{0}: welcome"
       greeting: "Hello, <b>{0}</b>!"
       l1: "Account was activated successfully. We are excited to have you on board."
-      l2: "You can log in to UserLand here:"
+      l2: "You can log in to <b>{0}</b> here:"
     alreadyRegistered:
-      subject: "UserLand: welcome"
+      subject: "{0}: welcome"
       greeting: "Hello, <b>{0}</b>!"
-      l1: "Someone recently tried to register an account with this email. You already have an account in UserLand."
-      l2: "You can log in to UserLand here:"
+      l1: "Someone recently tried to register an account with this email. You already have an account in <b>{0}</b>."
+      l2: "You can log in to <b>{0}</b> here:"
     email:
       warning:
-        subject: "UserLand: email change requested"
+        subject: "{0}: email change requested"
         greeting: "Hello, <b>{0}</b>!"
         l1: "A request was made to change the email associated with this account. If this was you, you can ignore this. If you did not request this, please contact support immediately."
       warningNew:
-        subject: "UserLand: email change requested"
+        subject: "{0}: email change requested"
         greeting: "Hello, <b>{0}</b>!"
         l1: "Someone (hopefully you) just tried to change their account email to this address. However, this email is already associated with an active account. If this was you, you can ignore this or log in to your existing account. If this wasn't you, someone might have mistyped their email."
       link:
-        subject: "UserLand: email change requested"
+        subject: "{0}: email change requested"
         greeting: "Hello, <b>{0}</b>!"
         l1: "Please confirm change of email here:"
         l2: "Link will be valid for {0} minutes."
       confirm:
-        subject: "UserLand: email changed"
+        subject: "{0}: email changed"
         greeting: "Hello, <b>{0}</b>!"
         l1: "Email for your account was successfully changed."
     password:
       link:
-        subject: "UserLand: password reset requested"
+        subject: "{0}: password reset requested"
         greeting: "Hello, <b>{0}</b>!"
         l1: "Please reset your password here:"
         l2: "Link will be valid for {0} minutes."
       confirm:
-        subject: "UserLand: password changed"
+        subject: "{0}: password changed"
         greeting: "Hello, <b>{0}</b>!"
         l1: "Password for your account was successfully changed."
     delete:
       link:
-        subject: "UserLand: account deletion requested"
+        subject: "{0}: account deletion requested"
         greeting: "Hello, <b>{0}</b>!"
         l1: "Please click this link to delete account:"
         l2: "Link will be valid for {0} minutes."
       confirm:
-        subject: "UserLand: account deleted"
+        subject: "{0}: account deleted"
         greeting: "Hello, <b>{0}</b>!"
-        l1: "Account was succesfully removed from UserLand system."
+        l1: "Account was successfully removed from <b>{0}</b> system."

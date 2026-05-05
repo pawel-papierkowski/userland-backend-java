@@ -12,6 +12,7 @@ import org.portfolio.userland.system.auth.jwt.JwtService;
 import org.portfolio.userland.system.config.service.ConfigConst;
 import org.portfolio.userland.test.helpers.problemDetail.ProblemDetailBox;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,6 +31,13 @@ public class CheckApiTest extends BaseCheckTest {
   /** Real service to generate a valid token. */
   @Autowired
   private JwtService jwtService;
+
+  /** System name. */
+  @Value("${app.main.name}")
+  protected String systemName;
+  /** System version. */
+  @Value("${app.main.version}")
+  protected String systemVersion;
 
   @AfterEach
   public void tearDown() {
@@ -354,13 +362,13 @@ public class CheckApiTest extends BaseCheckTest {
 
     // Assert: API Response.
     assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.OK.value());
-    // Assert: Endpoint response. Note we do not check bootAt and version exactly (as they change).
+    // Assert: Endpoint response. Note we do not check bootAt (as it changes all the time).
     CheckInfoResp actualResp = objectMapper.readValue(mvcResult.getResponse().getContentAsString(), CheckInfoResp.class);
     CheckInfoResp expectedResp = CheckInfoResp.builder()
-        .name("UserLand")
+        .name(systemName)
         .nowAt(clockService.getNowUTC())
-        .bootAt(actualResp.bootAt())
-        .version(actualResp.version())
+        .bootAt(actualResp.bootAt()) // skip
+        .version(systemVersion)
         .profile(EnAppProfile.TEST)
         .build();
     assertThat(actualResp).as("System info is invalid").isEqualTo(expectedResp);

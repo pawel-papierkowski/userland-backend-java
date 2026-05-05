@@ -1,7 +1,7 @@
 package org.portfolio.userland.system.config.service;
 
 /**
- * UserLand configuration constants.
+ * System configuration constants.
  */
 public class ConfigConst {
   public final static String TRUE = "1";

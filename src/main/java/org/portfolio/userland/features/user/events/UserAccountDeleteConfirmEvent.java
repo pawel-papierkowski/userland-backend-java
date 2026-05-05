@@ -12,4 +12,4 @@ public record UserAccountDeleteConfirmEvent(
     String username,
     String email,
     String lang
-) {}
+) implements BaseUserEvent {}

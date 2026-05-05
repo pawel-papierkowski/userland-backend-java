@@ -12,4 +12,4 @@ public record UserEmailChangeConfirmEvent(
     String username,
     String email,
     String lang
-) {}
+) implements BaseUserEvent {}

@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title th:text="#{email.user.email.warning.subject}">UserLand: email change requested</title>
+    <title th:text="#{email.user.email.warning.subject(${systemName})}">SystemName: email change requested</title>
 </head>
 <body>
 <p th:utext="#{email.user.email.warning.greeting(${username})}">Hello, <b>User</b>!</p>

@@ -7,6 +7,7 @@ import org.portfolio.userland.common.services.email.data.EmailReq;
 import org.portfolio.userland.features.user.events.*;
 import org.portfolio.userland.features.user.services.UserSendEmailService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.time.Duration;
 import java.util.List;
@@ -24,6 +25,16 @@ import static org.mockito.Mockito.verify;
 public class UserSendEmailTest extends BaseUserTest {
   @Autowired
   private UserSendEmailService userSendEmailService;
+
+  /** Name of system. */
+  @Value("${app.main.name}")
+  protected String systemName;
+  /** Base frontend address. */
+  @Value("${app.main.www}")
+  private String frontendWww;
+  /** Who sends emails? */
+  @Value("${app.email.sender}")
+  private String emailSender;
 
   @Test
   public void sendRegistrationEmail() {
@@ -48,18 +59,19 @@ public class UserSendEmailTest extends BaseUserTest {
       verify(emailService, times(1)).sendEmail(captor.capture());
 
       Map<String, Object> params = Maps.newHashMap();
+      params.put("systemName", systemName);
       params.put("username", "Jan Kowalski");
-      params.put("activationLink", "https://pawel-papierkowski.github.io/frontend-userland-vue/activate?token=nDVAZXAEt1VvrYrazvxmU8yruiur9cJg");
+      params.put("activationLink", frontendWww+"vue/activate?token=nDVAZXAEt1VvrYrazvxmU8yruiur9cJg");
       params.put("activationTokenExpires", 24L);
       EmailReq expectedEmailReq = new EmailReq(
           null,
           "pl",
-          "pawel.papierkowski.portfolio@gmail.com",
+          emailSender,
           List.of("jan.kowalski@google.com"),
           List.of(),
           List.of(),
-          "pawel.papierkowski.portfolio@gmail.com",
-          "UserLand: rejestracja konta",
+          emailSender,
+          systemName+": rejestracja konta",
           "user/registration",
           params,
           null
@@ -91,17 +103,18 @@ public class UserSendEmailTest extends BaseUserTest {
 
       // Assert that correct email request was sent.
       Map<String, Object> params = Maps.newHashMap();
+      params.put("systemName", systemName);
       params.put("username", "Jan Kowalski");
-      params.put("loginLink", "https://pawel-papierkowski.github.io/frontend-userland-vue/login");
+      params.put("loginLink", frontendWww+"vue/login");
       EmailReq expectedEmailReq = new EmailReq(
           null,
           "pl",
-          "pawel.papierkowski.portfolio@gmail.com",
+          emailSender,
           List.of("jan.kowalski@google.com"),
           List.of(),
           List.of(),
-          "pawel.papierkowski.portfolio@gmail.com",
-          "UserLand: witamy",
+          emailSender,
+          systemName+": witamy",
           "user/activation",
           params,
           null
@@ -133,17 +146,18 @@ public class UserSendEmailTest extends BaseUserTest {
 
       // Assert that correct email request was sent.
       Map<String, Object> params = Maps.newHashMap();
+      params.put("systemName", systemName);
       params.put("username", "Jan Kowalski");
-      params.put("loginLink", "https://pawel-papierkowski.github.io/frontend-userland-vue/login");
+      params.put("loginLink", frontendWww+"vue/login");
       EmailReq expectedEmailReq = new EmailReq(
           null,
           "pl",
-          "pawel.papierkowski.portfolio@gmail.com",
+          emailSender,
           List.of("jan.kowalski@google.com"),
           List.of(),
           List.of(),
-          "pawel.papierkowski.portfolio@gmail.com",
-          "UserLand: witamy",
+          emailSender,
+          systemName+": witamy",
           "user/alreadyRegistered",
           params,
           null
@@ -184,34 +198,36 @@ public class UserSendEmailTest extends BaseUserTest {
       EmailReq actualLinkReq = allCapturedEmails.get(1);
 
       Map<String, Object> paramsWarning = Maps.newHashMap();
+      paramsWarning.put("systemName", systemName);
       paramsWarning.put("username", "Jane");
       EmailReq expectedEmailWarningReq = new EmailReq(
           null,
           "en",
-          "pawel.papierkowski.portfolio@gmail.com",
+          emailSender,
           List.of("test@example.com"), // OLD email
           List.of(),
           List.of(),
-          "pawel.papierkowski.portfolio@gmail.com",
-          "UserLand: email change requested",
+          emailSender,
+          systemName+": email change requested",
           "user/email/warning",
           paramsWarning,
           null
       );
 
       Map<String, Object> paramsLink = Maps.newHashMap();
+      paramsLink.put("systemName", systemName);
       paramsLink.put("username", "Jane");
-      paramsLink.put("emailChangeLink", "https://pawel-papierkowski.github.io/frontend-userland-vue/emailChange?token=nDVAZXAEt1VvrYrazvxmU8yruiur9cJg");
+      paramsLink.put("emailChangeLink", frontendWww+"vue/emailChange?token=nDVAZXAEt1VvrYrazvxmU8yruiur9cJg");
       paramsLink.put("emailChangeTokenExpires", 30L);
       EmailReq expectedEmailLinkReq = new EmailReq(
           null,
           "en",
-          "pawel.papierkowski.portfolio@gmail.com",
+          emailSender,
           List.of("other@example.com"), // NEW email
           List.of(),
           List.of(),
-          "pawel.papierkowski.portfolio@gmail.com",
-          "UserLand: email change requested",
+          emailSender,
+          systemName+": email change requested",
           "user/email/link",
           paramsLink,
           null
@@ -249,34 +265,36 @@ public class UserSendEmailTest extends BaseUserTest {
       EmailReq actualWarningNewReq = allCapturedEmails.get(1);
 
       Map<String, Object> paramsWarning = Maps.newHashMap();
+      paramsWarning.put("systemName", systemName);
       paramsWarning.put("username", "Jane");
       EmailReq expectedEmailWarningOldReq = new EmailReq(
           null,
           "en",
-          "pawel.papierkowski.portfolio@gmail.com",
+          emailSender,
           List.of("test@example.com"), // OLD email
           List.of(),
           List.of(),
-          "pawel.papierkowski.portfolio@gmail.com",
-          "UserLand: email change requested",
+          emailSender,
+          systemName+": email change requested",
           "user/email/warning",
           paramsWarning,
           null
       );
 
-      Map<String, Object> paramsLink = Maps.newHashMap();
-      paramsLink.put("username", "Jane");
+      Map<String, Object> paramsWarningNew = Maps.newHashMap();
+      paramsWarningNew.put("systemName", systemName);
+      paramsWarningNew.put("username", "Jane");
       EmailReq expectedEmailWarningNewReq = new EmailReq(
           null,
           "en",
-          "pawel.papierkowski.portfolio@gmail.com",
+          emailSender,
           List.of("other@example.com"), // NEW email
           List.of(),
           List.of(),
-          "pawel.papierkowski.portfolio@gmail.com",
-          "UserLand: email change requested",
+          emailSender,
+          systemName+": email change requested",
           "user/email/warningNew",
-          paramsLink,
+          paramsWarningNew,
           null
       );
 
@@ -306,16 +324,17 @@ public class UserSendEmailTest extends BaseUserTest {
 
       // Assert that correct email request was sent.
       Map<String, Object> params = Maps.newHashMap();
+      params.put("systemName", systemName);
       params.put("username", "Jane");
       EmailReq expectedEmailReq = new EmailReq(
           null,
           "en",
-          "pawel.papierkowski.portfolio@gmail.com",
+          emailSender,
           List.of("test@example.com"),
           List.of(),
           List.of(),
-          "pawel.papierkowski.portfolio@gmail.com",
-          "UserLand: email changed",
+          emailSender,
+          systemName+": email changed",
           "user/email/confirm",
           params,
           null
@@ -351,18 +370,19 @@ public class UserSendEmailTest extends BaseUserTest {
 
       // Assert that correct email request was sent.
       Map<String, Object> params = Maps.newHashMap();
+      params.put("systemName", systemName);
       params.put("username", "Jane");
-      params.put("passwordResetLink", "https://pawel-papierkowski.github.io/frontend-userland-vue/passwordReset?token=nDVAZXAEt1VvrYrazvxmU8yruiur9cJg");
+      params.put("passwordResetLink", frontendWww+"vue/passwordReset?token=nDVAZXAEt1VvrYrazvxmU8yruiur9cJg");
       params.put("passResetTokenExpires", 30L);
       EmailReq expectedEmailReq = new EmailReq(
           null,
           "en",
-          "pawel.papierkowski.portfolio@gmail.com",
+          emailSender,
           List.of("test@example.com"),
           List.of(),
           List.of(),
-          "pawel.papierkowski.portfolio@gmail.com",
-          "UserLand: password reset requested",
+          emailSender,
+          systemName+": password reset requested",
           "user/password/link",
           params,
           null
@@ -393,16 +413,17 @@ public class UserSendEmailTest extends BaseUserTest {
 
       // Assert that correct email request was sent.
       Map<String, Object> params = Maps.newHashMap();
+      params.put("systemName", systemName);
       params.put("username", "Jane");
       EmailReq expectedEmailReq = new EmailReq(
           null,
           "en",
-          "pawel.papierkowski.portfolio@gmail.com",
+          emailSender,
           List.of("test@example.com"),
           List.of(),
           List.of(),
-          "pawel.papierkowski.portfolio@gmail.com",
-          "UserLand: password changed",
+          emailSender,
+          systemName+": password changed",
           "user/password/confirm",
           params,
           null
@@ -438,18 +459,19 @@ public class UserSendEmailTest extends BaseUserTest {
 
       // Assert that correct email request was sent.
       Map<String, Object> params = Maps.newHashMap();
+      params.put("systemName", systemName);
       params.put("username", "Jane");
       params.put("accountDeleteLink", "https://pawel-papierkowski.github.io/frontend-userland-vue/accountDelete?token=nDVAZXAEt1VvrYrazvxmU8yruiur9cJg");
       params.put("accountDeleteTokenExpires", 30L);
       EmailReq expectedEmailReq = new EmailReq(
           null,
           "en",
-          "pawel.papierkowski.portfolio@gmail.com",
+          emailSender,
           List.of("test@example.com"),
           List.of(),
           List.of(),
-          "pawel.papierkowski.portfolio@gmail.com",
-          "UserLand: account deletion requested",
+          emailSender,
+          systemName+": account deletion requested",
           "user/delete/link",
           params,
           null
@@ -480,16 +502,17 @@ public class UserSendEmailTest extends BaseUserTest {
 
       // Assert that correct email request was sent.
       Map<String, Object> params = Maps.newHashMap();
+      params.put("systemName", systemName);
       params.put("username", "Jane");
       EmailReq expectedEmailReq = new EmailReq(
           null,
           "en",
-          "pawel.papierkowski.portfolio@gmail.com",
+          emailSender,
           List.of("test@example.com"),
           List.of(),
           List.of(),
-          "pawel.papierkowski.portfolio@gmail.com",
-          "UserLand: account deleted",
+          emailSender,
+          systemName+": account deleted",
           "user/delete/confirm",
           params,
           null
