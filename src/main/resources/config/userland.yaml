@@ -3,7 +3,7 @@
 app:
   main:
     name: "UserLand"
-    build: ${BUILD:DEV} # so system knows if it is on production or in other environment
+    build: ${BUILD:DEV} # so system knows if it is running on production or in other environment
     version: "@project.version@" # use version from pom.xml file
     www: https://pawel-papierkowski.github.io/frontend-userland- # does not exist yet
   user:

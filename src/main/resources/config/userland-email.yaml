@@ -27,8 +27,8 @@ spring:
 
 app:
   email:
-    sender: "pawel.papierkowski.portfolio@gmail.com"
+    sender: ${EMAIL_SENDER:pawel.papierkowski.portfolio@gmail.com}
     providers:
-      default: 'plain' # default provider
+      default: ${EMAIL_DEFAULT_PROVIDER:resend} # default provider
       resend:
         api-key: ${TEP_RESEND_APIKEY:PLACEHOLDER_API_KEY} # API key used for TEP Resend

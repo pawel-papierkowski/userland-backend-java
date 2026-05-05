@@ -39,5 +39,5 @@ management:
 # Secrets are defined in GitHub (Repository Secrets).
 security:
   jwt:
-    secret: ${JWT_SECRET} # Bytes encoded in BASE64.
+    secret: ${JWT_SECRET} # As bytes encoded in BASE64. You MUST provide it, also when booting in local development environment.
     expiration: 360 # 6 hours, in minutes

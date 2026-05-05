@@ -14,7 +14,7 @@ Date: 2026
 
 Link to source code: https://github.com/pawel-papierkowski/userland-backend-java
 
-Used IDE: IntelliJ IDEA
+Used IDE: **IntelliJ IDEA**
 
 ## Functionality
 
@@ -57,23 +57,30 @@ You need to add these Repository Secrets:
   - **GCP_PROJECT_ID**: Identificator of project on Google Cloud. Used for deploying project.
   - **GCP_WORKLOAD_IDENTITY_PROVIDER**: For WIP login on Google Cloud.
 - Email:
-  - **EMAIL_HOST**: Host for standard email provider (Google etc).
-  - **EMAIL_USERNAME**: Username (full email address) for standard email provider (Google etc).
-  - **EMAIL_PASSWORD**: Password (or App password) for standard email provider (Google etc).
-  - **TEP_RESEND_APIKEY**: API key for Transactional Email Provider called Resend.
+  - **EMAIL_DEFAULT_PROVIDER**: Default provider. Allowed values: `plain`, `resend`.
+  - **EMAIL_SENDER**: Who sent this email.
+  - **EMAIL_HOST**: Host for standard `plain` provider (Google etc).
+  - **EMAIL_USERNAME**: Username (full email address) for standard `plain` provider (Google etc).
+  - **EMAIL_PASSWORD**: Password (or App password) for standard `plain` provider (Google etc).
+  - **TEP_RESEND_APIKEY**: API key for Transactional Email Provider called Resend. This is for `resend` provider.
 - Other:
   - **JWT_SECRET**: JWT token secret. Must have at least 256 bits (32 bytes) and be string encoded in BASE64.
     - Best way to generate: in Linux/macOS/Git Bash terminal execute `openssl rand -base64 32`.
 
+Some of these have default values in yaml configuration, but it is recommended to override everything. Default values are strictly for local development.
+
 ## Local startup
 
-In your IDE, ensure Java 25 Temurin is installed and selected. You need to configure environment variables for your run configuration.
+In your IDE, ensure Java 25 Temurin is installed and selected.
+
+You need to configure environment variables for your run configuration. Most variables have defaults, but some must be declared.
 
 - Necessary **environment variables** (without them project will fail to start or won't work properly):
   - `EMAIL_HOST`
   - `EMAIL_USERNAME`
   - `EMAIL_PASSWORD`
-  - `JWT_SECRET`
+  - If default email provider is `resend`, you need proper api key in `TEP_RESEND_APIKEY`.
+  - `JWT_SECRET` (has no default value)
 - Optional **environment variables**:
   - If you want to use real database instead of database in container, add in run config:
     - `SPRING_DATASOURCE_URL`=jdbc:postgresql://[URL]
