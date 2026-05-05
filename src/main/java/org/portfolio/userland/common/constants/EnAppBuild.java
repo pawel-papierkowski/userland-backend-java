@@ -3,14 +3,14 @@ package org.portfolio.userland.common.constants;
 import lombok.Getter;
 
 /**
- * <p>System profile. You can check if you are on production, development etc. using YAML config <code>app.main.profile</code>.</p>
+ * <p>System build. You can check if you are on production, development etc. using YAML config <code>app.main.build</code>.</p>
  * <p>Example:</p>
  * <pre>
- *   &#064;Value("${app.main.profile}")
- *   protected EnAppProfile profile;
+ *   &#064;Value("${app.main.build}")
+ *   protected EnAppBuild build;
  * </pre>
  */
-public enum EnAppProfile {
+public enum EnAppBuild {
   /** System is running in production environment. */
   PROD(false),
   /** System is running in staging environment. */
@@ -20,11 +20,11 @@ public enum EnAppProfile {
   /** System is running in test suite. */
   TEST(true);
 
-  /** If true, this profile is considered test profile. */
+  /** If true, this build is considered test build. */
   @Getter
   private final Boolean test;
 
-  EnAppProfile(Boolean test) {
+  EnAppBuild(Boolean test) {
     this.test = test;
   }
 }

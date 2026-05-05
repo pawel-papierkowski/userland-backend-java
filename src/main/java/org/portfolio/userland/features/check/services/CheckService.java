@@ -35,7 +35,7 @@ public class CheckService extends BaseService {
         .nowAt(clockService.getNowUTC())
         .bootAt(bootAt)
         .version(systemVersion)
-        .profile(profile)
+        .profile(build)
         .build();
   }
 }

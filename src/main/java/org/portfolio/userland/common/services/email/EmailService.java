@@ -2,7 +2,7 @@ package org.portfolio.userland.common.services.email;
 
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
-import org.portfolio.userland.common.constants.EnAppProfile;
+import org.portfolio.userland.common.constants.EnAppBuild;
 import org.portfolio.userland.common.constants.GeneralConst;
 import org.portfolio.userland.common.services.email.data.EmailReq;
 import org.portfolio.userland.common.services.email.providers.EmailProviderFactory;
@@ -28,8 +28,8 @@ public class EmailService {
   private final TemplateEngine templateEngine;
 
   /** System profile. */
-  @Value("${app.main.profile}")
-  private EnAppProfile profile;
+  @Value("${app.main.build}")
+  private EnAppBuild build;
 
   /**
    * Send email based on data in email request.
@@ -66,7 +66,7 @@ public class EmailService {
    * @return New version of subject.
    */
   private String resolveSubject(EmailReq emailReq) {
-    if (!profile.getTest()) return emailReq.subject();
+    if (!build.getTest()) return emailReq.subject();
     return GeneralConst.TEST_INDICTATOR + " " + emailReq.subject();
   }
 

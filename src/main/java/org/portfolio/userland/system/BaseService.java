@@ -1,6 +1,6 @@
 package org.portfolio.userland.system;
 
-import org.portfolio.userland.common.constants.EnAppProfile;
+import org.portfolio.userland.common.constants.EnAppBuild;
 import org.portfolio.userland.common.services.clock.ClockService;
 import org.portfolio.userland.common.services.security.SecurityGeneratorService;
 import org.portfolio.userland.features.user.services.UserHelperService;
@@ -40,7 +40,7 @@ public abstract class BaseService {
   @Autowired
   protected ApplicationEventPublisher eventPublisher;
 
-  /** System profile. */
-  @Value("${app.main.profile}")
-  protected EnAppProfile profile;
+  /** System build. */
+  @Value("${app.main.build}")
+  protected EnAppBuild build;
 }

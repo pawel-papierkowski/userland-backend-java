@@ -1,6 +1,7 @@
 package org.portfolio.userland.features.user.services;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.portfolio.userland.features.user.dto.common.EnFrontendFramework;
 import org.portfolio.userland.features.user.dto.register.TokenActivateReq;
 import org.portfolio.userland.features.user.dto.register.UserRegisterReq;
@@ -30,6 +31,7 @@ import java.time.LocalDateTime;
  */
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class UserRegisterService extends BaseUserService {
   /** How long before activation token expires in hours. */
   @Value("${app.user.token.activation.expires}")
@@ -83,7 +85,7 @@ public class UserRegisterService extends BaseUserService {
    */
   private UserRegisterReq modifyRegistrationReq(UserRegisterReq userRegisterReq) {
     // Never allow user activation on spot during registration on PROD. This is convenience option for testing during development.
-    Boolean activate = profile.getTest() ? userRegisterReq.activate() : false;
+    Boolean activate = build.getTest() ? userRegisterReq.activate() : false;
     return userRegisterReq.toBuilder().activate(activate).build();
   }
 

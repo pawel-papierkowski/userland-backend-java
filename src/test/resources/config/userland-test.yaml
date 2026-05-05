@@ -3,4 +3,4 @@
 
 app:
   main:
-    profile: "TEST"
+    build: "TEST"

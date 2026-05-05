@@ -57,6 +57,7 @@ jobs:
       # to your Google Artifact Registry using the unique commit hash (${{ github.sha }}) as the version tag.
       - name: Build and Push Docker Image
         env:
+          BUILD: ${{ secrets.BUILD }}
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
           EMAIL_HOST: ${{ secrets.EMAIL_HOST }}
           EMAIL_USERNAME: ${{ secrets.EMAIL_USERNAME }}
@@ -91,9 +92,10 @@ jobs:
           service: ${{ env.DASHBOARD_NAME }}
           region: ${{ env.GAR_LOCATION }}
           image: ${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.DASHBOARD_NAME }}:${{ github.sha }}
-          flags: '--allow-unauthenticated --memory=1Gi --cpu-boost'
+          flags: '--allow-unauthenticated --memory=1Gi --cpu-boost --timeout=300'
           env_vars: |-
             SPRING_PROFILES_ACTIVE=gcp
+            BUILD=${{ secrets.BUILD }}
             SPRING_DATASOURCE_URL=${{ secrets.DB_URL }}
             SPRING_DATASOURCE_USERNAME=${{ secrets.DB_USERNAME }}
             SPRING_DATASOURCE_PASSWORD=${{ secrets.DB_PASSWORD }}

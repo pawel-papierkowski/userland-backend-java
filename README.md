@@ -48,7 +48,7 @@ You can think of it as baseline for any other project, as almost any project, sy
 
 You need to add these Repository Secrets:
 - General configuration:
-  - **PROFILE**: Informs system what is nature of environment. Allowed values: `PROD`, `STAGE`, `DEV`, `TEST`.
+  - **BUILD**: Informs about build of system. Allowed values: `PROD`, `STAGE`, `DEV`, `TEST`.
 - Database:
   - **DB_USERNAME**: Name of database user.
   - **DB_PASSWORD**: Password for database user

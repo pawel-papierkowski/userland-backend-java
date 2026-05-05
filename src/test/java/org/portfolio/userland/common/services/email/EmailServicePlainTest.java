@@ -55,7 +55,7 @@ public class EmailServicePlainTest extends BaseIntegrationTest {
         .hasMessageCount(1)
         .hasMessageFrom("tester@test.test")
         .hasMessageTo("newuser@example.com")
-        .hasMessageWithSubject("[TEST] TITLE"); // We add [TEST] to subject due to app.main.profile being TEST
+        .hasMessageWithSubject("[TEST] TITLE"); // We add [TEST] to subject due to app.main.build being TEST
   }
 
   @Test

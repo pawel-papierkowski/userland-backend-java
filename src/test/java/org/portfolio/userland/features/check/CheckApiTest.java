@@ -2,7 +2,7 @@ package org.portfolio.userland.features.check;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
-import org.portfolio.userland.common.constants.EnAppProfile;
+import org.portfolio.userland.common.constants.EnAppBuild;
 import org.portfolio.userland.common.constants.ValidConst;
 import org.portfolio.userland.features.check.data.CheckInfoResp;
 import org.portfolio.userland.features.user.entities.EnUserHistoryWhat;
@@ -369,7 +369,7 @@ public class CheckApiTest extends BaseCheckTest {
         .nowAt(clockService.getNowUTC())
         .bootAt(actualResp.bootAt()) // skip
         .version(systemVersion)
-        .profile(EnAppProfile.TEST)
+        .profile(EnAppBuild.TEST)
         .build();
     assertThat(actualResp).as("System info is invalid").isEqualTo(expectedResp);
     assertThat(actualResp.version()).as("Version is invalid").matches(ValidConst.REG_EXPR_VERSION); // ensure @project.version@ is correctly resolved

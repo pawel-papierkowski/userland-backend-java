@@ -2,7 +2,7 @@ package org.portfolio.userland.features.check.data;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
-import org.portfolio.userland.common.constants.EnAppProfile;
+import org.portfolio.userland.common.constants.EnAppBuild;
 
 import java.time.LocalDateTime;
 
@@ -26,5 +26,5 @@ public record CheckInfoResp(
     @Schema(description = "Version of system.", example = "0.9.5")
     String version,
     @Schema(description = "Profile of server.", example = "DEV")
-    EnAppProfile profile
+    EnAppBuild profile
 ) {}

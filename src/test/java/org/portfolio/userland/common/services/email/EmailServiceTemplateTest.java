@@ -25,7 +25,7 @@ import static org.mockito.Mockito.*;
  * <p>Note: we cannot spy on real template engine, if you do <code>@MockitoSpyBean private TemplateEngine templateEngine;</code>,
  * running entire test suite with coverage will fail on this file.</p>
  */
-@TestPropertySource(properties = "app.main.profile=PROD")
+@TestPropertySource(properties = "app.main.build=PROD")
 public class EmailServiceTemplateTest extends BaseIntegrationTest {
   @Autowired
   private EmailService emailService;
@@ -63,7 +63,7 @@ public class EmailServiceTemplateTest extends BaseIntegrationTest {
     emailService.sendEmail(emailReq);
 
     // Assert: Verify the email was actually sent to the provider.
-    // Note: due to app.main.profile=PROD we do NOT add [TEST] prefix to subject.
+    // Note: due to app.main.build=PROD we do NOT add [TEST] prefix to subject.
     EmailReq modEmailReq = emailReq.toBuilder().subject("TITLE").build();
     verify(emailProvider).send(modEmailReq);
     // We know templating engine was not run, because it would throw exception due to null template name.
