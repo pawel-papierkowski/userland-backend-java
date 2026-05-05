@@ -10,7 +10,7 @@ import lombok.Builder;
  * @param token Token string.
  */
 @Builder(toBuilder = true)
-@Schema(description = "Payload required to reset password.")
+@Schema(description = "Payload required to change email address of user account.")
 public record UserEmailChangeConfirmReq(
   @NotBlank(message = "Token string is required")
   @Size(min = 32, max = 128, message = "Token string must have 32 or more characters.")
