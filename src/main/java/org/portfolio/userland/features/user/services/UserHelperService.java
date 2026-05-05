@@ -143,10 +143,22 @@ public class UserHelperService {
 
   /**
    * Finds out when JWT expires.
-   * @param nowAt Current date&time.
+   * @param issuedAt Issue date&time of JWT.
    * @return Expiration date&time.
    */
-  public LocalDateTime resolveJwtExpiration(LocalDateTime nowAt) {
-    return nowAt.plusMinutes(jwtExpiration);
+  public LocalDateTime resolveJwtExpiration(LocalDateTime issuedAt) {
+    return resolveJwtExpiration(issuedAt, null);
+  }
+
+  /**
+   * Finds out when JWT expires.
+   * @param issuedAt Issue date&time of JWT.
+   * @param customExpiration Custom expiration period in minutes. Can be null, will use default expiration.
+   * @return Expiration date&time.
+   */
+  public LocalDateTime resolveJwtExpiration(LocalDateTime issuedAt, Long customExpiration) {
+    long actualExpiration = jwtExpiration;
+    if (customExpiration != null) actualExpiration = customExpiration;
+    return issuedAt.plusMinutes(actualExpiration);
   }
 }

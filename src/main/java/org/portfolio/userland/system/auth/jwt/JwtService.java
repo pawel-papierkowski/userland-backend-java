@@ -58,7 +58,7 @@ public class JwtService extends BaseService {
     verifyUser(user);
 
     LocalDateTime issuedAt = clockService.getNowUTC();
-    LocalDateTime expiresAt = resolveExpiresAt(issuedAt, customExpiration);
+    LocalDateTime expiresAt = userHelperService.resolveJwtExpiration(issuedAt, customExpiration);
     Date issueDate = clockService.convert(issuedAt);
     Date expirationDate = clockService.convert(expiresAt);
 
@@ -69,12 +69,6 @@ public class JwtService extends BaseService {
         .expiration(expirationDate)
         .signWith(resolveSigningKey())
         .compact();
-  }
-
-  private LocalDateTime resolveExpiresAt(LocalDateTime issuedAt, Long customExpiration) {
-    long actualExpiration = jwtExpiration;
-    if (customExpiration != null) actualExpiration = customExpiration;
-    return issuedAt.plusMinutes(actualExpiration);
   }
 
   /**

@@ -89,7 +89,8 @@ public class CheckController {
   //
 
   /**
-   * Returns basic information about this server like server date&time or profile.
+   * Returns basic information about this server like server date&time or profile. Note it requires administrator
+   * permissions.
    * @return Response.
    */
   @GetMapping(value = "/info", produces = "application/json")

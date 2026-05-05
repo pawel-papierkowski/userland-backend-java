@@ -9,6 +9,7 @@ import org.portfolio.userland.features.user.entities.User;
 import org.portfolio.userland.features.user.exceptions.UserInvalidStatusException;
 import org.portfolio.userland.features.user.exceptions.UserLockedException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.util.Map;
 
@@ -23,6 +24,10 @@ public class JwtServiceTest extends BaseUserTest {
   @Autowired
   private JwtService jwtService;
 
+  /** How long before JWT token expires in minutes. */
+  @Value("${security.jwt.expiration}")
+  private long jwtExpiration;
+
   @AfterEach
   public void tearDown() {
     resetDatabase();
@@ -36,17 +41,21 @@ public class JwtServiceTest extends BaseUserTest {
 
     // Arrange: Create a real user and token for that user.
     User user = userRepository.save(userFactory.genRandUser(EnUserStatus.ACTIVE));
-    String token = jwtService.generateToken(user);
+    String token = jwtService.generateToken(user); // default expiration
 
     // Act: Check if token is valid.
     boolean isValid = jwtService.isTokenValid(token, user.getEmail());
+
+    // prepare data
+    long iat = 1775815500L; // fixed time
+    long exp = iat + jwtExpiration*60L; // default expiration period
 
     // Assert: Validity and claims of token.
     assertThat(isValid).as("Token must be valid").isTrue();
     Map<String, Object> actualClaimMap = jwtService.extractAllClaims(token);
     Map<String, Object> expectedClaimMap = Maps.newHashMap();
-    expectedClaimMap.put("iat", 1775815500L); // issued
-    expectedClaimMap.put("exp", 1775837100L); // expires
+    expectedClaimMap.put("iat", iat); // issued
+    expectedClaimMap.put("exp", exp); // expires
     expectedClaimMap.put("sub", user.getEmail()); // user account email as subject
     assertThat(actualClaimMap).as("Claim map is invalid").isEqualTo(expectedClaimMap);
   }
@@ -62,12 +71,16 @@ public class JwtServiceTest extends BaseUserTest {
     // Act: Check if token is valid.
     boolean isValid = jwtService.isTokenValid(token, user.getEmail());
 
+    // prepare data
+    long iat = 1775815500L; // fixed time
+    long exp = iat + 3600L; // 60 minutes later as specified in custom expiration
+
     // Assert: Validity and claims of token.
     assertThat(isValid).as("Token must be valid").isTrue();
     Map<String, Object> actualClaimMap = jwtService.extractAllClaims(token);
     Map<String, Object> expectedClaimMap = Maps.newHashMap();
-    expectedClaimMap.put("iat", 1775815500L); // issued
-    expectedClaimMap.put("exp", 1775819100L); // expires in hour
+    expectedClaimMap.put("iat", iat); // issued
+    expectedClaimMap.put("exp", exp); // expires in hour
     expectedClaimMap.put("sub", user.getEmail()); // user account email as subject
     assertThat(actualClaimMap).as("Claim map is invalid").isEqualTo(expectedClaimMap);
   }
@@ -82,7 +95,7 @@ public class JwtServiceTest extends BaseUserTest {
     final User user = userFactory.genRandUser(EnUserStatus.PENDING);
 
     // Act & Assert: Try to create a real token.
-    UserInvalidStatusException actualEx = assertThrows(
+    assertThrows(
         UserInvalidStatusException.class,
         () -> jwtService.generateToken(user)
     );

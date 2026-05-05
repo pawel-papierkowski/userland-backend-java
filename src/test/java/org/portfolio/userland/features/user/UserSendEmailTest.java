@@ -4,7 +4,9 @@ import com.google.common.collect.Maps;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.portfolio.userland.common.services.email.data.EmailReq;
+import org.portfolio.userland.features.user.entities.EnUserTokenType;
 import org.portfolio.userland.features.user.events.*;
+import org.portfolio.userland.features.user.services.UserHelperService;
 import org.portfolio.userland.features.user.services.UserSendEmailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -35,6 +37,8 @@ public class UserSendEmailTest extends BaseUserTest {
   /** Who sends emails? */
   @Value("${app.email.sender}")
   private String emailSender;
+  @Autowired
+  private UserHelperService userHelperService;
 
   @Test
   public void sendRegistrationEmail() {
@@ -62,7 +66,7 @@ public class UserSendEmailTest extends BaseUserTest {
       params.put("systemName", systemName);
       params.put("username", "Jan Kowalski");
       params.put("activationLink", frontendWww+"vue/activate?token=nDVAZXAEt1VvrYrazvxmU8yruiur9cJg");
-      params.put("activationTokenExpires", 24L);
+      params.put("activationTokenExpires", userHelperService.resolveExpirationTime(EnUserTokenType.ACTIVATE));
       EmailReq expectedEmailReq = new EmailReq(
           null,
           "pl",
@@ -181,7 +185,7 @@ public class UserSendEmailTest extends BaseUserTest {
         null,
         "other@example.com",
         "nDVAZXAEt1VvrYrazvxmU8yruiur9cJg",
-        30
+        userHelperService.resolveExpirationTime(EnUserTokenType.EMAIL)
     );
 
     // Act: send email change request emails. Will send two emails: warning and link.
@@ -357,7 +361,7 @@ public class UserSendEmailTest extends BaseUserTest {
         "en",
         null,
         "nDVAZXAEt1VvrYrazvxmU8yruiur9cJg",
-        30
+        userHelperService.resolveExpirationTime(EnUserTokenType.PASSWORD)
     );
 
     // Act: send password reset link email.
@@ -446,7 +450,7 @@ public class UserSendEmailTest extends BaseUserTest {
         "en",
         null,
         "nDVAZXAEt1VvrYrazvxmU8yruiur9cJg",
-        30
+        userHelperService.resolveExpirationTime(EnUserTokenType.DELETE)
     );
 
     // Act: send account deletion link email.
