@@ -1,6 +1,10 @@
 # Configuration specific to Spring for tests.
 # Note we include only variables that have different value than equivalent file in /src/main/resources/config.
 
+spring:
+  main:
+    lazy-initialization: false # enforce initializing all beans on startup, so any issue will show at start
+
 security:
   jwt:
     secret: "qXqyG/cXonpbJY7zfChA/XoatblyieXumWmRg3mYjUc=" # Bytes encoded in BASE64. This is default for tests.

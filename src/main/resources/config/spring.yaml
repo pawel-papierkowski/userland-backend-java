@@ -3,6 +3,7 @@
 spring:
   main:
     banner-mode: off # banner will screw with gcp logging
+    lazy-initialization: true # will create beans only when actually needed, shortening boot time
   mvc:
     problemdetails:
       enabled: true

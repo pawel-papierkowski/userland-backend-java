@@ -10,7 +10,7 @@ name: Deploy Docker Image to Cloud
 
 on:
   # This allows you to click a "Run workflow" button manually in GitHub
-  # without needing to push new code every time you want to test it.
+  # without automatic run every time you push code on GitHub.
   workflow_dispatch:
 
 env: # Environment variables.
@@ -91,7 +91,7 @@ jobs:
           service: ${{ env.DASHBOARD_NAME }}
           region: ${{ env.GAR_LOCATION }}
           image: ${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.DASHBOARD_NAME }}:${{ github.sha }}
-          flags: '--allow-unauthenticated --memory=512Mi'
+          flags: '--allow-unauthenticated --memory=1Gi --cpu-boost'
           env_vars: |-
             SPRING_PROFILES_ACTIVE=gcp
             SPRING_DATASOURCE_URL=${{ secrets.DB_URL }}

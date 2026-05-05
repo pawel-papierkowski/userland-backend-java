@@ -1,8 +1,8 @@
 # USERLAND-BACKEND-JAVA
 
-This is simple **backend project** demonstrating basics of modern Java and Spring Boot. It was made from scratch using Spring Initializr. It is intended to be used with **frontend project** that I will write later.
+This is simple **backend project** demonstrating basics of modern Java and Spring Boot focused on pure user management. It was made from scratch using Spring Initializr. It is intended to be used with **frontend project** that I will write later.
 
-Project is actively developed and functionality is already partially implemented.
+Project is actively developed and most functionality is already implemented.
 
 Description below sums up intended state when project is completed: functionality, features etc.
 
@@ -30,9 +30,9 @@ You can think of it as baseline for any other project, as almost any project, sy
   - User **login**.
   - User **logout**.
   - **Editing** of your own user account.
-  - **Email change**.
+  - Secure **email change** (sensitive operation).
   - **Password reset** via email.
-  - User **account deletion** (confirmation via email).
+  - User **account deletion** via email.
 - Handling **user permissions** (standard user vs panel admin operator).
 - **Admin user**:
   - Viewing **table of users**, including pagination and filtration.
