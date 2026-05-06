@@ -7,7 +7,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import org.portfolio.userland.features.check.data.CheckInfoResp;
+import org.portfolio.userland.features.check.dto.CheckInfoResp;
 import org.portfolio.userland.features.check.services.CheckService;
 import org.portfolio.userland.swagger.annotations.ApiResponsesAuth;
 import org.portfolio.userland.swagger.annotations.ApiResponsesAuthPerm;

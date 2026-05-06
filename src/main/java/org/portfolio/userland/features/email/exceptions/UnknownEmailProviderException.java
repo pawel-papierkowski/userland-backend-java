@@ -1,4 +1,4 @@
-package org.portfolio.userland.common.services.email.exception;
+package org.portfolio.userland.features.email.exceptions;
 
 import org.portfolio.userland.common.exception.GeneralException;
 import org.springframework.http.HttpStatus;

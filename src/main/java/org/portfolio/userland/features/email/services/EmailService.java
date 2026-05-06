@@ -1,12 +1,12 @@
-package org.portfolio.userland.common.services.email;
+package org.portfolio.userland.features.email.services;
 
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.portfolio.userland.common.constants.EnAppBuild;
 import org.portfolio.userland.common.constants.GeneralConst;
-import org.portfolio.userland.common.services.email.data.EmailReq;
-import org.portfolio.userland.common.services.email.providers.EmailProviderFactory;
-import org.portfolio.userland.common.services.email.providers.IntEmailProvider;
+import org.portfolio.userland.features.email.dto.EmailReq;
+import org.portfolio.userland.features.email.services.providers.EmailProviderFactory;
+import org.portfolio.userland.features.email.services.providers.IntEmailProvider;
 import org.portfolio.userland.features.user.services.UserSendEmailService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;

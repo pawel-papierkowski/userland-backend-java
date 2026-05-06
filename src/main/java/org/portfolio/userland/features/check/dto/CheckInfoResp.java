@@ -1,4 +1,4 @@
-package org.portfolio.userland.features.check.data;
+package org.portfolio.userland.features.check.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;

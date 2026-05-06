@@ -1,12 +1,12 @@
-package org.portfolio.userland.common.services.email.providers;
+package org.portfolio.userland.features.email.services.providers;
 
 import com.resend.Resend;
 import com.resend.core.exception.ResendException;
 import com.resend.services.emails.model.CreateEmailOptions;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.portfolio.userland.common.services.email.data.EmailReq;
-import org.portfolio.userland.common.services.email.exception.EmailSendFailureException;
+import org.portfolio.userland.features.email.dto.EmailReq;
+import org.portfolio.userland.features.email.exceptions.EmailSendFailureException;
 import org.springframework.stereotype.Service;
 
 /**

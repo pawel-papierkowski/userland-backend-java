@@ -1,8 +1,9 @@
-package org.portfolio.userland.common.services.email;
+package org.portfolio.userland.features.email;
 
 import org.junit.jupiter.api.Test;
-import org.portfolio.userland.common.services.email.data.EmailReq;
-import org.portfolio.userland.common.services.email.exception.UnknownEmailProviderException;
+import org.portfolio.userland.features.email.dto.EmailReq;
+import org.portfolio.userland.features.email.exceptions.UnknownEmailProviderException;
+import org.portfolio.userland.features.email.services.EmailService;
 import org.portfolio.userland.test.base.BaseIntegrationTest;
 import org.springframework.beans.factory.annotation.Autowired;
 

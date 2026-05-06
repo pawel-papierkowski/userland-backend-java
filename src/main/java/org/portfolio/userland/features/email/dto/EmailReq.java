@@ -1,4 +1,4 @@
-package org.portfolio.userland.common.services.email.data;
+package org.portfolio.userland.features.email.dto;
 
 import lombok.Builder;
 

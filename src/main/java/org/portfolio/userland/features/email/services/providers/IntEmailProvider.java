@@ -1,6 +1,6 @@
-package org.portfolio.userland.common.services.email.providers;
+package org.portfolio.userland.features.email.services.providers;
 
-import org.portfolio.userland.common.services.email.data.EmailReq;
+import org.portfolio.userland.features.email.dto.EmailReq;
 
 /**
  * Interface common for all email providers.

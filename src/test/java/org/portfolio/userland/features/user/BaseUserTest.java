@@ -1,6 +1,6 @@
 package org.portfolio.userland.features.user;
 
-import org.portfolio.userland.common.services.email.EmailService;
+import org.portfolio.userland.features.email.services.EmailService;
 import org.portfolio.userland.features.user.entities.User;
 import org.portfolio.userland.features.user.entities.UserProfile;
 import org.portfolio.userland.features.user.mappers.UserProfileMapper;

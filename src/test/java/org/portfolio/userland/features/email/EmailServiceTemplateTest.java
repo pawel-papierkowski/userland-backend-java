@@ -1,12 +1,13 @@
-package org.portfolio.userland.common.services.email;
+package org.portfolio.userland.features.email;
 
 import com.google.common.collect.Maps;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
-import org.portfolio.userland.common.services.email.data.EmailReq;
-import org.portfolio.userland.common.services.email.providers.EmailProviderFactory;
-import org.portfolio.userland.common.services.email.providers.PlainEmailProvider;
+import org.portfolio.userland.features.email.dto.EmailReq;
+import org.portfolio.userland.features.email.services.EmailService;
+import org.portfolio.userland.features.email.services.providers.EmailProviderFactory;
+import org.portfolio.userland.features.email.services.providers.EmptyEmailProvider;
 import org.portfolio.userland.test.base.BaseIntegrationTest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.TestPropertySource;
@@ -33,7 +34,7 @@ public class EmailServiceTemplateTest extends BaseIntegrationTest {
   @MockitoBean
   private EmailProviderFactory emailProviderFactory; // We do not want to actually send email.
   @MockitoBean
-  private PlainEmailProvider emailProvider; // Fake provider.
+  private EmptyEmailProvider emailProvider; // Fake provider.
 
   @BeforeEach
   public void prepare() {
@@ -55,7 +56,7 @@ public class EmailServiceTemplateTest extends BaseIntegrationTest {
         List.of(),
         "",
         "TITLE",
-        null,
+        null, // template not provided
         null,
         "<p>Content</p>"); // filled, that means templating engine is skipped
 

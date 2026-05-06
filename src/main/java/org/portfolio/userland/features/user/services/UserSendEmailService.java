@@ -2,9 +2,9 @@ package org.portfolio.userland.features.user.services;
 
 import com.google.common.collect.Maps;
 import lombok.RequiredArgsConstructor;
-import org.portfolio.userland.common.services.email.EmailService;
-import org.portfolio.userland.common.services.email.data.EmailReq;
 import org.portfolio.userland.common.services.lang.LangService;
+import org.portfolio.userland.features.email.dto.EmailReq;
+import org.portfolio.userland.features.email.services.EmailService;
 import org.portfolio.userland.features.user.constants.UserConst;
 import org.portfolio.userland.features.user.dto.common.EnFrontendFramework;
 import org.portfolio.userland.features.user.events.*;

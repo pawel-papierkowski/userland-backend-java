@@ -1,7 +1,7 @@
-package org.portfolio.userland.common.services.email.providers;
+package org.portfolio.userland.features.email.services.providers;
 
 import org.apache.commons.lang3.StringUtils;
-import org.portfolio.userland.common.services.email.exception.UnknownEmailProviderException;
+import org.portfolio.userland.features.email.exceptions.UnknownEmailProviderException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 

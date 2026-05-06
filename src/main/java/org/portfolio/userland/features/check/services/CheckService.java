@@ -1,7 +1,7 @@
 package org.portfolio.userland.features.check.services;
 
 import lombok.RequiredArgsConstructor;
-import org.portfolio.userland.features.check.data.CheckInfoResp;
+import org.portfolio.userland.features.check.dto.CheckInfoResp;
 import org.portfolio.userland.system.BaseService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;

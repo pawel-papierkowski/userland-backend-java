@@ -1,4 +1,4 @@
-package org.portfolio.userland.common.services.email;
+package org.portfolio.userland.features.email;
 
 import com.resend.Resend;
 import com.resend.core.exception.ResendException;
@@ -6,7 +6,8 @@ import com.resend.services.emails.Emails;
 import com.resend.services.emails.model.CreateEmailOptions;
 import com.resend.services.emails.model.CreateEmailResponse;
 import org.junit.jupiter.api.Test;
-import org.portfolio.userland.common.services.email.data.EmailReq;
+import org.portfolio.userland.features.email.dto.EmailReq;
+import org.portfolio.userland.features.email.services.EmailService;
 import org.portfolio.userland.test.base.BaseIntegrationTest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -30,6 +31,7 @@ public class EmailServiceResendTest extends BaseIntegrationTest {
     // Arrange: setup Resend mock.
     CreateEmailResponse mockResponse = new CreateEmailResponse();
     mockResponse.setId("mock_resend_id_789");
+
     // Resend uses chaining like this: resend.emails().send(params);
     // So we need to mock response for both resend.emails() and emails().send().
     Emails emailsMock = mock(Emails.class);

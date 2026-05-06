@@ -3,7 +3,7 @@ package org.portfolio.userland.features.user;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
-import org.portfolio.userland.common.services.email.data.EmailReq;
+import org.portfolio.userland.features.email.dto.EmailReq;
 import org.portfolio.userland.features.user.dto.common.EnFrontendFramework;
 import org.portfolio.userland.features.user.dto.register.TokenActivateReq;
 import org.portfolio.userland.features.user.dto.register.UserRegisterReq;
