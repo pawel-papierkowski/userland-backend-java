@@ -3,7 +3,7 @@ email:
     registration:
       subject: "{0}: rejestracja konta"
       greeting: "Cześć, <b>{0}</b>!"
-      l1: "Dziękujemy za zainteresowanie <b>{0}</b>em."
+      l1: "Dziękujemy za zainteresowanie portalem <b>{0}</b>."
       l2: "Prosimy aktywować konto tutaj:"
       l3: "Łącze będzie ważne przez {0} godzin."
     activation:

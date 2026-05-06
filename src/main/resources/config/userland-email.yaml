@@ -1,4 +1,4 @@
-# Configuration specific to UserLand project: scheduling.
+# Configuration specific to UserLand project: email.
 
 spring:
   thymeleaf:
@@ -27,9 +27,9 @@ spring:
 
 app:
   email:
-    sender: ${EMAIL_SENDER:pawel.papierkowski.portfolio@gmail.com}
-    response: ${EMAIL_RESPONSE:pawel.papierkowski.portfolio@gmail.com}
+    sender: ${EMAIL_SENDER:onboarding@resend.dev}
+    response: ${EMAIL_RESPONSE:onboarding@resend.dev}
     providers:
       default: ${EMAIL_DEFAULT_PROVIDER:resend} # default provider
       resend:
-        api-key: ${TEP_RESEND_APIKEY:PLACEHOLDER_API_KEY} # API key used for TEP Resend
+        api-key: ${TEP_RESEND_APIKEY:} # API key used for TEP Resend

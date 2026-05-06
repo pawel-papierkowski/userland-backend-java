@@ -1,0 +1,10 @@
+# Configuration specific to UserLand project: email for tests.
+
+app:
+  email:
+    sender: "pawel.papierkowski.portfolio@gmail.com"
+    response: "pawel.papierkowski.portfolio@gmail.com"
+    providers:
+      default: "plain" # default provider
+      resend:
+        api-key: "PLACEHOLDER_API_KEY" # API key used for TEP Resend

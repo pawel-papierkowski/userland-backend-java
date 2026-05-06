@@ -6,5 +6,5 @@
   <!-- Currently tracked stuff. -->
   <logger name="org.portfolio.userland.features.user.services.UserRegisterService" level="TRACE"/>
   <logger name="org.portfolio.userland.features.user.services.UserSendEmailService" level="TRACE"/>
-  <logger name="org.portfolio.userland.common.services.email.providers" level="TRACE"/>
+  <logger name="org.portfolio.userland.features.email.services.providers" level="TRACE"/>
 </included>

@@ -16,7 +16,12 @@ import java.util.List;
  * Handles Transactional Email Provider called Resend.
  * <p>Notes:</p>
  * <ul>
- *   <li>Resend provides special email address that you can use for testing: <b>delivered@resend.dev</b></li>
+ *   <li>Testing</li>
+ *   <ul>
+ *     <li>You must use this address as sender: <b>onboarding@resend.dev</b> and you can send email only to your own
+ *     email address associated with Resend account.</li>
+ *     <li>You can also use this address as destination: <b>delivered@resend.dev</b> with any sender.</li>
+ *   </ul>
  * </ul>
  */
 @Service

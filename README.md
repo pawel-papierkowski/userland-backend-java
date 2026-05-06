@@ -63,7 +63,7 @@ These values are visible and freely editable in GitHub panel.
 - Email:
   - **EMAIL_DEFAULT_PROVIDER**: Default provider. Allowed values: `plain`, `resend`.
   - **EMAIL_SENDER**: Sender address. Example: `no-reply@your.company.domain.com`.
-  - **EMAIL_RESPONSE**: Response address. Example: `helpdesk@your.company.domain.com`.
+  - **EMAIL_RESPONSE**: Response address. Example: `support@your.company.domain.com`.
 
 ### Repository Secrets
 These values are encrypted and write-only in GitHub panel.
