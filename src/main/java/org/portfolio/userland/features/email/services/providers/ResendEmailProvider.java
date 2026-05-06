@@ -5,9 +5,12 @@ import com.resend.core.exception.ResendException;
 import com.resend.services.emails.model.CreateEmailOptions;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.portfolio.userland.features.email.dto.EmailReq;
 import org.portfolio.userland.features.email.exceptions.EmailSendFailureException;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 /**
  * Handles Transactional Email Provider called Resend.
@@ -30,10 +33,11 @@ public class ResendEmailProvider implements IntEmailProvider {
 
   @Override
   public void send(EmailReq emailReq) {
+    List<String> replyTo = StringUtils.isNotEmpty(emailReq.replyTo()) ? List.of(emailReq.replyTo()) : List.of();
     try {
       CreateEmailOptions params = CreateEmailOptions.builder()
         .from(emailReq.sender())
-        .replyTo(emailReq.replyTo())
+        .replyTo(replyTo)
         .to(emailReq.recipients()) // delivered@resend.dev
         .subject(emailReq.subject())
         .html(emailReq.messageHtml())

@@ -28,6 +28,7 @@ spring:
 app:
   email:
     sender: ${EMAIL_SENDER:pawel.papierkowski.portfolio@gmail.com}
+    response: ${EMAIL_RESPONSE:pawel.papierkowski.portfolio@gmail.com}
     providers:
       default: ${EMAIL_DEFAULT_PROVIDER:resend} # default provider
       resend:

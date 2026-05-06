@@ -3,6 +3,7 @@ package org.portfolio.userland.features.email.services.providers;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.portfolio.userland.features.email.dto.EmailReq;
 import org.portfolio.userland.features.email.exceptions.EmailSendFailureException;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -37,6 +38,7 @@ public class PlainEmailProvider implements IntEmailProvider {
 
       // Set the email details.
       helper.setFrom(emailReq.sender());
+      if (StringUtils.isNotEmpty(emailReq.replyTo())) helper.setReplyTo(emailReq.replyTo());
       helper.setTo(emailReq.recipients().toArray(new String[]{}));
       helper.setSubject(emailReq.subject());
 

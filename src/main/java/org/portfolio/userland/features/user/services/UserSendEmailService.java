@@ -59,9 +59,12 @@ public class UserSendEmailService {
   /** Base frontend address. */
   @Value("${app.main.www}")
   private String frontendWww;
-  /** Who sends emails? */
+  /** Sender address. */
   @Value("${app.email.sender}")
   private String emailSender;
+  /** Response address. */
+  @Value("${app.email.response}")
+  private String emailResponse;
 
   /**
    * React on user registration event.
@@ -74,7 +77,7 @@ public class UserSendEmailService {
   @Async("emailTaskExecutor")
   @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
   public void sendRegistrationEmail(UserRegisteredEvent event) {
-    EmailReq emailReq = resolveEmailReq(event);
+    EmailReq emailReq = genEmailReq(event);
     emailService.sendEmail(emailReq);
   }
 
@@ -83,7 +86,7 @@ public class UserSendEmailService {
    * @param event Event.
    * @return Email request.
    */
-  private EmailReq resolveEmailReq(UserRegisteredEvent event) {
+  private EmailReq genEmailReq(UserRegisteredEvent event) {
     String subject = translateSubject(event, "email.user.registration.subject");
 
     // Prepare params required by user registration template.
@@ -91,18 +94,7 @@ public class UserSendEmailService {
     params.put("activationLink", resolveActivationLink(event.frontend(), event.activationToken()));
     params.put("activationTokenExpires", event.activationTokenExpires());
 
-    return new EmailReq(
-        null, // use default provider
-        event.lang(),
-        emailSender,
-        List.of(event.email()), // where email will be sent
-        List.of(),
-        List.of(),
-        emailSender,
-        subject,
-        TEMPLATE_USER_REGISTRATION,
-        params,
-        null);
+    return genEmailReq(event, TEMPLATE_USER_REGISTRATION, subject, params);
   }
 
   /**
@@ -125,7 +117,7 @@ public class UserSendEmailService {
   @Async("emailTaskExecutor")
   @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
   public void sendActivatedEmail(UserActivatedEvent event) {
-    EmailReq emailReq = resolveEmailReq(event);
+    EmailReq emailReq = genEmailReq(event);
     emailService.sendEmail(emailReq);
   }
 
@@ -134,25 +126,14 @@ public class UserSendEmailService {
    * @param event Event.
    * @return Email request.
    */
-  private EmailReq resolveEmailReq(UserActivatedEvent event) {
+  private EmailReq genEmailReq(UserActivatedEvent event) {
     String subject = translateSubject(event, "email.user.activation.subject");
 
     // Prepare params required by user activated template.
     Map<String, Object> params = genParamsMap(event);
     params.put("loginLink", resolveLoginLink(event.frontend()));
 
-    return new EmailReq(
-        null,
-        event.lang(),
-        emailSender,
-        List.of(event.email()),
-        List.of(),
-        List.of(),
-        emailSender,
-        subject,
-        TEMPLATE_USER_ACTIVATION,
-        params,
-        null);
+    return genEmailReq(event, TEMPLATE_USER_ACTIVATION, subject, params);
   }
 
   //
@@ -164,7 +145,7 @@ public class UserSendEmailService {
   @Async("emailTaskExecutor")
   @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
   public void sendAlreadyRegisteredEmail(UserAlreadyRegisteredEvent event) {
-    EmailReq emailReq = resolveEmailReq(event);
+    EmailReq emailReq = genEmailReq(event);
     emailService.sendEmail(emailReq);
   }
 
@@ -173,25 +154,14 @@ public class UserSendEmailService {
    * @param event Event.
    * @return Email request.
    */
-  private EmailReq resolveEmailReq(UserAlreadyRegisteredEvent event) {
+  private EmailReq genEmailReq(UserAlreadyRegisteredEvent event) {
     String subject = translateSubject(event, "email.user.alreadyRegistered.subject");
 
     // Prepare params required by user activated template.
     Map<String, Object> params = genParamsMap(event);
     params.put("loginLink", resolveLoginLink(event.frontend()));
 
-    return new EmailReq(
-        null, // use default provider
-        event.lang(),
-        emailSender,
-        List.of(event.email()),
-        List.of(),
-        List.of(),
-        emailSender,
-        subject,
-        TEMPLATE_USER_ALREADY_REGISTERED,
-        params,
-        null);
+    return genEmailReq(event, TEMPLATE_USER_ALREADY_REGISTERED, subject, params);
   }
 
   // //////////////////////////////////////////////////////////////////////////
@@ -215,7 +185,7 @@ public class UserSendEmailService {
   }
 
   /**
-   * Prepare email for sending email change warning to OLD email.
+   * Prepare email for sending email change warning to OLD email address.
    * @param event Event.
    * @return Email request.
    */
@@ -225,22 +195,11 @@ public class UserSendEmailService {
     // Prepare params required by email change warning template.
     Map<String, Object> params = genParamsMap(event);
 
-    return new EmailReq(
-        null,
-        event.lang(),
-        emailSender,
-        List.of(event.email()), // OLD email account
-        List.of(),
-        List.of(),
-        emailSender,
-        subject,
-        TEMPLATE_USER_EMAIL_WARNING,
-        params,
-        null);
+    return genEmailReq(event, TEMPLATE_USER_EMAIL_WARNING, subject, params);
   }
 
   /**
-   * Prepare email for sending email change link.
+   * Prepare email for sending email change link to NEW email address.
    * @param event Event.
    * @return Email request.
    */
@@ -252,18 +211,7 @@ public class UserSendEmailService {
     params.put("emailChangeLink", resolveEmailChangeLink(event.frontend(), event.emailChangeToken()));
     params.put("emailChangeTokenExpires", event.emailChangeTokenExpires());
 
-    return new EmailReq(
-        null,
-        event.lang(),
-        emailSender,
-        List.of(event.newEmail()), // NEW email account
-        List.of(),
-        List.of(),
-        emailSender,
-        subject,
-        TEMPLATE_USER_EMAIL_LINK,
-        params,
-        null);
+    return genEmailReq(event, event.newEmail(), TEMPLATE_USER_EMAIL_LINK, subject, params);
   }
 
   /**
@@ -308,18 +256,7 @@ public class UserSendEmailService {
     // Prepare params required by email change warning template.
     Map<String, Object> params = genParamsMap(event);
 
-    return new EmailReq(
-        null,
-        event.lang(),
-        emailSender,
-        List.of(event.email()), // OLD email account
-        List.of(),
-        List.of(),
-        emailSender,
-        subject,
-        TEMPLATE_USER_EMAIL_WARNING,
-        params,
-        null);
+    return genEmailReq(event, TEMPLATE_USER_EMAIL_WARNING, subject, params);
   }
 
   /**
@@ -333,18 +270,7 @@ public class UserSendEmailService {
     // Prepare params required by email change warning template.
     Map<String, Object> params = genParamsMap(event);
 
-    return new EmailReq(
-        null,
-        event.lang(),
-        emailSender,
-        List.of(event.newEmail()), // NEW email account
-        List.of(),
-        List.of(),
-        emailSender,
-        subject,
-        TEMPLATE_USER_EMAIL_WARNING_NEW,
-        params,
-        null);
+    return genEmailReq(event, event.newEmail(), TEMPLATE_USER_EMAIL_WARNING_NEW, subject, params);
   }
 
   //
@@ -371,18 +297,7 @@ public class UserSendEmailService {
     // Prepare params required by email change warning template.
     Map<String, Object> params = genParamsMap(event);
 
-    return new EmailReq(
-        null,
-        event.lang(),
-        emailSender,
-        List.of(event.email()), // current (NEW) email account
-        List.of(),
-        List.of(),
-        emailSender,
-        subject,
-        TEMPLATE_USER_EMAIL_CONFIRM,
-        params,
-        null);
+    return genEmailReq(event, TEMPLATE_USER_EMAIL_CONFIRM, subject, params);
   }
 
   // //////////////////////////////////////////////////////////////////////////
@@ -394,7 +309,7 @@ public class UserSendEmailService {
   @Async("emailTaskExecutor")
   @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
   public void sendPasswordResetRequest(UserPasswordResetRequestEvent event) {
-    EmailReq emailReq = resolveEmailReq(event);
+    EmailReq emailReq = genEmailReq(event);
     emailService.sendEmail(emailReq);
   }
 
@@ -403,7 +318,7 @@ public class UserSendEmailService {
    * @param event Event.
    * @return Email request.
    */
-  private EmailReq resolveEmailReq(UserPasswordResetRequestEvent event) {
+  private EmailReq genEmailReq(UserPasswordResetRequestEvent event) {
     String subject = translateSubject(event, "email.user.password.link.subject");
 
     // Prepare params required by password reset template.
@@ -411,18 +326,7 @@ public class UserSendEmailService {
     params.put("passwordResetLink", resolvePasswordResetLink(event.frontend(), event.passwordResetToken()));
     params.put("passResetTokenExpires", event.passwordResetTokenExpires());
 
-    return new EmailReq(
-        null,
-        event.lang(),
-        emailSender,
-        List.of(event.email()),
-        List.of(),
-        List.of(),
-        emailSender,
-        subject,
-        TEMPLATE_USER_PASSWORD_LINK,
-        params,
-        null);
+    return genEmailReq(event, TEMPLATE_USER_PASSWORD_LINK, subject, params);
   }
 
   /**
@@ -445,7 +349,7 @@ public class UserSendEmailService {
   @Async("emailTaskExecutor")
   @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
   public void sendPasswordResetConfirm(UserPasswordResetConfirmEvent event) {
-    EmailReq emailReq = resolveEmailReq(event);
+    EmailReq emailReq = genEmailReq(event);
     emailService.sendEmail(emailReq);
   }
 
@@ -454,24 +358,13 @@ public class UserSendEmailService {
    * @param event Event.
    * @return Email request.
    */
-  private EmailReq resolveEmailReq(UserPasswordResetConfirmEvent event) {
+  private EmailReq genEmailReq(UserPasswordResetConfirmEvent event) {
     String subject = translateSubject(event, "email.user.password.confirm.subject");
 
     // Prepare params required by password reset confirmation template.
     Map<String, Object> params = genParamsMap(event);
 
-    return new EmailReq(
-        null,
-        event.lang(),
-        emailSender,
-        List.of(event.email()),
-        List.of(),
-        List.of(),
-        emailSender,
-        subject,
-        TEMPLATE_USER_PASSWORD_CONFIRM,
-        params,
-        null);
+    return genEmailReq(event, TEMPLATE_USER_PASSWORD_CONFIRM, subject, params);
   }
 
   // //////////////////////////////////////////////////////////////////////////
@@ -483,7 +376,7 @@ public class UserSendEmailService {
   @Async("emailTaskExecutor")
   @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
   public void sendAccountDeleteRequest(UserAccountDeleteRequestEvent event) {
-    EmailReq emailReq = resolveEmailReq(event);
+    EmailReq emailReq = genEmailReq(event);
     emailService.sendEmail(emailReq);
   }
 
@@ -492,7 +385,7 @@ public class UserSendEmailService {
    * @param event Event.
    * @return Email request.
    */
-  private EmailReq resolveEmailReq(UserAccountDeleteRequestEvent event) {
+  private EmailReq genEmailReq(UserAccountDeleteRequestEvent event) {
     String subject = translateSubject(event, "email.user.delete.link.subject");
 
     // Prepare params required by user account deletion template.
@@ -500,18 +393,7 @@ public class UserSendEmailService {
     params.put("accountDeleteLink", resolveAccountDeleteLink(event.frontend(), event.accountDeleteToken()));
     params.put("accountDeleteTokenExpires", event.accountDeleteTokenExpires());
 
-    return new EmailReq(
-        null,
-        event.lang(),
-        emailSender,
-        List.of(event.email()),
-        List.of(),
-        List.of(),
-        emailSender,
-        subject,
-        TEMPLATE_USER_DELETE_LINK,
-        params,
-        null);
+    return genEmailReq(event, TEMPLATE_USER_DELETE_LINK, subject, params);
   }
 
   /**
@@ -534,7 +416,7 @@ public class UserSendEmailService {
   @Async("emailTaskExecutor")
   @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
   public void sendAccountDeleteConfirm(UserAccountDeleteConfirmEvent event) {
-    EmailReq emailReq = resolveEmailReq(event);
+    EmailReq emailReq = genEmailReq(event);
     emailService.sendEmail(emailReq);
   }
 
@@ -543,27 +425,51 @@ public class UserSendEmailService {
    * @param event Event.
    * @return Email request.
    */
-  private EmailReq resolveEmailReq(UserAccountDeleteConfirmEvent event) {
+  private EmailReq genEmailReq(UserAccountDeleteConfirmEvent event) {
     String subject = translateSubject(event, "email.user.delete.confirm.subject");
 
     // Prepare params required by user account delete confirmation template.
     Map<String, Object> params = genParamsMap(event);
 
+    return genEmailReq(event, TEMPLATE_USER_DELETE_CONFIRM, subject, params);
+  }
+
+  // //////////////////////////////////////////////////////////////////////////
+
+  /**
+   * Generate email request based on provided data.
+   * @param event Event.
+   * @param template Template.
+   * @param subject Subject of email.
+   * @param params Template parameters.
+   * @return Email request.
+   */
+  private EmailReq genEmailReq(BaseUserEvent event, String template, String subject, Map<String, Object> params) {
+    return genEmailReq(event, event.email(), template, subject, params);
+  }
+
+  /**
+   * Generate email request based on provided data.
+   * @param event Event.
+   * @param template Template.
+   * @param subject Subject of email.
+   * @param params Template parameters.
+   * @return Email request.
+   */
+  private EmailReq genEmailReq(BaseUserEvent event, String emailTo, String template, String subject, Map<String, Object> params) {
     return new EmailReq(
         null,
         event.lang(),
         emailSender,
-        List.of(event.email()),
+        List.of(emailTo),
         List.of(),
         List.of(),
-        emailSender,
+        emailResponse,
         subject,
-        TEMPLATE_USER_DELETE_CONFIRM,
+        template,
         params,
         null);
   }
-
-  // //////////////////////////////////////////////////////////////////////////
 
   /**
    * Translate subject of email (as title in HTML is not used).

@@ -1,13 +1,16 @@
 # Simple workflow to test GCP access.
 name: Test GCP Authentication
 
+# Required variables:
+# - GCP_SERVICE_ACC: Name of service account for GCP project.
+# Required secrets:
+# - GCP_PROJECT_ID: Identificator of project on Google Cloud.
+# - GCP_WORKLOAD_IDENTITY_PROVIDER: For WIP login on Google Cloud.
+
 on:
   # This allows you to click a "Run workflow" button manually in GitHub
   # without needing to push new code every time you want to test it.
   workflow_dispatch:
-
-env:
-  SERVICE_ACC: srv-userland # name of service account for GCP project
 
 jobs:
   test-auth:
@@ -25,7 +28,7 @@ jobs:
         uses: google-github-actions/auth@v3
         with:
           workload_identity_provider: '${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}'
-          service_account: '${{ env.SERVICE_ACC }}@${{ secrets.GCP_PROJECT_ID }}.iam.gserviceaccount.com'
+          service_account: '${{ vars.GCP_SERVICE_ACC }}@${{ secrets.GCP_PROJECT_ID }}.iam.gserviceaccount.com'
 
       - name: Set up Cloud SDK # Without it, gcloud auth list will misleadingly print 'No credentialed accounts.'.
         uses: google-github-actions/setup-gcloud@v3

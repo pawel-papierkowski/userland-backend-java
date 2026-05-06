@@ -46,28 +46,43 @@ You can think of it as baseline for any other project, as almost any project, sy
 
 ## GitHub config
 
-You need to add these Repository Secrets:
+System uses variables and secrets defined in GitHub.
+
+Some of these have default values in YAML configuration, but it is recommended to override everything. Default values are strictly for local development and even then sensitive values like keys and passwords should be in run configuration in your IDE. YAML configuration contains only placeholder values.
+
+### Repository Variables
+These values are visible and freely editable in GitHub panel.
+
 - General configuration:
-  - **BUILD**: Informs about build of system. Allowed values: `PROD`, `STAGE`, `DEV`, `TEST`.
+  - **BUILD**: Informs about build of system. Allowed values: `PROD`, `STAGE`, `DEV`, `TEST` (corresponds to values in `EnAppBuild`).
+- Google Cloud:
+  - **GCP_SERVICE_ACC**: Name of service account for GCP project.
+  - **GCP_GAR_LOCATION**: Data center region.
+  - **GCP_REPOSITORY**: GCP Artifact Registry Repository.
+  - **GCP_DASHBOARD_NAME**: Name that backend will have in the Google Cloud Run dashboard.
+- Email:
+  - **EMAIL_DEFAULT_PROVIDER**: Default provider. Allowed values: `plain`, `resend`.
+  - **EMAIL_SENDER**: Sender address. Example: `no-reply@your.company.domain.com`.
+  - **EMAIL_RESPONSE**: Response address. Example: `helpdesk@your.company.domain.com`.
+
+### Repository Secrets
+These values are encrypted and write-only in GitHub panel.
+
 - Database:
+  - **DB_URL**: Address of database, for example `jdbc:postgresql://some.host.com:5432/userland?sslmode=require`.
   - **DB_USERNAME**: Name of database user.
-  - **DB_PASSWORD**: Password for database user
-  - **DB_URL**: Address of database, for example `jdbc:postgresql://some.host.com:5432/userland?sslmode=require` .
-- Google Cloud: 
+  - **DB_PASSWORD**: Password for database user.
+- Google Cloud:
   - **GCP_PROJECT_ID**: Identificator of project on Google Cloud. Used for deploying project.
   - **GCP_WORKLOAD_IDENTITY_PROVIDER**: For WIP login on Google Cloud.
 - Email:
-  - **EMAIL_DEFAULT_PROVIDER**: Default provider. Allowed values: `plain`, `resend`.
-  - **EMAIL_SENDER**: Who sent this email.
   - **EMAIL_HOST**: Host for standard `plain` provider (Google etc).
   - **EMAIL_USERNAME**: Username (full email address) for standard `plain` provider (Google etc).
   - **EMAIL_PASSWORD**: Password (or App password) for standard `plain` provider (Google etc).
-  - **TEP_RESEND_APIKEY**: API key for Transactional Email Provider called Resend. This is for `resend` provider.
+  - **TEP_RESEND_APIKEY**: API key for Transactional Email Provider called Resend. For `resend` provider.
 - Other:
   - **JWT_SECRET**: JWT token secret. Must have at least 256 bits (32 bytes) and be string encoded in BASE64.
     - Best way to generate: in Linux/macOS/Git Bash terminal execute `openssl rand -base64 32`.
-
-Some of these have default values in yaml configuration, but it is recommended to override everything. Default values are strictly for local development.
 
 ## Local startup
 

@@ -1,23 +1,24 @@
-# What we do?
+# What this workflow does:
 # - Check out repo to GitHub Ubuntu server.
 # - Set up Java 25 Temurin.
 # - Compile docker image on GitHub.
 # - Upload image as artifact to Google Cloud. It will be automatically run once deployed.
-# In real project, we would have versions of this workflow for production, development, staging etc.
-# They would be almost same, just with different variables and secrets.
-# And, of course, SPRING_PROFILES_ACTIVE would be different.
 name: Deploy Docker Image to Cloud
+
+# Required variables:
+# - GCP_SERVICE_ACC: Name of service account for GCP project.
+# - GCP_GAR_LOCATION: Data center region.
+# - GCP_REPOSITORY: GCP Artifact Registry Repository.
+# - GCP_DASHBOARD_NAME: Name that backend will have in the Google Cloud Run dashboard.
+# Required secrets:
+# - GCP_PROJECT_ID: Identificator of project on Google Cloud.
+# - GCP_WORKLOAD_IDENTITY_PROVIDER: For WIP login on Google Cloud.
+# See README.md for description of other needed variables/secrets.
 
 on:
   # This allows you to click a "Run workflow" button manually in GitHub
   # without automatic run every time you push code on GitHub.
   workflow_dispatch:
-
-env: # Environment variables.
-  SERVICE_ACC: srv-userland # Name of service account for GCP project.
-  GAR_LOCATION: europe-central2 # Data center region in Warsaw, Poland.
-  REPOSITORY: userland-backend-java-repo # GCP Artifact Registry Repository.
-  DASHBOARD_NAME: userland-backend-java # Name that backend will have in the Google Cloud Run dashboard.
 
 jobs:
   deploy:
@@ -44,29 +45,22 @@ jobs:
         uses: google-github-actions/auth@v3
         with:
           workload_identity_provider: '${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}'
-          service_account: '${{ env.SERVICE_ACC }}@${{ secrets.GCP_PROJECT_ID }}.iam.gserviceaccount.com'
+          service_account: '${{ vars.GCP_SERVICE_ACC }}@${{ secrets.GCP_PROJECT_ID }}.iam.gserviceaccount.com'
 
       # Note: currently we should be logged into Google Cloud.
       - name: Authenticate Docker to Artifact Registry
-        run: gcloud auth configure-docker ${{ env.GAR_LOCATION }}-docker.pkg.dev --quiet
+        run: gcloud auth configure-docker ${{ vars.GCP_GAR_LOCATION }}-docker.pkg.dev --quiet
 
       # Core of the pipeline!
       # Compiles the app directly into a Docker image and pushes it to Google Artifact Registry.
       # chmod +x mvnw grants execution permissions to the Maven wrapper.
       # The -D...publish=true flag tells Maven to immediately upload that finished Docker image
-      # to your Google Artifact Registry using the unique commit hash (${{ github.sha }}) as the version tag.
+      # to your Google Artifact Registry using the unique commit hash ${{ github.sha }} as the version tag.
       - name: Build and Push Docker Image
-        env:
-          BUILD: ${{ secrets.BUILD }}
-          JWT_SECRET: ${{ secrets.JWT_SECRET }}
-          EMAIL_HOST: ${{ secrets.EMAIL_HOST }}
-          EMAIL_USERNAME: ${{ secrets.EMAIL_USERNAME }}
-          EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
-          TEP_RESEND_APIKEY: ${{ secrets.TEP_RESEND_APIKEY }}
         run: |
           chmod +x mvnw
           
-          IMAGE_URL="${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.DASHBOARD_NAME }}:${{ github.sha }}"
+          IMAGE_URL="${{ vars.GCP_GAR_LOCATION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ vars.GCP_REPOSITORY }}/${{ vars.GCP_DASHBOARD_NAME }}:${{ github.sha }}"
           
           ./mvnw spring-boot:build-image \
             -Dspring-boot.build-image.imageName=$IMAGE_URL \
@@ -77,9 +71,8 @@ jobs:
       # --allow-unauthenticated means the website is public and anyone on the internet can hit your API endpoints.
       # --memory=512Mi explicitly limits the container RAM.
       # env_vars:
-      #   SPRING_DATASOURCE_*: This injects the Aiven DB credentials into the Cloud Run container.
-      #     Local server will work as before.
-      #   JWT_SECRET: for signing JWT.
+      #   SPRING_PROFILES_ACTIVE: Activates gcp profile in Spring.
+      #   SPRING_DATASOURCE_*: Injects the database credentials into the Cloud Run container.
       #   BPL_JVM_THREAD_COUNT: Paketo has 250 by default, cut it down.
       #   BPL_JVM_HEAD_ROOM: Tells Paketo how much % of container memory should be reserved for non-Java things like OS.
       #   BPL_JAVA_NMT_ENABLED: Disable Paketo's memory tracking. Mainly for clean logs.
@@ -89,23 +82,26 @@ jobs:
         id: deploy
         uses: google-github-actions/deploy-cloudrun@v3
         with:
-          service: ${{ env.DASHBOARD_NAME }}
-          region: ${{ env.GAR_LOCATION }}
-          image: ${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.DASHBOARD_NAME }}:${{ github.sha }}
+          service: ${{ vars.GCP_DASHBOARD_NAME }}
+          region: ${{ vars.GCP_GAR_LOCATION }}
+          image: ${{ vars.GCP_GAR_LOCATION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ vars.GCP_REPOSITORY }}/${{ vars.GCP_DASHBOARD_NAME }}:${{ github.sha }}
           flags: '--allow-unauthenticated --memory=1Gi --cpu-boost --timeout=300'
           env_vars: |-
             SPRING_PROFILES_ACTIVE=gcp
-            BUILD=${{ secrets.BUILD }}
             SPRING_DATASOURCE_URL=${{ secrets.DB_URL }}
             SPRING_DATASOURCE_USERNAME=${{ secrets.DB_USERNAME }}
             SPRING_DATASOURCE_PASSWORD=${{ secrets.DB_PASSWORD }}
-            JWT_SECRET=${{ secrets.JWT_SECRET }}
-            EMAIL_HOST=${{ secrets.EMAIL_HOST }}
-            EMAIL_USERNAME=${{ secrets.EMAIL_USERNAME }}
-            EMAIL_PASSWORD=${{ secrets.EMAIL_PASSWORD }}
-            TEP_RESEND_APIKEY=${{ secrets.TEP_RESEND_APIKEY }}
             BPL_JVM_THREAD_COUNT=50
             BPL_JVM_HEAD_ROOM=25
             BPL_JAVA_NMT_ENABLED=false
             BPL_SPRING_CLOUD_BINDINGS_DISABLED=true
             JAVA_TOOL_OPTIONS=-XX:+UseSerialGC -Xss512k -XX:TieredStopAtLevel=1 -XX:ReservedCodeCacheSize=128M
+            BUILD=${{ vars.BUILD }}
+            JWT_SECRET=${{ secrets.JWT_SECRET }}
+            EMAIL_DEFAULT_PROVIDER=${{ vars.EMAIL_DEFAULT_PROVIDER }}
+            EMAIL_SENDER=${{ vars.EMAIL_SENDER }}
+            EMAIL_RESPONSE=${{ vars.EMAIL_RESPONSE }}
+            EMAIL_HOST=${{ secrets.EMAIL_HOST }}
+            EMAIL_USERNAME=${{ secrets.EMAIL_USERNAME }}
+            EMAIL_PASSWORD=${{ secrets.EMAIL_PASSWORD }}
+            TEP_RESEND_APIKEY=${{ secrets.TEP_RESEND_APIKEY }}
