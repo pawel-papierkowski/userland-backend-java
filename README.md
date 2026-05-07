@@ -43,6 +43,9 @@ You can think of it as baseline for any other project, as almost any project, sy
 - Other options: 
   - **System lockdown**: if turned on, only users with admin rights can call any endpoint.
   - **System history** for global events like lockdown. 
+- Other features:
+  - **Debug endpoint** `/api/checks` that allow testing various scenarios (access without/with authentication, error handling etc.) for frontend development. 
+  - Sending **emails** (JavaMailSender or Resend).
 
 ## GitHub config
 
@@ -102,7 +105,6 @@ You need to configure environment variables for your run configuration. Most var
     - `SPRING_DATASOURCE_USERNAME`=[NAME OF POSTGRESQL ACCOUNT]
     - `SPRING_DATASOURCE_PASSWORD`=[YOUR PASSWORD]
     - `SPRING_DOCKER_COMPOSE_ENABLED`=false
-
 
 ## Testing
 

@@ -7,12 +7,14 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.portfolio.userland.common.services.lock.LockService;
 import org.portfolio.userland.features.check.dto.CheckInfoResp;
 import org.portfolio.userland.features.check.services.CheckService;
 import org.portfolio.userland.swagger.annotations.ApiResponsesAuth;
 import org.portfolio.userland.swagger.annotations.ApiResponsesAuthPerm;
 import org.portfolio.userland.swagger.detail.common.InternalServerErrorProblemDetail;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -27,6 +29,7 @@ import org.springframework.web.bind.annotation.RestController;
  *   <li><code>GET /api/checks/must-be-logged</code> - needs to be logged to access this endpoint.</li>
  *   <li><code>GET /api/checks/must-be-admin</code> - needs to be logged as admin to access this endpoint.</li>
  *   <li><code>GET /api/checks/info</code> - basic information about system.</li>
+ *   <li><code>GET /api/checks/pretendWork</code> - does pretend work, will prevent another call if still working.</li>
  *   <li><code>GET /api/checks/exception</code> - code deliberately throws exception. Response returns proper problem detail.</li>
  * </ul>
  */
@@ -36,6 +39,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "Checks", description = "Endpoints for assessing state of server and help in frontend development.")
 public class CheckController {
   private final CheckService checkService;
+  private final LockService lockService;
 
   /**
    * Simply indicates this server is alive. No access restrictions: anyone can call this endpoint, unlogged or logged.
@@ -103,6 +107,23 @@ public class CheckController {
   public ResponseEntity<CheckInfoResp> info() {
     CheckInfoResp info = checkService.info();
     return new ResponseEntity<>(info, HttpStatus.OK);
+  }
+
+  /**
+   * Does pretend work.
+   * @return Response.
+   */
+  @GetMapping(value = "/pretendWork", produces = "application/json")
+  @Operation(summary = "Pretend work", description = "Will do pretend work for 30 seconds. If you call it too soon, will return 423 Locked.")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200", description = "Call successful.",
+          content = @Content(schema = @Schema(hidden = true))),
+      @ApiResponse(responseCode = "423", description = "Locked: same code is still running.",
+          content = @Content(mediaType = "application/problem+json",
+              schema = @Schema(implementation = ProblemDetail.class)))
+  })
+  public ResponseEntity<Void> pretendWork() {
+    return lockService.endpointWithLock("CheckLock_pretendWork", checkService::pretendWork);
   }
 
   /**

@@ -1,6 +1,6 @@
 package org.portfolio.userland.system.history.repositories;
 
-import org.portfolio.userland.system.history.entity.SystemHistory;
+import org.portfolio.userland.system.history.entities.SystemHistory;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

@@ -211,7 +211,7 @@ public class UserRegistrationApiTest extends BaseUserTest {
     // Assert that email (confirmation of account activate) was sent.
     await().atMost(Duration.ofSeconds(3)).untilAsserted(() -> {
       ArgumentCaptor<EmailReq> captor = ArgumentCaptor.forClass(EmailReq.class);
-      verify(emailService, times(1)).sendEmail(captor.capture());
+      verify(emailService, times(1)).queueEmail(captor.capture());
     });
   }
 
@@ -260,7 +260,7 @@ public class UserRegistrationApiTest extends BaseUserTest {
     // Assert that email (confirmation of account activate) was sent.
     await().atMost(Duration.ofSeconds(3)).untilAsserted(() -> {
       ArgumentCaptor<EmailReq> captor = ArgumentCaptor.forClass(EmailReq.class);
-      verify(emailService, times(1)).sendEmail(captor.capture());
+      verify(emailService, times(1)).queueEmail(captor.capture());
     });
   }
 

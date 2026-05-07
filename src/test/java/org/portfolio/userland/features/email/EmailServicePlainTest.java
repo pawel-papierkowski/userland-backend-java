@@ -49,7 +49,7 @@ public class EmailServicePlainTest extends BaseIntegrationTest {
         "<p>Content</p>");
 
     // Act: send email.
-    emailService.sendEmail(emailReq);
+    emailService.queueEmail(emailReq);
 
     // Assert: that email was actually sent.
     assertThat(mailpit)

@@ -18,6 +18,8 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CountDownLatch;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -124,6 +126,42 @@ public class CheckApiTest extends BaseCheckTest {
   }
 
   //
+
+  @Test
+  void lockPretendWorkEndpoint() throws Exception {
+    // Test that locking works.
+
+    // We use a CountDownLatch to ensure the second request only fires AFTER the first request has successfully entered
+    // the controller.
+    CountDownLatch startSecondRequestLatch = new CountDownLatch(1);
+
+    // Fire the first request asynchronously in a separate thread.
+    CompletableFuture<MvcResult> firstRequestFuture = CompletableFuture.supplyAsync(() -> {
+      try {
+        // Signal the main thread that the first request has started.
+        startSecondRequestLatch.countDown();
+
+        // This call will block this thread for 30 seconds.
+        return mockMvc.perform(get("/api/checks/pretendWork")).andReturn();
+      } catch (Exception ex) {
+        throw new RuntimeException(ex);
+      }
+    });
+
+    // Wait just a moment to ensure the first request has actually reached the LockProvider.
+    startSecondRequestLatch.await();
+    Thread.sleep(500); // 500ms is usually enough for the controller to acquire the lock
+
+    // Fire the second request on the main test thread.
+    MvcResult secondResult = mockMvc.perform(get("/api/checks/pretendWork")).andReturn();
+
+    // Assert the second request was rejected with 423 LOCKED.
+    assertThat(secondResult.getResponse().getStatus()).as("Second request should be blocked by ShedLock").isEqualTo(HttpStatus.LOCKED.value());
+
+    // Cleanup: Cancel the 30-second future so the test finishes immediately rather than waiting the full 30 seconds for
+    // the first request to finish.
+    firstRequestFuture.cancel(true);
+  }
 
   @Test
   void requestExceptionEndpoint() throws Exception {

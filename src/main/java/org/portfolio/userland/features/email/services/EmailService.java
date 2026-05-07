@@ -32,14 +32,21 @@ public class EmailService {
   private EnAppBuild build;
 
   /**
-   * Send email based on data in email request.
+   * Queue email to be sent later.
    * @param emailReq Email request.
    */
-  public void sendEmail(EmailReq emailReq) {
+  public void queueEmail(EmailReq emailReq) {
     emailReq = process(emailReq);
 
     // TODO: in future handle code below as background task with retries and other fancy features (message broker?).
+    sendEmail(emailReq);
+  }
 
+  /**
+   * Actually send email based on data in email request.
+   * @param emailReq Email request.
+   */
+  public void sendEmail(EmailReq emailReq) {
     // Determine correct provider.
     IntEmailProvider emailProvider = emailProviderFactory.getProvider(emailReq.provider());
     // Send email using that provider.

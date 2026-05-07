@@ -7,7 +7,7 @@ import org.portfolio.userland.features.user.exceptions.UserTokenMissingException
 import org.portfolio.userland.features.user.mappers.UserMapper;
 import org.portfolio.userland.features.user.mappers.UserProfileMapper;
 import org.portfolio.userland.features.user.repositories.*;
-import org.portfolio.userland.system.BaseService;
+import org.portfolio.userland.system.base.BaseService;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.time.LocalDateTime;

@@ -53,7 +53,7 @@ public class EmailServiceResendTest extends BaseIntegrationTest {
         "<p>Content</p>");
 
     // Act: simulate sending email.
-    emailService.sendEmail(emailReq);
+    emailService.queueEmail(emailReq);
 
     // Assert: that Resend API was called.
     verify(emailsMock, times(1)).send(any(CreateEmailOptions.class));

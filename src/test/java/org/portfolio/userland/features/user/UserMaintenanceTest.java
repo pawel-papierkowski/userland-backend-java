@@ -15,16 +15,15 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Testing code that is called via user scheduler.
+ * Testing user maintenance service.
  */
-public class UserSchedulerTest extends BaseUserTest {
+public class UserMaintenanceTest extends BaseUserTest {
   @Autowired
   private UserScheduler userScheduler;
 
   @AfterEach
   public void tearDown() {
-    // Clean up the database after every test so tests don't interfere with each other.
-    userRepository.deleteAll();
+    resetDatabase();
   }
 
   // //////////////////////////////////////////////////////////////////////////
@@ -34,12 +33,10 @@ public class UserSchedulerTest extends BaseUserTest {
   public void cleanPendingUsers() {
     // Arrange: add a bunch of random users ensuring each one has different creation time.
     clock.setFixedTime("2026-04-10T10:00:00Z");
-    userRepository.save(userFactory.genRandUser(EnUserStatus.PENDING)); // this user will be removed
+    userRepository.save(userFactory.genRandUser(EnUserStatus.PENDING)); // this user will be removed, it is PENDING and old enough
     User u2 = userRepository.save(userFactory.genRandUser(EnUserStatus.ACTIVE)); // this user will NOT be removed because it is not PENDING
     clock.setFixedTime("2026-04-10T22:00:00Z");
     User u3 = userRepository.save(userFactory.genRandUser(EnUserStatus.PENDING));
-    clock.setFixedTime("2026-04-11T10:00:00Z");
-    User u4 = userRepository.save(userFactory.genRandUser(EnUserStatus.PENDING));
 
     entityManager.flush();
     entityManager.clear();
@@ -49,12 +46,11 @@ public class UserSchedulerTest extends BaseUserTest {
     userScheduler.cleanExpiredUsers();
 
     // Assert: only some users should exist, rest is deleted.
-    assertThat(userRepository.count()).as("Count of all users is wrong").isEqualTo(3);
+    assertThat(userRepository.count()).as("Count of all users is wrong").isEqualTo(2);
     // Make sure correct users survived.
     List<User> users = userRepository.findAll();
-    assertThat(users.contains(u2)).as("User 2 (ACTIVE, never cleaned) should exist").isEqualTo(true);
+    assertThat(users.contains(u2)).as("User 2 (old enough but ACTIVE) should exist").isEqualTo(true);
     assertThat(users.contains(u3)).as("User 3 (PENDING, but too young) should exist").isEqualTo(true);
-    assertThat(users.contains(u4)).as("User 4 (PENDING, but too young) should exist").isEqualTo(true);
   }
 
   @Test
@@ -114,4 +110,6 @@ public class UserSchedulerTest extends BaseUserTest {
     UserJwt userJwt = userJwtRepository.findAll().getFirst();
     assertThat(userJwt.getUser().getId()).as("Wrong user id for JWT").isEqualTo(u3.getId());
   }
+
+  //
 }

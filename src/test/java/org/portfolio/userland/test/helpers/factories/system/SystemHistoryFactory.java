@@ -2,9 +2,9 @@ package org.portfolio.userland.test.helpers.factories.system;
 
 import lombok.RequiredArgsConstructor;
 import org.portfolio.userland.features.user.entities.User;
-import org.portfolio.userland.system.history.entity.EnHistoryWhat;
-import org.portfolio.userland.system.history.entity.EnHistoryWho;
-import org.portfolio.userland.system.history.entity.SystemHistory;
+import org.portfolio.userland.system.history.entities.EnHistoryWhat;
+import org.portfolio.userland.system.history.entities.EnHistoryWho;
+import org.portfolio.userland.system.history.entities.SystemHistory;
 import org.portfolio.userland.test.helpers.factories.BaseFactory;
 import org.springframework.stereotype.Service;
 

@@ -38,7 +38,7 @@ public class EmailServiceTest extends BaseIntegrationTest {
     // Act & Assert: simulate sending email, fail due to unknown provider.
     UnknownEmailProviderException actualEx = assertThrows(
         UnknownEmailProviderException.class,
-        () -> emailService.sendEmail(emailReq)
+        () -> emailService.queueEmail(emailReq)
     );
 
     // Assert: exception details.

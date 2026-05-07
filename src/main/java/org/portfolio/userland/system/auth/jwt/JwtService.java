@@ -13,7 +13,7 @@ import org.portfolio.userland.features.user.entities.User;
 import org.portfolio.userland.features.user.entities.UserPermission;
 import org.portfolio.userland.features.user.exceptions.UserInvalidStatusException;
 import org.portfolio.userland.features.user.exceptions.UserLockedException;
-import org.portfolio.userland.system.BaseService;
+import org.portfolio.userland.system.base.BaseService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 

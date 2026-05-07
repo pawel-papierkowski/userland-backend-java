@@ -78,7 +78,7 @@ public class UserSendEmailService {
   @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
   public void sendRegistrationEmail(UserRegisteredEvent event) {
     EmailReq emailReq = genEmailReq(event);
-    emailService.sendEmail(emailReq);
+    emailService.queueEmail(emailReq);
   }
 
   /**
@@ -118,7 +118,7 @@ public class UserSendEmailService {
   @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
   public void sendActivatedEmail(UserActivatedEvent event) {
     EmailReq emailReq = genEmailReq(event);
-    emailService.sendEmail(emailReq);
+    emailService.queueEmail(emailReq);
   }
 
   /**
@@ -146,7 +146,7 @@ public class UserSendEmailService {
   @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
   public void sendAlreadyRegisteredEmail(UserAlreadyRegisteredEvent event) {
     EmailReq emailReq = genEmailReq(event);
-    emailService.sendEmail(emailReq);
+    emailService.queueEmail(emailReq);
   }
 
   /**
@@ -179,9 +179,9 @@ public class UserSendEmailService {
   @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
   public void sendEmailChangeRequest(UserEmailChangeRequestEvent event) {
     EmailReq emailWarnReq = resolveEmailWarnReq(event);
-    emailService.sendEmail(emailWarnReq);
+    emailService.queueEmail(emailWarnReq);
     EmailReq emailLinkReq = resolveEmailLinkReq(event);
-    emailService.sendEmail(emailLinkReq);
+    emailService.queueEmail(emailLinkReq);
   }
 
   /**
@@ -240,9 +240,9 @@ public class UserSendEmailService {
   @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
   public void sendEmailChangeFail(UserEmailChangeFailEvent event) {
     EmailReq emailWarnOldReq = resolveEmailWarnOldReq(event);
-    emailService.sendEmail(emailWarnOldReq);
+    emailService.queueEmail(emailWarnOldReq);
     EmailReq emailWarnNewReq = resolveEmailWarnNewReq(event);
-    emailService.sendEmail(emailWarnNewReq);
+    emailService.queueEmail(emailWarnNewReq);
   }
 
   /**
@@ -283,7 +283,7 @@ public class UserSendEmailService {
   @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
   public void sendEmailChangeConfirm(UserEmailChangeConfirmEvent event) {
     EmailReq emailLinkReq = resolveEmailChangeConfirmReq(event);
-    emailService.sendEmail(emailLinkReq);
+    emailService.queueEmail(emailLinkReq);
   }
 
   /**
@@ -310,7 +310,7 @@ public class UserSendEmailService {
   @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
   public void sendPasswordResetRequest(UserPasswordResetRequestEvent event) {
     EmailReq emailReq = genEmailReq(event);
-    emailService.sendEmail(emailReq);
+    emailService.queueEmail(emailReq);
   }
 
   /**
@@ -350,7 +350,7 @@ public class UserSendEmailService {
   @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
   public void sendPasswordResetConfirm(UserPasswordResetConfirmEvent event) {
     EmailReq emailReq = genEmailReq(event);
-    emailService.sendEmail(emailReq);
+    emailService.queueEmail(emailReq);
   }
 
   /**
@@ -377,7 +377,7 @@ public class UserSendEmailService {
   @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
   public void sendAccountDeleteRequest(UserAccountDeleteRequestEvent event) {
     EmailReq emailReq = genEmailReq(event);
-    emailService.sendEmail(emailReq);
+    emailService.queueEmail(emailReq);
   }
 
   /**
@@ -417,7 +417,7 @@ public class UserSendEmailService {
   @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
   public void sendAccountDeleteConfirm(UserAccountDeleteConfirmEvent event) {
     EmailReq emailReq = genEmailReq(event);
-    emailService.sendEmail(emailReq);
+    emailService.queueEmail(emailReq);
   }
 
   /**

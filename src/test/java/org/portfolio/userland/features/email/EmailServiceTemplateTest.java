@@ -61,7 +61,7 @@ public class EmailServiceTemplateTest extends BaseIntegrationTest {
         "<p>Content</p>"); // filled, that means templating engine is skipped
 
     // Act: simulate sending email.
-    emailService.sendEmail(emailReq);
+    emailService.queueEmail(emailReq);
 
     // Assert: Verify the email was actually sent to the provider.
     // Note: due to app.main.build=PROD we do NOT add [TEST] prefix to subject.
@@ -89,7 +89,7 @@ public class EmailServiceTemplateTest extends BaseIntegrationTest {
         null); // null means system will try to use template to fill messageHtml
 
     // Act: simulate sending email.
-    emailService.sendEmail(emailReq);
+    emailService.queueEmail(emailReq);
 
     // Assert: Verify the email was actually sent to the provider.
     ArgumentCaptor<EmailReq> captor = ArgumentCaptor.forClass(EmailReq.class);
@@ -123,7 +123,7 @@ public class EmailServiceTemplateTest extends BaseIntegrationTest {
         null);
 
     // Act & Assert: simulate sending email, fail due to unknown template.
-    TemplateInputException actualEx = assertThrows(TemplateInputException.class, () -> emailService.sendEmail(emailReq));
+    TemplateInputException actualEx = assertThrows(TemplateInputException.class, () -> emailService.queueEmail(emailReq));
     assertThat(actualEx.getMessage()).as("Exception message is wrong").isEqualTo("Error resolving template [unknown], template might not exist or might not be accessible by any of the configured Template Resolvers");
 
     // Assert: Verify the email was NOT sent to the provider.

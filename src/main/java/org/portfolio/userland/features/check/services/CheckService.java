@@ -2,11 +2,12 @@ package org.portfolio.userland.features.check.services;
 
 import lombok.RequiredArgsConstructor;
 import org.portfolio.userland.features.check.dto.CheckInfoResp;
-import org.portfolio.userland.system.BaseService;
+import org.portfolio.userland.system.base.BaseService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 
 /**
@@ -37,5 +38,16 @@ public class CheckService extends BaseService {
         .version(systemVersion)
         .profile(build)
         .build();
+  }
+
+  /**
+   * Pretend to do some work.
+   */
+  public void pretendWork() {
+    try {
+      Thread.sleep(Duration.ofSeconds(30));
+    } catch (InterruptedException ex) {
+      throw new RuntimeException(ex);
+    }
   }
 }

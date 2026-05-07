@@ -2,7 +2,7 @@ package org.portfolio.userland.test.helpers.asserts;
 
 import lombok.RequiredArgsConstructor;
 import org.portfolio.userland.features.user.entities.User;
-import org.portfolio.userland.system.history.entity.SystemHistory;
+import org.portfolio.userland.system.history.entities.SystemHistory;
 import org.portfolio.userland.system.history.repositories.SystemHistoryRepository;
 import org.springframework.stereotype.Service;
 

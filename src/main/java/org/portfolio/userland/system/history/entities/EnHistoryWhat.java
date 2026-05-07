@@ -1,4 +1,4 @@
-package org.portfolio.userland.system.history.entity;
+package org.portfolio.userland.system.history.entities;
 
 /**
  * What caused system history event?
