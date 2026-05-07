@@ -1,13 +1,10 @@
 package org.portfolio.userland.gcp.services;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.cloud.tasks.v2.*;
 import com.google.protobuf.ByteString;
 import lombok.extern.slf4j.Slf4j;
 import org.portfolio.userland.features.email.dto.EmailReq;
 import org.portfolio.userland.features.email.services.EmailService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 /**
@@ -27,24 +24,7 @@ import org.springframework.stereotype.Service;
  */
 @Service
 @Slf4j
-public class GcpEmailService {
-  /** CloudTasksClient is not injected in local development environment, as GCP-related stuff is not used. */
-  @Autowired(required = false)
-  private CloudTasksClient cloudTasksClient;
-  private final ObjectMapper objectMapper = new ObjectMapper().findAndRegisterModules();
-
-  @Value("${app.gcp.general.url}")
-  private String serviceUrl;
-  @Value("${app.gcp.general.service-account}")
-  private String serviceAccount;
-
-  @Value("${app.gcp.general.project}")
-  private String projectId;
-  @Value("${app.gcp.general.location}")
-  private String locationId;
-  @Value("${app.gcp.email.queue}")
-  private String queueId;
-
+public class GcpEmailService extends BaseGcpService {
   /**
    * Queues email task for GCP Tasks.
    * @param emailReq Email request.

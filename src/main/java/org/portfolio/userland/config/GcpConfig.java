@@ -24,13 +24,13 @@ public class GcpConfig {
   public CloudTasksClient cloudTasksClient() throws IOException {
     // Configure aggressive retries for DEADLINE_EXCEEDED and UNAVAILABLE errors.
     RetrySettings retrySettings = RetrySettings.newBuilder()
-        .setInitialRetryDelay(Duration.ofMillis(500))
+        .setInitialRetryDelay(Duration.ofSeconds(1))
         .setRetryDelayMultiplier(2.0)
-        .setMaxRetryDelay(Duration.ofSeconds(5))
-        .setInitialRpcTimeout(Duration.ofSeconds(15))
-        .setRpcTimeoutMultiplier(1.5)
-        .setMaxRpcTimeout(Duration.ofSeconds(30))
-        .setTotalTimeout(Duration.ofSeconds(60)) // Give the whole process up to 60s to succeed
+        .setMaxRetryDelay(Duration.ofSeconds(10))
+        .setInitialRpcTimeout(Duration.ofSeconds(30))
+        .setRpcTimeoutMultiplier(2.0)
+        .setMaxRpcTimeout(Duration.ofSeconds(60))
+        .setTotalTimeout(Duration.ofSeconds(120)) // Give the whole process up to 60s to succeed
         .build();
 
     // Apply the retry settings to the createTask operation.
