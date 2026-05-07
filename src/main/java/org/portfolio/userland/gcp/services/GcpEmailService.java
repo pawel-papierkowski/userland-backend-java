@@ -57,7 +57,7 @@ public class GcpEmailService {
       String jsonPayload = objectMapper.writeValueAsString(emailReq);
       String fullServiceAccountEmail = serviceAccount+"@"+projectId+".iam.gserviceaccount.com";
 
-      log.trace("queueEmailTask(): Email to '${}' (template '${}') is queued. queuePath: '${}', fullServiceAccountEmail: '${}'",
+      log.trace("queueEmailTask(): Email to '{}' (template '{}') is queued. queuePath: '{}', fullServiceAccountEmail: '{}'",
           emailReq.getRecipients(), emailReq.template(), queuePath, fullServiceAccountEmail);
 
       // Build the HTTP request that GCP will make back to your app.

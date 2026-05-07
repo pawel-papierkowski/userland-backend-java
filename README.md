@@ -64,7 +64,7 @@ These values are visible and freely editable in GitHub panel.
   - **GCP_GAR_LOCATION**: Data center region.
   - **GCP_REPOSITORY**: GCP Artifact Registry Repository.
   - **GCP_DASHBOARD_NAME**: Name that backend will have in the Google Cloud Run dashboard.
-  - **GCP_EMAIL_QUEUE**: GCP Tasks queue name for queued emails.
+  - **GCP_TASKS_QUEUE_EMAIL**: GCP Cloud Tasks queue name for queued emails.
 - Email:
   - **EMAIL_DEFAULT_PROVIDER**: Default provider. Allowed values: `plain`, `resend`.
   - **EMAIL_SENDER**: Sender address. Example: `no-reply@your.company.domain.com`.

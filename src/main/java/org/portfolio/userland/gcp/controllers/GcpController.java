@@ -45,7 +45,7 @@ public class GcpController {
           content = @Content(schema = @Schema(hidden = true)))
   })
   public ResponseEntity<Void> sendEmail(@Valid @RequestBody EmailReq emailReq) {
-    log.trace("sendEmail(): Will try to send email to '${}'. Template: '${}'.",
+    log.trace("sendEmail(): Will try to send email to '{}'. Template: '{}'.",
         emailReq.getRecipients(), emailReq.template());
 
     try {
