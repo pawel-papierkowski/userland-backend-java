@@ -8,5 +8,6 @@ spring:
       - classpath:config/spring.yaml
       - classpath:config/logging.yaml
       - classpath:config/userland.yaml
+      - classpath:config/userland-gcp.yaml
       - classpath:config/userland-schedulers.yaml
       - classpath:config/userland-email.yaml

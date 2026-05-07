@@ -14,6 +14,9 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
+import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
+import org.springframework.security.web.util.matcher.OrRequestMatcher;
+import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.stereotype.Service;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.servlet.HandlerExceptionResolver;
@@ -28,6 +31,10 @@ import java.io.IOException;
  * CustomUserDetails customUserDetails = AuthHelper.resolveUserDetails();
  * </pre>
  * CustomUserDetails is null if not logged in.
+ * <p>Notes:</p>
+ * <ul>
+ *   <li>GCP endpoints are exempt from this filter, as they are secured separately via OIDC token.</li>
+ * </ul>
  */
 @Service
 @RequiredArgsConstructor
@@ -44,6 +51,17 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
   @Qualifier("handlerExceptionResolver")
   private final HandlerExceptionResolver handlerExceptionResolver;
+
+  /** Exempt endpoint matcher. */
+  private final RequestMatcher exemptMatcher = new OrRequestMatcher(
+      PathPatternRequestMatcher.withDefaults().matcher("/api/gcp/**")
+  );
+
+  @Override
+  protected boolean shouldNotFilter(@NonNull HttpServletRequest request) {
+    // Certain endpoints are exempt from this filter.
+    return exemptMatcher.matches(request);
+  }
 
   @Override
   protected void doFilterInternal(@NonNull HttpServletRequest request,

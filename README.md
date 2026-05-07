@@ -59,10 +59,12 @@ These values are visible and freely editable in GitHub panel.
 - General configuration:
   - **BUILD**: Informs about build of system. Allowed values: `PROD`, `STAGE`, `DEV`, `TEST` (corresponds to values in `EnAppBuild`).
 - Google Cloud:
+  - **GCP_URL**: Address of system backend hosted on GCP Cloud Run.
   - **GCP_SERVICE_ACC**: Name of service account for GCP project.
   - **GCP_GAR_LOCATION**: Data center region.
   - **GCP_REPOSITORY**: GCP Artifact Registry Repository.
   - **GCP_DASHBOARD_NAME**: Name that backend will have in the Google Cloud Run dashboard.
+  - **GCP_EMAIL_QUEUE**: GCP Tasks queue name for queued emails.
 - Email:
   - **EMAIL_DEFAULT_PROVIDER**: Default provider. Allowed values: `plain`, `resend`.
   - **EMAIL_SENDER**: Sender address. Example: `no-reply@your.company.domain.com`.

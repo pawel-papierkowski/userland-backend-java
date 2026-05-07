@@ -25,6 +25,11 @@ spring:
         enabled: false
       logging:
         enabled: false
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: https://accounts.google.com
 
 # Since it is portfolio project, it is fine to expose some Actuator endpoints.
 management:

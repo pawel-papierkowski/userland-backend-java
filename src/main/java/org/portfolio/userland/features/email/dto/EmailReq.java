@@ -35,4 +35,13 @@ public record EmailReq(
     Map<String, Object> params,
 
     String messageHtml
-) {}
+) {
+  /**
+   * Get list of recipients as single string.
+   * @return List of recipients separated by comma.
+   */
+  public String getRecipients() {
+    if (recipients == null || recipients.isEmpty()) return "";
+    return String.join(",", recipients);
+  }
+}

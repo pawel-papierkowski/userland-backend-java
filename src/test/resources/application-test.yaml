@@ -5,5 +5,6 @@ spring:
     import:
       - classpath:config/spring-test.yaml
       - classpath:config/userland-test.yaml
+      - classpath:config/userland-gcp-test.yaml
       - classpath:config/userland-email-test.yaml
       - classpath:config/userland-schedulers-test.yaml

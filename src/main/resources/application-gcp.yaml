@@ -8,3 +8,8 @@ spring:
         enabled: true
       logging:
         enabled: true
+
+app:
+  gcp:
+    email:
+      task: true # If true, use GCP Cloud Task for queueing emails.

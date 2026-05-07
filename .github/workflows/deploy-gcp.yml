@@ -6,13 +6,15 @@
 name: Deploy Docker Image to Cloud
 
 # Required variables:
+# - GCP_URL: Address of system backend hosted on GCP Cloud Run.
 # - GCP_SERVICE_ACC: Name of service account for GCP project.
 # - GCP_GAR_LOCATION: Data center region.
 # - GCP_REPOSITORY: GCP Artifact Registry Repository.
 # - GCP_DASHBOARD_NAME: Name that backend will have in the Google Cloud Run dashboard.
+# - GCP_TASKS_QUEUE_EMAIL: GCP Tasks queue name for queued emails.
 # Required secrets:
 # - GCP_PROJECT_ID: Identificator of project on Google Cloud.
-# - GCP_WORKLOAD_IDENTITY_PROVIDER: For WIP login on Google Cloud.
+# - GCP_WORKLOAD_IDENTITY_PROVIDER: For WIF login on Google Cloud.
 # See README.md for description of other needed variables/secrets.
 
 on:
@@ -98,6 +100,10 @@ jobs:
             JAVA_TOOL_OPTIONS=-XX:+UseSerialGC -Xss512k -XX:TieredStopAtLevel=1 -XX:ReservedCodeCacheSize=128M
             BUILD=${{ vars.BUILD }}
             JWT_SECRET=${{ secrets.JWT_SECRET }}
+            GCP_URL=${{ vars.GCP_URL }}
+            GCP_SERVICE_ACC=${{ vars.GCP_SERVICE_ACC }}
+            GCP_GAR_LOCATION=${{ vars.GCP_GAR_LOCATION }}
+            GCP_PROJECT_ID=${{ secrets.GCP_PROJECT_ID }}
             EMAIL_DEFAULT_PROVIDER=${{ vars.EMAIL_DEFAULT_PROVIDER }}
             EMAIL_SENDER=${{ vars.EMAIL_SENDER }}
             EMAIL_RESPONSE=${{ vars.EMAIL_RESPONSE }}

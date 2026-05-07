@@ -143,6 +143,30 @@ public class SecurityConfig {
   }
 
   /**
+   * This specific filter chain defines endpoints called internally by Google Cloud (e.g. Cloud Tasks).
+   * It requires a valid Google-signed OIDC token.
+   * @param http HTTP security data.
+   * @return Security filter chain.
+   */
+  @Bean
+  @Order(50) // Make sure it's before the defaultSecurityFilterChain
+  public SecurityFilterChain gcpInternalSecurityFilterChain(HttpSecurity http) {
+    http.csrf(AbstractHttpConfigurer::disable)
+        .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+        .securityMatcher("/api/gcp/**") // Match all internal GCP endpoints
+        .authorizeHttpRequests(requests -> requests.anyRequest().authenticated()
+        )
+        // Enable OAuth2 Resource Server to automatically validate the Bearer token against Google's public keys
+        .oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt -> {}))
+        .exceptionHandling(ex -> ex
+            .authenticationEntryPoint(problemDetailAuthenticationEntryPoint)
+            .accessDeniedHandler(problemDetailAccessDeniedHandler)
+        );
+
+    return http.build();
+  }
+
+  /**
    * This is default security chain. All endpoints here are expected to have JWT in header, otherwise request
    * will be rejected with 401 Unauthorized. No special permissions needed.
    * <p>You have access to auth data inside such endpoints:</p>

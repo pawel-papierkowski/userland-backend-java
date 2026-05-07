@@ -1,0 +1,12 @@
+# Configuration specific to UserLand project: GCP config.
+
+app:
+  gcp:
+    general: # general GCP config
+      url: ${GCP_URL} # The public URL of your Cloud Run service.
+      service-account: ${GCP_SERVICE_ACC} # Your service account. Ensure it has all needed permissions.
+      project: ${GCP_PROJECT_ID} # project id
+      location: ${GCP_GAR_LOCATION:europe-central2} # location (region)
+    email:
+      task: false # If true, use GCP Cloud Task for queueing emails.
+      queue: ${GCP_TASKS_QUEUE_EMAIL:} # task queue ID for emails

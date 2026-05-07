@@ -1,6 +1,7 @@
 package org.portfolio.userland.features.email.services;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.portfolio.userland.common.constants.EnAppBuild;
 import org.portfolio.userland.common.constants.GeneralConst;
@@ -8,6 +9,7 @@ import org.portfolio.userland.features.email.dto.EmailReq;
 import org.portfolio.userland.features.email.services.providers.EmailProviderFactory;
 import org.portfolio.userland.features.email.services.providers.IntEmailProvider;
 import org.portfolio.userland.features.user.services.UserSendEmailService;
+import org.portfolio.userland.gcp.services.GcpEmailService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
@@ -23,13 +25,18 @@ import java.util.Locale;
  */
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class EmailService {
+  private final GcpEmailService gcpEmailService;
   private final EmailProviderFactory emailProviderFactory;
   private final TemplateEngine templateEngine;
 
   /** System profile. */
   @Value("${app.main.build}")
   private EnAppBuild build;
+  /** If true, use GCP Cloud Task for queueing emails. */
+  @Value("${app.gcp.email.task}")
+  private Boolean canEmailTask;
 
   /**
    * Queue email to be sent later.
@@ -38,8 +45,9 @@ public class EmailService {
   public void queueEmail(EmailReq emailReq) {
     emailReq = process(emailReq);
 
-    // TODO: in future handle code below as background task with retries and other fancy features (message broker?).
-    sendEmail(emailReq);
+    // GCP Tasks ensure that emails won't be lost in case of failure.
+    if (canEmailTask) gcpEmailService.queueEmailTask(emailReq);
+    else sendEmail(emailReq); // just send synchronically
   }
 
   /**
@@ -53,8 +61,11 @@ public class EmailService {
     emailProvider.send(emailReq);
   }
 
+  //
+
   /**
-   * Process email request.
+   * Process email request. Determines subject and generates HTML of email based on template.
+   * Note: stuff like attachments, pictures etc. should be done in sendEmail(), as GCP Task can have at most 100KB.
    * @param emailReq Email request.
    * @return Modified email request.
    */

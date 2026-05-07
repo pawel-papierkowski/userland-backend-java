@@ -17,6 +17,7 @@ import org.portfolio.userland.system.lockdown.exceptions.SystemLockdownException
 import org.portfolio.userland.system.lockdown.exceptions.UserLockdownException;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
+import org.springframework.security.web.util.matcher.OrRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.stereotype.Service;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -30,6 +31,7 @@ import java.io.IOException;
  * <ul>
  *   <li>Ensure this filter happens after <code>JwtAuthFilter</code> in <code>SecurityConfig</code>.</li>
  *   <li>Users with admin permissions are exempt from lockdown.</li>
+ *   <li>GCP endpoints are exempt from lockdown.</li>
  * </ul>
  * @see JwtAuthFilter
  */
@@ -42,14 +44,18 @@ public class LockdownFilter extends OncePerRequestFilter {
   @Qualifier("handlerExceptionResolver")
   private final HandlerExceptionResolver handlerExceptionResolver;
 
-  /** Login endpoint matcher.*/
-  private final RequestMatcher loginMatcher = PathPatternRequestMatcher.withDefaults().matcher("/api/users/login");
+  /** Exempt endpoint matcher. */
+  private final RequestMatcher exemptMatcher = new OrRequestMatcher(
+      PathPatternRequestMatcher.withDefaults().matcher("/api/gcp/**"),
+      PathPatternRequestMatcher.withDefaults().matcher("/api/users/login")
+  );
 
   @Override
   protected boolean shouldNotFilter(@NonNull HttpServletRequest request) {
+    // Certain endpoints are exempt from this filter.
     // Login endpoint is exempt - lockdown is checked separately after confirming credentials of user and their
     // permissions. Reason is that we want to allow users with appropriate permissions to login even during lockdown.
-    return loginMatcher.matches(request);
+    return exemptMatcher.matches(request);
   }
 
   @Override

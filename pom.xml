@@ -6,7 +6,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>4.0.5</version>
+		<version>4.0.6</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 
@@ -126,6 +126,10 @@
 			<artifactId>spring-boot-testcontainers</artifactId>
 			<scope>test</scope>
 		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-oauth2-resource-server</artifactId>
+		</dependency>
 
 		<!-- Other Test. -->
 		<dependency>
@@ -187,6 +191,10 @@
 			<artifactId>spring-cloud-gcp-starter-logging</artifactId>
 			<scope>compile</scope>
 		</dependency>
+		<dependency>
+			<groupId>com.google.cloud</groupId>
+			<artifactId>google-cloud-tasks</artifactId>
+		</dependency>
 
 		<!-- JJWT. -->
 		<dependency>
@@ -231,8 +239,7 @@
 			<artifactId>shedlock-provider-jdbc-template</artifactId>
 			<version>7.7.0</version>
 		</dependency>
-		<!-- Transactional Email Provider called Resend -->
-		<dependency>
+		<dependency> <!-- Transactional Email Provider called Resend -->
 			<groupId>com.resend</groupId>
 			<artifactId>resend-java</artifactId>
 			<version>4.13.0</version>
@@ -241,8 +248,8 @@
 
 	<dependencyManagement>
 		<dependencies>
-			<!-- Google Cloud Bill of Materials (BOM) -->
-			<dependency>
+
+			<dependency> <!-- Google Cloud Bill of Materials (BOM) -->
 				<groupId>com.google.cloud</groupId>
 				<artifactId>spring-cloud-gcp-dependencies</artifactId>
 				<version>8.0.1</version>

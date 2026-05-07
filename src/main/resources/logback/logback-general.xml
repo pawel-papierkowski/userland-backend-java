@@ -4,7 +4,7 @@
   <logger name="org.portfolio.userland" level="INFO"/>
 
   <!-- Currently tracked stuff. -->
-  <logger name="org.portfolio.userland.features.user.services.UserRegisterService" level="TRACE"/>
-  <logger name="org.portfolio.userland.features.user.services.UserSendEmailService" level="TRACE"/>
+  <logger name="org.portfolio.userland.gcp" level="TRACE"/>
+  <logger name="org.portfolio.userland.features.email.services.EmailService" level="TRACE"/>
   <logger name="org.portfolio.userland.features.email.services.providers" level="TRACE"/>
 </included>
