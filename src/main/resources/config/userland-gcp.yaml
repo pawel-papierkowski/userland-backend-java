@@ -9,4 +9,4 @@ app:
       location: ${GCP_GAR_LOCATION} # location (region)
     email:
       task: false # If true, use GCP Cloud Task for queueing emails.
-      queue: ${GCP_TASKS_QUEUE_EMAIL:} # task queue ID for emails
+      queue: ${GCP_TASKS_QUEUE_EMAIL} # task queue ID for emails

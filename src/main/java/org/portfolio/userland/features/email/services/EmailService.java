@@ -18,7 +18,7 @@ import org.thymeleaf.context.Context;
 import java.util.Locale;
 
 /**
- * Email service that handles arbitrary email. See intermediate <code>***EmailService</code> beans (for example
+ * Email service that handles arbitrary email. See intermediate <code>XxxEmailService</code> beans (for example
  * <code>UserEmailService</code>) for usage.
  * <p>Note: It should be called asynchronously via event.</p>
  * @see UserSendEmailService
@@ -43,6 +43,9 @@ public class EmailService {
    * @param emailReq Email request.
    */
   public void queueEmail(EmailReq emailReq) {
+    log.trace("queueEmail() called. Recipients: '{}', template: {}.",
+        emailReq.getRecipients(), emailReq.template());
+
     emailReq = process(emailReq);
 
     // GCP Tasks ensure that emails won't be lost in case of failure.
@@ -55,6 +58,9 @@ public class EmailService {
    * @param emailReq Email request.
    */
   public void sendEmail(EmailReq emailReq) {
+    log.trace("sendEmail() called. Recipients: '{}', template: {}.",
+        emailReq.getRecipients(), emailReq.template());
+
     // Determine correct provider.
     IntEmailProvider emailProvider = emailProviderFactory.getProvider(emailReq.provider());
     // Send email using that provider.
