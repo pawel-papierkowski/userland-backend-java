@@ -30,7 +30,7 @@ public class GcpConfig {
         .setInitialRpcTimeout(Duration.ofSeconds(30))
         .setRpcTimeoutMultiplier(2.0)
         .setMaxRpcTimeout(Duration.ofSeconds(60))
-        .setTotalTimeout(Duration.ofSeconds(120)) // Give the whole process up to 60s to succeed
+        .setTotalTimeout(Duration.ofSeconds(120)) // Give the whole process more time to succeed.
         .build();
 
     // Apply the retry settings to the createTask operation.
@@ -50,11 +50,11 @@ public class GcpConfig {
   }
 
   /**
-   * Fake CloudTasksClient. Will not do anything, but app won't crash.
+   * Fake CloudTasksClient for local development and tests. Will not do anything, but app won't crash.
    * @return Fake CloudTasksClient.
    */
   @Bean
-  @Profile("!gcp") // for local development, won't be used, but app would crash
+  @Profile("!gcp")
   public CloudTasksClient fakeCloudTasksClient() {
     return null;
   }

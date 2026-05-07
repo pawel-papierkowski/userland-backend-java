@@ -19,8 +19,8 @@ public class GcpService extends BaseGcpService {
     // Make a dummy, lightweight network call to force DNS resolution and TCP/TLS handshakes
     // BEFORE any user traffic hits the server.
     try {
-      log.trace("Pre-warming Cloud Tasks gRPC connection...");
       String queuePath = QueueName.of(projectId, locationId, queueId).toString();
+      log.trace("Pre-warming Cloud Tasks gRPC connection. queuePath: {}", queuePath);
       // A simple "getQueue" call forces the networking layer to initialize.
       cloudTasksClient.getQueue(queuePath);
       log.trace("Cloud Tasks connection established.");

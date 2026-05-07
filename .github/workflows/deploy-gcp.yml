@@ -104,7 +104,7 @@ jobs:
             GCP_SERVICE_ACC=${{ vars.GCP_SERVICE_ACC }}
             GCP_GAR_LOCATION=${{ vars.GCP_GAR_LOCATION }}
             GCP_PROJECT_ID=${{ secrets.GCP_PROJECT_ID }}
-            GCP_TASKS_QUEUE_EMAIL=${{ secrets.GCP_TASKS_QUEUE_EMAIL }}
+            GCP_TASKS_QUEUE_EMAIL=${{ vars.GCP_TASKS_QUEUE_EMAIL }}
             EMAIL_DEFAULT_PROVIDER=${{ vars.EMAIL_DEFAULT_PROVIDER }}
             EMAIL_SENDER=${{ vars.EMAIL_SENDER }}
             EMAIL_RESPONSE=${{ vars.EMAIL_RESPONSE }}
