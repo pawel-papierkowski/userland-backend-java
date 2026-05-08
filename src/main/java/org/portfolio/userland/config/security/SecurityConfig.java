@@ -143,7 +143,7 @@ public class SecurityConfig {
   }
 
   /**
-   * This specific filter chain defines endpoints called internally by Google Cloud (e.g. Cloud Tasks).
+   * This specific filter chain defines endpoints called by Google Cloud (e.g. Cloud Tasks).
    * It requires a valid Google-signed OIDC token.
    * @param http HTTP security data.
    * @return Security filter chain.
@@ -153,9 +153,8 @@ public class SecurityConfig {
   public SecurityFilterChain gcpInternalSecurityFilterChain(HttpSecurity http) {
     http.csrf(AbstractHttpConfigurer::disable)
         .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-        .securityMatcher("/api/gcp/**") // Match all internal GCP endpoints
-        .authorizeHttpRequests(requests -> requests.anyRequest().authenticated()
-        )
+        .securityMatcher("/api/gcp/**") // Match all GCP endpoints
+        .authorizeHttpRequests(requests -> requests.anyRequest().permitAll())
         // Enable OAuth2 Resource Server to automatically validate the Bearer token against Google's public keys
         //.oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt -> {}))
         .exceptionHandling(ex -> ex

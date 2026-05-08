@@ -39,6 +39,7 @@ public class GcpEmailService extends BaseGcpService {
 
       log.trace("queueEmailTask(): Email to '{}' (template '{}') is queued. queuePath: '{}', fullServiceAccountEmail: '{}'",
           emailReq.getRecipients(), emailReq.template(), queuePath, fullServiceAccountEmail);
+      log.trace("queueEmailTask(): Payload:\n{}", jsonPayload);
 
       // Build the HTTP request that GCP will make back to your app.
       HttpRequest httpRequest = HttpRequest.newBuilder()
