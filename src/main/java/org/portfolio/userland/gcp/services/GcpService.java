@@ -1,5 +1,6 @@
 package org.portfolio.userland.gcp.services;
 
+import com.google.auth.oauth2.ComputeEngineCredentials;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.auth.oauth2.ServiceAccountCredentials;
 import com.google.auth.oauth2.UserCredentials;
@@ -47,8 +48,11 @@ public class GcpService extends BaseGcpService {
     } else if (credentials instanceof UserCredentials) {
       String clientId = ((UserCredentials) credentials).getClientId();
       log.debug("GCP currently running as User Account: {}", clientId);
+    } else if (credentials instanceof ComputeEngineCredentials) {
+      String accountId = ((ComputeEngineCredentials) credentials).getAccount();
+      log.debug("GCP currently running as compute engine: {}", accountId);
     } else {
-      log.debug("GCP currently running as an compute engine default. Type of credential: {}.",
+      log.debug("GCP currently running as an unknown credential type. Type of credential: {}.",
           credentials.getClass().getName());
     }
   }

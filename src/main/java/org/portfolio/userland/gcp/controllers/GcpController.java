@@ -31,12 +31,12 @@ public class GcpController {
   private final EmailService emailService;
 
   /**
-   * Actually sends email.
+   * Actually sends email. Available only to GCP Tasks.
    * @param emailReq Email request.
    * @return Response.
    */
   @PostMapping(value = "/email/send", produces = "application/json")
-  @Operation(summary = "Send email", description = "Actually sends email.")
+  @Operation(summary = "Send email", description = "Actually sends email. Available only to GCP Tasks.")
   @ApiResponsesAuthPerm
   @ApiResponses(value = {
       @ApiResponse(responseCode = "200", description = "Email sent successfully.",
@@ -44,7 +44,7 @@ public class GcpController {
       @ApiResponse(responseCode = "500", description = "Sending email failed.",
           content = @Content(schema = @Schema(hidden = true)))
   })
-  public ResponseEntity<Void> sendEmail(@Valid @RequestBody EmailReq emailReq) {
+  public ResponseEntity<Void> processTaskEmailSend(@Valid @RequestBody EmailReq emailReq) {
     log.trace("sendEmail(): Will try to send email to '{}'. Template: '{}'.",
         emailReq.getRecipients(), emailReq.template());
 
