@@ -87,7 +87,12 @@ jobs:
           service: ${{ vars.GCP_DASHBOARD_NAME }}
           region: ${{ vars.GCP_GAR_LOCATION }}
           image: ${{ vars.GCP_GAR_LOCATION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ vars.GCP_REPOSITORY }}/${{ vars.GCP_DASHBOARD_NAME }}:${{ github.sha }}
-          flags: '--allow-unauthenticated --memory=1Gi --cpu-boost --timeout=300'
+          flags: >-
+            --allow-unauthenticated 
+            --memory=1Gi
+            --cpu-boost
+            --timeout=300
+            --service-account=${{ vars.GCP_SERVICE_ACC }}@${{ secrets.GCP_PROJECT_ID }}.iam.gserviceaccount.com
           env_vars: |-
             SPRING_PROFILES_ACTIVE=gcp
             SPRING_DATASOURCE_URL=${{ secrets.DB_URL }}
