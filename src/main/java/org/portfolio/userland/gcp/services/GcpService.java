@@ -48,7 +48,8 @@ public class GcpService extends BaseGcpService {
       String clientId = ((UserCredentials) credentials).getClientId();
       log.debug("GCP currently running as User Account: {}", clientId);
     } else {
-      log.debug("GCP currently running as an compute engine default.");
+      log.debug("GCP currently running as an compute engine default. Type of credential: {}.",
+          credentials.getClass().getName());
     }
   }
 }
