@@ -465,7 +465,7 @@ public class UserSendEmailTest extends BaseUserTest {
       Map<String, Object> params = Maps.newHashMap();
       params.put("systemName", systemName);
       params.put("username", "Jane");
-      params.put("accountDeleteLink", "https://pawel-papierkowski.github.io/frontend-userland-vue/accountDelete?token=nDVAZXAEt1VvrYrazvxmU8yruiur9cJg");
+      params.put("accountDeleteLink", frontendWww+"vue/accountDelete?token=nDVAZXAEt1VvrYrazvxmU8yruiur9cJg");
       params.put("accountDeleteTokenExpires", 30L);
       EmailReq expectedEmailReq = new EmailReq(
           null,
