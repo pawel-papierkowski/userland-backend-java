@@ -154,7 +154,7 @@ public class SecurityConfig {
     http.csrf(AbstractHttpConfigurer::disable)
         .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .securityMatcher("/api/gcp/**") // Match all GCP endpoints
-        .authorizeHttpRequests(requests -> requests.anyRequest().permitAll())
+        .authorizeHttpRequests(requests -> requests.anyRequest().authenticated())
         // Enable OAuth2 Resource Server to automatically validate the Bearer token against Google's public keys
         .oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt -> {}))
         .exceptionHandling(ex -> ex
