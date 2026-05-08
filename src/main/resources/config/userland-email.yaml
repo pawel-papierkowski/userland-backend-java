@@ -27,8 +27,8 @@ spring:
 
 app:
   email:
-    sender: ${EMAIL_SENDER:onboarding@resend.dev}
-    response: ${EMAIL_RESPONSE:onboarding@resend.dev}
+    sender: ${EMAIL_SENDER:no-reply@pawelpapierkowski.net.pl}
+    response: ${EMAIL_RESPONSE:support@pawelpapierkowski.net.pl}
     providers:
       default: ${EMAIL_DEFAULT_PROVIDER:resend} # default provider
       resend:

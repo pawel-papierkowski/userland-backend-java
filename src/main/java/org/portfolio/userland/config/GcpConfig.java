@@ -13,10 +13,8 @@ import java.io.IOException;
 @Configuration
 public class GcpConfig {
   /**
-   * Provides the CloudTasksClient bean.
-   * Spring will automatically call close() on this bean when the application shuts down
-   * because CloudTasksClient implements AutoCloseable.
-   * @return The configured CloudTasksClient.
+   * Provides the <code>CloudTasksClient</code> bean.
+   * @return The configured <code>CloudTasksClient</code>.
    * @throws IOException If the client fails to initialize (e.g., missing credentials).
    */
   @Bean
@@ -44,14 +42,16 @@ public class GcpConfig {
         .build();
 
     // This uses Application Default Credentials (ADC) automatically.
-    // Locally, it uses your `gcloud auth application-default login` credentials.
-    // On GCP Cloud Run, it automatically uses your Service Account.
+    // Locally, it uses `gcloud auth application-default login` credentials.
+    // On GCP Cloud Run, it automatically uses Service Account.
     return CloudTasksClient.create(settings);
   }
 
   /**
-   * Fake CloudTasksClient for local development and tests. Will not do anything, but app won't crash.
-   * @return Fake CloudTasksClient.
+   * Fake <code>CloudTasksClient</code> for local development and tests. Will not do anything, but app won't crash.
+   * In this way you do not have to install and configure GCloud CLI.
+   * Note: everything that uses <code>cloudTasksClient</code> needs to check for null.
+   * @return Fake <code>CloudTasksClient</code>.
    */
   @Bean
   @Profile("!gcp")
