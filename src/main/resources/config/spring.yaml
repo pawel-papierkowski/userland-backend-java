@@ -16,6 +16,9 @@ spring:
         jdbc:
           batch_size: 20
         default_batch_fetch_size: 20
+  jackson:
+    deserialization:
+      accept-single-value-as-array: true
   flyway:
     schemas: aux
     table: flyway_schema_history

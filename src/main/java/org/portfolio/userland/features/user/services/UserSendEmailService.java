@@ -457,18 +457,19 @@ public class UserSendEmailService {
    * @return Email request.
    */
   private EmailReq genEmailReq(BaseUserEvent event, String emailTo, String template, String subject, Map<String, Object> params) {
-    return new EmailReq(
-        null,
-        event.lang(),
-        emailSender,
-        List.of(emailTo),
-        List.of(),
-        List.of(),
-        emailResponse,
-        subject,
-        template,
-        params,
-        null);
+    return EmailReq.builder()
+        .provider(null)
+        .lang(event.lang())
+        .sender(emailSender)
+        .recipients(List.of(emailTo))
+        .recipientsCc(List.of())
+        .recipientsBcc(List.of())
+        .replyTo(emailResponse)
+        .subject(subject)
+        .template(template)
+        .params(params)
+        .messageHtml(null)
+        .build();
   }
 
   /**
