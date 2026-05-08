@@ -156,7 +156,7 @@ public class SecurityConfig {
         .securityMatcher("/api/gcp/**") // Match all GCP endpoints
         .authorizeHttpRequests(requests -> requests.anyRequest().permitAll())
         // Enable OAuth2 Resource Server to automatically validate the Bearer token against Google's public keys
-        //.oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt -> {}))
+        .oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt -> {}))
         .exceptionHandling(ex -> ex
             .authenticationEntryPoint(problemDetailAuthenticationEntryPoint)
             .accessDeniedHandler(problemDetailAccessDeniedHandler)
