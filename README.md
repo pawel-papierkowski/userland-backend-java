@@ -96,10 +96,12 @@ In your IDE, ensure Java 25 Temurin is installed and selected.
 You need to configure environment variables for your run configuration. Most variables have defaults, but some must be declared.
 
 - Necessary **environment variables** (without them project will fail to start or won't work properly):
-  - `EMAIL_HOST`
-  - `EMAIL_USERNAME`
-  - `EMAIL_PASSWORD`
-  - If default email provider is `resend`, you need proper api key in `TEP_RESEND_APIKEY`.
+  - For email provider `plain` variables below are used, and you need to fill them with correct data (even if you do not use `plain`):
+    - `EMAIL_HOST`
+    - `EMAIL_USERNAME`
+    - `EMAIL_PASSWORD`
+  - If default email provider is `resend`:
+    - you need proper api key in `TEP_RESEND_APIKEY`.
   - `JWT_SECRET` (has no default value)
 - Optional **environment variables**:
   - If you want to use real database instead of database in container, add in run config:
@@ -124,18 +126,20 @@ This project uses **JaCoCo**. It is already configured in `pom.xml`.
 ## Deployment
 
 This app uses (free tier for all of these):
-- **Google Cloud Run** for backend hosting.
+- **Google Cloud**:
+  - **Run** for backend hosting.
+  - **Tasks** for email send requests hosting. Note: in local development emails are sent as is without using Cloud Tasks.
 - **Aiven** for PostgreSQL database hosting.
 - **Resend** (or JavaMailSender) for email services.
 
 **UserLand** app is deployed via **GitHub Actions**.
 
-UserLand uses *pawel.papierkowski.portfolio@gmail.com* address as sender in emails sent by system.
+UserLand uses *support@pawelpapierkowski.net.pl* address as sender in emails sent by system.
 
 ## Design notes
 
 - All date/time fields are **without timezone**. Frontend should convert it properly to show date/time on screen in local timezone.
-- **Kafka** was considered for demonstration purposes (email retries), but not used since it won't work well with restrictions typical of Google Cloud free tier, where this project lives. GCP is serverless, but Kafka would require system to be up at all times.
+- **Kafka** was considered for demonstration purposes (email retries), but not used since it won't work well with restrictions typical of Google Cloud free tier, where this project lives. GCP is serverless, but Kafka would require system to be up at all times. So I decided on **GCP Cloud Tasks**. 
 
 ## Endpoints
 

@@ -53,6 +53,7 @@ public class GcpController {
       emailService.sendEmail(emailReq);
       return new ResponseEntity<>(HttpStatus.OK);
     } catch (Exception ex) {
+      log.error("Exception thrown!", ex);
       // Returning 5xx tells GCP the task failed.
       // Cloud Tasks will automatically wait (using exponential backoff) and call this endpoint again later.
       return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
