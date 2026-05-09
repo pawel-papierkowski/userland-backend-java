@@ -1,6 +1,6 @@
 # USERLAND-BACKEND-JAVA
 
-This is simple **backend project** demonstrating basics of modern Java and Spring Boot focused on pure user management. It was made from scratch using Spring Initializr. It is intended to be used with **frontend project** that I will write later.
+This is simple **backend project** demonstrating basics of modern Java and Spring Boot project focused on pure user management. It was made from scratch using Spring Initializr. It is intended to be used with **frontend project** that I will write later.
 
 Project is actively developed and most functionality is already implemented.
 
@@ -16,11 +16,11 @@ Link to source code: https://github.com/pawel-papierkowski/userland-backend-java
 
 Used IDE: **IntelliJ IDEA**
 
-## Functionality
+### Functionality
 
 This project fully manages user. This is where name **UserLand** comes from.
 
-You can think of it as baseline for any other project, as almost any project, system or application will need user accounts.
+You can think of it as baseline for other projects, as almost any project, system or application will need user accounts.
 
 ### Features
 
@@ -36,9 +36,10 @@ You can think of it as baseline for any other project, as almost any project, sy
 - Handling **user permissions** (standard user vs panel admin operator).
 - **Admin user**:
   - Viewing **table of users**, including pagination and filtration.
-  - Viewing data of selected user.
+  - Viewing data of selected user (both base user and profile).
     - Editing data of user. 
-    - Viewing user **history**. 
+    - Viewing user **config**, **tokens**, **JWTs**, **history** and **permissions**.
+    - Only admin can edit **config**/**permissions** records. **JWTs** can be only removed.
     - User **lock/unlock**.
 - Other options: 
   - **System lockdown**: if turned on, only users with admin rights can call any endpoint.
@@ -51,7 +52,7 @@ You can think of it as baseline for any other project, as almost any project, sy
 
 System uses variables and secrets defined in GitHub.
 
-Some of these have default values in YAML configuration, but it is recommended to override everything. Default values are strictly for local development and even then sensitive values like keys and passwords should be in run configuration in your IDE. YAML configuration contains only placeholder values.
+Some of these have default values in YAML configuration, but you must override everything, especially keys, secrets and passwords. Default values are strictly for local development and even then sensitive values like keys and passwords should be in run configuration in your IDE. YAML configuration contains only placeholder values.
 
 ### Repository Variables
 These values are visible and freely editable in GitHub panel.
@@ -95,16 +96,17 @@ In your IDE, ensure Java 25 Temurin is installed and selected.
 
 You need to configure environment variables for your run configuration. Most variables have defaults, but some must be declared.
 
-- Necessary **environment variables** (without them project will fail to start or won't work properly):
-  - For email provider `plain` variables below are used, and you need to fill them with correct data (even if you do not use `plain`):
-    - `EMAIL_HOST`
-    - `EMAIL_USERNAME`
-    - `EMAIL_PASSWORD`
-  - If default email provider is `resend`:
-    - you need proper api key in `TEP_RESEND_APIKEY`.
-  - `JWT_SECRET` (has no default value)
+- Necessary **environment variables** (without them project will fail to start):
+  - None! In theory, you can run app without custom variables. But some things won't work properly (mainly email service). 
+- Needed **environment variables** (without them some parts of project won't work properly):
+  - If you use email provider `plain`:
+    - You must fill these variables: `EMAIL_HOST`, `EMAIL_USERNAME`, `EMAIL_PASSWORD`.
+    - Keep in mind `plain` won't work on GCP Cloud Run - Google will block it.
+  - If you use TEP Resend (email provider `resend`):
+    - You need proper api key in `TEP_RESEND_APIKEY` provided by Resend.
+    - You will also need custom domain registered in Resend.
 - Optional **environment variables**:
-  - If you want to use real database instead of database in container, add in run config:
+  - If you want to use real database (like local PostgreSQL) instead of database in container, add in run config:
     - `SPRING_DATASOURCE_URL`=jdbc:postgresql://[URL]
     - `SPRING_DATASOURCE_USERNAME`=[NAME OF POSTGRESQL ACCOUNT]
     - `SPRING_DATASOURCE_PASSWORD`=[YOUR PASSWORD]

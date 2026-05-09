@@ -3,7 +3,7 @@
 # - Set up Java 25 Temurin.
 # - Compile docker image on GitHub.
 # - Upload image as artifact to Google Cloud. It will be automatically run once deployed.
-name: Deploy Docker Image to Cloud
+name: Deploy UserLand backend to GCP
 
 # Required variables:
 # - GCP_URL: Address of system backend hosted on GCP Cloud Run.
@@ -22,9 +22,13 @@ on:
   # without automatic run every time you push code on GitHub.
   workflow_dispatch:
 
+concurrency: # How to act if someone runs two deploys at same time.
+  group: "pages"
+  cancel-in-progress: true # cancels previous deploy, ensuring only one runs at same time
+
 jobs:
   deploy:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest # uses a fresh Ubuntu VM
     permissions:
       contents: 'read'
       id-token: 'write' # This is required for requesting the OIDC JWT.

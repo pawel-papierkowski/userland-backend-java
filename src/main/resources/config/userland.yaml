@@ -5,7 +5,7 @@ app:
     name: "UserLand"
     build: ${BUILD:DEV} # so system knows if it is running on production or in other environment
     version: "@project.version@" # use version from pom.xml file
-    www: "https://pawelpapierkowski.net.pl/frontend-userland-"
+    www: "https://pawelpapierkowski.net.pl/userland-frontend-" # you need to attach suffix like 'vue' yourself
   user:
     pending:
       removal-delay: 48 # when to remove pending users since creation, in hours

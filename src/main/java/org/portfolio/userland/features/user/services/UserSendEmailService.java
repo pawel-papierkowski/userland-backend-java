@@ -507,7 +507,7 @@ public class UserSendEmailService {
    * Resolve WWW address of frontend. It consists of base www address (frontendWww) and suffix indicating what frontend
    * framework was used.
    * @param frontend Used frontend framework.
-   * @return WWW address of frontend. Example: https://pawel-papierkowski.github.io/frontend-userland-vue
+   * @return WWW address of frontend. Example: https://pawelpapierkowski.net.pl/userland-frontend-vue
    */
   private String resolveWww(EnFrontendFramework frontend) {
     String suffix = frontend == null ? UserConst.FRONTEND_DEF.name().toLowerCase() : frontend.name().toLowerCase();
