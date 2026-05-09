@@ -10,7 +10,7 @@ spring:
     password: ${EMAIL_PASSWORD:APP_PASSWORD} # real App password should be in secrets provided by GitHub
     protocol: smtp
     default-encoding: UTF-8
-    test-connection: true # If true, fail fast on boot if credentials are bad.
+    test-connection: false # If true, fail fast on boot if credentials are bad. Note: doesn't work well if we have lazy-initialization:true.
     properties:
       mail:
         smtp:
