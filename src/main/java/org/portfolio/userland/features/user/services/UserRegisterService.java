@@ -72,8 +72,7 @@ public class UserRegisterService extends BaseUserService {
 
     User user = createUserData(userRegisterReq, nowAt);
     user = userRepository.save(user);
-    UserProfile userProfile = new UserProfile();
-    userProfile.setUser(user);
+    UserProfile userProfile = createUserProfileData(userRegisterReq, user);
     userProfileRepository.save(userProfile);
 
     if (userRegisterReq.activate()) {
@@ -113,6 +112,19 @@ public class UserRegisterService extends BaseUserService {
       user.addHistory(createHistoryEvent(nowAt, EnUserHistoryWhat.ACTIVATE, ""));
     } else user.addToken(createTokenData(nowAt, EnUserTokenType.ACTIVATE));
     return user;
+  }
+
+  /**
+   * Create and fill user profile data.
+   * @param userRegisterReq User registration request.
+   * @return User profile data.
+   */
+  private UserProfile createUserProfileData(UserRegisterReq userRegisterReq, User user) {
+    UserProfile userProfile = new UserProfile();
+    userProfile.setUser(user);
+    userProfile.setName(userRegisterReq.name());
+    userProfile.setSurname(userRegisterReq.surname());
+    return userProfile;
   }
 
   // //////////////////////////////////////////////////////////////////////////

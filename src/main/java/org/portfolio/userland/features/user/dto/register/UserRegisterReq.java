@@ -45,6 +45,16 @@ public record UserRegisterReq(
     @Schema(description = "Short language code.", example = "en")
     String lang,
 
+    // USER PROFILE DATA (optional)
+
+    @Schema(description = "Name of user.", example = "John")
+    String name,
+
+    @Schema(description = "Surname of user.", example = "Smith")
+    String surname,
+
+    // SPECIAL
+
     @Schema(description = "If true, will activate user without bothering with registration email. Ignored on PROD. Can be null, will default to false.", example = "false")
     Boolean activate,
 

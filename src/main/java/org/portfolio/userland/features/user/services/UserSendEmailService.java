@@ -105,7 +105,7 @@ public class UserSendEmailService {
    */
   private String resolveActivationLink(EnFrontendFramework frontend, String activationToken) {
     // Note it is linking to frontend - actual backend endpoint for user activation will be called by frontend.
-    return resolveWww(frontend) + "/activate?token="+activationToken;
+    return resolveWww(frontend) + "/user/activate?token="+activationToken;
   }
 
   //
@@ -222,7 +222,7 @@ public class UserSendEmailService {
    */
   private String resolveEmailChangeLink(EnFrontendFramework frontend, String emailChangeToken) {
     // Note it is linking to frontend - actual backend email change endpoint will be called by frontend.
-    return resolveWww(frontend) + "/emailChange?token="+emailChangeToken;
+    return resolveWww(frontend) + "/user/emailChange?token="+emailChangeToken;
   }
 
   //
@@ -337,7 +337,7 @@ public class UserSendEmailService {
    */
   private String resolvePasswordResetLink(EnFrontendFramework frontend, String passwordResetToken) {
     // Note it is linking to frontend - actual backend password reset endpoint will be called by frontend.
-    return resolveWww(frontend) + "/passwordReset?token="+passwordResetToken;
+    return resolveWww(frontend) + "/user/passwordReset?token="+passwordResetToken;
   }
 
   //
@@ -404,7 +404,7 @@ public class UserSendEmailService {
    */
   private String resolveAccountDeleteLink(EnFrontendFramework frontend, String accountDeleteToken) {
     // Note it is linking to frontend - actual backend account delete endpoint will be called by frontend.
-    return resolveWww(frontend) + "/accountDelete?token="+accountDeleteToken;
+    return resolveWww(frontend) + "/user/accountDeletion?token="+accountDeleteToken;
   }
 
   //
@@ -500,7 +500,7 @@ public class UserSendEmailService {
    */
   private String resolveLoginLink(EnFrontendFramework frontend) {
     // Note it is linking to frontend - actual backend login endpoint will be called by frontend.
-    return resolveWww(frontend) + "/login";
+    return resolveWww(frontend) + "/user/login";
   }
 
   /**

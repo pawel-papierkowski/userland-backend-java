@@ -53,7 +53,7 @@ public class UserWebTest extends BaseWebTest {
   @Test
   public void registrationWhenInvalidEmail() throws Exception {
     // Arrange: invalid email (missing Top Level Domain like .com)
-    UserRegisterReq req = new UserRegisterReq("John Doe", "john.doe@example", "abcABC123!", "en", false, null);
+    UserRegisterReq req = new UserRegisterReq("John Doe", "john.doe@example", "abcABC123!", "en", null, null, false, null);
 
     // Act: Call the API endpoint.
     MvcResult mvcResult = mockMvc.perform(post("/api/users/register")
@@ -78,7 +78,7 @@ public class UserWebTest extends BaseWebTest {
   @Test
   public void registrationWhenPasswordIsTooShort() throws Exception {
     // Arrange: password violates the @Size(min = 8, max = 100) constraint
-    UserRegisterReq req = new UserRegisterReq("John Doe", "john.doe@example.com", "1aA!", "en", false, null);
+    UserRegisterReq req = new UserRegisterReq("John Doe", "john.doe@example.com", "1aA!", "en", null, null, false, null);
 
     // Act: Call the API endpoint.
     MvcResult mvcResult = mockMvc.perform(post("/api/users/register")

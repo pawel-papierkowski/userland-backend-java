@@ -40,7 +40,7 @@ public record UserEditReq(
   @Schema(description = "Short language code.", example = "en")
   String lang,
 
-  // USER PROFILE DATA
+  // USER PROFILE DATA (optional)
 
   @Schema(description = "Name of user.", example = "John")
   String name,

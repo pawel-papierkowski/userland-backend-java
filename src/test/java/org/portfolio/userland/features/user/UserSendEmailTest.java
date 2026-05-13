@@ -65,7 +65,7 @@ public class UserSendEmailTest extends BaseUserTest {
       Map<String, Object> params = Maps.newHashMap();
       params.put("systemName", systemName);
       params.put("username", "Jan Kowalski");
-      params.put("activationLink", frontendWww+"vue/activate?token=nDVAZXAEt1VvrYrazvxmU8yruiur9cJg");
+      params.put("activationLink", frontendWww+"vue/user/activate?token=nDVAZXAEt1VvrYrazvxmU8yruiur9cJg");
       params.put("activationTokenExpires", userHelperService.resolveExpirationTime(EnUserTokenType.ACTIVATE));
       EmailReq expectedEmailReq = new EmailReq(
           null,
@@ -109,7 +109,7 @@ public class UserSendEmailTest extends BaseUserTest {
       Map<String, Object> params = Maps.newHashMap();
       params.put("systemName", systemName);
       params.put("username", "Jan Kowalski");
-      params.put("loginLink", frontendWww+"vue/login");
+      params.put("loginLink", frontendWww+"vue/user/login");
       EmailReq expectedEmailReq = new EmailReq(
           null,
           "pl",
@@ -152,7 +152,7 @@ public class UserSendEmailTest extends BaseUserTest {
       Map<String, Object> params = Maps.newHashMap();
       params.put("systemName", systemName);
       params.put("username", "Jan Kowalski");
-      params.put("loginLink", frontendWww+"vue/login");
+      params.put("loginLink", frontendWww+"vue/user/login");
       EmailReq expectedEmailReq = new EmailReq(
           null,
           "pl",
@@ -221,7 +221,7 @@ public class UserSendEmailTest extends BaseUserTest {
       Map<String, Object> paramsLink = Maps.newHashMap();
       paramsLink.put("systemName", systemName);
       paramsLink.put("username", "Jane");
-      paramsLink.put("emailChangeLink", frontendWww+"vue/emailChange?token=nDVAZXAEt1VvrYrazvxmU8yruiur9cJg");
+      paramsLink.put("emailChangeLink", frontendWww+"vue/user/emailChange?token=nDVAZXAEt1VvrYrazvxmU8yruiur9cJg");
       paramsLink.put("emailChangeTokenExpires", 30L);
       EmailReq expectedEmailLinkReq = new EmailReq(
           null,
@@ -376,7 +376,7 @@ public class UserSendEmailTest extends BaseUserTest {
       Map<String, Object> params = Maps.newHashMap();
       params.put("systemName", systemName);
       params.put("username", "Jane");
-      params.put("passwordResetLink", frontendWww+"vue/passwordReset?token=nDVAZXAEt1VvrYrazvxmU8yruiur9cJg");
+      params.put("passwordResetLink", frontendWww+"vue/user/passwordReset?token=nDVAZXAEt1VvrYrazvxmU8yruiur9cJg");
       params.put("passResetTokenExpires", 30L);
       EmailReq expectedEmailReq = new EmailReq(
           null,
@@ -465,7 +465,7 @@ public class UserSendEmailTest extends BaseUserTest {
       Map<String, Object> params = Maps.newHashMap();
       params.put("systemName", systemName);
       params.put("username", "Jane");
-      params.put("accountDeleteLink", frontendWww+"vue/accountDelete?token=nDVAZXAEt1VvrYrazvxmU8yruiur9cJg");
+      params.put("accountDeleteLink", frontendWww+"vue/user/accountDeletion?token=nDVAZXAEt1VvrYrazvxmU8yruiur9cJg");
       params.put("accountDeleteTokenExpires", 30L);
       EmailReq expectedEmailReq = new EmailReq(
           null,

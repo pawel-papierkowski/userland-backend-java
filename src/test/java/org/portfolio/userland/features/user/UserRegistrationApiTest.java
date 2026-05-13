@@ -46,7 +46,7 @@ public class UserRegistrationApiTest extends BaseUserTest {
     clock.setFixedTime("2026-04-10T10:00:00Z");
 
     // Arrange: Create the JSON payload.
-    UserRegisterReq req = new UserRegisterReq("Jane", "test@example.com", "Password123!", "en", false, null);
+    UserRegisterReq req = new UserRegisterReq("Jane", "test@example.com", "Password123!", "en", null, null, false, null);
 
     // Act: Call the API endpoint.
     MvcResult mvcResult = mockMvc.perform(post("/api/users/register")
@@ -91,11 +91,62 @@ public class UserRegistrationApiTest extends BaseUserTest {
   }
 
   @Test
+  public void registerNewUserWithProfile() throws Exception {
+    clock.setFixedTime("2026-04-10T10:00:00Z");
+
+    // Arrange: Create the JSON payload.
+    UserRegisterReq req = new UserRegisterReq("Jane", "test@example.com", "Password123!", "en", "Jane", "Smith", false, null);
+
+    // Act: Call the API endpoint.
+    MvcResult mvcResult = mockMvc.perform(post("/api/users/register")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(req)))
+        .andReturn();
+
+    // Assert API response.
+    assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.CREATED.value());
+    assertThat(mvcResult.getResponse().getContentAsString()).as("Response body should be empty").isEqualTo("");
+
+    AtomicReference<String> activationToken = new AtomicReference<>();
+
+    // Assert database state.
+    transactionTemplate.execute(_ -> {
+      // We wrap it in transactionTemplate because we cannot use @Transactional on this test, as it would break await() later.
+
+      // Prepare expected result.
+      User expectedUser = userFactory.genUser(EnUserStatus.PENDING);
+      UserProfile expectedUserProfile = userProfileFactory.genProfile(expectedUser);
+      expectedUserProfile.setName("Jane");
+      expectedUserProfile.setSurname("Smith");
+
+      // Assert user state.
+      User actualUser = assertAllUser("test@example.com", expectedUser, expectedUserProfile);
+      activationToken.set(actualUser.getTokens().getFirst().getToken());
+      return null;
+    });
+
+    // Assert that the correct event was published.
+    assertThat(applicationEvents.stream(UserRegisteredEvent.class))
+        .as("Event is invalid")
+        .hasSize(1)
+        .first()
+        .satisfies(event -> {
+          assertThat(event.id()).isGreaterThan(0L);
+          assertThat(event.username()).isEqualTo("Jane");
+          assertThat(event.email()).isEqualTo("test@example.com");
+          assertThat(event.lang()).isEqualTo("en");
+          assertThat(event.frontend()).isNull();
+          assertThat(event.activationToken()).isEqualTo(activationToken.get());
+          assertThat(event.activationTokenExpires()).isEqualTo(24L);
+        });
+  }
+
+  @Test
   public void registerNewUserWithActivation() throws Exception {
     clock.setFixedTime("2026-04-10T10:00:00Z");
 
     // Arrange: Create the JSON payload. Note we already activate that user.
-    UserRegisterReq req = new UserRegisterReq("Jane", "test@example.com", "Password123!", "en", true, null);
+    UserRegisterReq req = new UserRegisterReq("Jane", "test@example.com", "Password123!", "en", null, null, true, null);
 
     // Act: Call the API endpoint.
     MvcResult mvcResult = mockMvc.perform(post("/api/users/register")
@@ -137,7 +188,7 @@ public class UserRegistrationApiTest extends BaseUserTest {
     clock.setFixedTime("2026-04-10T10:00:00Z");
 
     // Arrange: Create the JSON payload.
-    UserRegisterReq req = new UserRegisterReq("<script>alert('hacked')</script>", "test@example.com", "Password123!", "en", false, EnFrontendFramework.VUE);
+    UserRegisterReq req = new UserRegisterReq("<script>alert('hacked')</script>", "test@example.com", "Password123!", "en", null, null, false, EnFrontendFramework.VUE);
 
     // Act: Call the API endpoint.
     MvcResult mvcResult = mockMvc.perform(post("/api/users/register")
@@ -226,7 +277,7 @@ public class UserRegistrationApiTest extends BaseUserTest {
     userProfileRepository.save(expectedUserProfile);
 
     // Arrange: Create the JSON payload.
-    UserRegisterReq req = new UserRegisterReq("testuser", "test@example.com", "SecurePass123!", "en", false, null);
+    UserRegisterReq req = new UserRegisterReq("testuser", "test@example.com", "SecurePass123!", "en", null, null, false, null);
 
     // Act: Try to register a NEW user with the SAME email via the API.
     MvcResult mvcResult = mockMvc.perform(post("/api/users/register")
