@@ -1,6 +1,7 @@
 package org.portfolio.userland.common.exception;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.MessageSourceResolvable;
 import org.springframework.http.*;
 import org.springframework.security.access.AccessDeniedException;
@@ -45,7 +46,11 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     problemDetail.setTitle(ex.getTitle());
     problemDetail.setDetail(ex.getDetail());
     problemDetail.setType(URI.create(ex.getType()));
-    // instance is added automatically
+    // Instance is added automatically.
+
+    // Add custom properties.
+    if (StringUtils.isNotEmpty(ex.getErrCode())) problemDetail.setProperty("errCode", ex.getErrCode());
+
     HttpHeaders headers = resolveHeaders(ex);
     return ResponseEntity.of(problemDetail).headers(headers).build();
   }
@@ -67,8 +72,8 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
   }
 
   /**
-   * Handle authorization exceptions. These can happen if annotations like @PreAuthorize("hasAuthority('ROLE_ADMIN')")
-   * prevent access.
+   * Handle authorization exceptions. Can happen here if access is prevented due to annotations like
+   * <code>@PreAuthorize("hasAuthority('ROLE_ADMIN')")</code>.
    * @param ex Exception.
    * @param request Web request.
    * @return Problem detail.

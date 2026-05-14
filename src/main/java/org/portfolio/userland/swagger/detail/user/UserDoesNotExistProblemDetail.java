@@ -1,6 +1,7 @@
 package org.portfolio.userland.swagger.detail.user;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import org.portfolio.userland.features.user.constants.UserErrCode;
 
 /**
  * Shows shape of non-existent user error. For Swagger documentation.
@@ -16,5 +17,7 @@ public record UserDoesNotExistProblemDetail(
     @Schema(example = "User with email 'john.smith@example.com' does not exist.")
     String detail,
     @Schema(example = "/api/users/password/link")
-    String instance
+    String instance,
+    @Schema(example = UserErrCode.NOT_FOUND)
+    String errCode
 ) {}

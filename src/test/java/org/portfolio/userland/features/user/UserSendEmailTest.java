@@ -109,7 +109,7 @@ public class UserSendEmailTest extends BaseUserTest {
       Map<String, Object> params = Maps.newHashMap();
       params.put("systemName", systemName);
       params.put("username", "Jan Kowalski");
-      params.put("loginLink", frontendWww+"vue/user/login");
+      params.put("loginLink", frontendWww+"vue/login");
       EmailReq expectedEmailReq = new EmailReq(
           null,
           "pl",
@@ -152,7 +152,7 @@ public class UserSendEmailTest extends BaseUserTest {
       Map<String, Object> params = Maps.newHashMap();
       params.put("systemName", systemName);
       params.put("username", "Jan Kowalski");
-      params.put("loginLink", frontendWww+"vue/user/login");
+      params.put("loginLink", frontendWww+"vue/login");
       EmailReq expectedEmailReq = new EmailReq(
           null,
           "pl",
@@ -161,7 +161,7 @@ public class UserSendEmailTest extends BaseUserTest {
           List.of(),
           List.of(),
           emailSender,
-          systemName+": witamy",
+          systemName+": uwaga",
           "user/alreadyRegistered",
           params,
           null

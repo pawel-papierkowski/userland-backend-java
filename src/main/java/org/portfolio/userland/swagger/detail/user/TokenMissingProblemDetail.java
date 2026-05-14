@@ -1,6 +1,7 @@
 package org.portfolio.userland.swagger.detail.user;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import org.portfolio.userland.features.user.constants.UserErrCode;
 
 /**
  * Shows shape of token missing error. For Swagger documentation.
@@ -16,5 +17,7 @@ public record TokenMissingProblemDetail(
     @Schema(example = "Token 'MISSING_TOKEN' does not exist.")
     String detail,
     @Schema(example = "/api/users/activate")
-    String instance
+    String instance,
+    @Schema(example = UserErrCode.TOKEN_MISSING)
+    String errCode
 ) {}

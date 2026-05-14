@@ -1,6 +1,7 @@
 package org.portfolio.userland.swagger.detail.user;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import org.portfolio.userland.features.user.constants.UserErrCode;
 
 /**
  * Shows shape of token expired error. For Swagger documentation.
@@ -16,5 +17,7 @@ public record TokenExpiredProblemDetail(
     @Schema(example = "Token 'EXPIRED_TOKEN' already expired.")
     String detail,
     @Schema(example = "/api/users/activate")
-    String instance
+    String instance,
+    @Schema(example = UserErrCode.TOKEN_EXPIRED)
+    String errCode
 ) {}

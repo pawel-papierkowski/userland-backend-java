@@ -1,6 +1,7 @@
 package org.portfolio.userland.features.user.exceptions;
 
 import org.portfolio.userland.common.exception.GeneralException;
+import org.portfolio.userland.features.user.constants.UserErrCode;
 import org.springframework.http.HttpStatus;
 
 /**
@@ -31,5 +32,10 @@ public class UserWrongPasswordException extends GeneralException {
   @Override
   public String getType() {
     return "https://api.userland.org/errors/user/wrongPassword";
+  }
+
+  @Override
+  public String getErrCode() {
+    return UserErrCode.WRONG_PASSWORD;
   }
 }

@@ -1,6 +1,7 @@
 package org.portfolio.userland.features.user.exceptions;
 
 import org.portfolio.userland.common.exception.GeneralException;
+import org.portfolio.userland.features.user.constants.UserErrCode;
 import org.springframework.http.HttpStatus;
 
 /**
@@ -32,5 +33,10 @@ public class UserTokenExpiredException extends GeneralException {
   @Override
   public String getType() {
     return "https://api.userland.org/errors/user/token/expired";
+  }
+
+  @Override
+  public String getErrCode() {
+    return UserErrCode.TOKEN_EXPIRED;
   }
 }

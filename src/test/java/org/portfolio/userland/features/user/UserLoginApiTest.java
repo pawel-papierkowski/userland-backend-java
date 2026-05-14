@@ -260,7 +260,7 @@ public class UserLoginApiTest extends BaseUserTest {
         "Wrong password was used. Access denied.",
         "/api/users/login",
         "https://api.userland.org/errors/user/wrongPassword",
-        Map.of()
+        Map.of("errCode", "user_0202")
     );
     problemDetailService.assertPd(mvcResult, expectedPdb);
   }
@@ -294,7 +294,7 @@ public class UserLoginApiTest extends BaseUserTest {
         "Wrong password was used. Access denied.",
         "/api/users/login",
         "https://api.userland.org/errors/user/wrongPassword",
-        Map.of()
+        Map.of("errCode", "user_0202")
     );
     problemDetailService.assertPd(mvcResult, expectedPdb);
   }
@@ -329,7 +329,7 @@ public class UserLoginApiTest extends BaseUserTest {
         "Wrong password was used. Access denied.",
         "/api/users/login",
         "https://api.userland.org/errors/user/wrongPassword",
-        Map.of()
+        Map.of("errCode", "user_0202")
     );
     problemDetailService.assertPd(mvcResult, expectedPdb);
   }
@@ -363,7 +363,7 @@ public class UserLoginApiTest extends BaseUserTest {
         "Wrong password was used. Access denied.",
         "/api/users/login",
         "https://api.userland.org/errors/user/wrongPassword",
-        Map.of()
+        Map.of("errCode", "user_0202")
     );
     problemDetailService.assertPd(mvcResult, expectedPdb);
   }
@@ -401,7 +401,7 @@ public class UserLoginApiTest extends BaseUserTest {
         "User with email '"+user.getEmail()+"' cannot access endpoint due to lockdown.",
         "/api/users/login",
         "https://api.userland.org/errors/user/lockdown",
-        Map.of()
+        Map.of("errCode", "lock_0002")
     );
     problemDetailService.assertPd(mvcResult, expectedPdb);
   }

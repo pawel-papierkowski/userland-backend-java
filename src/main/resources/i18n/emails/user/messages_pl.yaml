@@ -12,7 +12,7 @@ email:
       l1: "Konto zostało pomyślnie aktywowane. Bardzo się cieszymy, że jesteś z nami."
       l2: "Możesz się zalogować do <b>{0}</b> tutaj:"
     alreadyRegistered:
-      subject: "{0}: notice"
+      subject: "{0}: uwaga"
       greeting: "Cześć, <b>{0}</b>!"
       l1: "Niedawno ktoś próbował zarejestrować konto z użyciem tego emaila. Już masz konto w <b>{0}</b>."
       l2: "Możesz się zalogować do <b>{0}</b> tutaj:"

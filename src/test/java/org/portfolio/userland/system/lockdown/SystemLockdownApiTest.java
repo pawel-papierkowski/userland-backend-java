@@ -112,7 +112,7 @@ public class SystemLockdownApiTest extends BaseSystemTest {
         "User with email 'test@example.com' cannot access endpoint due to lockdown.",
         "/api/system/lockdown",
         "https://api.userland.org/errors/user/lockdown",
-        Map.of()
+        Map.of("errCode", "lock_0002")
     );
     problemDetailService.assertPd(mvcResult, expectedPdb);
   }

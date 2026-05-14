@@ -1,13 +1,13 @@
 package org.portfolio.userland.system.lockdown.exceptions;
 
 import org.portfolio.userland.common.exception.GeneralException;
+import org.portfolio.userland.system.lockdown.constants.LockdownErrCode;
 import org.springframework.http.HttpStatus;
 
 /**
  * Thrown when there is general system lockdown.
  */
 public class SystemLockdownException extends GeneralException {
-
   public SystemLockdownException() {
     super("");
   }
@@ -30,5 +30,10 @@ public class SystemLockdownException extends GeneralException {
   @Override
   public String getType() {
     return "https://api.userland.org/errors/system/lockdown";
+  }
+
+  @Override
+  public String getErrCode() {
+    return LockdownErrCode.SYSTEM;
   }
 }

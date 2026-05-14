@@ -1,11 +1,15 @@
 package org.portfolio.userland.system.auth.jwt.exceptions;
 
 import org.portfolio.userland.common.exception.GeneralException;
+import org.portfolio.userland.system.auth.jwt.constants.JwtErrCode;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 
 import java.util.Map;
 
+/**
+ * Thrown when token is malformed or expired.
+ */
 public class InvalidBearerTokenException extends GeneralException {
   public InvalidBearerTokenException(String jwtStr) {
     super(jwtStr);
@@ -29,6 +33,11 @@ public class InvalidBearerTokenException extends GeneralException {
   @Override
   public String getType() {
     return "https://api.userland.org/errors/user/malformedToken";
+  }
+
+  @Override
+  public String getErrCode() {
+    return JwtErrCode.MALFORMED;
   }
 
   @Override

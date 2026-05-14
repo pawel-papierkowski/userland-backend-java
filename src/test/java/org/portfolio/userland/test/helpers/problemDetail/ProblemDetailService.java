@@ -3,13 +3,13 @@ package org.portfolio.userland.test.helpers.problemDetail;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.JsonNodeType;
 import com.google.common.collect.Maps;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.test.web.servlet.MvcResult;
 
 import java.io.UnsupportedEncodingException;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -100,9 +100,9 @@ public class ProblemDetailService {
     assertThat(actualPdb.params().size()).as("PD count of params is wrong").isEqualTo(expectedPdb.params().size());
     for (String key : actualPdb.params().keySet()) {
       assertThat(expectedPdb.params().containsKey(key)).isTrue();
-      Map<String, String> actualParamMap = actualPdb.params().get(key);
-      Map<String, String> expectedParamMap = expectedPdb.params().get(key);
-      assertThat(actualParamMap).as("PD param map for "+key+" is wrong").isEqualTo(expectedParamMap);
+      Object actualParamMap = actualPdb.params().get(key);
+      Object expectedParamMap = expectedPdb.params().get(key);
+      assertThat(actualParamMap).as("PD param object for "+key+" is wrong").isEqualTo(expectedParamMap);
     }
   }
 
@@ -115,7 +115,7 @@ public class ProblemDetailService {
    */
   private ProblemDetailBox convert(String rawJson) throws JsonProcessingException {
     JsonNode json = objectMapper.readTree(rawJson);
-    Map<String, Map<String, String>> params = convertParams(json);
+    Map<String, Object> params = convertParams(json);
     return new ProblemDetailBox(
         json.get("status").asInt(),
         json.get("title").asText(),
@@ -130,16 +130,16 @@ public class ProblemDetailService {
   List<String> PD_DEFAULTS = List.of("status", "title", "detail", "instance", "type");
 
   /**
-   * Convert custom parameters for Problem Detail. Note we handle only one layer.
+   * Convert custom parameters for Problem Detail. Note we handle only one layer deep.
    * @param jsonNode JSON object that represent Problem Detail.
    * @return Map of params.
    */
-  private Map<String, Map<String, String>> convertParams(JsonNode jsonNode) {
-    HashMap<String, Map<String, String>> paramsMap = Maps.newHashMap();
+  private Map<String, Object> convertParams(JsonNode jsonNode) {
+    Map<String, Object> paramsMap = Maps.newHashMap();
 
     jsonNode.propertyStream()
         .filter(e -> !PD_DEFAULTS.contains(e.getKey())) // skip already handled fields
-        .forEach(e -> paramsMap.put(e.getKey(), convertInnerParams(e.getValue())));
+        .forEach(e -> paramsMap.put(e.getKey(), convertInner(e.getValue())));
 
     return paramsMap;
   }
@@ -147,14 +147,28 @@ public class ProblemDetailService {
   /**
    * Convert inner parameters.
    * @param jsonNode JSON node for one parameter.
-   * @return Map of inner parameters.
+   * @return Inner parameter as string or map of inner parameters.
    */
-  private Map<String, String> convertInnerParams(JsonNode jsonNode) {
-    HashMap<String, String> paramsMap = Maps.newHashMap();
+  private Object convertInner(JsonNode jsonNode) {
+    JsonNodeType nodeType = jsonNode.getNodeType();
 
+    return switch (nodeType) {
+      case STRING -> jsonNode.asText();
+      case ARRAY -> null;
+      case BINARY -> null;
+      case BOOLEAN -> null;
+      case MISSING -> null;
+      case NULL -> null;
+      case NUMBER -> jsonNode.asDouble();
+      case OBJECT -> convertInnerObject(jsonNode);
+      case POJO -> null;
+    };
+  }
+
+  private Object convertInnerObject(JsonNode jsonNode) {
+    Map<String, String> paramsMap = Maps.newHashMap();
     jsonNode.propertyStream()
         .forEach(e -> paramsMap.put(e.getKey(), e.getValue().textValue()));
-
     return paramsMap;
   }
 }

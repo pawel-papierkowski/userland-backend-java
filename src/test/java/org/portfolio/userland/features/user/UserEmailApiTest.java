@@ -226,7 +226,7 @@ public class UserEmailApiTest extends BaseUserTest {
         "Wrong password was used. Access denied.",
         "/api/users/email/link",
         "https://api.userland.org/errors/user/wrongPassword",
-        Map.of()
+        Map.of("errCode", "user_0202")
     );
     problemDetailService.assertPd(mvcResult, expectedPdb);
   }
@@ -258,7 +258,7 @@ public class UserEmailApiTest extends BaseUserTest {
         "Email 'test@example.com' already exists.",
         "/api/users/email/link",
         "https://api.userland.org/errors/user/email/alreadyExists",
-        Map.of()
+        Map.of("errCode", "user_0111")
     );
     problemDetailService.assertPd(mvcResult, expectedPdb);
   }
@@ -294,7 +294,7 @@ public class UserEmailApiTest extends BaseUserTest {
         "Email '"+otherUser.getEmail()+"' already exists.",
         "/api/users/email/confirm",
         "https://api.userland.org/errors/user/email/alreadyExists",
-        Map.of()
+        Map.of("errCode", "user_0111")
     );
     problemDetailService.assertPd(mvcResult, expectedPdb);
   }

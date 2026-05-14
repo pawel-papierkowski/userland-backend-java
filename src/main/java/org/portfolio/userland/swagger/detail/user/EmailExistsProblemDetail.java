@@ -1,9 +1,10 @@
 package org.portfolio.userland.swagger.detail.user;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import org.portfolio.userland.features.user.constants.UserErrCode;
 
 /**
- * Shows shape of email error. For Swagger documentation.
+ * Shows shape of user email error. For Swagger documentation.
  */
 @Schema(name = "EmailExistsProblemDetail", description = "Email already exists")
 public record EmailExistsProblemDetail(
@@ -16,5 +17,7 @@ public record EmailExistsProblemDetail(
     @Schema(example = "Email 'test@test.com' already exists.")
     String detail,
     @Schema(example = "/api/users/register")
-    String instance
+    String instance,
+    @Schema(example = UserErrCode.EMAIL_IN_USE)
+    String errCode
 ) {}

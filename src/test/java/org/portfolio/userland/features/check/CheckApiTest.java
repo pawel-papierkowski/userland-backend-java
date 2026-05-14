@@ -226,7 +226,7 @@ public class CheckApiTest extends BaseCheckTest {
         "Bearer token is expired, invalid or malformed and cannot be used.",
         "/api/checks/must-be-logged",
         "https://api.userland.org/errors/user/malformedToken",
-        Map.of()
+        Map.of("errCode", "jwt_0001")
     );
     problemDetailService.assertPd(mvcResult, expectedPdb);
   }
@@ -346,7 +346,7 @@ public class CheckApiTest extends BaseCheckTest {
         "System lockdown is in effect.",
         "/api/checks/alive",
         "https://api.userland.org/errors/system/lockdown",
-        Map.of()
+        Map.of("errCode", "lock_0001")
     );
     problemDetailService.assertPd(mvcResult, expectedPdb);
   }
@@ -377,7 +377,7 @@ public class CheckApiTest extends BaseCheckTest {
         "User with email '"+user.getEmail()+"' cannot access endpoint due to lockdown.",
         "/api/checks/must-be-logged",
         "https://api.userland.org/errors/user/lockdown",
-        Map.of()
+        Map.of("errCode", "lock_0002")
     );
     problemDetailService.assertPd(mvcResult, expectedPdb);
   }

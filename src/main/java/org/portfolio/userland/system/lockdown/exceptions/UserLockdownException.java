@@ -2,6 +2,7 @@ package org.portfolio.userland.system.lockdown.exceptions;
 
 import org.apache.commons.lang3.StringUtils;
 import org.portfolio.userland.common.exception.GeneralException;
+import org.portfolio.userland.system.lockdown.constants.LockdownErrCode;
 import org.springframework.http.HttpStatus;
 
 /**
@@ -34,5 +35,10 @@ public class UserLockdownException extends GeneralException {
   @Override
   public String getType() {
     return "https://api.userland.org/errors/user/lockdown";
+  }
+
+  @Override
+  public String getErrCode() {
+    return LockdownErrCode.USER;
   }
 }

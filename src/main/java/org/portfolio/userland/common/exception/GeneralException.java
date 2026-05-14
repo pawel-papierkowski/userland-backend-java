@@ -47,6 +47,14 @@ public abstract class GeneralException extends RuntimeException {
   }
 
   /**
+   * Custom field that returns error code.
+   * @return Error code or empty string if no error code present.
+   */
+  public String getErrCode() {
+    return "";
+  }
+
+  /**
    * Put here any headers you want to be present in response for that exception.
    * @return Map of headers.
    */

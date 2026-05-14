@@ -293,7 +293,7 @@ public class UserDeleteApiTest extends BaseUserTest {
         "Token of type 'DELETE' already exists and is still valid. You cannot do this action twice in row.",
         "/api/users/delete/link",
         "https://api.userland.org/errors/user/token/alreadyExists",
-        Map.of()
+        Map.of("errCode", "user_0013")
     );
     problemDetailService.assertPd(mvcResult, expectedPdb);
   }
@@ -329,7 +329,7 @@ public class UserDeleteApiTest extends BaseUserTest {
         "Token '"+token.getToken()+"N' does not exist.",
         "/api/users/delete/confirm",
         "https://api.userland.org/errors/user/token/missing",
-        Map.of()
+        Map.of("errCode", "user_0012")
     );
     problemDetailService.assertPd(mvcResult, expectedPdb);
   }

@@ -11,5 +11,5 @@ public record ProblemDetailBox (
     String detail,
     String instance,
     String type,
-    Map<String, Map<String, String>> params /* Custom parameters. */
+    Map<String, Object> params /* Custom parameters. Can have either String or Map<String, String>. */
 ) {}

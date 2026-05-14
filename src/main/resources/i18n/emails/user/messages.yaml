@@ -12,7 +12,7 @@ email:
       l1: "Account was activated successfully. We are excited to have you on board."
       l2: "You can log in to <b>{0}</b> here:"
     alreadyRegistered:
-      subject: "{0}: uwaga"
+      subject: "{0}: notice"
       greeting: "Hello, <b>{0}</b>!"
       l1: "Someone recently tried to register an account with this email. You already have an account in <b>{0}</b>."
       l2: "You can log in to <b>{0}</b> here:"
