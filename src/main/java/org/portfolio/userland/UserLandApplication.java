@@ -5,9 +5,10 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 /**
  * <p>Entry point to Spring Boot application.</p>
+ * <p>If you run it locally, application will be available at <code>http://localhost:8080</code>. See Swagger docs (<code>http://localhost:8080/swagger-ui.html</code>) for available endpoints.</p>
  * <p>Note that placement of <code>@SpringBootApplication</code> determines root package to be scanned, including subpackages.</p>
  * <p>Warning: you need correct variables in run environment.</p>
- * <p>Obligatory for plain email config (if not present, app will crash):</p>
+ * <p>You need these if you use 'plain' email provider:</p>
  * <ul>
  *   <li><code>EMAIL_HOST</code></li>
  *   <li><code>EMAIL_USERNAME</code></li>

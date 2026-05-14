@@ -1,7 +1,7 @@
 package org.portfolio.userland.features.user.services;
 
 import lombok.RequiredArgsConstructor;
-import org.portfolio.userland.common.services.http.HttpHelperService;
+import org.portfolio.userland.common.services.web.HttpHelperService;
 import org.portfolio.userland.features.user.constants.UserConfigConst;
 import org.portfolio.userland.features.user.dto.login.UserLoginReq;
 import org.portfolio.userland.features.user.dto.login.UserLoginResp;

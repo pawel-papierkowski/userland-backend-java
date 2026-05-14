@@ -1,11 +1,11 @@
-package org.portfolio.userland.common.services.http;
+package org.portfolio.userland.common.services.web;
 
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 /**
- * Helper methods involving HTTP request.
+ * Helper methods involving HTTP requests.
  */
 @Service
 @RequiredArgsConstructor

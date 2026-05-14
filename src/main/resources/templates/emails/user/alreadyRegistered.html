@@ -2,11 +2,11 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title th:text="#{email.user.alreadyRegistered.subject(${systemName})}">SystemName: welcome</title>
+    <title th:text="#{email.user.alreadyRegistered.subject(${systemName})}">SystemName: notice</title>
 </head>
 <body>
   <p th:utext="#{email.user.alreadyRegistered.greeting(${username})}">Hello, <b>User</b>!</p>
-  <p th:utext="#{email.user.alreadyRegistered.l1}">Account was activated successfully. We are excited to have you on board.</p>
+  <p th:utext="#{email.user.alreadyRegistered.l1(${systemName})}">Someone recently tried to register an account with this email. You already have an account in <b>SystemName</b>.</p>
   <p><span th:utext="#{email.user.alreadyRegistered.l2(${systemName})}">You can log in to <b>SystemName</b> here:</span> <a th:href="${loginLink}" th:text="${loginLink}">LINK_LOGIN</a>.</p>
 </body>
 </html>

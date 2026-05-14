@@ -3,9 +3,9 @@ package org.portfolio.userland.features.user.services;
 import com.google.common.collect.Maps;
 import lombok.RequiredArgsConstructor;
 import org.portfolio.userland.common.services.lang.LangService;
+import org.portfolio.userland.common.services.web.WebHelperService;
 import org.portfolio.userland.features.email.dto.EmailReq;
 import org.portfolio.userland.features.email.services.EmailService;
-import org.portfolio.userland.features.user.constants.UserConst;
 import org.portfolio.userland.features.user.dto.common.EnFrontendFramework;
 import org.portfolio.userland.features.user.events.*;
 import org.springframework.beans.factory.annotation.Value;
@@ -52,13 +52,11 @@ public class UserSendEmailService {
 
   private final EmailService emailService;
   private final LangService langService;
+  private final WebHelperService webHelperService;
 
   /** Name of system. */
   @Value("${app.main.name}")
   protected String systemName;
-  /** Base frontend address. */
-  @Value("${app.main.www}")
-  private String frontendWww;
   /** Sender address. */
   @Value("${app.email.sender}")
   private String emailSender;
@@ -105,7 +103,7 @@ public class UserSendEmailService {
    */
   private String resolveActivationLink(EnFrontendFramework frontend, String activationToken) {
     // Note it is linking to frontend - actual backend endpoint for user activation will be called by frontend.
-    return resolveWww(frontend) + "/user/activate?token="+activationToken;
+    return webHelperService.resolveWww(frontend) + "/user/activate?token="+activationToken;
   }
 
   //
@@ -131,7 +129,7 @@ public class UserSendEmailService {
 
     // Prepare params required by user activated template.
     Map<String, Object> params = genParamsMap(event);
-    params.put("loginLink", resolveLoginLink(event.frontend()));
+    params.put("loginLink", webHelperService.resolveLoginLink(event.frontend()));
 
     return genEmailReq(event, TEMPLATE_USER_ACTIVATION, subject, params);
   }
@@ -159,7 +157,7 @@ public class UserSendEmailService {
 
     // Prepare params required by user activated template.
     Map<String, Object> params = genParamsMap(event);
-    params.put("loginLink", resolveLoginLink(event.frontend()));
+    params.put("loginLink", webHelperService.resolveLoginLink(event.frontend()));
 
     return genEmailReq(event, TEMPLATE_USER_ALREADY_REGISTERED, subject, params);
   }
@@ -222,7 +220,7 @@ public class UserSendEmailService {
    */
   private String resolveEmailChangeLink(EnFrontendFramework frontend, String emailChangeToken) {
     // Note it is linking to frontend - actual backend email change endpoint will be called by frontend.
-    return resolveWww(frontend) + "/user/emailChange?token="+emailChangeToken;
+    return webHelperService.resolveWww(frontend) + "/user/emailChange?token="+emailChangeToken;
   }
 
   //
@@ -337,7 +335,7 @@ public class UserSendEmailService {
    */
   private String resolvePasswordResetLink(EnFrontendFramework frontend, String passwordResetToken) {
     // Note it is linking to frontend - actual backend password reset endpoint will be called by frontend.
-    return resolveWww(frontend) + "/user/passwordReset?token="+passwordResetToken;
+    return webHelperService.resolveWww(frontend) + "/user/passwordReset?token="+passwordResetToken;
   }
 
   //
@@ -404,7 +402,7 @@ public class UserSendEmailService {
    */
   private String resolveAccountDeleteLink(EnFrontendFramework frontend, String accountDeleteToken) {
     // Note it is linking to frontend - actual backend account delete endpoint will be called by frontend.
-    return resolveWww(frontend) + "/user/accountDeletion?token="+accountDeleteToken;
+    return webHelperService.resolveWww(frontend) + "/user/accountDeletion?token="+accountDeleteToken;
   }
 
   //
@@ -491,26 +489,5 @@ public class UserSendEmailService {
     params.put("systemName", systemName);
     params.put("username", event.username());
     return params;
-  }
-
-  /**
-   * Resolve login link. Note it is for frontend, not backend.
-   * @param frontend Name of used frontend.
-   * @return Login link.
-   */
-  private String resolveLoginLink(EnFrontendFramework frontend) {
-    // Note it is linking to frontend - actual backend login endpoint will be called by frontend.
-    return resolveWww(frontend) + "/user/login";
-  }
-
-  /**
-   * Resolve WWW address of frontend. It consists of base www address (frontendWww) and suffix indicating what frontend
-   * framework was used.
-   * @param frontend Used frontend framework.
-   * @return WWW address of frontend. Example: https://pawelpapierkowski.net.pl/userland-frontend-vue
-   */
-  private String resolveWww(EnFrontendFramework frontend) {
-    String suffix = frontend == null ? UserConst.FRONTEND_DEF.name().toLowerCase() : frontend.name().toLowerCase();
-    return frontendWww + suffix;
   }
 }

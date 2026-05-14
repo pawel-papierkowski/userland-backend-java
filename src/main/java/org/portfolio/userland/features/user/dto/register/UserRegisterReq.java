@@ -28,7 +28,7 @@ public record UserRegisterReq(
 
     @NotBlank(message = "Email is required")
     @Email(regexp = ValidConst.REG_EXPR_EMAIL, message = "Must be a valid email address")
-    @Schema(description = "Email address (must be unique).", example = "john.doe@example.com")
+    @Schema(description = "Email address. Doubles as unique name of account.", example = "john.doe@example.com")
     String email,
 
     @NotBlank(message = "Password is required")
