@@ -14,12 +14,10 @@ public class UserErrCode {
   public final static String TOKEN_ALREADY = "user_0013";
   /** Email already exists. */
   public final static String EMAIL_IN_USE = "user_0111";
+  /** Wrong password or account. */
+  public final static String WRONG_PASSWORD = "user_0112";
   /** User has invalid status. */
   public final static String INVALID_STATUS = "user_0121";
   /** User is locked. */
   public final static String LOCKED = "user_0122";
-  /** Registration failed. */
-  public final static String REGISTRATION_FAILED = "user_0201";
-  /** Wrong password or account. */
-  public final static String WRONG_PASSWORD = "user_0202";
 }

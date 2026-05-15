@@ -90,8 +90,9 @@ public class UserRegisterService extends BaseUserService {
    * @return Modified user registration request.
    */
   private UserRegisterReq modifyRegistrationReq(UserRegisterReq userRegisterReq) {
-    // Never allow user activation on spot during registration on PROD. This is convenience option for testing during development.
-    Boolean activate = build.getTest() ? userRegisterReq.activate() : false;
+    boolean activate = userRegisterReq.activate() != null && userRegisterReq.activate();
+    // Never allow user activation on spot during registration on PROD. Activate field is convenience option for testing during development.
+    if (!build.getTest()) activate = false;
     return userRegisterReq.toBuilder().activate(activate).build();
   }
 

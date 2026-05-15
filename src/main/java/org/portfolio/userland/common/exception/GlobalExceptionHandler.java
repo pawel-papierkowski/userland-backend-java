@@ -41,6 +41,8 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
    */
   @ExceptionHandler(GeneralException.class)
   public ResponseEntity<ProblemDetail> handleGeneralException(GeneralException ex, WebRequest request) {
+    //log.error("General exception occurred:", ex);
+
     // Create a standard RFC 7807 response based on data from exception.
     ProblemDetail problemDetail = ProblemDetail.forStatus(ex.getStatus());
     problemDetail.setTitle(ex.getTitle());

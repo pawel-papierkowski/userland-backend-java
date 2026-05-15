@@ -226,7 +226,7 @@ public class UserEmailApiTest extends BaseUserTest {
         "Wrong password was used. Access denied.",
         "/api/users/email/link",
         "https://api.userland.org/errors/user/wrongPassword",
-        Map.of("errCode", "user_0202")
+        Map.of("errCode", "user_0112")
     );
     problemDetailService.assertPd(mvcResult, expectedPdb);
   }

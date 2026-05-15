@@ -43,14 +43,13 @@ public class EmailService {
    * @param emailReq Email request.
    */
   public void queueEmail(EmailReq emailReq) {
-    log.trace("queueEmail() called. Recipients: '{}', template: {}.",
-        emailReq.getRecipients(), emailReq.template());
+    log.trace("queueEmail() called. Recipients: '{}', template: {}.", emailReq.getRecipients(), emailReq.template());
 
     emailReq = process(emailReq);
 
     // GCP Tasks ensure that emails won't be lost in case of failure.
     if (canEmailTask) gcpEmailService.queueEmailTask(emailReq);
-    else sendEmail(emailReq); // just send synchronically
+    else sendEmail(emailReq); // On locally run server just send synchronically.
   }
 
   /**
@@ -58,8 +57,7 @@ public class EmailService {
    * @param emailReq Email request.
    */
   public void sendEmail(EmailReq emailReq) {
-    log.trace("sendEmail() called. Recipients: '{}', template: {}.",
-        emailReq.getRecipients(), emailReq.template());
+    log.trace("sendEmail() called. Recipients: '{}', template: {}.", emailReq.getRecipients(), emailReq.template());
 
     // Determine correct provider.
     IntEmailProvider emailProvider = emailProviderFactory.getProvider(emailReq.provider());

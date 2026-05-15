@@ -260,7 +260,7 @@ public class UserLoginApiTest extends BaseUserTest {
         "Wrong password was used. Access denied.",
         "/api/users/login",
         "https://api.userland.org/errors/user/wrongPassword",
-        Map.of("errCode", "user_0202")
+        Map.of("errCode", "user_0112")
     );
     problemDetailService.assertPd(mvcResult, expectedPdb);
   }
@@ -294,7 +294,7 @@ public class UserLoginApiTest extends BaseUserTest {
         "Wrong password was used. Access denied.",
         "/api/users/login",
         "https://api.userland.org/errors/user/wrongPassword",
-        Map.of("errCode", "user_0202")
+        Map.of("errCode", "user_0112")
     );
     problemDetailService.assertPd(mvcResult, expectedPdb);
   }
@@ -329,7 +329,7 @@ public class UserLoginApiTest extends BaseUserTest {
         "Wrong password was used. Access denied.",
         "/api/users/login",
         "https://api.userland.org/errors/user/wrongPassword",
-        Map.of("errCode", "user_0202")
+        Map.of("errCode", "user_0112")
     );
     problemDetailService.assertPd(mvcResult, expectedPdb);
   }
@@ -363,7 +363,7 @@ public class UserLoginApiTest extends BaseUserTest {
         "Wrong password was used. Access denied.",
         "/api/users/login",
         "https://api.userland.org/errors/user/wrongPassword",
-        Map.of("errCode", "user_0202")
+        Map.of("errCode", "user_0112")
     );
     problemDetailService.assertPd(mvcResult, expectedPdb);
   }

@@ -46,7 +46,7 @@ public class UserRegistrationApiTest extends BaseUserTest {
     clock.setFixedTime("2026-04-10T10:00:00Z");
 
     // Arrange: Create the JSON payload.
-    UserRegisterReq req = new UserRegisterReq("Jane", "test@example.com", "Password123!", "en", null, null, false, null);
+    UserRegisterReq req = new UserRegisterReq("Jane", "test@example.com", "Password123!", "en", null, null, null, null);
 
     // Act: Call the API endpoint.
     MvcResult mvcResult = mockMvc.perform(post("/api/users/register")
@@ -145,7 +145,7 @@ public class UserRegistrationApiTest extends BaseUserTest {
   public void registerNewUserWithActivation() throws Exception {
     clock.setFixedTime("2026-04-10T10:00:00Z");
 
-    // Arrange: Create the JSON payload. Note we already activate that user.
+    // Arrange: Create the JSON payload. Note we already activate that user. This kind of activation works only in test environments.
     UserRegisterReq req = new UserRegisterReq("Jane", "test@example.com", "Password123!", "en", null, null, true, null);
 
     // Act: Call the API endpoint.

@@ -402,7 +402,7 @@ public class UserSendEmailService {
    */
   private String resolveAccountDeleteLink(EnFrontendFramework frontend, String accountDeleteToken) {
     // Note it is linking to frontend - actual backend account delete endpoint will be called by frontend.
-    return webHelperService.resolveWww(frontend) + "/user/accountDeletion?token="+accountDeleteToken;
+    return webHelperService.resolveWww(frontend) + "/user/accountDel?token="+accountDeleteToken;
   }
 
   //

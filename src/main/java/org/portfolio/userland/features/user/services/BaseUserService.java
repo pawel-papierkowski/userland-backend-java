@@ -104,7 +104,7 @@ public abstract class BaseUserService extends BaseService {
    * Find token of given type from list.
    * @param tokens List of user tokens.
    * @param type Type of user token to find.
-   * @return User token or null if could not find.
+   * @return User token or null if it could not find token.
    */
   private UserToken findToken(List<UserToken> tokens, EnUserTokenType type) {
     for (UserToken currToken : tokens) {
