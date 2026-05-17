@@ -222,8 +222,8 @@ public class UserEmailApiTest extends BaseUserTest {
     assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.CONFLICT.value());
     ProblemDetailBox expectedPdb = new ProblemDetailBox(
         HttpStatus.CONFLICT.value(),
-        "Wrong password.",
-        "Wrong password was used. Access denied.",
+        "Wrong password or account.",
+        "Wrong password or account was used. Access denied.",
         "/api/users/email/link",
         "https://api.userland.org/errors/user/wrongPassword",
         Map.of("errCode", "user_0112")

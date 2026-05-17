@@ -256,8 +256,8 @@ public class UserLoginApiTest extends BaseUserTest {
     // Assert: proper problem detail is present. Yes, "Wrong password." error is correct.
     ProblemDetailBox expectedPdb = new ProblemDetailBox(
         HttpStatus.CONFLICT.value(),
-        "Wrong password.",
-        "Wrong password was used. Access denied.",
+        "Wrong password or account.",
+        "Wrong password or account was used. Access denied.",
         "/api/users/login",
         "https://api.userland.org/errors/user/wrongPassword",
         Map.of("errCode", "user_0112")
@@ -290,8 +290,8 @@ public class UserLoginApiTest extends BaseUserTest {
     // Assert: proper problem detail is present.
     ProblemDetailBox expectedPdb = new ProblemDetailBox(
         HttpStatus.CONFLICT.value(),
-        "Wrong password.",
-        "Wrong password was used. Access denied.",
+        "Wrong password or account.",
+        "Wrong password or account was used. Access denied.",
         "/api/users/login",
         "https://api.userland.org/errors/user/wrongPassword",
         Map.of("errCode", "user_0112")
@@ -325,8 +325,8 @@ public class UserLoginApiTest extends BaseUserTest {
     // Assert: proper problem detail is present. Yes, "Wrong password." error is correct.
     ProblemDetailBox expectedPdb = new ProblemDetailBox(
         HttpStatus.CONFLICT.value(),
-        "Wrong password.",
-        "Wrong password was used. Access denied.",
+        "Wrong password or account.",
+        "Wrong password or account was used. Access denied.",
         "/api/users/login",
         "https://api.userland.org/errors/user/wrongPassword",
         Map.of("errCode", "user_0112")
@@ -359,8 +359,8 @@ public class UserLoginApiTest extends BaseUserTest {
     // Assert: proper problem detail is present. Yes, "Wrong password." error is correct.
     ProblemDetailBox expectedPdb = new ProblemDetailBox(
         HttpStatus.CONFLICT.value(),
-        "Wrong password.",
-        "Wrong password was used. Access denied.",
+        "Wrong password or account.",
+        "Wrong password or account was used. Access denied.",
         "/api/users/login",
         "https://api.userland.org/errors/user/wrongPassword",
         Map.of("errCode", "user_0112")

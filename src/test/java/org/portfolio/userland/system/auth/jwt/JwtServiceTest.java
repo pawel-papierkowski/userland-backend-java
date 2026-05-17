@@ -5,6 +5,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.portfolio.userland.features.user.BaseUserTest;
 import org.portfolio.userland.features.user.entities.EnUserStatus;
+import org.portfolio.userland.features.user.entities.Permission;
 import org.portfolio.userland.features.user.entities.User;
 import org.portfolio.userland.features.user.exceptions.UserInvalidStatusException;
 import org.portfolio.userland.features.user.exceptions.UserLockedException;
@@ -82,6 +83,38 @@ public class JwtServiceTest extends BaseUserTest {
     expectedClaimMap.put("iat", iat); // issued
     expectedClaimMap.put("exp", exp); // expires in hour
     expectedClaimMap.put("sub", user.getEmail()); // user account email as subject
+    assertThat(actualClaimMap).as("Claim map is invalid").isEqualTo(expectedClaimMap);
+  }
+
+  @Test
+  void generateValidTokenWithPermissions() {
+    clock.setFixedTime("2026-04-10T10:05:00Z");
+
+    // Arrange: Create a real user and token for that user. User has a bunch of permissions.
+    Permission permRole = permissionRepository.findByName("role").orElseThrow();
+    Permission permUser = permissionRepository.findByName("user").orElseThrow();
+    User user = userRepository.save(userFactory.genRandUser(EnUserStatus.ACTIVE));
+    userPermissionFactory.genPermissionEntry(user, permUser, "edit");
+    userPermissionFactory.genPermissionEntry(user, permRole, "admin"); // note two perms for same role
+    userPermissionFactory.genPermissionEntry(user, permRole, "operator");
+    String token = jwtService.generateToken(user); // default expiration
+
+    // Act: Check if token is valid.
+    boolean isValid = jwtService.isTokenValid(token, user.getEmail());
+
+    // prepare data
+    long iat = 1775815500L; // fixed time
+    long exp = iat + jwtExpiration*60L; // default expiration period
+
+    // Assert: Validity and claims of token.
+    assertThat(isValid).as("Token must be valid").isTrue();
+    Map<String, Object> actualClaimMap = jwtService.extractAllClaims(token);
+    Map<String, Object> expectedClaimMap = Maps.newHashMap();
+    expectedClaimMap.put("iat", iat); // issued
+    expectedClaimMap.put("exp", exp); // expires
+    expectedClaimMap.put("sub", user.getEmail()); // user account email as subject
+    expectedClaimMap.put("user", "edit");
+    expectedClaimMap.put("role", "admin,operator"); // two perms for same role handled properly
     assertThat(actualClaimMap).as("Claim map is invalid").isEqualTo(expectedClaimMap);
   }
 

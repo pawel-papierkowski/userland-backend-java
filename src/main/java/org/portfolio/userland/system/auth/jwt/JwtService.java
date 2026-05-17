@@ -7,6 +7,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 import org.portfolio.userland.features.user.entities.EnUserStatus;
 import org.portfolio.userland.features.user.entities.Permission;
 import org.portfolio.userland.features.user.entities.User;
@@ -20,7 +21,9 @@ import org.springframework.stereotype.Service;
 import javax.crypto.SecretKey;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.Comparator;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
@@ -87,11 +90,21 @@ public class JwtService extends BaseService {
    */
   private Map<String, ?> resolveClaims(User user) {
     Map<String, String> claimMap = Maps.newHashMap();
+    // We need to have sorted list of permissions to ensure consistent results. For example, if you have role operator
+    // and role admin, it will always be saved as "role" -> "admin,operator".
+    List<UserPermission> permissions = user.getPermissions()
+        .stream()
+        .sorted(Comparator.comparing(UserPermission::getValue))
+        .toList();
 
-    for (UserPermission permissionEntry : user.getPermissions()) {
+    for (UserPermission permissionEntry : permissions) {
       Permission permission = permissionEntry.getPermission();
       if (!permission.getInJwt()) continue;
-      claimMap.put(permission.getName(), permissionEntry.getValue());
+      String permValue = "";
+      if (claimMap.containsKey(permission.getName())) permValue = claimMap.get(permission.getName());
+      if (StringUtils.isNotEmpty(permValue)) permValue += ",";
+      permValue += permissionEntry.getValue();
+      claimMap.put(permission.getName(), permValue);
     }
     return claimMap;
   }

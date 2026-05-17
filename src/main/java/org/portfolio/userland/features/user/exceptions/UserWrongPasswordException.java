@@ -21,12 +21,12 @@ public class UserWrongPasswordException extends GeneralException {
 
   @Override
   public String getTitle() {
-    return "Wrong password.";
+    return "Wrong password or account.";
   }
 
   @Override
   public String getDetail() {
-    return "Wrong password was used. Access denied.";
+    return "Wrong password or account was used. Access denied.";
   }
 
   @Override
