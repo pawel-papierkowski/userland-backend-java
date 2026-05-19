@@ -76,16 +76,16 @@ public abstract class BaseUserService extends BaseService {
 
   /**
    * Ensures token of given type for given user does not exist. If token exists, but is expired, it will be removed.
-   * If token exists and is still valid, throws exception.
-   * Reminder: one user can have only one token of given type at once.
+   * If token exists and is still valid, throws exception or returns false.
+   * <p>Reminder: one user can have only one token of given type at once.</p>
    * @param nowAt Current date&time.
-   * @param type Type of token.
-   * @param user User.
+   * @param type  Type of token.
+   * @param user  User.
    */
-  protected void ensureTokenDoesNotExist(LocalDateTime nowAt, EnUserTokenType type, User user) {
+  protected boolean ensureTokenDoesNotExist(LocalDateTime nowAt, EnUserTokenType type, User user) {
     List<UserToken> tokens = user.getTokens();
     UserToken token = findToken(tokens, type);
-    if (token == null) return; // no token of this type present at all, everything is fine
+    if (token == null) return true; // no token of this type present at all, everything is fine
 
     // Expired token will be removed to make place for new token.
     if (token.getExpiresAt().isBefore(nowAt)) {
@@ -93,11 +93,12 @@ public abstract class BaseUserService extends BaseService {
       // Important to flush here, otherwise Bad Things Happen. It is fine if it is saved in rollback scenario, as
       // expired tokens cannot be used anyway.
       userRepository.saveAndFlush(user);
-      return;
+      return true;
     }
 
-    // Token still valid, throw exception.
-    throw new UserTokenAlreadyExistsException(type);
+    // Token still valid, throw exception (not production) or return false (production, so we can fail silently).
+    if (build.getTest()) throw new UserTokenAlreadyExistsException(type);
+    return false;
   }
 
   /**

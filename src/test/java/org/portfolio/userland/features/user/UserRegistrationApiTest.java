@@ -31,7 +31,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 
 /**
  * Integration test for user registration.
- * <p>Note: UserEmailTest tests emails generated in reaction to events.</p>
  */
 public class UserRegistrationApiTest extends BaseUserTest {
   @AfterEach
@@ -43,6 +42,7 @@ public class UserRegistrationApiTest extends BaseUserTest {
 
   @Test
   public void registerNewUser() throws Exception {
+    // Registering new user with minimum data.
     clock.setFixedTime("2026-04-10T10:00:00Z");
 
     // Arrange: Create the JSON payload.
@@ -62,8 +62,6 @@ public class UserRegistrationApiTest extends BaseUserTest {
 
     // Assert database state.
     transactionTemplate.execute(_ -> {
-      // We wrap it in transactionTemplate because we cannot use @Transactional on this test, as it would break await() later.
-
       // Prepare expected result.
       User expectedUser = userFactory.genUser(EnUserStatus.PENDING);
       UserProfile expectedUserProfile = userProfileFactory.genProfile(expectedUser);
@@ -92,6 +90,7 @@ public class UserRegistrationApiTest extends BaseUserTest {
 
   @Test
   public void registerNewUserWithProfile() throws Exception {
+    // Registering new user with profile data included.
     clock.setFixedTime("2026-04-10T10:00:00Z");
 
     // Arrange: Create the JSON payload.
@@ -111,8 +110,6 @@ public class UserRegistrationApiTest extends BaseUserTest {
 
     // Assert database state.
     transactionTemplate.execute(_ -> {
-      // We wrap it in transactionTemplate because we cannot use @Transactional on this test, as it would break await() later.
-
       // Prepare expected result.
       User expectedUser = userFactory.genUser(EnUserStatus.PENDING);
       UserProfile expectedUserProfile = userProfileFactory.genProfile(expectedUser);
@@ -143,6 +140,7 @@ public class UserRegistrationApiTest extends BaseUserTest {
 
   @Test
   public void registerNewUserWithActivation() throws Exception {
+    // Registering new user WITH simultaneous activation. Won't work on production.
     clock.setFixedTime("2026-04-10T10:00:00Z");
 
     // Arrange: Create the JSON payload. Note we already activate that user. This kind of activation works only in test environments.
@@ -185,6 +183,7 @@ public class UserRegistrationApiTest extends BaseUserTest {
 
   @Test
   public void userIsSanitized() throws Exception {
+    // Make sure weird username is sanitized.
     clock.setFixedTime("2026-04-10T10:00:00Z");
 
     // Arrange: Create the JSON payload.
@@ -210,6 +209,7 @@ public class UserRegistrationApiTest extends BaseUserTest {
 
   @Test
   public void activateUser() throws Exception {
+    // We are activating user.
     clock.setFixedTime("2026-04-10T10:00:00Z");
     User expectedUser = userFactory.genUser(EnUserStatus.ACTIVE); // already generate expected user due to date/time
 
@@ -259,7 +259,7 @@ public class UserRegistrationApiTest extends BaseUserTest {
           assertThat(event.frontend()).isEqualTo(EnFrontendFramework.VUE);
         });
 
-    // Assert that email (confirmation of account activate) was sent.
+    // Assert that email (confirmation of account activation) was sent.
     await().atMost(Duration.ofSeconds(3)).untilAsserted(() -> {
       ArgumentCaptor<EmailReq> captor = ArgumentCaptor.forClass(EmailReq.class);
       verify(emailService, times(1)).queueEmail(captor.capture());
@@ -268,6 +268,7 @@ public class UserRegistrationApiTest extends BaseUserTest {
 
   @Test
   public void userWithEmailAlreadyExists() throws Exception {
+    // We are trying to register user when user with same email already exists in database.
     clock.setFixedTime("2026-04-10T10:00:00Z");
     User expectedUser = userFactory.genUser(EnUserStatus.ACTIVE);
 
@@ -285,8 +286,20 @@ public class UserRegistrationApiTest extends BaseUserTest {
             .content(objectMapper.writeValueAsString(req)))
         .andReturn();
 
-    // Assert API Response.
+    // Assert API Response. On production, it will pretend everything is fine.
     assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.CREATED.value());
+    assertThat(mvcResult.getResponse().getContentAsString()).as("Response body should be empty").isEqualTo("");
+/* // TODO
+    assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.CONFLICT.value());
+    ProblemDetailBox expectedPdb = new ProblemDetailBox(
+        HttpStatus.CONFLICT.value(),
+        "User with given email already exists.",
+        "Email 'test@example.com' already exists.",
+        "/api/users/register",
+        "https://api.userland.org/errors/user/email/alreadyExists",
+        Map.of("errCode", "user_0111")
+    );
+    problemDetailService.assertPd(mvcResult, expectedPdb);*/
 
     // Assert that user data is untouched.
     transactionTemplate.execute(_ -> {
@@ -308,7 +321,7 @@ public class UserRegistrationApiTest extends BaseUserTest {
           assertThat(event.frontend()).isNull(); // will use default frontend for www link
         });
 
-    // Assert that email (confirmation of account activate) was sent.
+    // Assert that email (warning for existing user) was sent.
     await().atMost(Duration.ofSeconds(3)).untilAsserted(() -> {
       ArgumentCaptor<EmailReq> captor = ArgumentCaptor.forClass(EmailReq.class);
       verify(emailService, times(1)).queueEmail(captor.capture());
@@ -320,6 +333,8 @@ public class UserRegistrationApiTest extends BaseUserTest {
 
   @Test
   public void errMissingToken() throws Exception {
+    // We are trying to activate user using nonexistent token.
+
     // Arrange: Create token activate request.
     String tokenStr = "MISSING_TOKEN___________________";
     TokenActivateReq req = new TokenActivateReq(tokenStr, null); // pad it as it must have at least 32 chars
@@ -347,6 +362,7 @@ public class UserRegistrationApiTest extends BaseUserTest {
   @Test
   @Transactional
   public void errExpiredToken() throws Exception {
+    // We are trying to activate user using expired token.
     clock.setFixedTime("2026-04-08T10:00:00Z");
 
     // Arrange: Create pending user and get activate token.

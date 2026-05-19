@@ -131,18 +131,20 @@ public class UserController {
 
   /**
    * Sends emails about email change (warning and link).
+   * <p>Note: on production it will pretend everything is fine if email already exists or email change token already
+   * exists to prevent email enumeration attacks.</p>
    * @param userEmailChangeLinkReq User email change link request.
    * @return Response.
    */
   @PostMapping(value = "/email/link", produces = "application/json")
-  @Operation(summary = "Send email change link", description = "Sends emails with warning and link to page where you can change email for your account. Note that trying to use already existing email or wrong password will fail silently to prevent email enumeration attack.")
+  @Operation(summary = "Send email change link", description = "Sends emails with warning and link to page where you can change email for your account. Note on production trying to use already existing email or wrong password will have same result to prevent email enumeration attack.")
   @ApiResponses(value = {
-      @ApiResponse(responseCode = "204", description = "Email change emails successfully sent OR request was ignored due to wrong email address or wrong password.",
+      @ApiResponse(responseCode = "204", description = "Email change emails successfully sent. On production also when request was ignored due to wrong email address or wrong password.",
           content = @Content(schema = @Schema(hidden = true))),
       @ApiResponse(responseCode = "400", description = "Invalid input (missing or malformed email).",
           content = @Content(mediaType = "application/problem+json",
               schema = @Schema(implementation = ValidationProblemDetail.class))),
-      @ApiResponse(responseCode = "409", description = "Email change is already pending.",
+      @ApiResponse(responseCode = "409", description = "Email change is already pending. Not shown on production.",
           content = @Content(mediaType = "application/problem+json",
               schema = @Schema(implementation = TokenAlreadyExistsProblemDetail.class)))
   })
@@ -175,18 +177,20 @@ public class UserController {
 
   /**
    * Sends email with password reset link.
+   * <p>Note: on production it will pretend everything is fine if email is not present in database or if password reset
+   * token already exists to prevent email enumeration attacks.</p>
    * @param userPassResetLinkReq User password link request.
    * @return Response.
    */
   @PostMapping(value = "/password/link", produces = "application/json")
-  @Operation(summary = "Send password reset link", description = "Sends email with link to page where you can reset password for your account. Note that trying to use unknown email will fail silently to prevent email enumeration attack.")
+  @Operation(summary = "Send password reset link", description = "Sends email with link to page where you can reset password for your account. Note on production trying to use unknown email will fail silently to prevent email enumeration attack.")
   @ApiResponses(value = {
-      @ApiResponse(responseCode = "204", description = "Password reset email successfully sent OR request was ignored due to unknown email address.",
+      @ApiResponse(responseCode = "204", description = "Password reset email successfully sent. On production also when request failed due to issues like unknown email address.",
           content = @Content(schema = @Schema(hidden = true))),
       @ApiResponse(responseCode = "400", description = "Invalid input (missing or malformed email).",
           content = @Content(mediaType = "application/problem+json",
               schema = @Schema(implementation = ValidationProblemDetail.class))),
-      @ApiResponse(responseCode = "409", description = "Password reset is already pending.",
+      @ApiResponse(responseCode = "409", description = "Password reset is already pending. Not shown on production.",
           content = @Content(mediaType = "application/problem+json",
               schema = @Schema(implementation = TokenAlreadyExistsProblemDetail.class)))
   })
@@ -219,18 +223,20 @@ public class UserController {
 
   /**
    * Sends email with account deletion link.
+   * <p>Note: on production it will pretend everything is fine if email is not present in database or if account
+   * deletion token already exists to prevent email enumeration attacks.</p>
    * @param userDeleteLinkReq User deletion link request.
    * @return Response.
    */
   @PostMapping(value = "/delete/link", produces = "application/json")
-  @Operation(summary = "Send account deletion link", description = "Sends email with link that leads to page where you can confirm account deletion. Note that trying to use unknown email will fail silently to prevent email enumeration attack.")
+  @Operation(summary = "Send account deletion link", description = "Sends email with link that leads to page where you can confirm account deletion. Note on production trying to use unknown email will fail silently to prevent email enumeration attack.")
   @ApiResponses(value = {
-      @ApiResponse(responseCode = "204", description = "Account deletion email successfully sent OR request was ignored due to unknown email address.",
+      @ApiResponse(responseCode = "204", description = "Account deletion email successfully sent. On production also when request failed due to issues like unknown email address.",
           content = @Content(schema = @Schema(hidden = true))),
       @ApiResponse(responseCode = "400", description = "Invalid input (missing or malformed email).",
           content = @Content(mediaType = "application/problem+json",
               schema = @Schema(implementation = ValidationProblemDetail.class))),
-      @ApiResponse(responseCode = "409", description = "Account deletion is already pending.",
+      @ApiResponse(responseCode = "409", description = "Account deletion is already pending. Not shown on production.",
           content = @Content(mediaType = "application/problem+json",
               schema = @Schema(implementation = TokenAlreadyExistsProblemDetail.class)))
   })

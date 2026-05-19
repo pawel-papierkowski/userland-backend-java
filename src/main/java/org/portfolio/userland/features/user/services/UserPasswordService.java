@@ -40,11 +40,12 @@ public class UserPasswordService extends BaseUserService {
    */
   @Transactional
   public void send(UserPassResetLinkReq userPassResetLinkReq) {
-    User user = userHelperService.resolveUser(userPassResetLinkReq.email(), true);
-    if (user == null) return; // prevent email enumeration attack
+    User user = userHelperService.resolveUser(userPassResetLinkReq.email(), !build.getTest());
+    if (user == null) return; // fail silently to prevent email enumeration attack on production
 
     LocalDateTime nowAt = clockService.getNowUTC();
-    ensureTokenDoesNotExist(nowAt, EnUserTokenType.PASSWORD, user);
+    boolean result = ensureTokenDoesNotExist(nowAt, EnUserTokenType.PASSWORD, user);
+    if (!result) return; // fail silently to prevent email enumeration attack
 
     UserToken token = createTokenData(nowAt, EnUserTokenType.PASSWORD);
     user.addToken(token);

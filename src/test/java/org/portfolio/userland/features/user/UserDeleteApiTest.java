@@ -213,9 +213,17 @@ public class UserDeleteApiTest extends BaseUserTest {
             .content(objectMapper.writeValueAsString(req)))
         .andReturn();
 
-    // Assert API Response. Yes, this response is correct (avoids email enumeration attack).
-    assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.NO_CONTENT.value());
-    assertThat(mvcResult.getResponse().getContentAsString()).as("Response body should be empty").isEqualTo("");
+    // Assert API Response. Note on production same request will produce success.
+    assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.NOT_FOUND.value());
+    ProblemDetailBox expectedPdb = new ProblemDetailBox(
+        HttpStatus.NOT_FOUND.value(),
+        "User cannot be found.",
+        "User with email 'none@test.com' does not exist.",
+        "/api/users/delete/link",
+        "https://api.userland.org/errors/user/doesNotExist",
+        Map.of("errCode", "user_0001")
+    );
+    problemDetailService.assertPd(mvcResult, expectedPdb);
   }
 
   @Test
@@ -236,9 +244,17 @@ public class UserDeleteApiTest extends BaseUserTest {
             .content(objectMapper.writeValueAsString(req)))
         .andReturn();
 
-    // Assert API Response. Yes, this response is correct.
-    assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.NO_CONTENT.value());
-    assertThat(mvcResult.getResponse().getContentAsString()).as("Response body should be empty").isEqualTo("");
+    // Assert API Response. Note on production same request will produce success.
+    assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.CONFLICT.value());
+    ProblemDetailBox expectedPdb = new ProblemDetailBox(
+        HttpStatus.CONFLICT.value(),
+        "User has invalid status.",
+        "User with email 'test@example.com' must have valid status.",
+        "/api/users/delete/link",
+        "https://api.userland.org/errors/user/invalidStatus",
+        Map.of("errCode", "user_0121")
+    );
+    problemDetailService.assertPd(mvcResult, expectedPdb);
   }
 
   @Test
@@ -260,9 +276,17 @@ public class UserDeleteApiTest extends BaseUserTest {
             .content(objectMapper.writeValueAsString(req)))
         .andReturn();
 
-    // Assert API Response. Yes, this response is correct.
-    assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.NO_CONTENT.value());
-    assertThat(mvcResult.getResponse().getContentAsString()).as("Response body should be empty").isEqualTo("");
+    // Assert API Response. Note on production same request will produce success.
+    assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.CONFLICT.value());
+    ProblemDetailBox expectedPdb = new ProblemDetailBox(
+        HttpStatus.CONFLICT.value(),
+        "User is locked.",
+        "User with email 'test@example.com' is locked.",
+        "/api/users/delete/link",
+        "https://api.userland.org/errors/user/locked",
+        Map.of("errCode", "user_0122")
+    );
+    problemDetailService.assertPd(mvcResult, expectedPdb);
   }
 
   @Test
@@ -284,7 +308,7 @@ public class UserDeleteApiTest extends BaseUserTest {
             .content(objectMapper.writeValueAsString(req)))
         .andReturn();
 
-    // Assert API Response.
+    // Assert API Response. Note on production same request will produce success.
     assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.CONFLICT.value());
 
     ProblemDetailBox expectedPdb = new ProblemDetailBox(

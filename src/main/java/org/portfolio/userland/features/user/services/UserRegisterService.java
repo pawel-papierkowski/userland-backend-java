@@ -44,7 +44,7 @@ public class UserRegisterService extends BaseUserService {
   @Transactional
   public void register(UserRegisterReq userRegisterReq) {
     // We need to react properly in case there is already user with given email in system.
-    // We cannot return error as it would allow email enumeration attack.
+    // On production, we cannot return error as it would allow email enumeration attack.
     boolean alreadyRegistered = userRepository.existsByEmail(userRegisterReq.email());
     if (alreadyRegistered) alreadyRegistered(userRegisterReq);
     else actuallyRegister(userRegisterReq);
@@ -60,6 +60,10 @@ public class UserRegisterService extends BaseUserService {
     User user = userHelperService.resolveUser(userRegisterReq.email(), true);
     if (user == null) return; // should not happen
     triggerAlreadyRegisteredEvent(user, userRegisterReq.frontend());
+
+    // On production, we will pretend everything is fine and dandy.
+    // TODO: exception prevents sending email properly, think up better way to do it.
+    //if (build.getTest()) throw new UserEmailAlreadyExistsException(userRegisterReq.email());
   }
 
   /**

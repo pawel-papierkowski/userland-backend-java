@@ -41,11 +41,12 @@ public class UserDeleteService extends BaseUserService {
    */
   @Transactional
   public void send(UserDeleteLinkReq userDeleteLinkReq) {
-    User user = userHelperService.resolveUser(userDeleteLinkReq.email(), true);
+    User user = userHelperService.resolveUser(userDeleteLinkReq.email(), !build.getTest());
     if (user == null) return; // prevent email enumeration attack
 
     LocalDateTime nowAt = clockService.getNowUTC();
-    ensureTokenDoesNotExist(nowAt, EnUserTokenType.DELETE, user);
+    boolean result = ensureTokenDoesNotExist(nowAt, EnUserTokenType.DELETE, user);
+    if (!result) return; // fail silently to prevent email enumeration attack
 
     UserToken token = createTokenData(nowAt, EnUserTokenType.DELETE);
     user.addToken(token);

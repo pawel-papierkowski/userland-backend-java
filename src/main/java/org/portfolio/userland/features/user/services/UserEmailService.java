@@ -37,14 +37,17 @@ public class UserEmailService extends BaseUserService {
   /**
    * Creates email change token and (indirectly, via event) sends emails with warning and email change link to user with
    * given email.
-   * Note: if email is already taken or password is wrong, will return same error (bad password).
+   * <p>Note: on production, if email is already taken (or some other problem occurred), will return same error as bad password.</p>
    * @param userEmailChangeLinkReq User email change request.
    */
   @Transactional
   public void send(@Valid UserEmailChangeLinkReq userEmailChangeLinkReq) {
-    User user = userHelperService.resolveUser(true);
+    User user = userHelperService.resolveUser(!build.getTest());
     if (user == null) throw new UserWrongPasswordException();
-    if (user.getEmail().equals(userEmailChangeLinkReq.newEmail())) throw new UserEmailAlreadyExistsException(user.getEmail());
+    if (user.getEmail().equals(userEmailChangeLinkReq.newEmail())) { // email already taken
+      if (build.getTest()) throw new UserEmailAlreadyExistsException(user.getEmail());
+      else throw new UserWrongPasswordException();
+    }
     userHelperService.verifyPassword(user, userEmailChangeLinkReq.password());
 
     if (userRepository.existsByEmail(userEmailChangeLinkReq.newEmail())) {
@@ -55,7 +58,8 @@ public class UserEmailService extends BaseUserService {
 
     LocalDateTime nowAt = clockService.getNowUTC();
     String params = "old: '"+user.getEmail()+"', new: '"+userEmailChangeLinkReq.newEmail()+"'";
-    ensureTokenDoesNotExist(nowAt, EnUserTokenType.EMAIL, user);
+    boolean result = ensureTokenDoesNotExist(nowAt, EnUserTokenType.EMAIL, user);
+    if (!result) throw new UserWrongPasswordException();
 
     UserToken token = createTokenData(nowAt, EnUserTokenType.EMAIL, userEmailChangeLinkReq.newEmail());
     user.addToken(token);

@@ -241,8 +241,8 @@ public class UserEmailApiTest extends BaseUserTest {
     User expectedUser = userFactory.genUser(EnUserStatus.ACTIVE);
     userRepository.save(expectedUser);
 
-    // Arrange: create email change request.
-    UserEmailChangeLinkReq req = new UserEmailChangeLinkReq("test@example.com", "Password123!", null);
+    // Arrange: create email change request. Note new email is same as already existing email.
+    UserEmailChangeLinkReq req = new UserEmailChangeLinkReq(expectedUser.getEmail(), "Password123!", null);
 
     // Act: Try to send email change link email.
     MvcResult mvcResult = mockMvc.perform(post("/api/users/email/link")
@@ -250,7 +250,7 @@ public class UserEmailApiTest extends BaseUserTest {
             .content(objectMapper.writeValueAsString(req)))
         .andReturn();
 
-    // Assert API Response.
+    // Assert API Response. Note on production same request will produce different error.
     assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.CONFLICT.value());
     ProblemDetailBox expectedPdb = new ProblemDetailBox(
         HttpStatus.CONFLICT.value(),
@@ -262,6 +262,134 @@ public class UserEmailApiTest extends BaseUserTest {
     );
     problemDetailService.assertPd(mvcResult, expectedPdb);
   }
+
+  @Test
+  @WithMockCustomUser
+  @Transactional
+  public void errEmailChangeForUnknownEmail() throws Exception {
+    clock.setFixedTime("2026-04-08T10:00:00Z");
+
+    // Arrange: create email change request.
+    UserEmailChangeLinkReq req = new UserEmailChangeLinkReq("new.email@example.com", "Password123!", null);
+
+    // Act: Try to send password reset email to account that do not exist in database.
+    MvcResult mvcResult = mockMvc.perform(post("/api/users/email/link")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(req)))
+        .andReturn();
+
+    // Assert API Response. Note on production same request will produce different error.
+    assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.NOT_FOUND.value());
+    ProblemDetailBox expectedPdb = new ProblemDetailBox(
+        HttpStatus.NOT_FOUND.value(),
+        "User cannot be found.",
+        "User with email 'test@example.com' does not exist.",
+        "/api/users/email/link",
+        "https://api.userland.org/errors/user/doesNotExist",
+        Map.of("errCode", "user_0001")
+    );
+    problemDetailService.assertPd(mvcResult, expectedPdb);
+  }
+
+  @Test
+  @WithMockCustomUser
+  @Transactional
+  public void errEmailChangeForPendingUser() throws Exception {
+    clock.setFixedTime("2026-04-08T10:00:00Z");
+
+    // Arrange: create pending user.
+    User expectedUser = userFactory.genUser(EnUserStatus.PENDING);
+    userRepository.save(expectedUser);
+
+    // Arrange: create email change request.
+    UserEmailChangeLinkReq req = new UserEmailChangeLinkReq("new.email@example.com", "Password123!", null);
+
+    // Act: Try to send password reset email.
+    MvcResult mvcResult = mockMvc.perform(post("/api/users/email/link")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(req)))
+        .andReturn();
+
+    // Assert API Response. Note on production same request will produce different error.
+    assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.CONFLICT.value());
+    ProblemDetailBox expectedPdb = new ProblemDetailBox(
+        HttpStatus.CONFLICT.value(),
+        "User has invalid status.",
+        "User with email 'test@example.com' must have valid status.",
+        "/api/users/email/link",
+        "https://api.userland.org/errors/user/invalidStatus",
+        Map.of("errCode", "user_0121")
+    );
+    problemDetailService.assertPd(mvcResult, expectedPdb);
+  }
+
+  @Test
+  @WithMockCustomUser
+  @Transactional
+  public void errEmailChangeForLockedUser() throws Exception {
+    clock.setFixedTime("2026-04-08T10:00:00Z");
+
+    // Arrange: create locked user.
+    User expectedUser = userFactory.genUser(EnUserStatus.ACTIVE);
+    expectedUser.setLocked(true);
+    userRepository.save(expectedUser);
+
+    // Arrange: create email change request.
+    UserEmailChangeLinkReq req = new UserEmailChangeLinkReq("new.email@example.com", "Password123!", null);
+
+    // Act: Try to send password reset email.
+    MvcResult mvcResult = mockMvc.perform(post("/api/users/email/link")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(req)))
+        .andReturn();
+
+    // Assert API Response. Note on production same request will produce different error.
+    assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.CONFLICT.value());
+    ProblemDetailBox expectedPdb = new ProblemDetailBox(
+        HttpStatus.CONFLICT.value(),
+        "User is locked.",
+        "User with email 'test@example.com' is locked.",
+        "/api/users/email/link",
+        "https://api.userland.org/errors/user/locked",
+        Map.of("errCode", "user_0122")
+    );
+    problemDetailService.assertPd(mvcResult, expectedPdb);
+  }
+
+  @Test
+  @WithMockCustomUser
+  @Transactional
+  public void errEmailChangeWhenTokenExists() throws Exception {
+    clock.setFixedTime("2026-04-08T10:00:00Z");
+
+    // Arrange: create user with email change token already present and valid.
+    User expectedUser = userFactory.genUser(EnUserStatus.ACTIVE);
+    userTokenFactory.genTokenEntry(expectedUser, EnUserTokenType.EMAIL, null);
+    userRepository.save(expectedUser);
+
+    // Arrange: create email change request.
+    UserEmailChangeLinkReq req = new UserEmailChangeLinkReq("new.email@example.com", "Password123!", null);
+
+    // Act: Try to send password reset email.
+    MvcResult mvcResult = mockMvc.perform(post("/api/users/email/link")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(req)))
+        .andReturn();
+
+    // Assert API Response. Note on production same request will produce different error.
+    assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.CONFLICT.value());
+    ProblemDetailBox expectedPdb = new ProblemDetailBox(
+        HttpStatus.CONFLICT.value(),
+        "Required token already exists.",
+        "Token of type 'EMAIL' already exists and is still valid. You cannot do this action twice in row.",
+        "/api/users/email/link",
+        "https://api.userland.org/errors/user/token/alreadyExists",
+        Map.of("errCode", "user_0013")
+    );
+    problemDetailService.assertPd(mvcResult, expectedPdb);
+  }
+
+  //
 
   @Test
   @WithMockCustomUser
