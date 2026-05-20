@@ -84,11 +84,27 @@ public class JwtService extends BaseService {
   }
 
   /**
-   * Convert user permissions to claims.
+   * Convert user data to claims. Custom claims:
+   * <ul>
+   *   <li>name of user</li>
+   *   <li>permissions</li>
+   * </ul>
    * @param user User data.
    * @return Claims as <code>Map</code>.
    */
   private Map<String, ?> resolveClaims(User user) {
+    Map<String, String> claimMap = Maps.newHashMap();
+    claimMap.put("name", user.getUsername());
+    claimMap.putAll(resolvePermissions(user));
+    return claimMap;
+  }
+
+  /**
+   * Convert user permissions to claims.
+   * @param user User data.
+   * @return Claims as <code>Map</code>.
+   */
+  private Map<String, String> resolvePermissions(User user) {
     Map<String, String> claimMap = Maps.newHashMap();
     // We need to have sorted list of permissions to ensure consistent results. For example, if you have role operator
     // and role admin, it will always be saved as "role" -> "admin,operator".

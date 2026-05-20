@@ -81,6 +81,7 @@ public class UserLoginApiTest extends BaseUserTest {
     expectedClaimMap.put("iat", 1775815500L); // issued
     expectedClaimMap.put("exp", 1775837100L); // expires
     expectedClaimMap.put("sub", "test@example.com"); // user account email as subject
+    expectedClaimMap.put("name", "Jane"); // username
     jwtAssert.assertIt(actualResp.jwtToken(), expectedUser.getEmail(), expectedClaimMap);
   }
 
@@ -125,6 +126,7 @@ public class UserLoginApiTest extends BaseUserTest {
     expectedClaimMap.put("iat", 1775815500L); // issued
     expectedClaimMap.put("exp", 1775837100L); // expires
     expectedClaimMap.put("sub", "test@example.com"); // user account email as subject
+    expectedClaimMap.put("name", "Jane"); // username
     expectedClaimMap.put("role", "operator"); // from permission entry
     jwtAssert.assertIt(actualResp.jwtToken(), expectedUser.getEmail(), expectedClaimMap);
   }
@@ -175,6 +177,7 @@ public class UserLoginApiTest extends BaseUserTest {
     expectedClaimMap.put("iat", 1775815500L); // issued
     expectedClaimMap.put("exp", 1775837100L); // expires
     expectedClaimMap.put("sub", "test@example.com"); // user account email as subject
+    expectedClaimMap.put("name", "Jane"); // username
     expectedClaimMap.put("role", "operator"); // from permission entry
     jwtAssert.assertIt(actualResp.jwtToken(), expectedUser.getEmail(), expectedClaimMap);
   }
@@ -221,6 +224,7 @@ public class UserLoginApiTest extends BaseUserTest {
     expectedClaimMap.put("iat", 1775815500L); // issued
     expectedClaimMap.put("exp", 1775819100L); // expires in 1 hour (custom duration)
     expectedClaimMap.put("sub", "test@example.com"); // user account email as subject
+    expectedClaimMap.put("name", "Jane"); // username
     jwtAssert.assertIt(actualResp.jwtToken(), expectedUser.getEmail(), expectedClaimMap);
   }
 

@@ -58,6 +58,7 @@ public class JwtServiceTest extends BaseUserTest {
     expectedClaimMap.put("iat", iat); // issued
     expectedClaimMap.put("exp", exp); // expires
     expectedClaimMap.put("sub", user.getEmail()); // user account email as subject
+    expectedClaimMap.put("name", user.getUsername()); // username
     assertThat(actualClaimMap).as("Claim map is invalid").isEqualTo(expectedClaimMap);
   }
 
@@ -83,6 +84,7 @@ public class JwtServiceTest extends BaseUserTest {
     expectedClaimMap.put("iat", iat); // issued
     expectedClaimMap.put("exp", exp); // expires in hour
     expectedClaimMap.put("sub", user.getEmail()); // user account email as subject
+    expectedClaimMap.put("name", user.getUsername()); // username
     assertThat(actualClaimMap).as("Claim map is invalid").isEqualTo(expectedClaimMap);
   }
 
@@ -113,6 +115,7 @@ public class JwtServiceTest extends BaseUserTest {
     expectedClaimMap.put("iat", iat); // issued
     expectedClaimMap.put("exp", exp); // expires
     expectedClaimMap.put("sub", user.getEmail()); // user account email as subject
+    expectedClaimMap.put("name", user.getUsername()); // username
     expectedClaimMap.put("user", "edit");
     expectedClaimMap.put("role", "admin,operator"); // two perms for same role handled properly
     assertThat(actualClaimMap).as("Claim map is invalid").isEqualTo(expectedClaimMap);

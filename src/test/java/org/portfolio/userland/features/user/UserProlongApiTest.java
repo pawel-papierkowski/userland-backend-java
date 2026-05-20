@@ -62,6 +62,7 @@ public class UserProlongApiTest extends BaseUserTest {
     expectedClaimMap.put("iat", 1775822400L); // issued
     expectedClaimMap.put("exp", 1775844000L); // expires
     expectedClaimMap.put("sub", "test@example.com"); // user account email as subject
+    expectedClaimMap.put("name", "Jane"); // username
     jwtAssert.assertIt(actualResp.jwtToken(), expectedUser.getEmail(), expectedClaimMap);
   }
 
