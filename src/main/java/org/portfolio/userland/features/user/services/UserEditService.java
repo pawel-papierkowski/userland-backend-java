@@ -68,15 +68,11 @@ public class UserEditService extends BaseUserService {
    */
   private String editUser(UserEditReq userEditReq, User user) {
     String params = "";
-    if (StringUtils.isNotEmpty(userEditReq.username())) {
+    if (StringUtils.isNotEmpty(userEditReq.username()) && !userEditReq.username().equals(user.getUsername())) {
       user.setUsername(userEditReq.username());
       params += "username ";
     }
-    if (StringUtils.isNotEmpty(userEditReq.password())) {
-      user.setPassword(passwordEncoder.encode(userEditReq.password()));
-      params += "password ";
-    }
-    if (StringUtils.isNotEmpty(userEditReq.lang())) {
+    if (StringUtils.isNotEmpty(userEditReq.lang()) && !userEditReq.lang().equals(user.getLang())) {
       user.setLang(userEditReq.lang());
       params += "lang ";
     }
@@ -91,11 +87,11 @@ public class UserEditService extends BaseUserService {
    */
   private String editUserProfile(UserEditReq userEditReq, UserProfile userProfile) {
     String params = "";
-    if (StringUtils.isNotEmpty(userEditReq.name())) {
+    if (StringUtils.isNotEmpty(userEditReq.name()) && !userEditReq.name().equals(userProfile.getName())) {
       userProfile.setName(userEditReq.name());
       params += "name ";
     }
-    if (StringUtils.isNotEmpty(userEditReq.surname())) {
+    if (StringUtils.isNotEmpty(userEditReq.surname()) && !userEditReq.name().equals(userProfile.getSurname())) {
       userProfile.setSurname(userEditReq.surname());
       params += "surname ";
     }

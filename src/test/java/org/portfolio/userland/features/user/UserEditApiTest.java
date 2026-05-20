@@ -42,7 +42,7 @@ public class UserEditApiTest extends BaseUserTest {
     clock.setFixedTime("2026-04-10T10:05:00Z");
 
     // Arrange: Create request for editing of user account.
-    UserEditReq req = new UserEditReq("JasiuFasola44", "#eWp@s5w0rD", "pl", "Jasiu", "Fasola");
+    UserEditReq req = new UserEditReq("JasiuFasola44", "pl", "Jasiu", "Fasola");
 
     // Act: Try to edit user account.
     MvcResult mvcResult = mockMvc.perform(patch("/api/users/edit")
@@ -65,13 +65,13 @@ public class UserEditApiTest extends BaseUserTest {
     expectedUser.setLang("pl");
     expectedUserProfile.setName("Jasiu");
     expectedUserProfile.setSurname("Fasola");
-    userHistoryFactory.genHistoryEvent(expectedUser, EnUserHistoryWhat.EDIT, "username, password, lang, name, surname");
+    userHistoryFactory.genHistoryEvent(expectedUser, EnUserHistoryWhat.EDIT, "username, lang, name, surname");
 
     // Assert that user data is correctly updated.
     transactionTemplate.execute(_ -> {
       // Assert user state.
       User user = assertAllUser("test@example.com", expectedUser, expectedUserProfile);
-      assertThat(user.getPassword()).as("Password hash should be different").isNotEqualTo(expectedUser.getPassword());
+      assertThat(user.getPassword()).as("Password hash should be same").isEqualTo(expectedUser.getPassword());
       return null;
     });
   }
@@ -90,7 +90,7 @@ public class UserEditApiTest extends BaseUserTest {
     clock.setFixedTime("2026-04-10T10:05:00Z");
 
     // Arrange: Create request for editing of user account.
-    UserEditReq req = new UserEditReq("Robert", null, null, null, null);
+    UserEditReq req = new UserEditReq("Robert", null, null, null);
 
     // Act: Try to edit user account.
     MvcResult mvcResult = mockMvc.perform(patch("/api/users/edit")
@@ -122,6 +122,50 @@ public class UserEditApiTest extends BaseUserTest {
 
   @Test
   @WithMockCustomUser
+  public void editUserSameValue() throws Exception {
+    // Edit user: set two fields (username, lang), one of them to same value as previously (username).
+    clock.setFixedTime("2026-04-10T10:00:00Z");
+
+    // Arrange: Create active user and profile.
+    User expectedUser = userFactory.genUser(EnUserStatus.ACTIVE);
+    UserProfile expectedUserProfile = userProfileFactory.genRandProfile(expectedUser);
+    userProfileRepository.save(expectedUserProfile);
+
+    clock.setFixedTime("2026-04-10T10:05:00Z");
+
+    // Arrange: Create request for editing of user account.
+    UserEditReq req = new UserEditReq("Jane", "pl", null, null);
+
+    // Act: Try to edit user account.
+    MvcResult mvcResult = mockMvc.perform(patch("/api/users/edit")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(req)))
+        .andReturn();
+
+    // Assert API Response.
+    assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.OK.value());
+
+    // Assert: Endpoint response.
+    UserDataResp actualResp = objectMapper.readValue(mvcResult.getResponse().getContentAsString(), UserDataResp.class);
+    UserDataResp expectedResp = new UserDataResp("Jane", "test@example.com", "pl", null);
+    assertThat(actualResp).as("User data is invalid").usingRecursiveComparison().isEqualTo(expectedResp);
+
+    // Prepare expected result.
+    expectedUser.setModifiedAt(clockService.getNowUTC());
+    expectedUser.setLang("pl");
+    userHistoryFactory.genHistoryEvent(expectedUser, EnUserHistoryWhat.EDIT, "lang"); // note there is only one field
+
+    // Assert that user data is correctly updated.
+    transactionTemplate.execute(_ -> {
+      // Assert user state.
+      User user = assertAllUser("test@example.com", expectedUser, expectedUserProfile);
+      assertThat(user.getPassword()).as("Password hash should be same").isEqualTo(expectedUser.getPassword());
+      return null;
+    });
+  }
+
+  @Test
+  @WithMockCustomUser
   public void editUserProfileOneField() throws Exception {
     // Edit user: change only single field, but in profile.
     clock.setFixedTime("2026-04-10T10:00:00Z");
@@ -134,7 +178,7 @@ public class UserEditApiTest extends BaseUserTest {
     clock.setFixedTime("2026-04-10T10:05:00Z");
 
     // Arrange: Create request for editing of user account.
-    UserEditReq req = new UserEditReq(null, null, null, "Tom", null);
+    UserEditReq req = new UserEditReq(null, null, "Tom", null);
 
     // Act: Try to edit user account.
     MvcResult mvcResult = mockMvc.perform(patch("/api/users/edit")
@@ -168,49 +212,6 @@ public class UserEditApiTest extends BaseUserTest {
 
   @Test
   @WithMockCustomUser
-  public void editUserPasswordOnly() throws Exception {
-    // Edit user: change only password.
-    clock.setFixedTime("2026-04-10T10:00:00Z");
-
-    // Arrange: Create active user and profile.
-    User expectedUser = userFactory.genUser(EnUserStatus.ACTIVE);
-    UserProfile expectedUserProfile = userProfileFactory.genRandProfile(expectedUser);
-    userProfileRepository.save(expectedUserProfile);
-
-    clock.setFixedTime("2026-04-10T10:05:00Z");
-
-    // Arrange: Create request for editing of user account.
-    UserEditReq req = new UserEditReq(null, "#eWp@s5w0rD", null, null, null);
-
-    // Act: Try to edit user account.
-    MvcResult mvcResult = mockMvc.perform(patch("/api/users/edit")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(req)))
-        .andReturn();
-
-    // Assert API Response.
-    assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.OK.value());
-
-    // Assert: Endpoint response.
-    UserDataResp actualResp = objectMapper.readValue(mvcResult.getResponse().getContentAsString(), UserDataResp.class);
-    UserDataResp expectedResp = new UserDataResp("Jane", "test@example.com", "en", null); // unchanged
-    assertThat(actualResp).as("User data is invalid").usingRecursiveComparison().isEqualTo(expectedResp);
-
-    // Prepare expected result.
-    expectedUser.setModifiedAt(clockService.getNowUTC());
-    userHistoryFactory.genHistoryEvent(expectedUser, EnUserHistoryWhat.EDIT, "password");
-
-    // Assert that user data is correctly updated.
-    transactionTemplate.execute(_ -> {
-      // Assert user state.
-      User user = assertAllUser("test@example.com", expectedUser, expectedUserProfile);
-      assertThat(user.getPassword()).as("Password hash should be different").isNotEqualTo(expectedUser.getPassword());
-      return null;
-    });
-  }
-
-  @Test
-  @WithMockCustomUser
   public void editUserNoFields() throws Exception {
     // Edit user: no fields changed.
     clock.setFixedTime("2026-04-10T10:00:00Z");
@@ -223,7 +224,7 @@ public class UserEditApiTest extends BaseUserTest {
     clock.setFixedTime("2026-04-10T10:05:00Z");
 
     // Arrange: Create request for editing of user account.
-    UserEditReq req = new UserEditReq(null, null, null, null, null);
+    UserEditReq req = new UserEditReq(null, null, null, null);
 
     // Act: Try to edit user account.
     MvcResult mvcResult = mockMvc.perform(patch("/api/users/edit")
