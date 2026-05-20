@@ -32,6 +32,6 @@ public record UserDataResp(
     @Schema(description = "Short language code.", example = "en")
     String lang,
 
-    @Schema(description = "User profile. Can be missing if profile was not affected.")
+    @Schema(description = "User profile.")
     UserProfileDataResp profile
 ) {}

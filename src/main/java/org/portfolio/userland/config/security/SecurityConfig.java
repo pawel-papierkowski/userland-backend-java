@@ -7,12 +7,18 @@ import org.springframework.boot.security.autoconfigure.actuate.web.servlet.Endpo
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import java.util.Arrays;
 
 /**
  * Security configuration.
@@ -41,7 +47,8 @@ public class SecurityConfig {
   @Order(1)
   public SecurityFilterChain actuatorSecurityFilterChain(HttpSecurity http) {
     // EndpointRequest knows where actuator endpoints are.
-    http.csrf(AbstractHttpConfigurer::disable)
+    http.cors(Customizer.withDefaults())
+        .csrf(AbstractHttpConfigurer::disable)
         .securityMatcher(EndpointRequest.toAnyEndpoint())
         .authorizeHttpRequests(requests -> requests.anyRequest().permitAll());
     return http.build();
@@ -56,7 +63,8 @@ public class SecurityConfig {
   @Bean
   @Order(2)
   public SecurityFilterChain swaggerSecurityFilterChain(HttpSecurity http) {
-    http.csrf(AbstractHttpConfigurer::disable)
+    http.cors(Customizer.withDefaults())
+        .csrf(AbstractHttpConfigurer::disable)
         .securityMatcher(
             "/v3/api-docs/**",
             "/swagger-ui/**",
@@ -74,7 +82,8 @@ public class SecurityConfig {
   @Bean
   @Order(3)
   public SecurityFilterChain publicSecurityFilterChain(HttpSecurity http) {
-    http.csrf(AbstractHttpConfigurer::disable)
+    http.cors(Customizer.withDefaults())
+        .csrf(AbstractHttpConfigurer::disable)
         .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .securityMatcher(
             "/api/checks/alive", // alive check
@@ -104,7 +113,8 @@ public class SecurityConfig {
   @Bean
   @Order(10)
   public SecurityFilterChain operatorSecurityFilterChain(HttpSecurity http) {
-    http.csrf(AbstractHttpConfigurer::disable)
+    http.cors(Customizer.withDefaults())
+        .csrf(AbstractHttpConfigurer::disable)
         .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .securityMatcher("/api/admin/*") // any administration panel endpoint
         .authorizeHttpRequests(requests -> requests.anyRequest().hasAnyAuthority("ROLE_OPERATOR", "ROLE_ADMIN"))
@@ -129,7 +139,8 @@ public class SecurityConfig {
   @Bean
   @Order(11)
   public SecurityFilterChain adminSecurityFilterChain(HttpSecurity http) {
-    http.csrf(AbstractHttpConfigurer::disable)
+    http.cors(Customizer.withDefaults())
+        .csrf(AbstractHttpConfigurer::disable)
         .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .securityMatcher("/api/system/*") // any system endpoint
         .authorizeHttpRequests(requests -> requests.anyRequest().hasAuthority("ROLE_ADMIN"))
@@ -151,7 +162,8 @@ public class SecurityConfig {
   @Bean
   @Order(50) // Make sure it's before the defaultSecurityFilterChain
   public SecurityFilterChain gcpInternalSecurityFilterChain(HttpSecurity http) {
-    http.csrf(AbstractHttpConfigurer::disable)
+    http.cors(Customizer.withDefaults())
+        .csrf(AbstractHttpConfigurer::disable)
         .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .securityMatcher("/api/gcp/**") // Match all GCP endpoints
         .authorizeHttpRequests(requests -> requests.anyRequest().authenticated())
@@ -182,7 +194,8 @@ public class SecurityConfig {
     // correct problem detail.
     // - authenticationEntryPoint() enforce 401 if there is no token
     // - accessDeniedHandler() enforce 403 if access is denied (no permission).
-    http.csrf(AbstractHttpConfigurer::disable)
+    http.cors(Customizer.withDefaults())
+        .csrf(AbstractHttpConfigurer::disable)
         .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .authorizeHttpRequests(requests -> requests.anyRequest().authenticated())
         .exceptionHandling(ex -> ex
@@ -192,5 +205,37 @@ public class SecurityConfig {
         .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
         .addFilterAfter(lockdownFilter, JwtAuthFilter.class);
     return http.build();
+  }
+
+  // SUPPORTING BEANS
+
+  /** We allow local Vue frontend and frontend on GitHub Pages. */
+  private final static String[] CORS_ALLOWED_ORIGINS = {
+      "http://localhost:5173", // local development frontend
+      "https://pawelpapierkowski.net.pl" // production frontend
+  };
+  /** We allow pretty much all HTTP methods. */
+  private final static String[] CORS_ALLOWED_METHODS = { "GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS" };
+  /** We allow certain headers. */
+  private final static String[] CORS_ALLOWED_HEADERS = { "Authorization", "Content-Type", "X-Requested-With" };
+
+  /**
+   * Configures CORS so frontend can work with backend without CORS-related issues.
+   * We define CORS config here and not in separate <code>WebConfig</code>, because otherwise some requests will fail
+   * before ever reaching <code>WebConfig</code>.
+   * <p>In filter chains, <code>Customizer.withDefaults()</code> will effectively use config bean configured here.</p>
+   * @return CORS configuration source.
+   */
+  @Bean
+  public CorsConfigurationSource corsConfigurationSource() {
+    CorsConfiguration configuration = new CorsConfiguration();
+    configuration.setAllowedOrigins(Arrays.asList(CORS_ALLOWED_ORIGINS));
+    configuration.setAllowedMethods(Arrays.asList(CORS_ALLOWED_METHODS));
+    configuration.setAllowedHeaders(Arrays.asList(CORS_ALLOWED_HEADERS));
+    configuration.setAllowCredentials(true);
+
+    UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+    source.registerCorsConfiguration("/**", configuration);
+    return source;
   }
 }

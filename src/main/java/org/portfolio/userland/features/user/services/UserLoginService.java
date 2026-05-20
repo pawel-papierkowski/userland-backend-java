@@ -1,6 +1,7 @@
 package org.portfolio.userland.features.user.services;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.portfolio.userland.common.services.web.HttpHelperService;
 import org.portfolio.userland.features.user.constants.UserConfigConst;
 import org.portfolio.userland.features.user.dto.login.UserLoginReq;
@@ -27,6 +28,7 @@ import java.time.LocalDateTime;
  */
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class UserLoginService extends BaseUserService {
   private final UserConfigService userConfigService;
 
@@ -58,6 +60,8 @@ public class UserLoginService extends BaseUserService {
     addJwtEntry(user, nowAt, jwtToken);
     // Add login event to user history.
     addHistoryEvent(user, nowAt, EnUserHistoryWhat.LOGIN, httpHelperService.resolveHttpParams());
+
+    log.trace("User '{}' has been logged in.", user.getEmail());
     return new UserLoginResp(jwtToken);
   }
 
@@ -85,7 +89,10 @@ public class UserLoginService extends BaseUserService {
   public void logout() {
     // If we aren't logged in, just end. Nothing to do.
     CustomUserDetails customUserDetails = AuthHelper.resolveUserDetails();
-    if (customUserDetails == null) return;
+    if (customUserDetails == null) {
+      log.trace("Cannot log out, user not found.");
+      return;
+    }
 
     // If we are logged in, add entry in history and remove JWT entries in database. It will invalidate any JWT that
     // might be in circulation.
@@ -93,6 +100,8 @@ public class UserLoginService extends BaseUserService {
     User user = userHelperService.resolveUser(customUserDetails.getEmail(), false);
     userJwtRepository.deleteAllByUser(user.getId()); // Revoke all JWTs related to this user.
     addHistoryEvent(user, nowAt, EnUserHistoryWhat.LOGOUT, "");
+
+    log.trace("User '{}' has been logged out.", user.getEmail());
   }
 
   // //////////////////////////////////////////////////////////////////////////
@@ -110,6 +119,7 @@ public class UserLoginService extends BaseUserService {
     addJwtEntry(user, nowAt, jwtToken); // Add new JWT.
     addHistoryEvent(user, nowAt, EnUserHistoryWhat.PROLONG, "");
 
+    log.trace("Session of user '{}' has been prolonged.", user.getEmail());
     return UserProlongResp.builder()
         .jwtToken(jwtToken)
         .build();
