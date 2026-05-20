@@ -54,11 +54,8 @@ public class UserHelperService {
    * @return User or null if user could not be found.
    */
   public User resolveUser(boolean failSilently) {
-    CustomUserDetails userDetails = AuthHelper.resolveUserDetails();
-    if (userDetails == null) {
-      if (failSilently) return null;
-      throw new IllegalStateException("User details should exist!");
-    }
+    CustomUserDetails userDetails = resolveUserDetails(failSilently);
+    if (userDetails == null) return null;
     return resolveUser(userDetails.getEmail(), failSilently);
   }
 
@@ -81,6 +78,52 @@ public class UserHelperService {
   }
 
   /**
+   * Resolves user by user detail. In other words, user must be logged in. This version of call should be used for auth
+   * purposes.
+   * @param failSilently If true, method will return null instead of throwing exception if user does not exist.
+   * @return User or null if user could not be found.
+   */
+  public User resolveAuthUser(boolean failSilently) {
+    CustomUserDetails userDetails = resolveUserDetails(failSilently);
+    if (userDetails == null) return null;
+    return resolveAuthUser(userDetails.getEmail(), failSilently);
+  }
+
+  /**
+   * Resolves user by email and verifies user state. This version of call should be used for auth purposes.
+   * @param email User email.
+   * @param failSilently If true, method will return null instead of throwing exception if user with given email does
+   *                    not exist.
+   * @return User or null if user could not be found.
+   */
+  public User resolveAuthUser(String email, boolean failSilently) {
+    User user;
+
+    if (failSilently) user = userRepository.findAuthByEmail(email).orElse(null);
+    else user = userRepository.findAuthByEmail(email).orElseThrow(() -> new UserNotFoundException(email));
+    if (user == null) return null; // failed to find user
+
+    if (!verifyUser(user, failSilently)) return null;
+    return user;
+  }
+
+  //
+
+  /**
+   * Resolve user details.
+   * @param failSilently If true, method will return null instead of throwing exception if user details do not exist.
+   * @return User details or null.
+   */
+  private CustomUserDetails resolveUserDetails(boolean failSilently) {
+    CustomUserDetails userDetails = AuthHelper.resolveUserDetails();
+    if (userDetails == null) {
+      if (failSilently) return null;
+      throw new IllegalStateException("User details should exist!");
+    }
+    return userDetails;
+  }
+
+  /**
    * Verifies user state. If user state is invalid, throws exception or returns false.
    * @param user User.
    * @param failSilently If true, in case of invalid user state return false instead of throwing exception.
@@ -98,7 +141,7 @@ public class UserHelperService {
     return true;
   }
 
-  //
+  // //////////////////////////////////////////////////////////////////////////
 
   /**
    * Verifies if password is correct. If it is not, throws exception.

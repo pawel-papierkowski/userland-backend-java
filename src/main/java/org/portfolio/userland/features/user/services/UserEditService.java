@@ -7,8 +7,6 @@ import org.portfolio.userland.features.user.dto.edit.UserEditReq;
 import org.portfolio.userland.features.user.entities.EnUserHistoryWhat;
 import org.portfolio.userland.features.user.entities.User;
 import org.portfolio.userland.features.user.entities.UserProfile;
-import org.portfolio.userland.system.auth.AuthHelper;
-import org.portfolio.userland.system.auth.details.CustomUserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,11 +34,7 @@ public class UserEditService extends BaseUserService {
    */
   @Transactional
   public UserDataResp edit(UserEditReq userEditReq) {
-    // SecurityConfig ensures we always have user details for endpoint that calls this method.
-    CustomUserDetails userDetails = AuthHelper.resolveUserDetails();
-    if (userDetails == null) throw new IllegalStateException("User details should exist!"); // should not ever happen
-
-    User user = userHelperService.resolveUser(userDetails.getEmail(), false);
+    User user = userHelperService.resolveUser(false);
     UserProfile userProfile = null; // will edit user profile only when needed
 
     boolean userPresent = userEditReq.userPresent();

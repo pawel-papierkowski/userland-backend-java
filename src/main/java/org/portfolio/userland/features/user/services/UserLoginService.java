@@ -5,6 +5,7 @@ import org.portfolio.userland.common.services.web.HttpHelperService;
 import org.portfolio.userland.features.user.constants.UserConfigConst;
 import org.portfolio.userland.features.user.dto.login.UserLoginReq;
 import org.portfolio.userland.features.user.dto.login.UserLoginResp;
+import org.portfolio.userland.features.user.dto.login.UserProlongResp;
 import org.portfolio.userland.features.user.entities.EnUserHistoryWhat;
 import org.portfolio.userland.features.user.entities.User;
 import org.portfolio.userland.features.user.exceptions.UserWrongPasswordException;
@@ -43,7 +44,7 @@ public class UserLoginService extends BaseUserService {
   public UserLoginResp login(UserLoginReq userLoginReq) {
     // We want to make sure attacker cannot distinguish case when email does not exist and case when wrong password was
     // given. We just say that was wrong password in both cases.
-    User user = userHelperService.resolveUser(userLoginReq.email(), true);
+    User user = userHelperService.resolveAuthUser(userLoginReq.email(), true);
     if (user == null) throw new UserWrongPasswordException(); // prevent email enumeration attack
 
     userHelperService.verifyPassword(user, userLoginReq.password());
@@ -75,16 +76,6 @@ public class UserLoginService extends BaseUserService {
     throw new UserLockdownException(user.getEmail());
   }
 
-  /**
-   * Generate JWT token.
-   * @param user User.
-   * @return JWT token.
-   */
-  private String generateJwt(User user) {
-    Long jwtExpire = userConfigService.getLong(user, UserConfigConst.JWT_EXPIRE, null);
-    return jwtService.generateToken(user, jwtExpire);
-  }
-
   // //////////////////////////////////////////////////////////////////////////
 
   /**
@@ -100,7 +91,39 @@ public class UserLoginService extends BaseUserService {
     // might be in circulation.
     LocalDateTime nowAt = clockService.getNowUTC();
     User user = userHelperService.resolveUser(customUserDetails.getEmail(), false);
-    addHistoryEvent(user, nowAt, EnUserHistoryWhat.LOGOUT, "");
     userJwtRepository.deleteAllByUser(user.getId()); // Revoke all JWTs related to this user.
+    addHistoryEvent(user, nowAt, EnUserHistoryWhat.LOGOUT, "");
+  }
+
+  // //////////////////////////////////////////////////////////////////////////
+
+  /**
+   * Perform prolongation of user session.
+   */
+  @Transactional
+  public UserProlongResp prolong() {
+    // If we are logged in, add entry in history, remove old JWT entry and add new JWT entry.
+    LocalDateTime nowAt = clockService.getNowUTC();
+    User user = userHelperService.resolveAuthUser(false);
+    userJwtRepository.deleteAllByUser(user.getId()); // Revoke all JWTs related to this user.
+    String jwtToken = generateJwt(user);
+    addJwtEntry(user, nowAt, jwtToken); // Add new JWT.
+    addHistoryEvent(user, nowAt, EnUserHistoryWhat.PROLONG, "");
+
+    return UserProlongResp.builder()
+        .jwtToken(jwtToken)
+        .build();
+  }
+
+  // //////////////////////////////////////////////////////////////////////////
+
+  /**
+   * Generate JWT token.
+   * @param user User.
+   * @return JWT token.
+   */
+  private String generateJwt(User user) {
+    Long jwtExpire = userConfigService.getLong(user, UserConfigConst.JWT_EXPIRE, null);
+    return jwtService.generateToken(user, jwtExpire);
   }
 }

@@ -4,8 +4,6 @@ import lombok.RequiredArgsConstructor;
 import org.portfolio.userland.features.user.dto.common.UserDataResp;
 import org.portfolio.userland.features.user.entities.User;
 import org.portfolio.userland.features.user.entities.UserProfile;
-import org.portfolio.userland.system.auth.AuthHelper;
-import org.portfolio.userland.system.auth.details.CustomUserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,11 +19,7 @@ public class UserViewService extends BaseUserService {
    */
   @Transactional(readOnly = true)
   public UserDataResp view() {
-    // SecurityConfig ensures we always have user details for endpoint that calls this method.
-    CustomUserDetails userDetails = AuthHelper.resolveUserDetails();
-    if (userDetails == null) throw new IllegalStateException("User details should exist!"); // should not ever happen
-
-    User user = userHelperService.resolveUser(userDetails.getEmail(), false);
+    User user = userHelperService.resolveUser(false);
     UserProfile userProfile = userProfileRepository.findById(user.getId()).orElseThrow();
 
     UserDataResp userDataResp = userMapper.userToDataResp(user);

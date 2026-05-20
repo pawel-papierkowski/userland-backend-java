@@ -180,7 +180,7 @@ CREATE TABLE iam.history (
     -- Who caused user history event?
     who VARCHAR(50) NOT NULL CHECK (who IN ('USER', 'OPERATOR', 'SYSTEM')),
     -- What caused user history event?
-    what VARCHAR(50) NOT NULL CHECK (what IN ('CREATE', 'ACTIVATE', 'EDIT', 'EMAIL_CHANGE_REQ', 'EMAIL_CHANGE', 'PASS_RESET_REQ', 'PASS_RESET', 'DELETE_REQ', 'LOGIN', 'LOGOUT')),
+    what VARCHAR(50) NOT NULL CHECK (what IN ('CREATE', 'ACTIVATE', 'EDIT', 'EMAIL_CHANGE_REQ', 'EMAIL_CHANGE', 'PASS_RESET_REQ', 'PASS_RESET', 'DELETE_REQ', 'LOGIN', 'LOGOUT', 'PROLONG')),
     -- Parameters for user history event.
     params TEXT NOT NULL,
 

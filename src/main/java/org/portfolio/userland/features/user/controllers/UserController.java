@@ -118,7 +118,7 @@ public class UserController {
   @ApiResponsesAuth
   @ApiResponses(value = {
       @ApiResponse(responseCode = "200", description = "User successfully edited."),
-      @ApiResponse(responseCode = "400", description = "Invalid input (weak password).",
+      @ApiResponse(responseCode = "400", description = "Invalid input (like weak password).",
           content = @Content(mediaType = "application/problem+json",
               schema = @Schema(implementation = ValidationProblemDetail.class)))
   })

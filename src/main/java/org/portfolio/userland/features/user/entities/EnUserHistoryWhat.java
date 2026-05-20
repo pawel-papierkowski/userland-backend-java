@@ -23,5 +23,7 @@ public enum EnUserHistoryWhat {
   /** User logged in. */
   LOGIN,
   /** User logged out. */
-  LOGOUT
+  LOGOUT,
+  /** User prolonged session. */
+  PROLONG
 }

@@ -6,6 +6,7 @@ import org.portfolio.userland.features.user.entities.UserProfile;
 import org.portfolio.userland.features.user.mappers.UserProfileMapper;
 import org.portfolio.userland.features.user.repositories.*;
 import org.portfolio.userland.test.base.BaseIntegrationTest;
+import org.portfolio.userland.test.helpers.asserts.JwtAssert;
 import org.portfolio.userland.test.helpers.asserts.UserAssert;
 import org.portfolio.userland.test.helpers.asserts.UserProfileAssert;
 import org.portfolio.userland.test.helpers.factories.user.*;
@@ -60,6 +61,8 @@ public abstract class BaseUserTest extends BaseIntegrationTest {
   protected UserAssert userAssert;
   @Autowired
   protected UserProfileAssert userProfileAssert;
+  @Autowired
+  protected JwtAssert jwtAssert;
 
   @MockitoBean
   protected EmailService emailService;

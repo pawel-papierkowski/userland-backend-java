@@ -121,7 +121,7 @@ public class JwtService extends BaseService {
   //
 
   /**
-   * Checks if the token is valid by verifying the username matches, and it's not expired.
+   * Checks if the token is valid by verifying the email matches, and it's not expired.
    * @param token JWT token.
    * @param email Email.
    * @return True if token is valid, otherwise false.

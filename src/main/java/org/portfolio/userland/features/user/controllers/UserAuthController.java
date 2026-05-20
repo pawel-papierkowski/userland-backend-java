@@ -10,7 +10,9 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.portfolio.userland.features.user.dto.login.UserLoginReq;
 import org.portfolio.userland.features.user.dto.login.UserLoginResp;
+import org.portfolio.userland.features.user.dto.login.UserProlongResp;
 import org.portfolio.userland.features.user.services.UserLoginService;
+import org.portfolio.userland.swagger.annotations.ApiResponsesAuth;
 import org.portfolio.userland.swagger.detail.common.ValidationProblemDetail;
 import org.portfolio.userland.swagger.detail.user.UserWrongPasswordProblemDetail;
 import org.springframework.http.HttpStatus;
@@ -26,6 +28,7 @@ import org.springframework.web.bind.annotation.RestController;
  * <ul>
  *   <li><code>POST /api/users/login</code> - user account log in.</li>
  *   <li><code>POST /api/users/logout</code> - user account log out.</li>
+ *   <li><code>POST /api/users/prolong</code> - user account session prolongation.</li>
  * </ul>
  */
 @RestController
@@ -36,7 +39,9 @@ public class UserAuthController {
   private final UserLoginService userLoginService;
 
   /**
-   * Log in user. Note: this endpoint can be accessed even during lockdown.
+   * Log in user.
+   * <p>Note: this endpoint can be accessed even during lockdown, though only users with certain permissions can
+   * successfully complete login process.</p>
    * @param userLoginReq User login request.
    * @return Response.
    */
@@ -69,5 +74,22 @@ public class UserAuthController {
   public ResponseEntity<Void> logout() {
     userLoginService.logout();
     return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+  }
+
+  /**
+   * Prolong user session. Works only if you already have valid session (so you need to log in first).
+   * <p>Note: it replaces JWT. Old token is revoked.</p>
+   * @return Response.
+   */
+  @PostMapping(value = "/prolong", produces = "application/json")
+  @Operation(summary = "Prolong user session", description = "You can re-generate JWT provided you have old JWT that is still valid. After successful prolongation, use newly generated JWT. Old JWT is revoked.")
+  @ApiResponsesAuth
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200", description = "Prolongation was successful.",
+          content = @Content(schema = @Schema(hidden = true)))
+  })
+  public ResponseEntity<UserProlongResp> prolong() {
+    UserProlongResp resp = userLoginService.prolong();
+    return new ResponseEntity<>(resp, HttpStatus.OK);
   }
 }
