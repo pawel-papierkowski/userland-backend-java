@@ -137,9 +137,9 @@ public class UserController {
    * @return Response.
    */
   @PostMapping(value = "/email/link", produces = "application/json")
-  @Operation(summary = "Send email change link", description = "Sends emails with warning and link to page where you can change email for your account. Note on production trying to use already existing email or wrong password will have same result to prevent email enumeration attack.")
+  @Operation(summary = "Send email change link", description = "Sends email to old address with warning and email to new address with link to page where you actually change email. Note: on production, trying to use already existing email or wrong password will have same result to prevent email enumeration attack.")
   @ApiResponses(value = {
-      @ApiResponse(responseCode = "204", description = "Email change emails successfully sent. On production also when request was ignored due to wrong email address or wrong password.",
+      @ApiResponse(responseCode = "204", description = "Email change emails successfully sent. Also when request was ignored due to wrong email address or wrong password on production.",
           content = @Content(schema = @Schema(hidden = true))),
       @ApiResponse(responseCode = "400", description = "Invalid input (missing or malformed email).",
           content = @Content(mediaType = "application/problem+json",
@@ -183,7 +183,7 @@ public class UserController {
    * @return Response.
    */
   @PostMapping(value = "/password/link", produces = "application/json")
-  @Operation(summary = "Send password reset link", description = "Sends email with link to page where you can reset password for your account. Note on production trying to use unknown email will fail silently to prevent email enumeration attack.")
+  @Operation(summary = "Send password reset link", description = "Sends email with link to page where you can reset password for your account. Note: on production, trying to use unknown email will fail silently to prevent email enumeration attack.")
   @ApiResponses(value = {
       @ApiResponse(responseCode = "204", description = "Password reset email successfully sent. On production also when request failed due to issues like unknown email address.",
           content = @Content(schema = @Schema(hidden = true))),
@@ -229,7 +229,7 @@ public class UserController {
    * @return Response.
    */
   @PostMapping(value = "/delete/link", produces = "application/json")
-  @Operation(summary = "Send account deletion link", description = "Sends email with link that leads to page where you can confirm account deletion. Note on production trying to use unknown email will fail silently to prevent email enumeration attack.")
+  @Operation(summary = "Send account deletion link", description = "Sends email with link that leads to page where you can confirm account deletion. Note: on production, trying to use unknown email will fail silently to prevent email enumeration attack.")
   @ApiResponses(value = {
       @ApiResponse(responseCode = "204", description = "Account deletion email successfully sent. On production also when request failed due to issues like unknown email address.",
           content = @Content(schema = @Schema(hidden = true))),

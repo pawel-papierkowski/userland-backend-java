@@ -8,13 +8,14 @@ Description below sums up intended state when project is completed: functionalit
 
 ## Basic info
 
-Author: Paweł Papierkowski
+Author: **Paweł Papierkowski**
 
-Date: 2026
-
-Link to source code: https://github.com/pawel-papierkowski/userland-backend-java
-
+Date: **2026**
 Used IDE: **IntelliJ IDEA**
+
+- Public backend address: https://userland-backend-java-299988087135.europe-central2.run.app
+- Locally run server: http://localhost:8080/
+- Link to source code: https://github.com/pawel-papierkowski/userland-backend-java
 
 ### Functionality
 
