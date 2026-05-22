@@ -5,7 +5,7 @@ email:
       greeting: "Cześć, <b>{0}</b>!"
       l1: "Dziękujemy za zainteresowanie portalem <b>{0}</b>."
       l2: "Prosimy aktywować konto tutaj:"
-      l3: "Łącze będzie ważne przez {0} godzin."
+      l3: "Link będzie ważny przez {0} godzin."
     activation:
       subject: "{0}: witamy"
       greeting: "Cześć, <b>{0}</b>!"
@@ -29,7 +29,7 @@ email:
         subject: "{0}: zmiana e-maila"
         greeting: "Cześć, <b>{0}</b>!"
         l1: "Prosimy potwierdzić zamiar zmiany e-maila tutaj:"
-        l2: "Łącze będzie ważne przez {0} minut."
+        l2: "Link będzie ważny przez {0} minut."
       confirm:
         subject: "{0}: e-mail zmieniony"
         greeting: "Cześć, <b>{0}</b>!"
@@ -39,7 +39,7 @@ email:
         subject: "{0}: reset hasła"
         greeting: "Cześć, <b>{0}</b>!"
         l1: "Prosimy zresetować hasło tutaj:"
-        l2: "Łącze będzie ważne przez {0} minut."
+        l2: "Link będzie ważny przez {0} minut."
       confirm:
         subject: "{0}: hasło zmienione"
         greeting: "Cześć, <b>{0}</b>!"
@@ -48,8 +48,8 @@ email:
       link:
         subject: "{0}: usuwanie konta"
         greeting: "Cześć, <b>{0}</b>!"
-        l1: "Prosimy kliknąć te łącze, by usunąć konto:"
-        l2: "Łącze będzie ważne przez {0} minut."
+        l1: "Prosimy kliknąć link, by usunąć konto:"
+        l2: "Link będzie ważny przez {0} minut."
       confirm:
         subject: "{0}: konto usunięte"
         greeting: "Cześć, <b>{0}</b>!"
