@@ -29,7 +29,7 @@ email:
         subject: "{0}: email change requested"
         greeting: "Hello, <b>{0}</b>!"
         l1: "Please confirm change of email here:"
-        l2: "Link will be valid for {0} minutes."
+        l2: "Link will be valid for {0} minutes. You must be logged in."
       confirm:
         subject: "{0}: email changed"
         greeting: "Hello, <b>{0}</b>!"
@@ -49,7 +49,7 @@ email:
         subject: "{0}: account deletion requested"
         greeting: "Hello, <b>{0}</b>!"
         l1: "Please click this link to delete account:"
-        l2: "Link will be valid for {0} minutes."
+        l2: "Link will be valid for {0} minutes. You must be logged in."
       confirm:
         subject: "{0}: account deleted"
         greeting: "Hello, <b>{0}</b>!"
