@@ -1,6 +1,7 @@
 package org.portfolio.userland.features.user;
 
 import org.junit.jupiter.api.Test;
+import org.portfolio.userland.features.user.dto.delete.UserDeleteLinkReq;
 import org.portfolio.userland.features.user.dto.password.UserPassResetConfirmReq;
 import org.portfolio.userland.features.user.dto.register.UserRegisterReq;
 import org.portfolio.userland.features.user.services.*;
@@ -120,6 +121,33 @@ public class UserWebTest extends BaseWebTest {
         "Field Validation Failed",
         "One or more fields failed validation.",
         "/api/users/password/confirm",
+        "https://api.general.org/errors/validation",
+        Map.of("validation_errors", Map.of("password", "Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character"))
+    );
+    problemDetailService.assertPd(mvcResult, expectedPdb);
+  }
+
+  //
+
+  @Test
+  public void accountDelWhenPasswordIsTooWeak() throws Exception {
+    // Arrange: password violates the @Pattern constraint
+    UserDeleteLinkReq req = new UserDeleteLinkReq("weakPassword", null);
+
+    // Act: Call the API endpoint.
+    MvcResult mvcResult = mockMvc.perform(post("/api/users/delete/link")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(req)))
+        .andReturn();
+
+    // Assert API Response.
+    assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.BAD_REQUEST.value());
+
+    ProblemDetailBox expectedPdb = new ProblemDetailBox(
+        HttpStatus.BAD_REQUEST.value(),
+        "Field Validation Failed",
+        "One or more fields failed validation.",
+        "/api/users/delete/link",
         "https://api.general.org/errors/validation",
         Map.of("validation_errors", Map.of("password", "Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character"))
     );

@@ -49,7 +49,7 @@ public class CheckApiTest extends BaseCheckTest {
   // //////////////////////////////////////////////////////////////////////////
 
   @Test
-  void requestUnsecuredEndpoint() throws Exception {
+  void enterUnsecuredEndpoint() throws Exception {
     clock.setFixedTime("2026-04-10T10:00:00Z");
     // No arrange here.
 
@@ -63,7 +63,7 @@ public class CheckApiTest extends BaseCheckTest {
   }
 
   @Test
-  void requestSecuredEndpointWithValidToken() throws Exception {
+  void enterSecuredEndpointWithValidToken() throws Exception {
     clock.setFixedTime("2026-04-10T10:00:00Z");
 
     // Arrange: Create a user, token and JWT entry in database, emulating user login.
@@ -82,7 +82,7 @@ public class CheckApiTest extends BaseCheckTest {
   }
 
   @Test
-  void requestAdminEndpointWithValidToken() throws Exception {
+  void enterAdminEndpointWithValidToken() throws Exception {
     clock.setFixedTime("2026-04-10T10:00:00Z");
 
     // Arrange: Create a user, token and JWT entry in database, emulating user login.
@@ -104,7 +104,7 @@ public class CheckApiTest extends BaseCheckTest {
 
   @Test
   @Transactional
-  void lockdownSecuredEndpointAsAdmin() throws Exception { // TODO
+  void enterLockdownSecuredEndpointAsAdmin() throws Exception {
     clock.setFixedTime("2026-04-10T10:00:00Z");
 
     // Arrange: Create an admin user, token and JWT entry in database, emulating user login.
@@ -129,7 +129,8 @@ public class CheckApiTest extends BaseCheckTest {
 
   @Test
   void lockPretendWorkEndpoint() throws Exception {
-    // Test that locking works.
+    // Test that locking works. We want to call endpoint twice: first time should succeed, second time should be refused
+    // since pretend work endpoint is still busy.
 
     // We use a CountDownLatch to ensure the second request only fires AFTER the first request has successfully entered
     // the controller.
@@ -164,7 +165,7 @@ public class CheckApiTest extends BaseCheckTest {
   }
 
   @Test
-  void requestExceptionEndpoint() throws Exception {
+  void enterExceptionEndpoint() throws Exception {
     // No arrange here.
 
     // Act: Perform the request using MockMvc.
@@ -189,6 +190,7 @@ public class CheckApiTest extends BaseCheckTest {
 
   @Test
   void errWithoutToken() throws Exception {
+    // Try to call endpoint that requires being logged in, but we are not logged in.
     clock.setFixedTime("2026-04-10T10:00:00Z");
     // No arrange here.
 
@@ -207,7 +209,7 @@ public class CheckApiTest extends BaseCheckTest {
     clock.setFixedTime("2026-04-10T10:00:00Z");
     // No arrange here.
 
-    // Act: This endpoint expects token, but there is no token. So Spring rejects it (throwing 401 Unauthorized).
+    // Act: This endpoint expects token, but token is malformed. So Spring rejects it (throwing 401 Unauthorized).
     MvcResult mvcResult = mockMvc.perform(get("/api/checks/must-be-logged")
             .header("Authorization", "Bearer MALFORMED_TOKEN"))
         .andReturn();
@@ -306,9 +308,10 @@ public class CheckApiTest extends BaseCheckTest {
 
   @Test
   void errNoAdmin() throws Exception {
+    // Try to call endpoint that requires admin permissions while not having these permissions.
     clock.setFixedTime("2026-04-10T10:00:00Z");
 
-    // Arrange: Create a user, token and JWT entry in database, emulating user login. No admin rights.
+    // Arrange: Create a user, token and JWT entry in database, emulating user login. No admin permissions.
     User user = userFactory.genRandUserLogged();
     userRepository.save(user);
     String token = userJwtRepository.findAll().getFirst().getToken();
@@ -329,6 +332,7 @@ public class CheckApiTest extends BaseCheckTest {
   @Test
   @Transactional
   void errLockdownUnsecuredEndpoint() throws Exception {
+    // Try to access unsecured endpoint during lockdown.
     clock.setFixedTime("2026-04-10T10:00:00Z");
 
     // Arrange: Lock down system.
@@ -354,6 +358,7 @@ public class CheckApiTest extends BaseCheckTest {
   @Test
   @Transactional
   void errLockdownSecuredEndpoint() throws Exception {
+    // Try to access secured endpoint during lockdown.
     clock.setFixedTime("2026-04-10T10:00:00Z");
 
     // Arrange: Create a user, token and JWT entry in database, emulating user login.
@@ -386,6 +391,7 @@ public class CheckApiTest extends BaseCheckTest {
 
   @Test
   void requestInfo() throws Exception {
+    // Call info endpoint.
     clock.setFixedTime("2026-04-10T10:00:00Z");
 
     // Arrange: Create a user, token and JWT entry in database, emulating user login.

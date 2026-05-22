@@ -202,14 +202,14 @@ public class UserEmailApiTest extends BaseUserTest {
   @Test
   @WithMockCustomUser
   @Transactional
-  public void errEmailChangeForWrongPassword() throws Exception {
+  public void errEmailChangeWrongPassword() throws Exception {
     clock.setFixedTime("2026-04-08T10:00:00Z");
 
     // Arrange: create active user.
     User expectedUser = userFactory.genUser(EnUserStatus.ACTIVE);
     userRepository.save(expectedUser);
 
-    // Arrange: create email change request.
+    // Arrange: create email change request. Invalid password is given.
     UserEmailChangeLinkReq req = new UserEmailChangeLinkReq("new.email@test.com", "wr0ngP@ssword", null);
 
     // Act: Try to send email change link email.
@@ -241,7 +241,7 @@ public class UserEmailApiTest extends BaseUserTest {
     User expectedUser = userFactory.genUser(EnUserStatus.ACTIVE);
     userRepository.save(expectedUser);
 
-    // Arrange: create email change request. Note new email is same as already existing email.
+    // Arrange: create email change request. New email is same as email of logged-in user.
     UserEmailChangeLinkReq req = new UserEmailChangeLinkReq(expectedUser.getEmail(), "Password123!", null);
 
     // Act: Try to send email change link email.
@@ -250,7 +250,7 @@ public class UserEmailApiTest extends BaseUserTest {
             .content(objectMapper.writeValueAsString(req)))
         .andReturn();
 
-    // Assert API Response. Note on production same request will produce different error.
+    // Assert API Response.
     assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.CONFLICT.value());
     ProblemDetailBox expectedPdb = new ProblemDetailBox(
         HttpStatus.CONFLICT.value(),
@@ -266,19 +266,45 @@ public class UserEmailApiTest extends BaseUserTest {
   @Test
   @WithMockCustomUser
   @Transactional
-  public void errEmailChangeForUnknownEmail() throws Exception {
+  public void errEmailChangeToExistingEmail() throws Exception {
     clock.setFixedTime("2026-04-08T10:00:00Z");
 
-    // Arrange: create email change request.
-    UserEmailChangeLinkReq req = new UserEmailChangeLinkReq("new.email@example.com", "Password123!", null);
+    // Arrange: create active users.
+    User expectedUser = userFactory.genUser(EnUserStatus.ACTIVE);
+    userRepository.save(expectedUser);
+    User otherUser = userFactory.genRandUser(EnUserStatus.ACTIVE);
+    userRepository.save(otherUser);
 
-    // Act: Try to send password reset email to account that do not exist in database.
+    // Arrange: create email change request. Given email belongs to already existing user.
+    UserEmailChangeLinkReq req = new UserEmailChangeLinkReq(otherUser.getEmail(), "Password123!", null);
+
+    // Act: Try to send email change link email.
     MvcResult mvcResult = mockMvc.perform(post("/api/users/email/link")
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(req)))
         .andReturn();
 
-    // Assert API Response. Note on production same request will produce different error.
+    // Assert API Response. Note we pretend everything went fine.
+    assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.NO_CONTENT.value());
+    assertThat(mvcResult.getResponse().getContentAsString()).as("Response body should be empty").isEqualTo("");
+  }
+
+  @Test
+  @WithMockCustomUser
+  @Transactional
+  public void errEmailChangeForMissingUser() throws Exception {
+    clock.setFixedTime("2026-04-08T10:00:00Z");
+
+    // Arrange: create email change request.
+    UserEmailChangeLinkReq req = new UserEmailChangeLinkReq("new.email@example.com", "Password123!", null);
+
+    // Act: Try to send email change email when account do not exist in database.
+    MvcResult mvcResult = mockMvc.perform(post("/api/users/email/link")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(req)))
+        .andReturn();
+
+    // Assert API Response.
     assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.NOT_FOUND.value());
     ProblemDetailBox expectedPdb = new ProblemDetailBox(
         HttpStatus.NOT_FOUND.value(),
@@ -310,7 +336,7 @@ public class UserEmailApiTest extends BaseUserTest {
             .content(objectMapper.writeValueAsString(req)))
         .andReturn();
 
-    // Assert API Response. Note on production same request will produce different error.
+    // Assert API Response.
     assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.CONFLICT.value());
     ProblemDetailBox expectedPdb = new ProblemDetailBox(
         HttpStatus.CONFLICT.value(),
@@ -343,7 +369,7 @@ public class UserEmailApiTest extends BaseUserTest {
             .content(objectMapper.writeValueAsString(req)))
         .andReturn();
 
-    // Assert API Response. Note on production same request will produce different error.
+    // Assert API Response.
     assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.CONFLICT.value());
     ProblemDetailBox expectedPdb = new ProblemDetailBox(
         HttpStatus.CONFLICT.value(),
@@ -376,7 +402,7 @@ public class UserEmailApiTest extends BaseUserTest {
             .content(objectMapper.writeValueAsString(req)))
         .andReturn();
 
-    // Assert API Response. Note on production same request will produce different error.
+    // Assert API Response.
     assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.CONFLICT.value());
     ProblemDetailBox expectedPdb = new ProblemDetailBox(
         HttpStatus.CONFLICT.value(),

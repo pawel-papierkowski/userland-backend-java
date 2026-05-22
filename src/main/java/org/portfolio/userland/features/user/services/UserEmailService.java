@@ -42,13 +42,13 @@ public class UserEmailService extends BaseUserService {
    */
   @Transactional
   public void send(@Valid UserEmailChangeLinkReq userEmailChangeLinkReq) {
-    User user = userHelperService.resolveUser(!build.getTest());
+    User user = userHelperService.resolveUser(false);
     if (user == null) throw new UserWrongPasswordException();
-    if (user.getEmail().equals(userEmailChangeLinkReq.newEmail())) { // email already taken
-      if (build.getTest()) throw new UserEmailAlreadyExistsException(user.getEmail());
-      else throw new UserWrongPasswordException();
-    }
     userHelperService.verifyPassword(user, userEmailChangeLinkReq.password());
+
+    if (user.getEmail().equals(userEmailChangeLinkReq.newEmail())) { // same email given
+      throw new UserEmailAlreadyExistsException(user.getEmail());
+    }
 
     if (userRepository.existsByEmail(userEmailChangeLinkReq.newEmail())) {
       // send two emails: warning for old account and warning for new, existing email
@@ -58,8 +58,7 @@ public class UserEmailService extends BaseUserService {
 
     LocalDateTime nowAt = clockService.getNowUTC();
     String params = "old: '"+user.getEmail()+"', new: '"+userEmailChangeLinkReq.newEmail()+"'";
-    boolean result = ensureTokenDoesNotExist(nowAt, EnUserTokenType.EMAIL, user);
-    if (!result) throw new UserWrongPasswordException();
+    ensureTokenDoesNotExist(nowAt, EnUserTokenType.EMAIL, user, false);
 
     UserToken token = createTokenData(nowAt, EnUserTokenType.EMAIL, userEmailChangeLinkReq.newEmail());
     user.addToken(token);
@@ -67,6 +66,7 @@ public class UserEmailService extends BaseUserService {
 
     addHistoryEvent(user, nowAt, EnUserHistoryWhat.EMAIL_CHANGE_REQ, params);
 
+    // send two emails: warning for old account and link for new, existing email
     triggerEmailChangeReqEvent(userEmailChangeLinkReq, user, token);
   }
 

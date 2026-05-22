@@ -9,6 +9,7 @@ import org.portfolio.userland.features.user.entities.User;
 import org.portfolio.userland.features.user.entities.UserToken;
 import org.portfolio.userland.features.user.events.UserAccountDeleteConfirmEvent;
 import org.portfolio.userland.features.user.events.UserAccountDeleteRequestEvent;
+import org.portfolio.userland.features.user.exceptions.UserWrongPasswordException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -41,12 +42,12 @@ public class UserDeleteService extends BaseUserService {
    */
   @Transactional
   public void send(UserDeleteLinkReq userDeleteLinkReq) {
-    User user = userHelperService.resolveUser(userDeleteLinkReq.email(), !build.getTest());
-    if (user == null) return; // prevent email enumeration attack
+    User user = userHelperService.resolveUser(false);
+    if (user == null) throw new UserWrongPasswordException();
+    userHelperService.verifyPassword(user, userDeleteLinkReq.password());
 
     LocalDateTime nowAt = clockService.getNowUTC();
-    boolean result = ensureTokenDoesNotExist(nowAt, EnUserTokenType.DELETE, user);
-    if (!result) return; // fail silently to prevent email enumeration attack
+    ensureTokenDoesNotExist(nowAt, EnUserTokenType.DELETE, user, false);
 
     UserToken token = createTokenData(nowAt, EnUserTokenType.DELETE);
     user.addToken(token);

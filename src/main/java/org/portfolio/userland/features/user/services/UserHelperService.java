@@ -126,8 +126,10 @@ public class UserHelperService {
   /**
    * Verifies user state. If user state is invalid, throws exception or returns false.
    * @param user User.
-   * @param failSilently If true, in case of invalid user state return false instead of throwing exception.
+   * @param failSilently If true, return false instead of throwing exception.
    * @return True if verification succeed, otherwise false. Applicable only if <code>failSilently == true</code>.
+   * @throws UserInvalidStatusException If user has invalid status.
+   * @throws UserLockedException If user is locked.
    */
   public boolean verifyUser(User user, boolean failSilently) {
     if (!EnUserStatus.ACTIVE.equals(user.getStatus())) {
@@ -147,6 +149,7 @@ public class UserHelperService {
    * Verifies if password is correct. If it is not, throws exception.
    * @param user User data.
    * @param rawPassword Given password.
+   * @throws UserWrongPasswordException If given password is wrong.
    */
   public void verifyPassword(User user, String rawPassword) {
     boolean isMatch = passwordEncoder.matches(rawPassword, user.getPassword());

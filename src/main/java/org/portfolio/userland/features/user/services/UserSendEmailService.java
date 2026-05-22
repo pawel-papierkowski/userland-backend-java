@@ -231,7 +231,8 @@ public class UserSendEmailService {
    *   <li>first to OLD email account with warning about change of email</li>
    *   <li>second to NEW email account with warning about change of email</li>
    * </ul>
-   *
+   * In this way, if you control only old email, failure is indistinguishable from success, preventing email enumeration
+   * attack.
    * @param event Email change request event data.
    */
   @Async("emailTaskExecutor")

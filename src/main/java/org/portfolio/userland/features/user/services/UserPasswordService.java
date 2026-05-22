@@ -44,7 +44,7 @@ public class UserPasswordService extends BaseUserService {
     if (user == null) return; // fail silently to prevent email enumeration attack on production
 
     LocalDateTime nowAt = clockService.getNowUTC();
-    boolean result = ensureTokenDoesNotExist(nowAt, EnUserTokenType.PASSWORD, user);
+    boolean result = ensureTokenDoesNotExist(nowAt, EnUserTokenType.PASSWORD, user, !build.getTest());
     if (!result) return; // fail silently to prevent email enumeration attack
 
     UserToken token = createTokenData(nowAt, EnUserTokenType.PASSWORD);

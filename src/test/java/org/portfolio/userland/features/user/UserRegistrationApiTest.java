@@ -289,7 +289,7 @@ public class UserRegistrationApiTest extends BaseUserTest {
     // Assert API Response. On production, it will pretend everything is fine.
     assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.CREATED.value());
     assertThat(mvcResult.getResponse().getContentAsString()).as("Response body should be empty").isEqualTo("");
-/* // TODO
+/* // TODO issue: if we throw exception, emails are not sent. Maybe return error manually without exception?
     assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.CONFLICT.value());
     ProblemDetailBox expectedPdb = new ProblemDetailBox(
         HttpStatus.CONFLICT.value(),

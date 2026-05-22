@@ -7,6 +7,7 @@ import org.portfolio.userland.features.user.dto.delete.UserDeleteLinkReq;
 import org.portfolio.userland.features.user.entities.*;
 import org.portfolio.userland.features.user.events.UserAccountDeleteConfirmEvent;
 import org.portfolio.userland.features.user.events.UserAccountDeleteRequestEvent;
+import org.portfolio.userland.test.helpers.context.WithMockCustomUser;
 import org.portfolio.userland.test.helpers.problemDetail.ProblemDetailBox;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -32,6 +33,7 @@ public class UserDeleteApiTest extends BaseUserTest {
   // //////////////////////////////////////////////////////////////////////////
 
   @Test
+  @WithMockCustomUser
   public void requestAccountDeletion() throws Exception {
     clock.setFixedTime("2026-04-10T10:00:00Z");
     User expectedUser = userFactory.genUser(EnUserStatus.ACTIVE);
@@ -43,7 +45,7 @@ public class UserDeleteApiTest extends BaseUserTest {
     clock.setFixedTime("2026-04-11T11:30:00Z");
 
     // Arrange: Create account deletion request.
-    UserDeleteLinkReq req = new UserDeleteLinkReq(newUser.getEmail(), null);
+    UserDeleteLinkReq req = new UserDeleteLinkReq("Password123!", null);
 
     // Act: Request account deletion link.
     MvcResult mvcResult = mockMvc.perform(post("/api/users/delete/link")
@@ -87,6 +89,7 @@ public class UserDeleteApiTest extends BaseUserTest {
   }
 
   @Test
+  @WithMockCustomUser
   public void requestAccountDeletionWhenExpiredToken() throws Exception {
     clock.setFixedTime("2026-04-10T10:00:00Z");
     User expectedUser = userFactory.genUser(EnUserStatus.ACTIVE);
@@ -100,7 +103,7 @@ public class UserDeleteApiTest extends BaseUserTest {
     clock.setFixedTime("2026-04-11T11:30:00Z");
 
     // Arrange: Create account deletion link request.
-    UserDeleteLinkReq req = new UserDeleteLinkReq(newUser.getEmail(), null);
+    UserDeleteLinkReq req = new UserDeleteLinkReq("Password123!", null);
 
     // Act: Request account deletion link.
     MvcResult mvcResult = mockMvc.perform(post("/api/users/delete/link")
@@ -144,6 +147,7 @@ public class UserDeleteApiTest extends BaseUserTest {
   }
 
   @Test
+  @WithMockCustomUser
   public void actuallyDeleteUser() throws Exception {
     clock.setFixedTime("2026-04-10T10:00:00Z");
 
@@ -200,33 +204,39 @@ public class UserDeleteApiTest extends BaseUserTest {
   // FAILURES
 
   @Test
+  @WithMockCustomUser
   @Transactional
-  public void errAccDeleteForUnknownEmail() throws Exception {
+  public void errAccDeleteForInvalidPassword() throws Exception {
     clock.setFixedTime("2026-04-08T10:00:00Z");
 
-    // Arrange: create account deletion request.
-    UserDeleteLinkReq req = new UserDeleteLinkReq("none@test.com", null);
+    // Arrange: Create active user in database.
+    User newUser = userFactory.genUser(EnUserStatus.ACTIVE);
+    userRepository.save(newUser);
 
-    // Act: Try to send account deletion email to account that do not exist in database.
+    // Arrange: create account deletion request.
+    UserDeleteLinkReq req = new UserDeleteLinkReq("wr0ngP@ssword", null);
+
+    // Act: Try to send account deletion request to user giving wrong password.
     MvcResult mvcResult = mockMvc.perform(post("/api/users/delete/link")
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(req)))
         .andReturn();
 
     // Assert API Response. Note on production same request will produce success.
-    assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.NOT_FOUND.value());
+    assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.CONFLICT.value());
     ProblemDetailBox expectedPdb = new ProblemDetailBox(
-        HttpStatus.NOT_FOUND.value(),
-        "User cannot be found.",
-        "User with email 'none@test.com' does not exist.",
+        HttpStatus.CONFLICT.value(),
+        "Wrong password or account.",
+        "Wrong password or account was used. Access denied.",
         "/api/users/delete/link",
-        "https://api.userland.org/errors/user/doesNotExist",
-        Map.of("errCode", "user_0001")
+        "https://api.userland.org/errors/user/wrongPassword",
+        Map.of("errCode", "user_0112")
     );
     problemDetailService.assertPd(mvcResult, expectedPdb);
   }
 
   @Test
+  @WithMockCustomUser
   @Transactional
   public void errAccDeleteForPendingUser() throws Exception {
     clock.setFixedTime("2026-04-08T10:00:00Z");
@@ -236,7 +246,7 @@ public class UserDeleteApiTest extends BaseUserTest {
     userRepository.save(expectedUser);
 
     // Arrange: create account deletion request.
-    UserDeleteLinkReq req = new UserDeleteLinkReq(expectedUser.getEmail(), null);
+    UserDeleteLinkReq req = new UserDeleteLinkReq("Password123!", null);
 
     // Act: Try to send account deletion email.
     MvcResult mvcResult = mockMvc.perform(post("/api/users/delete/link")
@@ -244,7 +254,7 @@ public class UserDeleteApiTest extends BaseUserTest {
             .content(objectMapper.writeValueAsString(req)))
         .andReturn();
 
-    // Assert API Response. Note on production same request will produce success.
+    // Assert API Response.
     assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.CONFLICT.value());
     ProblemDetailBox expectedPdb = new ProblemDetailBox(
         HttpStatus.CONFLICT.value(),
@@ -258,6 +268,7 @@ public class UserDeleteApiTest extends BaseUserTest {
   }
 
   @Test
+  @WithMockCustomUser
   @Transactional
   public void errAccDeleteForLockedUser() throws Exception {
     clock.setFixedTime("2026-04-08T10:00:00Z");
@@ -268,7 +279,7 @@ public class UserDeleteApiTest extends BaseUserTest {
     userRepository.save(expectedUser);
 
     // Arrange: create account deletion request.
-    UserDeleteLinkReq req = new UserDeleteLinkReq(expectedUser.getEmail(), null);
+    UserDeleteLinkReq req = new UserDeleteLinkReq("Password123!", null);
 
     // Act: Try to send account deletion email.
     MvcResult mvcResult = mockMvc.perform(post("/api/users/delete/link")
@@ -276,7 +287,7 @@ public class UserDeleteApiTest extends BaseUserTest {
             .content(objectMapper.writeValueAsString(req)))
         .andReturn();
 
-    // Assert API Response. Note on production same request will produce success.
+    // Assert API Response.
     assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.CONFLICT.value());
     ProblemDetailBox expectedPdb = new ProblemDetailBox(
         HttpStatus.CONFLICT.value(),
@@ -290,6 +301,7 @@ public class UserDeleteApiTest extends BaseUserTest {
   }
 
   @Test
+  @WithMockCustomUser
   @Transactional
   public void errAccDeleteWhenTokenExists() throws Exception {
     clock.setFixedTime("2026-04-08T10:00:00Z");
@@ -300,7 +312,7 @@ public class UserDeleteApiTest extends BaseUserTest {
     userRepository.save(expectedUser);
 
     // Arrange: create account deletion request.
-    UserDeleteLinkReq req = new UserDeleteLinkReq(expectedUser.getEmail(), null);
+    UserDeleteLinkReq req = new UserDeleteLinkReq("Password123!", null);
 
     // Act: Try to send account deletion email.
     MvcResult mvcResult = mockMvc.perform(post("/api/users/delete/link")
@@ -308,9 +320,8 @@ public class UserDeleteApiTest extends BaseUserTest {
             .content(objectMapper.writeValueAsString(req)))
         .andReturn();
 
-    // Assert API Response. Note on production same request will produce success.
+    // Assert API Response.
     assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.CONFLICT.value());
-
     ProblemDetailBox expectedPdb = new ProblemDetailBox(
         HttpStatus.CONFLICT.value(),
         "Required token already exists.",
@@ -325,6 +336,7 @@ public class UserDeleteApiTest extends BaseUserTest {
   //
 
   @Test
+  @WithMockCustomUser
   @Transactional
   public void errAccDeleteWithMissingToken() throws Exception {
     clock.setFixedTime("2026-04-08T10:00:00Z");
@@ -346,7 +358,6 @@ public class UserDeleteApiTest extends BaseUserTest {
 
     // Assert API Response.
     assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.NOT_FOUND.value());
-
     ProblemDetailBox expectedPdb = new ProblemDetailBox(
         HttpStatus.NOT_FOUND.value(),
         "User token is missing.",

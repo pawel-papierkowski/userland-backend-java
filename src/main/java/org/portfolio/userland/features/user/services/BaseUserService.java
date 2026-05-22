@@ -81,8 +81,10 @@ public abstract class BaseUserService extends BaseService {
    * @param nowAt Current date&time.
    * @param type  Type of token.
    * @param user  User.
+   * @param failSilently If true, will return false instead of throwing exception.
+   * @return True if operation succeeded, otherwise false. Applicable only if <code>failSilently == true</code>.
    */
-  protected boolean ensureTokenDoesNotExist(LocalDateTime nowAt, EnUserTokenType type, User user) {
+  protected boolean ensureTokenDoesNotExist(LocalDateTime nowAt, EnUserTokenType type, User user, boolean failSilently) {
     List<UserToken> tokens = user.getTokens();
     UserToken token = findToken(tokens, type);
     if (token == null) return true; // no token of this type present at all, everything is fine
@@ -96,9 +98,9 @@ public abstract class BaseUserService extends BaseService {
       return true;
     }
 
-    // Token still valid, throw exception (not production) or return false (production, so we can fail silently).
-    if (build.getTest()) throw new UserTokenAlreadyExistsException(type);
-    return false;
+    // Token still valid, throw exception or return false.
+    if (failSilently) return false;
+    throw new UserTokenAlreadyExistsException(type);
   }
 
   /**
