@@ -1,4 +1,4 @@
-package org.portfolio.userland.features.user.repositories;
+package org.portfolio.userland.features.user.repositories.user;
 
 import org.portfolio.userland.features.user.entities.User;
 import org.springframework.data.jpa.repository.EntityGraph;
@@ -15,7 +15,7 @@ import java.util.Optional;
  * Database interface for user.
  */
 @Repository
-public interface UserRepository extends JpaRepository<User, Long> {
+public interface UserRepository extends JpaRepository<User, Long>, UserCustomRepository {
   /**
    * Check if user with that email already exists.
    * @param email Email.

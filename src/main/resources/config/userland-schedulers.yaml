@@ -7,11 +7,15 @@ app:
     user:
       cleanup:
         users:
-          delay: 6h
-          initial: 5m
+          pending:
+            delay: 6h
+            initial: 5m
+          active: # only in portfolio mode
+            delay: 24h
+            initial: 1m
         tokens:
           delay: 6h
-          initial: 10m # to prevent user and token cleanup starting simultaneously
+          initial: 10m
         jwt:
           delay: 6h
           initial: 15m

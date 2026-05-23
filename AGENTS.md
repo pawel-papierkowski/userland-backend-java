@@ -49,7 +49,7 @@ This is a modern **Java 25**, **Spring Boot 4.0.5** application. The backend ser
     - Use `@Data` or `@Value` for DTOs.
     - Use `@RequiredArgsConstructor` for dependency injection in `@Service` and `@RestController` classes (do not use `@Autowired` on fields).
     - Never write manual getters or setters.
-    - Never write manual `equals()`/`hashCode()` methods, except Hibernate entities that require custom code.
+    - Never write manual `equals()`/`hashCode()` methods, except Hibernate entities that require custom code for these methods.
 - **REST APIs:**
     - Return `ResponseEntity<T>` from all controller endpoints.
       - In case endpoint do not return anything, use `ResponseEntity<Void>` and return `204 No Content`.
@@ -57,13 +57,16 @@ This is a modern **Java 25**, **Spring Boot 4.0.5** application. The backend ser
     - All response classes have `Resp` suffix.
     - Document all endpoints using Swagger/OpenAPI `@Operation`, `@Schema`, and custom meta-annotations like `@ApiAuthResponses`. `ProblemDetail` and derived classes are used for errors.
 - **Entities:**
-  - Do not use `@Data` for Hibernate entities. Use `@Getter` and `@Setter`.
+  - Do not use Lombok's `@Data` for Hibernate entities. Use `@Getter` and `@Setter`.
   - Map tables using `@Table(name = "...", schema = "...")`.
   - Generate manual `equals()`/`hashCode()` methods using **business key** (single field). If given entity do not have any field that can be used as business key, create UUID field that will be used as business key.
+- **Database:**
+  - We run on PostgreSQL.
+  - We use Flyway. See `src/main/resources/db/migration/` files for structure of database.
 - **Validation:** Use `jakarta.validation` annotations (like `@NotBlank`, `@Email`) on entity fields and DTOs.
 - **Comments:** Code is thoroughly commented.
   - All classes must have comment describing what this class is for.
-  - All public methods must have comment describing what this method is for.
+  - All public methods must have comment describing what this method is for. Omit this requirement for `@Override`d methods.
   - Protected and private classes can have comments.
 
 ## 💼 Business Rules
@@ -101,4 +104,3 @@ This is a modern **Java 25**, **Spring Boot 4.0.5** application. The backend ser
 - Do not use generic `Exception` or `RuntimeException`. Always throw domain-specific exceptions that extend our `GeneralException`.
 - Do not remove the `@Generated` or `@NoCoverageGenerated` annotations from exception classes or DTOs.
 - Do not modify `.github/workflows/deploy.yml` without explicit permission.
-- 

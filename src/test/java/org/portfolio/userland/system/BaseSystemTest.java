@@ -1,6 +1,6 @@
 package org.portfolio.userland.system;
 
-import org.portfolio.userland.features.user.repositories.UserRepository;
+import org.portfolio.userland.features.user.repositories.user.UserRepository;
 import org.portfolio.userland.test.base.BaseIntegrationTest;
 import org.portfolio.userland.test.helpers.asserts.SystemHistoryAssert;
 import org.portfolio.userland.test.helpers.asserts.UserAssert;

@@ -21,19 +21,35 @@ public class UserScheduler {
   private final UserMaintenanceService userMaintenanceService;
 
   /**
-   * Cleans up expired users. Removes users with PENDING status that are too old.
+   * Cleans up expired pending users. Removes users with PENDING status that are too old.
    */
   @Scheduled(
-      fixedDelayString = "${app.scheduler.user.cleanup.users.delay}",
-      initialDelayString = "${app.scheduler.user.cleanup.users.initial}"
+      fixedDelayString = "${app.scheduler.user.cleanup.users.pending.delay}",
+      initialDelayString = "${app.scheduler.user.cleanup.users.pending.initial}"
   )
   @SchedulerLock(
-      name = UserLockConst.CLEAN_EXPIRED_USERS,
+      name = UserLockConst.CLEAN_PENDING_USERS,
       lockAtLeastFor = "1m", // Prevents extremely fast nodes from running it twice
       lockAtMostFor = "15m"  // Failsafe in case the node dies while holding the lock
   )
-  public void cleanExpiredUsers() {
-    userMaintenanceService.cleanExpiredUsers();
+  public void cleanPendingUsers() {
+    userMaintenanceService.cleanPendingUsers();
+  }
+
+  /**
+   * Cleans up expired active users. Removes users with ACTIVE status that had last activity too long in past.
+   */
+  @Scheduled(
+      fixedDelayString = "${app.scheduler.user.cleanup.users.active.delay}",
+      initialDelayString = "${app.scheduler.user.cleanup.users.active.initial}"
+  )
+  @SchedulerLock(
+      name = UserLockConst.CLEAN_ACTIVE_USERS,
+      lockAtLeastFor = "1m", // Prevents extremely fast nodes from running it twice
+      lockAtMostFor = "15m"  // Failsafe in case the node dies while holding the lock
+  )
+  public void cleanActiveUsers() {
+    userMaintenanceService.cleanActiveUsers();
   }
 
   /**

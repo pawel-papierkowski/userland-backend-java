@@ -1,4 +1,4 @@
-package org.portfolio.userland.features.user.repositories;
+package org.portfolio.userland.features.user.repositories.jwt;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -11,7 +11,6 @@ import java.util.Set;
 
 @Repository
 public class UserJwtCustomRepositoryImpl implements UserJwtCustomRepository {
-
   @PersistenceContext
   private EntityManager entityManager;
 

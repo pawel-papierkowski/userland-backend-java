@@ -8,7 +8,7 @@ import org.portfolio.userland.features.user.exceptions.UserInvalidStatusExceptio
 import org.portfolio.userland.features.user.exceptions.UserLockedException;
 import org.portfolio.userland.features.user.exceptions.UserNotFoundException;
 import org.portfolio.userland.features.user.exceptions.UserWrongPasswordException;
-import org.portfolio.userland.features.user.repositories.UserRepository;
+import org.portfolio.userland.features.user.repositories.user.UserRepository;
 import org.portfolio.userland.system.auth.AuthHelper;
 import org.portfolio.userland.system.auth.details.CustomUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;

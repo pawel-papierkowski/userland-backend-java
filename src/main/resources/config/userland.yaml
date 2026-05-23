@@ -8,8 +8,11 @@ app:
     wwwDev: "http://localhost:5173/userland-frontend-" # you need to attach suffix like 'vue' yourself
     wwwProd: "https://pawelpapierkowski.net.pl/userland-frontend-" # you need to attach suffix like 'vue' yourself
   user:
-    pending:
-      removal-delay: 48 # when to remove pending users since creation, in hours
+    cleanup: # cleanup config
+      pending:
+        removal-delay: 48 # when to remove pending users since creation, in hours
+      active:
+        removal-delay: 72 # when to remove active users since last action, in hours
     token:
       length: 32
       activation: # user account activate

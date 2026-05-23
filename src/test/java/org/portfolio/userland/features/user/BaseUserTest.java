@@ -5,6 +5,8 @@ import org.portfolio.userland.features.user.entities.User;
 import org.portfolio.userland.features.user.entities.UserProfile;
 import org.portfolio.userland.features.user.mappers.UserProfileMapper;
 import org.portfolio.userland.features.user.repositories.*;
+import org.portfolio.userland.features.user.repositories.jwt.UserJwtRepository;
+import org.portfolio.userland.features.user.repositories.user.UserRepository;
 import org.portfolio.userland.test.base.BaseIntegrationTest;
 import org.portfolio.userland.test.helpers.asserts.JwtAssert;
 import org.portfolio.userland.test.helpers.asserts.UserAssert;

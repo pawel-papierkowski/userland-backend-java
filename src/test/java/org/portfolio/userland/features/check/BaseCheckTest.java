@@ -1,7 +1,7 @@
 package org.portfolio.userland.features.check;
 
-import org.portfolio.userland.features.user.repositories.UserJwtRepository;
-import org.portfolio.userland.features.user.repositories.UserRepository;
+import org.portfolio.userland.features.user.repositories.jwt.UserJwtRepository;
+import org.portfolio.userland.features.user.repositories.user.UserRepository;
 import org.portfolio.userland.test.base.BaseIntegrationTest;
 import org.portfolio.userland.test.helpers.factories.user.UserFactory;
 import org.portfolio.userland.test.helpers.factories.user.UserHistoryFactory;

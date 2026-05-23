@@ -3,7 +3,7 @@ package org.portfolio.userland.system.auth.details;
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.NonNull;
 import org.portfolio.userland.features.user.entities.User;
-import org.portfolio.userland.features.user.repositories.UserRepository;
+import org.portfolio.userland.features.user.repositories.user.UserRepository;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;

@@ -38,12 +38,30 @@ public class UserMaintenanceController {
   private final LockService lockService;
 
   /**
-   * Cleanup of expired users.
+   * Cleanup of expired pending users.
    * @return Response.
    */
-  @PostMapping(value = "/expiredUsers", produces = "application/json")
+  @PostMapping(value = "/pendingUsers", produces = "application/json")
   @PreAuthorize("hasAuthority('ROLE_ADMIN')")
-  @Operation(summary = "Cleanup of expired users", description = "Remove all PENDING users that are too old.")
+  @Operation(summary = "Cleanup of pending users", description = "Remove all PENDING users that are too old.")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200", description = "Successfully started cleanup.",
+          content = @Content(schema = @Schema(hidden = true))),
+      @ApiResponse(responseCode = "423", description = "Locked: same code is still running.",
+          content = @Content(mediaType = "application/problem+json",
+              schema = @Schema(implementation = ProblemDetail.class)))
+  })
+  public ResponseEntity<Void> cleanPendingUsers() {
+    return lockService.endpointWithLock(UserLockConst.CLEAN_PENDING_USERS, userMaintenanceService::cleanPendingUsers);
+  }
+
+  /**
+   * Cleanup of expired active users.
+   * @return Response.
+   */
+  @PostMapping(value = "/activeUsers", produces = "application/json")
+  @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+  @Operation(summary = "Cleanup of active users", description = "Remove all ACTIVE users that were idle for too long. Note: works only in portfolio mode.")
   @ApiResponses(value = {
       @ApiResponse(responseCode = "200", description = "Successfully started cleanup.",
           content = @Content(schema = @Schema(hidden = true))),
@@ -52,7 +70,7 @@ public class UserMaintenanceController {
               schema = @Schema(implementation = ProblemDetail.class)))
   })
   public ResponseEntity<Void> cleanExpiredUsers() {
-    return lockService.endpointWithLock(UserLockConst.CLEAN_EXPIRED_USERS, userMaintenanceService::cleanExpiredUsers);
+    return lockService.endpointWithLock(UserLockConst.CLEAN_ACTIVE_USERS, userMaintenanceService::cleanActiveUsers);
   }
 
   /**

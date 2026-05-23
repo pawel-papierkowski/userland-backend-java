@@ -3,7 +3,7 @@ package org.portfolio.userland.system.history.services;
 import lombok.RequiredArgsConstructor;
 import org.portfolio.userland.common.services.security.SecurityGeneratorService;
 import org.portfolio.userland.features.user.entities.User;
-import org.portfolio.userland.features.user.repositories.UserRepository;
+import org.portfolio.userland.features.user.repositories.user.UserRepository;
 import org.portfolio.userland.system.auth.AuthHelper;
 import org.portfolio.userland.system.auth.details.CustomUserDetails;
 import org.portfolio.userland.system.base.BaseService;

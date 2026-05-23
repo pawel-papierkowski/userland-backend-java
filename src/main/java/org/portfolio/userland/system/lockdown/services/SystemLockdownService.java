@@ -2,7 +2,7 @@ package org.portfolio.userland.system.lockdown.services;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.portfolio.userland.features.user.repositories.UserJwtRepository;
+import org.portfolio.userland.features.user.repositories.jwt.UserJwtRepository;
 import org.portfolio.userland.system.auth.perm.EnPermKind;
 import org.portfolio.userland.system.base.BaseService;
 import org.portfolio.userland.system.config.service.ConfigConst;

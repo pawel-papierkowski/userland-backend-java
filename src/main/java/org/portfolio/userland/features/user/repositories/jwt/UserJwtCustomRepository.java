@@ -1,4 +1,4 @@
-package org.portfolio.userland.features.user.repositories;
+package org.portfolio.userland.features.user.repositories.jwt;
 
 import java.util.Map;
 import java.util.Set;
