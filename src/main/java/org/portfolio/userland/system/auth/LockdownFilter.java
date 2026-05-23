@@ -44,6 +44,8 @@ public class LockdownFilter extends OncePerRequestFilter {
   @Qualifier("handlerExceptionResolver")
   private final HandlerExceptionResolver handlerExceptionResolver;
 
+  //
+
   /** Exempt endpoint matcher. */
   private final RequestMatcher exemptMatcher = new OrRequestMatcher(
       PathPatternRequestMatcher.withDefaults().matcher("/api/gcp/**"),
@@ -57,6 +59,8 @@ public class LockdownFilter extends OncePerRequestFilter {
     // permissions. Reason is that we want to allow users with appropriate permissions to login even during lockdown.
     return exemptMatcher.matches(request);
   }
+
+  //
 
   @Override
   protected void doFilterInternal(@NonNull HttpServletRequest request,

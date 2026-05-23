@@ -5,7 +5,10 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NonNull;
+import org.portfolio.userland.config.security.SecurityConfig;
+import org.portfolio.userland.config.security.constants.EndpointConst;
 import org.portfolio.userland.system.auth.details.CustomUserDetails;
 import org.portfolio.userland.system.auth.details.CustomUserDetailsService;
 import org.portfolio.userland.system.auth.jwt.exceptions.InvalidBearerTokenException;
@@ -22,6 +25,8 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.stream.Collectors;
 
 /**
  * Filter for JWT. Will always be executed, <code>addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)</code>
@@ -35,9 +40,12 @@ import java.io.IOException;
  * <ul>
  *   <li>GCP endpoints are exempt from this filter, as they are secured separately via OIDC token.</li>
  * </ul>
+ *
+ * @see SecurityConfig
  */
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class JwtAuthFilter extends OncePerRequestFilter {
   /** Header used for authorization. */
   private final static String HEADER_AUTH = "Authorization";
@@ -52,9 +60,18 @@ public class JwtAuthFilter extends OncePerRequestFilter {
   @Qualifier("handlerExceptionResolver")
   private final HandlerExceptionResolver handlerExceptionResolver;
 
+  //
+
   /** Exempt endpoint matcher. */
   private final RequestMatcher exemptMatcher = new OrRequestMatcher(
       PathPatternRequestMatcher.withDefaults().matcher("/api/gcp/**")
+  );
+
+  /** Public endpoint matcher. */
+  private final RequestMatcher publicEndpointsMatcher = new OrRequestMatcher(
+      Arrays.stream(EndpointConst.PUBLIC)
+          .map(PathPatternRequestMatcher.withDefaults()::matcher)
+          .collect(Collectors.toList())
   );
 
   @Override
@@ -63,18 +80,23 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     return exemptMatcher.matches(request);
   }
 
+  //
+
   @Override
   protected void doFilterInternal(@NonNull HttpServletRequest request,
                                   @NonNull HttpServletResponse response,
                                   @NonNull FilterChain filterChain) throws ServletException, IOException {
+    log.trace("Processing JWT for endpoint: {} {}", request.getMethod(), request.getRequestURI());
+
     final String authHeader = request.getHeader(HEADER_AUTH); // Get the Authorization header.
 
-    // We can be already authorized in tests. Handle it separately.
+    // We can be already authenticated/authorized in tests. Handle it separately.
     if (handleAlreadyAuth(request, response, filterChain)) return;
 
-    // If header is missing or does not start with Bearer, end it. Spring should be configured so it rejects endpoints
-    // that require authorization, but user do not have it.
+    // If header is missing or does not start with Bearer, end it. SecurityConfig handles cases when endpoint
+    // requires authentication/authorization, but it is not provided.
     if (authHeader == null || !authHeader.startsWith(HEADER_TOKEN_PREFIX)) {
+      log.trace("No token detected.");
       // Let's continue, maybe this endpoint does not require authentication.
       filterChain.doFilter(request, response);
       return;
@@ -82,18 +104,27 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
     // Extract the token (everything after HEADER_TOKEN_PREFIX).
     final String token = authHeader.substring(HEADER_TOKEN_PREFIX_LENGTH);
-    final String email;
+    log.trace("Token found: {}", token);
 
+    final String email;
     try {
       email = jwtService.extractEmail(token);
     } catch (Exception ex) { // Important to catch exception here!
-      // Token is malformed or expired; throw specific exception.
+      // If it's a public endpoint, ignore the JWT failure and proceed without authentication.
+      if (publicEndpointsMatcher.matches(request)) {
+        log.trace("Token is malformed or expired, but endpoint is public.");
+        filterChain.doFilter(request, response);
+        return;
+      }
+      // Token is malformed or expired; throw specific exception for non-public endpoints.
+      log.trace("Token is malformed or expired.");
       handlerExceptionResolver.resolveException(request, response, null, new InvalidBearerTokenException(authHeader));
       return;
     }
 
     // No email, something went wrong.
     if (email == null) {
+      log.trace("Something went wrong when trying to use token.");
       filterChain.doFilter(request, response); // Continue the filter chain.
       return;
     }
@@ -101,12 +132,16 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     // Load user details from database based on email, as email uniquely identifies user.
     CustomUserDetails customUserDetails = customUserDetailsService.loadUserByUsername(email);
     if (!verifyCustomUser(customUserDetails, token)) {
+      log.trace("Failed to verify custom user details.");
       filterChain.doFilter(request, response); // Continue the filter chain.
       return;
     }
 
     // Validate the token against the loaded user.
-    if (jwtService.isTokenValid(token, customUserDetails.getEmail())) setupAuth(request, customUserDetails);
+    if (jwtService.isTokenValid(token, customUserDetails.getEmail())) {
+      setupAuth(request, customUserDetails);
+      log.trace("Successfully authenticated user: {}.", customUserDetails.getEmail());
+    }
     filterChain.doFilter(request, response); // Continue the filter chain.
   }
 

@@ -1,6 +1,8 @@
 package org.portfolio.userland.config.security;
 
 import lombok.RequiredArgsConstructor;
+import org.portfolio.userland.config.security.constants.CorsConst;
+import org.portfolio.userland.config.security.constants.EndpointConst;
 import org.portfolio.userland.system.auth.LockdownFilter;
 import org.portfolio.userland.system.auth.jwt.JwtAuthFilter;
 import org.springframework.boot.security.autoconfigure.actuate.web.servlet.EndpointRequest;
@@ -65,10 +67,7 @@ public class SecurityConfig {
   public SecurityFilterChain swaggerSecurityFilterChain(HttpSecurity http) {
     http.cors(Customizer.withDefaults())
         .csrf(AbstractHttpConfigurer::disable)
-        .securityMatcher(
-            "/v3/api-docs/**",
-            "/swagger-ui/**",
-            "/swagger-ui.html")
+        .securityMatcher(EndpointConst.SWAGGER)
         .authorizeHttpRequests(requests -> requests.anyRequest().permitAll());
     return http.build();
   }
@@ -85,15 +84,7 @@ public class SecurityConfig {
     http.cors(Customizer.withDefaults())
         .csrf(AbstractHttpConfigurer::disable)
         .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-        .securityMatcher(
-            "/api/checks/alive", // alive check
-            "/api/checks/pretendWork", // pretend work check
-            "/api/checks/exception", // exception check
-            "/api/users/register", // user registration
-            "/api/users/activate", // activate user account
-            "/api/users/password/*", // reset password
-            "/api/users/login",
-            "/api/users/logout") // login user
+        .securityMatcher(EndpointConst.PUBLIC)
         .authorizeHttpRequests(requests -> requests.anyRequest().permitAll())
         .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
         .addFilterAfter(lockdownFilter, JwtAuthFilter.class);
@@ -115,7 +106,7 @@ public class SecurityConfig {
     http.cors(Customizer.withDefaults())
         .csrf(AbstractHttpConfigurer::disable)
         .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-        .securityMatcher("/api/admin/*") // any administration panel endpoint
+        .securityMatcher(EndpointConst.ADMIN)
         .authorizeHttpRequests(requests -> requests.anyRequest().hasAnyAuthority("ROLE_OPERATOR", "ROLE_ADMIN"))
         .exceptionHandling(ex -> ex
             .authenticationEntryPoint(problemDetailAuthenticationEntryPoint)
@@ -141,7 +132,7 @@ public class SecurityConfig {
     http.cors(Customizer.withDefaults())
         .csrf(AbstractHttpConfigurer::disable)
         .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-        .securityMatcher("/api/system/*") // any system endpoint
+        .securityMatcher(EndpointConst.SYSTEM) // any system endpoint
         .authorizeHttpRequests(requests -> requests.anyRequest().hasAuthority("ROLE_ADMIN"))
         .exceptionHandling(ex -> ex
             .authenticationEntryPoint(problemDetailAuthenticationEntryPoint)
@@ -164,7 +155,7 @@ public class SecurityConfig {
     http.cors(Customizer.withDefaults())
         .csrf(AbstractHttpConfigurer::disable)
         .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-        .securityMatcher("/api/gcp/**") // Match all GCP endpoints
+        .securityMatcher(EndpointConst.GCP) // Match all GCP endpoints
         .authorizeHttpRequests(requests -> requests.anyRequest().authenticated())
         // Enable OAuth2 Resource Server to automatically validate the Bearer token against Google's public keys
         .oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt -> {}))
@@ -208,16 +199,6 @@ public class SecurityConfig {
 
   // SUPPORTING BEANS
 
-  /** We allow local Vue frontend and frontend on GitHub Pages. */
-  private final static String[] CORS_ALLOWED_ORIGINS = {
-      "http://localhost:5173", // local development frontend
-      "https://pawelpapierkowski.net.pl" // production frontend
-  };
-  /** We allow pretty much all HTTP methods. */
-  private final static String[] CORS_ALLOWED_METHODS = { "GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS" };
-  /** We allow certain headers. */
-  private final static String[] CORS_ALLOWED_HEADERS = { "Authorization", "Content-Type", "X-Requested-With" };
-
   /**
    * Configures CORS so frontend can work with backend without CORS-related issues.
    * We define CORS config here and not in separate <code>WebConfig</code>, because otherwise some requests will fail
@@ -228,9 +209,9 @@ public class SecurityConfig {
   @Bean
   public CorsConfigurationSource corsConfigurationSource() {
     CorsConfiguration configuration = new CorsConfiguration();
-    configuration.setAllowedOrigins(Arrays.asList(CORS_ALLOWED_ORIGINS));
-    configuration.setAllowedMethods(Arrays.asList(CORS_ALLOWED_METHODS));
-    configuration.setAllowedHeaders(Arrays.asList(CORS_ALLOWED_HEADERS));
+    configuration.setAllowedOrigins(Arrays.asList(CorsConst.ALLOWED_ORIGINS));
+    configuration.setAllowedMethods(Arrays.asList(CorsConst.ALLOWED_METHODS));
+    configuration.setAllowedHeaders(Arrays.asList(CorsConst.ALLOWED_HEADERS));
     configuration.setAllowCredentials(true);
 
     UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
