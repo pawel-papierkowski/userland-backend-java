@@ -27,6 +27,10 @@ public abstract class BaseUserService extends BaseService {
   protected UserTokenRepository userTokenRepository;
   @Autowired
   protected UserJwtRepository userJwtRepository;
+  @Autowired
+  protected UserPermissionRepository userPermissionRepository;
+  @Autowired
+  protected PermissionRepository permissionRepository;
 
   @Autowired
   protected UserMapper userMapper;
@@ -185,5 +189,24 @@ public abstract class BaseUserService extends BaseService {
     token.setExpiresAt(userHelperService.resolveJwtExpiration(nowAt));
     token.setToken(jwtStr);
     return token;
+  }
+
+  //
+
+  protected void addPermission(LocalDateTime nowAt, User user, String name, String value) {
+    UserPermission permissionEntry = createPermission(nowAt, name, value);
+    permissionEntry.setUser(user);
+    userPermissionRepository.save(permissionEntry);
+  }
+
+  protected UserPermission createPermission(LocalDateTime nowAt, String name, String value) {
+    Permission permission = permissionRepository.findByName(name).orElseThrow();
+
+    UserPermission permissionEntry = new UserPermission();
+    permissionEntry.setUuid(securityGeneratorService.uuid());
+    permissionEntry.setCreatedAt(nowAt);
+    permissionEntry.setPermission(permission);
+    permissionEntry.setValue(value);
+    return permissionEntry;
   }
 }

@@ -8,7 +8,9 @@ import org.portfolio.userland.common.services.clock.MutableClock;
 import org.portfolio.userland.system.config.entities.Config;
 import org.portfolio.userland.system.config.repositories.ConfigRepository;
 import org.portfolio.userland.system.config.service.ConfigConst;
+import org.portfolio.userland.system.config.service.ConfigService;
 import org.portfolio.userland.system.history.repositories.SystemHistoryRepository;
+import org.portfolio.userland.test.helpers.factories.system.ConfigFactory;
 import org.portfolio.userland.test.helpers.problemDetail.ProblemDetailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
@@ -18,6 +20,9 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.support.TransactionTemplate;
 import org.testcontainers.postgresql.PostgreSQLContainer;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Base class for all integration tests.
  * Provides all stuff commonly needed for this kind of tests, like database handling.
@@ -26,9 +31,16 @@ import org.testcontainers.postgresql.PostgreSQLContainer;
  */
 @IntegrationTest
 public abstract class BaseIntegrationTest {
-  /** Project config variables. */
+  /** Project config entries. */
   @Autowired
   protected ConfigRepository configRepository;
+  /** Config service. */
+  @Autowired
+  protected ConfigService configService;
+  /** Config factory. */
+  @Autowired
+  protected ConfigFactory configFactory;
+
   /** System history events. */
   @Autowired
   protected SystemHistoryRepository systemHistoryRepository;
@@ -108,10 +120,9 @@ public abstract class BaseIntegrationTest {
    * Set up the database. Inherited methods need to call <code>super.setupDatabase()</code> at beginning.
    */
   protected void setupDatabase() {
-    Config config = new Config();
-    config.setName(ConfigConst.USER_LOCKDOWN);
-    config.setValue(ConfigConst.USER_LOCKDOWN_DEF);
-    config.setDescription("-");
-    configRepository.save(config);
+    List<Config> configs = new ArrayList<>();
+    configs.add(configFactory.genConfig(ConfigConst.GENERAL_PORTFOLIO, ConfigConst.GENERAL_PORTFOLIO_DEF));
+    configs.add(configFactory.genConfig(ConfigConst.USER_LOCKDOWN, ConfigConst.USER_LOCKDOWN_DEF));
+    configRepository.saveAll(configs);
   }
 }

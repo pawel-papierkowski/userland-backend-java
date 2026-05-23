@@ -7,6 +7,12 @@ public class ConfigConst {
   public final static String TRUE = "1";
   public final static String FALSE = "0";
 
+  // GENERAL CONFIG
+
+  /** If present and with value 1, system is in portfolio mode. */
+  public final static String GENERAL_PORTFOLIO = "general.portfolio";
+  public final static String GENERAL_PORTFOLIO_DEF = "0"; // Default for above.
+
   // FEATURE: USER
 
   /** If present and with value 1, no user can log in, unless they have ROLE_ADMIN. */

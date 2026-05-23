@@ -58,6 +58,9 @@ public record UserRegisterReq(
     @Schema(description = "If true, will activate user without bothering with registration email. Ignored on PROD. Can be null, will default to false.", example = "false")
     Boolean activate,
 
+    @Schema(description = "If true, will give admin permission to this user. Works only in portfolio mode.", example = "false")
+    Boolean isAdmin,
+
     @Schema(description = "Used frontend framework. Can be null, will default to vue.", example = "VUE")
     EnFrontendFramework frontend
 ) {}

@@ -9,6 +9,8 @@ import org.portfolio.userland.features.user.entities.*;
 import org.portfolio.userland.features.user.events.UserActivatedEvent;
 import org.portfolio.userland.features.user.events.UserAlreadyRegisteredEvent;
 import org.portfolio.userland.features.user.events.UserRegisteredEvent;
+import org.portfolio.userland.system.auth.perm.PermConst;
+import org.portfolio.userland.system.config.service.ConfigConst;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -62,8 +64,6 @@ public class UserRegisterService extends BaseUserService {
     triggerAlreadyRegisteredEvent(user, userRegisterReq.frontend());
 
     // On production, we will pretend everything is fine and dandy.
-    // TODO: exception prevents sending email properly, think up better way to do it.
-    //if (build.getTest()) throw new UserEmailAlreadyExistsException(userRegisterReq.email());
   }
 
   /**
@@ -97,7 +97,17 @@ public class UserRegisterService extends BaseUserService {
     boolean activate = userRegisterReq.activate() != null && userRegisterReq.activate();
     // Never allow user activation on spot during registration on PROD. Activate field is convenience option for testing during development.
     if (!build.getTest()) activate = false;
-    return userRegisterReq.toBuilder().activate(activate).build();
+
+    // Never allow admin permissions outside of portfolio mode.
+    boolean isAdmin = userRegisterReq.isAdmin() != null && userRegisterReq.isAdmin();
+    if (isAdmin) {
+      String generalPortfolio = configService.get(ConfigConst.GENERAL_PORTFOLIO, "0");
+      if (!ConfigConst.TRUE.equals(generalPortfolio)) isAdmin = false;
+    }
+    return userRegisterReq.toBuilder()
+        .activate(activate)
+        .isAdmin(isAdmin)
+        .build();
   }
 
   /**
@@ -116,6 +126,8 @@ public class UserRegisterService extends BaseUserService {
       user.setStatus(EnUserStatus.ACTIVE);
       user.addHistory(createHistoryEvent(nowAt, EnUserHistoryWhat.ACTIVATE, ""));
     } else user.addToken(createTokenData(nowAt, EnUserTokenType.ACTIVATE));
+
+    if (userRegisterReq.isAdmin()) user.addPermission(createPermission(nowAt, PermConst.ROLE, PermConst.ROLE_ADMIN));
     return user;
   }
 

@@ -9,8 +9,13 @@ import org.springframework.web.bind.annotation.RestController;
  * REST endpoints for user management. All endpoints here require administration panel access permissions.
  * <p>Endpoints:</p>
  * <ul>
- *   <li><code>GET /api/admin/users/all</code> - get all users. Note it returns only DTO: data present in table</li>
+ *   <li><code>GET /api/admin/users/all</code> - get all users. Note it returns only DTO: data present in table and available options.</li>
  *   <li><code>GET /api/admin/user/{id}</code> - get data about single user.</li>
+ *   <li><code>GET /api/admin/user/{id}/history</code> - get data about history for given user.</li>
+ *   <li><code>GET /api/admin/user/{id}/tokens</code> - get data about tokens for given user.</li>
+ *   <li><code>GET /api/admin/user/{id}/jwt</code> - get data about JWT for given user.</li>
+ *   <li><code>GET /api/admin/user/{id}/config</code> - get data about config for given user.</li>
+ *   <li><code>GET /api/admin/user/{id}/permissions</code> - get data about permissions for given user.</li>
  * </ul>
  */
 @RestController

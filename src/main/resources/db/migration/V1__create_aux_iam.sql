@@ -31,6 +31,7 @@ CREATE TABLE aux.config (
 );
 -- Known configuration.
 INSERT INTO aux.config (name, value, description) VALUES ('user.lockdown', '0', 'If 1, no user can log in unless they have admin permissions.');
+INSERT INTO aux.config (name, value, description) VALUES ('general.portfolio', '0', 'If 1, system is in portfolio mode. That means new accounts get admin permissions and accounts are removed automatically after few days of inactivity.');
 
 -- ============================================================================
 -- Tables for entities specific to our UserLand system.

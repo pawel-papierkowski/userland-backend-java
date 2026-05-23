@@ -12,7 +12,6 @@ import java.util.UUID;
 
 /**
  * User configuration entry.
- * TODO: no suitable business key exist, what to do? Name is not enough and I really would like to avoid uuid.
  */
 @Entity
 @Table(name = "config", schema = "iam")
