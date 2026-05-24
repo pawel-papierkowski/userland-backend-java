@@ -14,6 +14,7 @@ import org.portfolio.userland.common.constants.ValidConst;
  * @param username Username.
  * @param email User email.
  * @param lang User language as simple language code. Example: 'pl'.
+ * @param profile User profile data.
  */
 @Builder(toBuilder = true)
 @Schema(description = "Response that returns current data of user.")
