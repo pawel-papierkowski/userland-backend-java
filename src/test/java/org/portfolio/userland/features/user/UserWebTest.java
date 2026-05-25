@@ -52,7 +52,7 @@ public class UserWebTest extends BaseWebTest {
 
   @Test
   public void registrationWhenInvalidEmail() throws Exception {
-    // Arrange: invalid email (missing Top Level Domain like .com)
+    // Arrange: Invalid email (missing Top Level Domain like .com)
     UserRegisterReq req = new UserRegisterReq("John Doe", "john.doe@example", "abcABC123!", "en", null, null, false, null, null);
 
     // Act: Call the API endpoint.
@@ -61,7 +61,7 @@ public class UserWebTest extends BaseWebTest {
             .content(objectMapper.writeValueAsString(req)))
         .andReturn();
 
-    // Assert API Response.
+    // Assert: API Response.
     assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.BAD_REQUEST.value());
 
     ProblemDetailBox expectedPdb = new ProblemDetailBox(
@@ -86,7 +86,7 @@ public class UserWebTest extends BaseWebTest {
             .content(objectMapper.writeValueAsString(req)))
             .andReturn();
 
-    // Assert API Response.
+    // Assert: API Response.
     assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.BAD_REQUEST.value());
 
     ProblemDetailBox expectedPdb = new ProblemDetailBox(
@@ -113,7 +113,7 @@ public class UserWebTest extends BaseWebTest {
             .content(objectMapper.writeValueAsString(req)))
         .andReturn();
 
-    // Assert API Response.
+    // Assert: API Response.
     assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.BAD_REQUEST.value());
 
     ProblemDetailBox expectedPdb = new ProblemDetailBox(
@@ -140,7 +140,7 @@ public class UserWebTest extends BaseWebTest {
             .content(objectMapper.writeValueAsString(req)))
         .andReturn();
 
-    // Assert API Response.
+    // Assert: API Response.
     assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.BAD_REQUEST.value());
 
     ProblemDetailBox expectedPdb = new ProblemDetailBox(

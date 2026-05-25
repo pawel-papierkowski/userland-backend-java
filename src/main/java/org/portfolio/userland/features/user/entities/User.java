@@ -39,7 +39,7 @@ public class User {
   @Column(nullable = false, updatable = false)
   private LocalDateTime createdAt;
 
-  /** Date&time of account last modification. Note: only changes to user or user profile entity. */
+  /** Date&time of account last modification. Note: affected only by changes to user or user profile entity. */
   @Column(nullable = false)
   private LocalDateTime modifiedAt;
 

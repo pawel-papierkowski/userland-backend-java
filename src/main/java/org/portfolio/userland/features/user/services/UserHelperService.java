@@ -63,7 +63,7 @@ public class UserHelperService {
    * Resolves user by email and verifies user state.
    * @param email User email.
    * @param failSilently If true, method will return null instead of throwing exception if user with given email does
-   *                    not exist.
+   *                     not exist.
    * @return User or null if user could not be found.
    */
   public User resolveUser(String email, boolean failSilently) {

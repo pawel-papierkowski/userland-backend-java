@@ -52,7 +52,7 @@ public class UserEmailProdApiTest extends BaseUserTest {
             .content(objectMapper.writeValueAsString(req)))
         .andReturn();
 
-    // Assert API Response.
+    // Assert: API Response.
     assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.CONFLICT.value());
     ProblemDetailBox expectedPdb = new ProblemDetailBox(
         HttpStatus.CONFLICT.value(),
@@ -86,7 +86,7 @@ public class UserEmailProdApiTest extends BaseUserTest {
             .content(objectMapper.writeValueAsString(req)))
         .andReturn();
 
-    // Assert API Response. Note we pretend everything went fine.
+    // Assert: API Response. Note we pretend everything went fine.
     assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.NO_CONTENT.value());
     assertThat(mvcResult.getResponse().getContentAsString()).as("Response body should be empty").isEqualTo("");
   }
@@ -106,7 +106,7 @@ public class UserEmailProdApiTest extends BaseUserTest {
             .content(objectMapper.writeValueAsString(req)))
         .andReturn();
 
-    // Assert API Response.
+    // Assert: API Response.
     assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.NOT_FOUND.value());
     ProblemDetailBox expectedPdb = new ProblemDetailBox(
         HttpStatus.NOT_FOUND.value(),
@@ -138,7 +138,7 @@ public class UserEmailProdApiTest extends BaseUserTest {
             .content(objectMapper.writeValueAsString(req)))
         .andReturn();
 
-    // Assert API Response.
+    // Assert: API Response.
     assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.CONFLICT.value());
     ProblemDetailBox expectedPdb = new ProblemDetailBox(
         HttpStatus.CONFLICT.value(),
@@ -171,7 +171,7 @@ public class UserEmailProdApiTest extends BaseUserTest {
             .content(objectMapper.writeValueAsString(req)))
         .andReturn();
 
-    // Assert API Response.
+    // Assert: API Response.
     assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.CONFLICT.value());
     ProblemDetailBox expectedPdb = new ProblemDetailBox(
         HttpStatus.CONFLICT.value(),
@@ -204,7 +204,7 @@ public class UserEmailProdApiTest extends BaseUserTest {
             .content(objectMapper.writeValueAsString(req)))
         .andReturn();
 
-    // Assert API Response. Note this is same error as when wrong password is given.
+    // Assert: API Response. Note this is same error as when wrong password is given.
     assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.CONFLICT.value());
     ProblemDetailBox expectedPdb = new ProblemDetailBox(
         HttpStatus.CONFLICT.value(),

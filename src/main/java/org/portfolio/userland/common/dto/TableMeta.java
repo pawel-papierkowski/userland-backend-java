@@ -23,6 +23,6 @@ public record TableMeta(
     @Schema(description = "Name of field to sort by. If null/empty, will sort by default field (usually createdAt).", example = "username")
     String sortBy,
 
-    @Schema(description = "Sort order for sortBy.", example = "DESC")
+    @Schema(description = "Sort order for sortBy. If null/empty, will use descending order.", example = "ASC")
     EnSortOrder sortOrder
 ) {}

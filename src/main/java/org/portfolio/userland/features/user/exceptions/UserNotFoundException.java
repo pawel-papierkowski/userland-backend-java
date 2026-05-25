@@ -1,5 +1,6 @@
 package org.portfolio.userland.features.user.exceptions;
 
+import org.apache.commons.lang3.StringUtils;
 import org.portfolio.userland.common.exception.GeneralException;
 import org.portfolio.userland.features.user.constants.UserErrCode;
 import org.springframework.http.HttpStatus;
@@ -8,10 +9,18 @@ import org.springframework.http.HttpStatus;
  * Thrown when user cannot be found.
  */
 public class UserNotFoundException extends GeneralException {
+  private final Long id;
   private final String email;
+
+  public UserNotFoundException(Long id) {
+    super(id == null ? "" : id.toString());
+    this.id = id;
+    this.email = null;
+  }
 
   public UserNotFoundException(String email) {
     super(email);
+    this.id = null;
     this.email = email;
   }
 
@@ -27,7 +36,8 @@ public class UserNotFoundException extends GeneralException {
 
   @Override
   public String getDetail() {
-    return "User with email '"+email+"' does not exist.";
+    if (StringUtils.isNotEmpty(email)) return "User with email '"+email+"' does not exist.";
+    return "User with id '"+id+"' does not exist.";
   }
 
   @Override

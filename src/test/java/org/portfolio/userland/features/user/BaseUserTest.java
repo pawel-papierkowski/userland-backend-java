@@ -9,9 +9,11 @@ import org.portfolio.userland.features.user.repositories.jwt.UserJwtRepository;
 import org.portfolio.userland.features.user.repositories.user.UserRepository;
 import org.portfolio.userland.test.base.BaseIntegrationTest;
 import org.portfolio.userland.test.helpers.asserts.JwtAssert;
+import org.portfolio.userland.test.helpers.asserts.UserAdminAssert;
 import org.portfolio.userland.test.helpers.asserts.UserAssert;
 import org.portfolio.userland.test.helpers.asserts.UserProfileAssert;
 import org.portfolio.userland.test.helpers.factories.user.*;
+import org.portfolio.userland.test.helpers.factories.user.admin.UserAdminFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.event.ApplicationEvents;
@@ -57,6 +59,9 @@ public abstract class BaseUserTest extends BaseIntegrationTest {
   protected UserPermissionFactory userPermissionFactory;
 
   @Autowired
+  protected UserAdminFactory userAdminFactory;
+
+  @Autowired
   protected UserProfileMapper userProfileMapper;
 
   @Autowired
@@ -65,6 +70,8 @@ public abstract class BaseUserTest extends BaseIntegrationTest {
   protected UserProfileAssert userProfileAssert;
   @Autowired
   protected JwtAssert jwtAssert;
+  @Autowired
+  protected UserAdminAssert userAdminAssert;
 
   @MockitoBean
   protected EmailService emailService;

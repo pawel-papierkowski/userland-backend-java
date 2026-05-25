@@ -51,7 +51,7 @@ public class UserRegistrationProdApiTest extends BaseUserTest {
             .content(objectMapper.writeValueAsString(req)))
         .andReturn();
 
-    // Assert API response.
+    // Assert: API Response.
     assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.CREATED.value());
     assertThat(mvcResult.getResponse().getContentAsString()).as("Response body should be empty").isEqualTo("");
 
@@ -105,7 +105,7 @@ public class UserRegistrationProdApiTest extends BaseUserTest {
             .content(objectMapper.writeValueAsString(req)))
         .andReturn();
 
-    // Assert API Response. Note it will pretend everything went fine.
+    // Assert: API Response. Note it will pretend everything went fine.
     assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.CREATED.value());
     assertThat(mvcResult.getResponse().getContentAsString()).as("Response body should be empty").isEqualTo("");
 

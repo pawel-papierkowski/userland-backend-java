@@ -50,7 +50,7 @@ public class UserEditApiTest extends BaseUserTest {
             .content(objectMapper.writeValueAsString(req)))
         .andReturn();
 
-    // Assert API Response.
+    // Assert: API Response.
     assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.OK.value());
 
     // Assert: Endpoint response.
@@ -98,7 +98,7 @@ public class UserEditApiTest extends BaseUserTest {
             .content(objectMapper.writeValueAsString(req)))
         .andReturn();
 
-    // Assert API Response.
+    // Assert: API Response.
     assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.OK.value());
 
     // Assert: Endpoint response.
@@ -142,7 +142,7 @@ public class UserEditApiTest extends BaseUserTest {
             .content(objectMapper.writeValueAsString(req)))
         .andReturn();
 
-    // Assert API Response.
+    // Assert: API Response.
     assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.OK.value());
 
     // Assert: Endpoint response.
@@ -186,7 +186,7 @@ public class UserEditApiTest extends BaseUserTest {
             .content(objectMapper.writeValueAsString(req)))
         .andReturn();
 
-    // Assert API Response.
+    // Assert: API Response.
     assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.OK.value());
 
     // Assert: Endpoint response.
@@ -232,7 +232,7 @@ public class UserEditApiTest extends BaseUserTest {
             .content(objectMapper.writeValueAsString(req)))
         .andReturn();
 
-    // Assert API Response.
+    // Assert: API Response.
     assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.OK.value());
 
     // Assert: Endpoint response.

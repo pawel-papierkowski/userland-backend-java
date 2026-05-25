@@ -55,7 +55,7 @@ public class UserRegistrationApiTest extends BaseUserTest {
             .content(objectMapper.writeValueAsString(req)))
             .andReturn();
 
-    // Assert API response.
+    // Assert: API Response.
     assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.CREATED.value());
     assertThat(mvcResult.getResponse().getContentAsString()).as("Response body should be empty").isEqualTo("");
 
@@ -103,7 +103,7 @@ public class UserRegistrationApiTest extends BaseUserTest {
             .content(objectMapper.writeValueAsString(req)))
         .andReturn();
 
-    // Assert API response.
+    // Assert: API Response.
     assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.CREATED.value());
     assertThat(mvcResult.getResponse().getContentAsString()).as("Response body should be empty").isEqualTo("");
 
@@ -153,7 +153,7 @@ public class UserRegistrationApiTest extends BaseUserTest {
             .content(objectMapper.writeValueAsString(req)))
         .andReturn();
 
-    // Assert API response.
+    // Assert: API Response.
     assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.CREATED.value());
     assertThat(mvcResult.getResponse().getContentAsString()).as("Response body should be empty").isEqualTo("");
 
@@ -197,7 +197,7 @@ public class UserRegistrationApiTest extends BaseUserTest {
             .content(objectMapper.writeValueAsString(req)))
         .andReturn();
 
-    // Assert API response.
+    // Assert: API Response.
     assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.CREATED.value());
     assertThat(mvcResult.getResponse().getContentAsString()).as("Response body should be empty").isEqualTo("");
 
@@ -279,7 +279,7 @@ public class UserRegistrationApiTest extends BaseUserTest {
             .content(objectMapper.writeValueAsString(req)))
         .andReturn();
 
-    // Assert API Response. On production, it will pretend everything is fine.
+    // Assert: API Response. On production, it will pretend everything is fine.
     assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.CREATED.value());
     assertThat(mvcResult.getResponse().getContentAsString()).as("Response body should be empty").isEqualTo("");
 
@@ -335,7 +335,7 @@ public class UserRegistrationApiTest extends BaseUserTest {
             .content(objectMapper.writeValueAsString(req)))
         .andReturn();
 
-    // Assert API Response.
+    // Assert: API Response.
     assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.NO_CONTENT.value());
     assertThat(mvcResult.getResponse().getContentAsString()).as("Response body should be empty").isEqualTo("");
 
@@ -390,7 +390,7 @@ public class UserRegistrationApiTest extends BaseUserTest {
 
     // Assert: API Response.
     assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.NOT_FOUND.value());
-
+    // Assert: Content has correct error.
     ProblemDetailBox expectedPdb = new ProblemDetailBox(
         HttpStatus.NOT_FOUND.value(),
         "User token is missing.",
@@ -425,7 +425,7 @@ public class UserRegistrationApiTest extends BaseUserTest {
 
     // Assert: API Response.
     assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.CONFLICT.value());
-
+    // Assert: Content has correct error.
     ProblemDetailBox expectedPdb = new ProblemDetailBox(
         HttpStatus.CONFLICT.value(),
         "User token is expired.",

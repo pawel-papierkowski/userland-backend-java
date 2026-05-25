@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 
 /**
  * DTO for viewing user table. Contains filters and other settings needed for desired result. All fields can be null
- * or empty, in this case defaults will be used.
+ * or empty, in this case fields won't be used at all (no filtering) or defaults will be used (tableMeta).
  * @param username If present, filter by partial username.
  * @param email If present, filter by partial user email.
  * @param status If present, filter by status.

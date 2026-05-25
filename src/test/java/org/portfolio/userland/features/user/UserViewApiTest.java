@@ -40,7 +40,7 @@ public class UserViewApiTest extends BaseUserTest {
     MvcResult mvcResult = mockMvc.perform(get("/api/users/view"))
         .andReturn();
 
-    // Assert API Response.
+    // Assert: API Response.
     assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.OK.value());
 
     // Assert: Endpoint response.
@@ -65,7 +65,7 @@ public class UserViewApiTest extends BaseUserTest {
     MvcResult mvcResult = mockMvc.perform(get("/api/users/view"))
         .andReturn();
 
-    // Assert API Response.
+    // Assert: API Response.
     assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.OK.value());
 
     // Assert: Endpoint response.

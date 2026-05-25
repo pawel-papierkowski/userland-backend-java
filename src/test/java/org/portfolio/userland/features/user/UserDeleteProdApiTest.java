@@ -52,7 +52,7 @@ public class UserDeleteProdApiTest extends BaseUserTest {
             .content(objectMapper.writeValueAsString(req)))
         .andReturn();
 
-    // Assert API Response.
+    // Assert: API Response.
     assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.CONFLICT.value());
     ProblemDetailBox expectedPdb = new ProblemDetailBox(
         HttpStatus.CONFLICT.value(),
@@ -85,7 +85,7 @@ public class UserDeleteProdApiTest extends BaseUserTest {
             .content(objectMapper.writeValueAsString(req)))
         .andReturn();
 
-    // Assert API Response.
+    // Assert: API Response.
     assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.CONFLICT.value());
     ProblemDetailBox expectedPdb = new ProblemDetailBox(
         HttpStatus.CONFLICT.value(),
@@ -118,7 +118,7 @@ public class UserDeleteProdApiTest extends BaseUserTest {
             .content(objectMapper.writeValueAsString(req)))
         .andReturn();
 
-    // Assert API Response.
+    // Assert: API Response.
     assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.CONFLICT.value());
     ProblemDetailBox expectedPdb = new ProblemDetailBox(
         HttpStatus.CONFLICT.value(),

@@ -2,6 +2,8 @@ package org.portfolio.userland.features.user.mappers;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.portfolio.userland.features.user.dto.admin.edit.UserFullDataResp;
+import org.portfolio.userland.features.user.dto.admin.view.UserTableEntry;
 import org.portfolio.userland.features.user.dto.common.UserDataResp;
 import org.portfolio.userland.features.user.dto.register.UserRegisterReq;
 import org.portfolio.userland.features.user.entities.User;
@@ -45,10 +47,25 @@ public abstract class UserMapper {
   public abstract User registerReqToUser(UserRegisterReq req);
 
   /**
-   * Maps <code>User</code> entity to user data response.
+   * Maps <code>User</code> entity to <code>UserDataResp</code>.
    * @param user <code>User</code> entity.
-   * @return User data response.
+   * @return <code>UserDataResp</code>.
    */
   @Mapping(target = "profile", ignore = true)
   public abstract UserDataResp userToDataResp(User user);
+
+  /**
+   * Maps <code>User</code> entity to <code>UserFullDataResp</code>.
+   * @param user <code>User</code> entity.
+   * @return <code>UserFullDataResp</code>.
+   */
+  @Mapping(target = "profile", ignore = true)
+  public abstract UserFullDataResp userToFullDataResp(User user);
+
+  /**
+   * Maps <code>User</code> entity to <code>UserTableEntry</code>.
+   * @param user <code>User</code> entity.
+   * @return <code>UserTableEntry</code>.
+   */
+  public abstract UserTableEntry userToUserTableEntry(User user);
 }

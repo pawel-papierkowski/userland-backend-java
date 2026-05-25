@@ -8,28 +8,27 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.portfolio.userland.features.user.dto.admin.edit.UserFullDataReq;
+import org.portfolio.userland.features.user.dto.admin.edit.UserFullDataResp;
 import org.portfolio.userland.features.user.dto.admin.view.UserPageResp;
 import org.portfolio.userland.features.user.dto.admin.view.UserTableViewReq;
-import org.portfolio.userland.features.user.services.UserTableService;
+import org.portfolio.userland.features.user.services.admin.UserTableService;
 import org.portfolio.userland.swagger.detail.common.ValidationProblemDetail;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * REST endpoints for user management. All endpoints here require administration panel access permissions.
  * <p>Endpoints:</p>
  * <ul>
- *   <li><code>GET /api/admin/users</code> - view page of users from table filtered by settings in request.</li>
- *   <li><code>GET /api/admin/user/{id}</code> - get data about single user.</li>
- *   <li><code>GET /api/admin/user/{id}/history</code> - get data about history for given user.</li>
- *   <li><code>GET /api/admin/user/{id}/tokens</code> - get data about tokens for given user.</li>
- *   <li><code>GET /api/admin/user/{id}/jwt</code> - get data about JWT for given user.</li>
- *   <li><code>GET /api/admin/user/{id}/config</code> - get data about config for given user.</li>
- *   <li><code>GET /api/admin/user/{id}/permissions</code> - get data about permissions for given user.</li>
+ *   <li><code>POST /api/admin/users</code> - view page of users from table filtered by settings in request.</li>
+ *   <li><code>GET /api/admin/users/{id}</code> - get data about single user (basic data and profile).</li>
+ *   <li><code>GET /api/admin/users/{id}/history</code> - get data about history for given user.</li>
+ *   <li><code>GET /api/admin/users/{id}/tokens</code> - get data about tokens for given user.</li>
+ *   <li><code>GET /api/admin/users/{id}/jwt</code> - get data about JWT for given user.</li>
+ *   <li><code>GET /api/admin/users/{id}/config</code> - get data about config for given user.</li>
+ *   <li><code>GET /api/admin/users/{id}/permissions</code> - get data about permissions for given user.</li>
  * </ul>
  */
 @RestController
@@ -57,5 +56,24 @@ public class UserAdminController {
   public ResponseEntity<UserPageResp> viewUserTable(@Valid @RequestBody UserTableViewReq userTableViewReq) {
     UserPageResp userPageResp = userTableService.getPage(userTableViewReq);
     return new ResponseEntity<>(userPageResp, HttpStatus.OK);
+  }
+
+  /**
+   * View full user data.
+   * @return Response.
+   */
+  @GetMapping(value = "/{id}", produces = "application/json")
+  @Operation(summary = "Load user data", description = "Get almost all user and user profile data. It can be any user.")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200", description = "Successfully retrieved user data.",
+          content = @Content(schema = @Schema(hidden = true))),
+      @ApiResponse(responseCode = "400", description = "Invalid input (e.g., id is empty).",
+          content = @Content(mediaType = "application/problem+json",
+              schema = @Schema(implementation = ValidationProblemDetail.class)))
+  })
+  public ResponseEntity<UserFullDataResp> viewUserData(@PathVariable Long id) {
+    UserFullDataReq userFullDataReq = UserFullDataReq.builder().id(id).build();
+    UserFullDataResp userFullDataResp = userTableService.getUserData(userFullDataReq);
+    return new ResponseEntity<>(userFullDataResp, HttpStatus.OK);
   }
 }

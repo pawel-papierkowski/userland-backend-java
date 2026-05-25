@@ -116,12 +116,13 @@ public class ProblemDetailService {
   private ProblemDetailBox convert(String rawJson) throws JsonProcessingException {
     JsonNode json = objectMapper.readTree(rawJson);
     Map<String, Object> params = convertParams(json);
+    JsonNode type = json.get("type");
     return new ProblemDetailBox(
         json.get("status").asInt(),
         json.get("title").asText(),
         json.get("detail").asText(),
         json.get("instance").asText(),
-        json.get("type").asText(),
+        type == null ? null : type.asText(),
         params
     );
   }
