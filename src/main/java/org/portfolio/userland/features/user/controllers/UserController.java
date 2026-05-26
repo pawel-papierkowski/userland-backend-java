@@ -45,7 +45,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/users")
 @RequiredArgsConstructor
-@Tag(name = "User Management", description = "Endpoints for creating and managing user accounts.")
+@Tag(name = "User Handling", description = "Endpoints for creating and managing user accounts.")
 public class UserController {
   private final UserRegisterService userRegisterService;
   private final UserViewService userViewService;

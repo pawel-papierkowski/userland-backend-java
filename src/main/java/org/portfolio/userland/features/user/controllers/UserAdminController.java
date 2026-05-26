@@ -14,6 +14,7 @@ import org.portfolio.userland.features.user.dto.admin.view.UserPageResp;
 import org.portfolio.userland.features.user.dto.admin.view.UserTableViewReq;
 import org.portfolio.userland.features.user.services.admin.UserTableService;
 import org.portfolio.userland.swagger.detail.common.ValidationProblemDetail;
+import org.portfolio.userland.swagger.detail.user.BadParamsProblemDetail;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -45,13 +46,12 @@ public class UserAdminController {
    * @return Response.
    */
   @PostMapping(value = "", produces = "application/json")
-  @Operation(summary = "Load user table", description = "Returns page from user table.")
+  @Operation(summary = "Load user table", description = "Returns page from user table. Can be filtered.")
   @ApiResponses(value = {
-      @ApiResponse(responseCode = "200", description = "Successfully retrieved page from user table.",
-          content = @Content(schema = @Schema(hidden = true))),
+      @ApiResponse(responseCode = "200", description = "Successfully retrieved page from user table."),
       @ApiResponse(responseCode = "400", description = "Invalid input (e.g., createdFromAt later than createdToAt).",
           content = @Content(mediaType = "application/problem+json",
-              schema = @Schema(implementation = ValidationProblemDetail.class)))
+              schema = @Schema(implementation = BadParamsProblemDetail.class)))
   })
   public ResponseEntity<UserPageResp> viewUserTable(@Valid @RequestBody UserTableViewReq userTableViewReq) {
     UserPageResp userPageResp = userTableService.getPage(userTableViewReq);
@@ -65,8 +65,7 @@ public class UserAdminController {
   @GetMapping(value = "/{id}", produces = "application/json")
   @Operation(summary = "Load user data", description = "Get almost all user and user profile data. It can be any user.")
   @ApiResponses(value = {
-      @ApiResponse(responseCode = "200", description = "Successfully retrieved user data.",
-          content = @Content(schema = @Schema(hidden = true))),
+      @ApiResponse(responseCode = "200", description = "Successfully retrieved user data."),
       @ApiResponse(responseCode = "400", description = "Invalid input (e.g., id is empty).",
           content = @Content(mediaType = "application/problem+json",
               schema = @Schema(implementation = ValidationProblemDetail.class)))

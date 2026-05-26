@@ -19,24 +19,24 @@ import java.time.LocalDateTime;
  * @param tableMeta Table metadata like pagination settings or sorting.
  */
 @Builder(toBuilder = true)
-@Schema(description = "Payload required to return page of results from user table. All fields can be null/empty, defaults will be used.")
+@Schema(description = "Payload required to return page of results from user table. All fields can be null/empty, in this case fields won't be used at all (no filtering) or defaults will be used (tableMeta).")
 public record UserTableViewReq(
-    @Schema(description = "If present, will show only records that contain fully or partially this username.", example = "John Doe")
+    @Schema(description = "If present, show only records that contain fully or partially this username.", example = "John Doe")
     String username,
 
-    @Schema(description = "If present, will show only records that contain fully or partially this email.", example = "john.doe@example.com")
+    @Schema(description = "If present, show only records that contain fully or partially this email.", example = "john.doe@example.com")
     String email,
 
-    @Schema(description = "If present, will show only records of users with given status.", example = "ACTIVE")
+    @Schema(description = "If present, show only records of users with given status.", example = "ACTIVE")
     EnUserStatus status,
 
-    @Schema(description = "If present, will show only records of users with given locked value.", example = "false")
+    @Schema(description = "If present, show only records of users with given locked value.", example = "false")
     Boolean locked,
 
-    @Schema(description = "Show records with creation date that is same or later.", example = "2026-04-01T12:00:00")
+    @Schema(description = "If present, show records with creation date that is same or later.", example = "2026-04-01T12:00:00")
     LocalDateTime createdFromAt,
 
-    @Schema(description = "Show records with creation date that is same or earlier.", example = "2026-05-24T12:00:00")
+    @Schema(description = "If present, show records with creation date that is same or earlier.", example = "2026-05-24T12:00:00")
     LocalDateTime createdToAt,
 
     @Schema(description = "Metadata for table result.")
