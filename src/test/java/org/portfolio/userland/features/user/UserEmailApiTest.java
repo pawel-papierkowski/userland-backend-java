@@ -13,7 +13,6 @@ import org.portfolio.userland.test.helpers.problemDetail.ProblemDetailBox;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
@@ -92,7 +91,6 @@ public class UserEmailApiTest extends BaseUserTest {
 
   @Test
   @WithMockCustomUser
-  @Transactional
   public void requestEmailChangeForExistingEmail() throws Exception {
     // To prevent email enumeration attack, we need to pretend everything is fine.
     clock.setFixedTime("2026-04-08T10:00:00Z");
@@ -201,7 +199,6 @@ public class UserEmailApiTest extends BaseUserTest {
 
   @Test
   @WithMockCustomUser
-  @Transactional
   public void errEmailChangeWrongPassword() throws Exception {
     clock.setFixedTime("2026-04-08T10:00:00Z");
 
@@ -233,7 +230,6 @@ public class UserEmailApiTest extends BaseUserTest {
 
   @Test
   @WithMockCustomUser
-  @Transactional
   public void errEmailChangeToSameEmail() throws Exception {
     clock.setFixedTime("2026-04-08T10:00:00Z");
 
@@ -265,7 +261,6 @@ public class UserEmailApiTest extends BaseUserTest {
 
   @Test
   @WithMockCustomUser
-  @Transactional
   public void errEmailChangeToExistingEmail() throws Exception {
     clock.setFixedTime("2026-04-08T10:00:00Z");
 
@@ -291,7 +286,6 @@ public class UserEmailApiTest extends BaseUserTest {
 
   @Test
   @WithMockCustomUser
-  @Transactional
   public void errEmailChangeForMissingUser() throws Exception {
     clock.setFixedTime("2026-04-08T10:00:00Z");
 
@@ -319,7 +313,6 @@ public class UserEmailApiTest extends BaseUserTest {
 
   @Test
   @WithMockCustomUser
-  @Transactional
   public void errEmailChangeForPendingUser() throws Exception {
     clock.setFixedTime("2026-04-08T10:00:00Z");
 
@@ -351,7 +344,6 @@ public class UserEmailApiTest extends BaseUserTest {
 
   @Test
   @WithMockCustomUser
-  @Transactional
   public void errEmailChangeForLockedUser() throws Exception {
     clock.setFixedTime("2026-04-08T10:00:00Z");
 
@@ -384,7 +376,6 @@ public class UserEmailApiTest extends BaseUserTest {
 
   @Test
   @WithMockCustomUser
-  @Transactional
   public void errEmailChangeWhenTokenExists() throws Exception {
     clock.setFixedTime("2026-04-08T10:00:00Z");
 
@@ -419,7 +410,6 @@ public class UserEmailApiTest extends BaseUserTest {
 
   @Test
   @WithMockCustomUser
-  @Transactional
   public void errConfirmEmailChangeForExistingEmail() throws Exception {
     clock.setFixedTime("2026-04-08T10:00:00Z");
 
