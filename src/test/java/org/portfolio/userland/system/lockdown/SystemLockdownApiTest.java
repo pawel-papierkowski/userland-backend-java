@@ -1,6 +1,6 @@
 package org.portfolio.userland.system.lockdown;
 
-import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.portfolio.userland.features.user.entities.User;
 import org.portfolio.userland.system.BaseSystemTest;
@@ -30,7 +30,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
  * Integration test for lockdown endpoints.
  */
 public class SystemLockdownApiTest extends BaseSystemTest {
-  @AfterEach
+  @BeforeEach
   public void tearDown() {
     resetDatabase();
   }
@@ -58,10 +58,12 @@ public class SystemLockdownApiTest extends BaseSystemTest {
 
   @Test
   @WithMockCustomUser(authorities = { "ROLE_ADMIN" })
-  @Transactional
   public void getLockdownOn() throws Exception {
     // Arrange: Activate lockdown.
-    configRepository.updateValueByName(ConfigConst.USER_LOCKDOWN, ConfigConst.TRUE);
+    transactionTemplate.execute(_ -> {
+      configRepository.updateValueByName(ConfigConst.USER_LOCKDOWN, ConfigConst.TRUE);
+      return null;
+    });
 
     // Act: Get system lockdown data.
     MvcResult mvcResult = mockMvc.perform(get("/api/system/lockdown"))
@@ -94,10 +96,12 @@ public class SystemLockdownApiTest extends BaseSystemTest {
 
   @Test
   @WithMockCustomUser
-  @Transactional
   public void errGetLockdownOn() throws Exception {
     // Arrange: Activate lockdown.
-    configRepository.updateValueByName(ConfigConst.USER_LOCKDOWN, ConfigConst.TRUE);
+    transactionTemplate.execute(_ -> {
+      configRepository.updateValueByName(ConfigConst.USER_LOCKDOWN, ConfigConst.TRUE);
+      return null;
+    });
 
     // Act: Get system lockdown data. User has no admin rights.
     MvcResult mvcResult = mockMvc.perform(get("/api/system/lockdown"))
@@ -167,7 +171,6 @@ public class SystemLockdownApiTest extends BaseSystemTest {
 
   @Test
   @WithMockCustomUser(email = "admin@test.com", authorities = { "ROLE_ADMIN" })
-  @Transactional
   public void deactivateLockdown() throws Exception {
     // Lockdown is active, deactivate it.
     clock.setFixedTime("2026-04-10T10:00:00Z");
@@ -175,8 +178,12 @@ public class SystemLockdownApiTest extends BaseSystemTest {
     User expectedUserAdmin = userFactory.genRandUserLogged(Map.of("role", "admin"));
     expectedUserAdmin.setEmail("admin@test.com");
     User userAdmin = userRepository.save(expectedUserAdmin);
+
     // Arrange: Activate lockdown.
-    configRepository.updateValueByName(ConfigConst.USER_LOCKDOWN, ConfigConst.TRUE);
+    transactionTemplate.execute(_ -> {
+      configRepository.updateValueByName(ConfigConst.USER_LOCKDOWN, ConfigConst.TRUE);
+      return null;
+    });
 
     // Arrange: Request.
     SystemLockdownReq req = SystemLockdownReq.builder().state(EnSystemLockdownState.OFF).build();
@@ -205,6 +212,7 @@ public class SystemLockdownApiTest extends BaseSystemTest {
   public void deactivateLockdownWhenOff() throws Exception {
     // Try to deactivate lockdown when lockdown is already inactive.
     clock.setFixedTime("2026-04-10T10:00:00Z");
+
     // Arrange: Add admin user.
     User expectedUserAdmin = userFactory.genRandUserLogged(Map.of("role", "admin"));
     expectedUserAdmin.setEmail("admin@test.com");

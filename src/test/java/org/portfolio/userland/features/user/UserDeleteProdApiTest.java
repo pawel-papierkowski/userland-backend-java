@@ -1,6 +1,6 @@
 package org.portfolio.userland.features.user;
 
-import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.portfolio.userland.features.user.dto.delete.UserDeleteLinkReq;
 import org.portfolio.userland.features.user.entities.EnUserStatus;
@@ -26,7 +26,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
  */
 @TestPropertySource(properties = "app.main.build=PROD")
 public class UserDeleteProdApiTest extends BaseUserTest {
-  @AfterEach
+  @BeforeEach
   public void tearDown() {
     resetDatabase();
   }

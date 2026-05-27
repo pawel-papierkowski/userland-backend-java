@@ -10,8 +10,8 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.portfolio.userland.features.user.dto.admin.edit.UserFullDataReq;
 import org.portfolio.userland.features.user.dto.admin.edit.UserFullDataResp;
-import org.portfolio.userland.features.user.dto.admin.view.UserPageResp;
-import org.portfolio.userland.features.user.dto.admin.view.UserTableViewReq;
+import org.portfolio.userland.features.user.dto.admin.view.UserTableReq;
+import org.portfolio.userland.features.user.dto.admin.view.UserTableResp;
 import org.portfolio.userland.features.user.services.admin.UserTableService;
 import org.portfolio.userland.swagger.detail.common.ValidationProblemDetail;
 import org.portfolio.userland.swagger.detail.user.BadParamsProblemDetail;
@@ -42,7 +42,7 @@ public class UserAdminController {
   /**
    * View user table data. Request contains filtering and other (pagination, sorting) data needed to return correct
    * results.
-   * @param userTableViewReq User table view request.
+   * @param userTableReq User table view request.
    * @return Response.
    */
   @PostMapping(value = "", produces = "application/json")
@@ -53,9 +53,9 @@ public class UserAdminController {
           content = @Content(mediaType = "application/problem+json",
               schema = @Schema(implementation = BadParamsProblemDetail.class)))
   })
-  public ResponseEntity<UserPageResp> viewUserTable(@Valid @RequestBody UserTableViewReq userTableViewReq) {
-    UserPageResp userPageResp = userTableService.getPage(userTableViewReq);
-    return new ResponseEntity<>(userPageResp, HttpStatus.OK);
+  public ResponseEntity<UserTableResp> viewUserTable(@Valid @RequestBody UserTableReq userTableReq) {
+    UserTableResp userTableResp = userTableService.getPage(userTableReq);
+    return new ResponseEntity<>(userTableResp, HttpStatus.OK);
   }
 
   /**

@@ -2,12 +2,14 @@ package org.portfolio.userland.features.user.services.admin;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.portfolio.userland.common.dto.TableMeta;
 import org.portfolio.userland.common.exception.BadParamsException;
+import org.portfolio.userland.common.services.table.TableHelper;
 import org.portfolio.userland.features.user.dto.admin.edit.UserFullDataReq;
 import org.portfolio.userland.features.user.dto.admin.edit.UserFullDataResp;
-import org.portfolio.userland.features.user.dto.admin.view.UserPageResp;
 import org.portfolio.userland.features.user.dto.admin.view.UserTableEntry;
-import org.portfolio.userland.features.user.dto.admin.view.UserTableViewReq;
+import org.portfolio.userland.features.user.dto.admin.view.UserTableReq;
+import org.portfolio.userland.features.user.dto.admin.view.UserTableResp;
 import org.portfolio.userland.features.user.dto.common.UserProfileDataResp;
 import org.portfolio.userland.features.user.entities.User;
 import org.portfolio.userland.features.user.entities.UserProfile;
@@ -28,23 +30,38 @@ public class UserTableService extends BaseUserService {
   /**
    * Get page from user table. Request contains filtering and other (pagination, sorting) data needed to return correct
    * results.
-   * @param userTableViewReq User table view request.
+   * @param userTableReq User table view request.
    * @return User table data response.
    */
   @Transactional(readOnly = true)
-  public UserPageResp getPage(UserTableViewReq userTableViewReq) {
-    verifyRequest(userTableViewReq);
-    List<User> userPage = userRepository.viewPage(userTableViewReq);
-    return cnvUsersToUserPages(userPage);
+  public UserTableResp getPage(UserTableReq userTableReq) {
+    verifyRequest(userTableReq);
+    userTableReq = prepareRequest(userTableReq);
+    List<User> userPage = userRepository.viewPage(userTableReq);
+    Long entryCount = userRepository.countEntries(userTableReq);
+    Long pageCount = entryCount == 0 ? 0L : (entryCount/userTableReq.tableMeta().pageSize()) + 1;
+    return cnvUsersToUserPages(userPage, pageCount, entryCount);
+  }
+
+  /**
+   * Prepare request, adding missing fields where needed.
+   * @param userTableReq User table view request.
+   * @return Modified user table view request.
+   */
+  private UserTableReq prepareRequest(UserTableReq userTableReq) {
+    TableMeta tableMeta = TableHelper.prepareTableMeta(userTableReq.tableMeta());
+    return userTableReq.toBuilder()
+        .tableMeta(tableMeta)
+        .build();
   }
 
   /**
    * Verify request. Any error will cause exception.
-   * @param userTableViewReq User table view request.
+   * @param userTableReq User table view request.
    */
-  private void verifyRequest(UserTableViewReq userTableViewReq) {
-    if (userTableViewReq.createdFromAt() != null && userTableViewReq.createdToAt() != null) {
-      if (userTableViewReq.createdFromAt().isAfter(userTableViewReq.createdToAt()))
+  private void verifyRequest(UserTableReq userTableReq) {
+    if (userTableReq.createdFromAt() != null && userTableReq.createdToAt() != null) {
+      if (userTableReq.createdFromAt().isAfter(userTableReq.createdToAt()))
         throw new BadParamsException("Field createdFromAt is after createdToAt!");
     }
   }
@@ -54,14 +71,16 @@ public class UserTableService extends BaseUserService {
    * @param userPage List of users.
    * @return User page response.
    */
-  private UserPageResp cnvUsersToUserPages(List<User> userPage) {
-    List<UserTableEntry> userEntries = new ArrayList<>();
+  private UserTableResp cnvUsersToUserPages(List<User> userPage, Long pageCount, Long entryCount) {
+    List<UserTableEntry> entries = new ArrayList<>();
     for (User user : userPage) {
       UserTableEntry userTableEntry = userMapper.userToUserTableEntry(user);
-      userEntries.add(userTableEntry);
+      entries.add(userTableEntry);
     }
-    return UserPageResp.builder()
-        .users(userEntries)
+    return UserTableResp.builder()
+        .entries(entries)
+        .pageCount(pageCount)
+        .entryCount(entryCount)
         .build();
   }
 

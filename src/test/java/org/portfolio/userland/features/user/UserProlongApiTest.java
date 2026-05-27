@@ -1,7 +1,7 @@
 package org.portfolio.userland.features.user;
 
 import com.google.common.collect.Maps;
-import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.portfolio.userland.features.user.dto.login.UserProlongResp;
 import org.portfolio.userland.features.user.entities.EnUserHistoryWhat;
@@ -19,7 +19,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
  * Integration test for user prolong.
  */
 public class UserProlongApiTest extends BaseUserTest {
-  @AfterEach
+  @BeforeEach
   public void tearDown() {
     resetDatabase();
   }

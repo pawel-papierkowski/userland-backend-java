@@ -1,6 +1,6 @@
 package org.portfolio.userland.features.user.repositories.user;
 
-import org.portfolio.userland.features.user.dto.admin.view.UserTableViewReq;
+import org.portfolio.userland.features.user.dto.admin.view.UserTableReq;
 import org.portfolio.userland.features.user.entities.User;
 import org.springframework.stereotype.Repository;
 
@@ -10,11 +10,18 @@ import java.util.List;
 @Repository
 public interface UserCustomRepository {
   /**
-   * View page of users.
-   * @param userTableViewReq User table view request.
+   * Return total count of entries for given filtering. Field tableMeta does not matter here.
+   * @param userTableReq User table view request.
+   * @return Count of entries.
+   */
+  Long countEntries(UserTableReq userTableReq);
+
+  /**
+   * View page of users. Note: tableMeta must be filled.
+   * @param userTableReq User table view request.
    * @return Page of user entities.
    */
-  List<User> viewPage(UserTableViewReq userTableViewReq);
+  List<User> viewPage(UserTableReq userTableReq);
 
   //
 
@@ -24,4 +31,5 @@ public interface UserCustomRepository {
    * @return Number of deleted users.
    */
   int deleteActiveUsers(LocalDateTime cutoffDateAt);
+
 }

@@ -1,6 +1,6 @@
 package org.portfolio.userland.features.user;
 
-import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.portfolio.userland.features.user.dto.delete.UserDeleteConfirmReq;
 import org.portfolio.userland.features.user.dto.delete.UserDeleteLinkReq;
@@ -12,7 +12,6 @@ import org.portfolio.userland.test.helpers.problemDetail.ProblemDetailBox;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
@@ -25,7 +24,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
  * Integration test for user account deletion.
  */
 public class UserDeleteApiTest extends BaseUserTest {
-  @AfterEach
+  @BeforeEach
   public void tearDown() {
     resetDatabase();
   }
@@ -205,7 +204,6 @@ public class UserDeleteApiTest extends BaseUserTest {
 
   @Test
   @WithMockCustomUser
-  @Transactional
   public void errAccDeleteForInvalidPassword() throws Exception {
     clock.setFixedTime("2026-04-08T10:00:00Z");
 
@@ -237,7 +235,6 @@ public class UserDeleteApiTest extends BaseUserTest {
 
   @Test
   @WithMockCustomUser
-  @Transactional
   public void errAccDeleteForPendingUser() throws Exception {
     clock.setFixedTime("2026-04-08T10:00:00Z");
 
@@ -269,7 +266,6 @@ public class UserDeleteApiTest extends BaseUserTest {
 
   @Test
   @WithMockCustomUser
-  @Transactional
   public void errAccDeleteForLockedUser() throws Exception {
     clock.setFixedTime("2026-04-08T10:00:00Z");
 
@@ -302,7 +298,6 @@ public class UserDeleteApiTest extends BaseUserTest {
 
   @Test
   @WithMockCustomUser
-  @Transactional
   public void errAccDeleteWhenTokenExists() throws Exception {
     clock.setFixedTime("2026-04-08T10:00:00Z");
 
@@ -337,7 +332,6 @@ public class UserDeleteApiTest extends BaseUserTest {
 
   @Test
   @WithMockCustomUser
-  @Transactional
   public void errAccDeleteWithMissingToken() throws Exception {
     clock.setFixedTime("2026-04-08T10:00:00Z");
 

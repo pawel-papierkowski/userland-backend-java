@@ -1,6 +1,6 @@
 package org.portfolio.userland.features.user.admin;
 
-import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.portfolio.userland.features.user.BaseUserTest;
 import org.portfolio.userland.features.user.dto.admin.edit.UserFullDataResp;
@@ -21,7 +21,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
  * Integration test for retrieving almost all data for any user.
  */
 public class UserFullDataApiTest extends BaseUserTest {
-  @AfterEach
+  @BeforeEach
   public void tearDown() {
     resetDatabase();
   }

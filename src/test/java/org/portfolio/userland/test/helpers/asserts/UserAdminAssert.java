@@ -1,8 +1,8 @@
 package org.portfolio.userland.test.helpers.asserts;
 
 import lombok.RequiredArgsConstructor;
-import org.portfolio.userland.features.user.dto.admin.view.UserPageResp;
 import org.portfolio.userland.features.user.dto.admin.view.UserTableEntry;
+import org.portfolio.userland.features.user.dto.admin.view.UserTableResp;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -22,8 +22,10 @@ public class UserAdminAssert {
    * @param actualResp Actual user page response.
    * @param expectedResp Expected user page response.
    */
-  public void assertUserPage(UserPageResp actualResp, UserPageResp expectedResp) {
-    assertUserEntries(actualResp.users(), expectedResp.users());
+  public void assertUserPage(UserTableResp actualResp, UserTableResp expectedResp) {
+    assertUserEntries(actualResp.entries(), expectedResp.entries());
+    assertThat(actualResp.pageCount()).as("Page count is wrong").isEqualTo(expectedResp.pageCount());
+    assertThat(actualResp.entryCount()).as("Entry count is wrong").isEqualTo(expectedResp.entryCount());
   }
 
   /**

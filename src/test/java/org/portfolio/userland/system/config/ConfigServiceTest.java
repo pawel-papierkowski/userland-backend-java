@@ -1,6 +1,6 @@
 package org.portfolio.userland.system.config;
 
-import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.portfolio.userland.system.config.entities.Config;
 import org.portfolio.userland.system.config.exceptions.ConfigUnknownException;
@@ -21,7 +21,7 @@ public class ConfigServiceTest extends BaseIntegrationTest {
   @Autowired
   private ConfigRepository configRepository;
 
-  @AfterEach
+  @BeforeEach
   public void tearDown() {
     configRepository.deleteAll();
   }

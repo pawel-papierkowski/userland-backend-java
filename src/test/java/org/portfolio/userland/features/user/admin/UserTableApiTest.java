@@ -1,13 +1,13 @@
 package org.portfolio.userland.features.user.admin;
 
-import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.portfolio.userland.common.dto.EnSortOrder;
 import org.portfolio.userland.common.dto.TableMeta;
 import org.portfolio.userland.features.user.BaseUserTest;
-import org.portfolio.userland.features.user.dto.admin.view.UserPageResp;
 import org.portfolio.userland.features.user.dto.admin.view.UserTableEntry;
-import org.portfolio.userland.features.user.dto.admin.view.UserTableViewReq;
+import org.portfolio.userland.features.user.dto.admin.view.UserTableReq;
+import org.portfolio.userland.features.user.dto.admin.view.UserTableResp;
 import org.portfolio.userland.features.user.entities.EnUserStatus;
 import org.portfolio.userland.features.user.entities.User;
 import org.portfolio.userland.test.helpers.context.WithMockCustomUser;
@@ -30,7 +30,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
  * Integration test for user table viewing.
  */
 public class UserTableApiTest extends BaseUserTest {
-  @AfterEach
+  @BeforeEach
   public void tearDown() {
     resetDatabase();
   }
@@ -88,9 +88,11 @@ public class UserTableApiTest extends BaseUserTest {
    * Act and assert results.
    * @param req Request.
    * @param expectedResults Expected results.
+   * @param pageCount Expected page count.
+   * @param entryCount Expected entry count.
    * @throws Exception When objectMapper chokes on input.
    */
-  private void actAssert(UserTableViewReq req, List<UserTableEntry> expectedResults) throws Exception {
+  private void actAssert(UserTableReq req, List<UserTableEntry> expectedResults, Long pageCount, Long entryCount) throws Exception {
     // Act: Try to view table page with users.
     MvcResult mvcResult = mockMvc.perform(post("/api/admin/users")
             .contentType(MediaType.APPLICATION_JSON)
@@ -100,8 +102,8 @@ public class UserTableApiTest extends BaseUserTest {
     // Assert: API Response.
     assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.OK.value());
     // Assert: All results from first page returned.
-    UserPageResp actualResp = objectMapper.readValue(mvcResult.getResponse().getContentAsString(), UserPageResp.class);
-    UserPageResp expectedResp = new UserPageResp(expectedResults);
+    UserTableResp actualResp = objectMapper.readValue(mvcResult.getResponse().getContentAsString(), UserTableResp.class);
+    UserTableResp expectedResp = new UserTableResp(expectedResults, pageCount, entryCount);
     userAdminAssert.assertUserPage(actualResp, expectedResp);
   }
 
@@ -111,9 +113,9 @@ public class UserTableApiTest extends BaseUserTest {
   @WithMockCustomUser(authorities = { "ROLE_OPERATOR" })
   public void viewEmptyTable() throws Exception {
     // Arrange: all defaults.
-    UserTableViewReq req = UserTableViewReq.builder().build();
+    UserTableReq req = UserTableReq.builder().build();
 
-    actAssert(req, List.of());
+    actAssert(req, List.of(), 0L, 0L);
   }
 
   //
@@ -126,11 +128,11 @@ public class UserTableApiTest extends BaseUserTest {
     List<UserTableEntry> userResults = userAdminFactory.genUserTableEntries(users);
     List<UserTableEntry> expectedResults = List.of(userResults.getFirst());
 
-    UserTableViewReq req = UserTableViewReq.builder()
+    UserTableReq req = UserTableReq.builder()
         .username("Jan Kow") // will match first user "Jan Kowalski"
         .build();
 
-    actAssert(req, expectedResults);
+    actAssert(req, expectedResults, 1L, 1L);
   }
 
   @Test
@@ -141,11 +143,11 @@ public class UserTableApiTest extends BaseUserTest {
     List<UserTableEntry> userResults = userAdminFactory.genUserTableEntries(users);
     List<UserTableEntry> expectedResults = List.of(userResults.get(1), userResults.get(4), userResults.get(6));
 
-    UserTableViewReq req = UserTableViewReq.builder()
+    UserTableReq req = UserTableReq.builder()
         .email("@example.com") // will match all users that have emails in domain example.com
         .build();
 
-    actAssert(req, expectedResults);
+    actAssert(req, expectedResults, 1L, 3L);
   }
 
   @Test
@@ -156,11 +158,11 @@ public class UserTableApiTest extends BaseUserTest {
     List<UserTableEntry> userResults = userAdminFactory.genUserTableEntries(users);
     List<UserTableEntry> expectedResults = List.of(userResults.get(2), userResults.get(4));
 
-    UserTableViewReq req = UserTableViewReq.builder()
+    UserTableReq req = UserTableReq.builder()
         .status(EnUserStatus.PENDING)
         .build();
 
-    actAssert(req, expectedResults);
+    actAssert(req, expectedResults, 1L, 2L);
   }
 
   @Test
@@ -171,11 +173,11 @@ public class UserTableApiTest extends BaseUserTest {
     List<UserTableEntry> userResults = userAdminFactory.genUserTableEntries(users);
     List<UserTableEntry> expectedResults = List.of(userResults.get(5));
 
-    UserTableViewReq req = UserTableViewReq.builder()
+    UserTableReq req = UserTableReq.builder()
         .locked(true)
         .build();
 
-    actAssert(req, expectedResults);
+    actAssert(req, expectedResults, 1L, 1L);
   }
 
   @Test
@@ -186,11 +188,11 @@ public class UserTableApiTest extends BaseUserTest {
     List<UserTableEntry> userResults = userAdminFactory.genUserTableEntries(users);
     List<UserTableEntry> expectedResults = List.of(userResults.get(0), userResults.get(1), userResults.get(2), userResults.get(3));
 
-    UserTableViewReq req = UserTableViewReq.builder()
+    UserTableReq req = UserTableReq.builder()
         .createdFromAt(LocalDateTime.of(2026, 6, 9, 12, 1, 0, 0))
         .build();
 
-    actAssert(req, expectedResults);
+    actAssert(req, expectedResults, 1L, 4L);
   }
 
   @Test
@@ -201,11 +203,11 @@ public class UserTableApiTest extends BaseUserTest {
     List<UserTableEntry> userResults = userAdminFactory.genUserTableEntries(users);
     List<UserTableEntry> expectedResults = List.of(userResults.get(4), userResults.get(5), userResults.get(6));
 
-    UserTableViewReq req = UserTableViewReq.builder()
+    UserTableReq req = UserTableReq.builder()
         .createdToAt(LocalDateTime.of(2026, 6, 9, 12, 1, 0, 0))
         .build();
 
-    actAssert(req, expectedResults);
+    actAssert(req, expectedResults, 1L, 3L);
   }
 
   //
@@ -216,9 +218,9 @@ public class UserTableApiTest extends BaseUserTest {
     List<User> users = arrangeUserData();
     List<UserTableEntry> userResults = userAdminFactory.genUserTableEntries(users);
 
-    UserTableViewReq req = UserTableViewReq.builder().build();
+    UserTableReq req = UserTableReq.builder().build();
 
-    actAssert(req, userResults);
+    actAssert(req, userResults, 1L, 7L);
   }
 
   @Test
@@ -229,11 +231,11 @@ public class UserTableApiTest extends BaseUserTest {
     List<UserTableEntry> userResults = userAdminFactory.genUserTableEntries(users);
     List<UserTableEntry> expectedResults = List.of(userResults.get(0), userResults.get(1), userResults.get(2));
 
-    UserTableViewReq req = UserTableViewReq.builder()
+    UserTableReq req = UserTableReq.builder()
         .tableMeta(TableMeta.builder().page(0).pageSize(3).build())
         .build();
 
-    actAssert(req, expectedResults);
+    actAssert(req, expectedResults, 3L, 7L);
   }
 
   @Test
@@ -244,11 +246,11 @@ public class UserTableApiTest extends BaseUserTest {
     List<UserTableEntry> userResults = userAdminFactory.genUserTableEntries(users);
     List<UserTableEntry> expectedResults = List.of(userResults.get(3), userResults.get(4), userResults.get(5));
 
-    UserTableViewReq req = UserTableViewReq.builder()
+    UserTableReq req = UserTableReq.builder()
         .tableMeta(TableMeta.builder().page(1).pageSize(3).build())
         .build();
 
-    actAssert(req, expectedResults);
+    actAssert(req, expectedResults, 3L, 7L);
   }
 
   @Test
@@ -259,11 +261,11 @@ public class UserTableApiTest extends BaseUserTest {
     List<UserTableEntry> userResults = userAdminFactory.genUserTableEntries(users);
     List<UserTableEntry> expectedResults = List.of(userResults.get(6));
 
-    UserTableViewReq req = UserTableViewReq.builder()
+    UserTableReq req = UserTableReq.builder()
         .tableMeta(TableMeta.builder().page(2).pageSize(3).build())
         .build();
 
-    actAssert(req, expectedResults);
+    actAssert(req, expectedResults, 3L, 7L);
   }
 
   @Test
@@ -274,11 +276,11 @@ public class UserTableApiTest extends BaseUserTest {
     List<UserTableEntry> userResults = userAdminFactory.genUserTableEntries(users);
     List<UserTableEntry> expectedResults = userResults.reversed();
 
-    UserTableViewReq req = UserTableViewReq.builder()
+    UserTableReq req = UserTableReq.builder()
         .tableMeta(TableMeta.builder().sortOrder(EnSortOrder.ASC).build())
         .build();
 
-    actAssert(req, expectedResults);
+    actAssert(req, expectedResults, 1L, 7L);
   }
 
   @Test
@@ -289,11 +291,11 @@ public class UserTableApiTest extends BaseUserTest {
     List<UserTableEntry> userResults = userAdminFactory.genUserTableEntries(users);
     List<UserTableEntry> expectedResults = userResults.stream().sorted(Comparator.comparing(UserTableEntry::email)).collect(Collectors.toList());
 
-    UserTableViewReq req = UserTableViewReq.builder()
+    UserTableReq req = UserTableReq.builder()
         .tableMeta(TableMeta.builder().sortBy("email").sortOrder(EnSortOrder.ASC).build())
         .build();
 
-    actAssert(req, expectedResults);
+    actAssert(req, expectedResults, 1L, 7L);
   }
 
   //
@@ -306,14 +308,14 @@ public class UserTableApiTest extends BaseUserTest {
     List<UserTableEntry> userResults = userAdminFactory.genUserTableEntries(users);
     List<UserTableEntry> expectedResults = List.of(userResults.get(3), userResults.get(1));
 
-    UserTableViewReq req = UserTableViewReq.builder()
+    UserTableReq req = UserTableReq.builder()
         .status(EnUserStatus.ACTIVE)
         .createdFromAt(LocalDateTime.of(2026, 6, 9, 0, 0, 0, 0))
         .createdToAt(LocalDateTime.of(2026, 6, 9, 23, 59, 59, 999999999))
         .tableMeta(TableMeta.builder().sortBy("username").sortOrder(EnSortOrder.DESC).build())
         .build();
 
-    actAssert(req, expectedResults);
+    actAssert(req, expectedResults, 1L, 2L);
   }
 
   // //////////////////////////////////////////////////////////////////////////
@@ -326,7 +328,7 @@ public class UserTableApiTest extends BaseUserTest {
     // Tests verification: invalid state of createdFromAt and createdToAt.
     arrangeUserData();
 
-    UserTableViewReq req = UserTableViewReq.builder()
+    UserTableReq req = UserTableReq.builder()
         .createdFromAt(LocalDateTime.of(2026, 6, 9, 23, 59, 59, 999999999))
         .createdToAt(LocalDateTime.of(2026, 6, 9, 0, 0, 0, 0))
         .build();

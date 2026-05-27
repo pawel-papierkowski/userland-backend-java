@@ -1,6 +1,6 @@
 package org.portfolio.userland.features.user;
 
-import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.portfolio.userland.features.user.dto.email.UserEmailChangeConfirmReq;
 import org.portfolio.userland.features.user.dto.email.UserEmailChangeLinkReq;
@@ -26,7 +26,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
  * Integration test for changing email for user account.
  */
 public class UserEmailApiTest extends BaseUserTest {
-  @AfterEach
+  @BeforeEach
   public void tearDown() {
     resetDatabase();
   }

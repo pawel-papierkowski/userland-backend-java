@@ -1,6 +1,6 @@
 package org.portfolio.userland.features.user;
 
-import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.portfolio.userland.features.user.dto.password.UserPassResetLinkReq;
 import org.portfolio.userland.features.user.entities.EnUserStatus;
@@ -10,7 +10,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.transaction.annotation.Transactional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -22,7 +21,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
  */
 @TestPropertySource(properties = "app.main.build=PROD")
 public class UserPasswordProdApiTest extends BaseUserTest {
-  @AfterEach
+  @BeforeEach
   public void tearDown() {
     resetDatabase();
   }
@@ -30,7 +29,6 @@ public class UserPasswordProdApiTest extends BaseUserTest {
   // //////////////////////////////////////////////////////////////////////////
 
   @Test
-  @Transactional
   public void errPassResetForUnknownEmail() throws Exception {
     clock.setFixedTime("2026-04-08T10:00:00Z");
 
@@ -49,7 +47,6 @@ public class UserPasswordProdApiTest extends BaseUserTest {
   }
 
   @Test
-  @Transactional
   public void errPassResetForPendingUser() throws Exception {
     clock.setFixedTime("2026-04-08T10:00:00Z");
 
@@ -72,7 +69,6 @@ public class UserPasswordProdApiTest extends BaseUserTest {
   }
 
   @Test
-  @Transactional
   public void errPassResetForLockedUser() throws Exception {
     clock.setFixedTime("2026-04-08T10:00:00Z");
 
@@ -96,7 +92,6 @@ public class UserPasswordProdApiTest extends BaseUserTest {
   }
 
   @Test
-  @Transactional
   public void errPassResetWhenTokenExists() throws Exception {
     clock.setFixedTime("2026-04-08T10:00:00Z");
 

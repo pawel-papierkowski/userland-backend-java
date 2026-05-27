@@ -122,7 +122,7 @@ public class UserRegisterService extends BaseUserService {
     user.setCreatedAt(nowAt);
     user.setModifiedAt(nowAt);
     user.addHistory(createHistoryEvent(nowAt, EnUserHistoryWhat.CREATE, ""));
-    if (userRegisterReq.activate()) {
+    if (userRegisterReq.activate()) { // already activate user?
       user.setStatus(EnUserStatus.ACTIVE);
       user.addHistory(createHistoryEvent(nowAt, EnUserHistoryWhat.ACTIVATE, ""));
     } else user.addToken(createTokenData(nowAt, EnUserTokenType.ACTIVATE));

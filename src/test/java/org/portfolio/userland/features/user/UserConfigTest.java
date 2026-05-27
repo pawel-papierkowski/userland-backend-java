@@ -1,6 +1,6 @@
 package org.portfolio.userland.features.user;
 
-import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.portfolio.userland.features.user.entities.EnUserStatus;
 import org.portfolio.userland.features.user.entities.User;
@@ -16,7 +16,7 @@ public class UserConfigTest extends BaseUserTest {
   @Autowired
   private UserConfigService userConfigService;
 
-  @AfterEach
+  @BeforeEach
   public void tearDown() {
     resetDatabase();
   }

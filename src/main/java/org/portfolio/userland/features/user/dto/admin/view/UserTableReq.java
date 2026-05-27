@@ -20,7 +20,7 @@ import java.time.LocalDateTime;
  */
 @Builder(toBuilder = true)
 @Schema(description = "Payload required to return page of results from user table. All fields can be null/empty, in this case fields won't be used at all (no filtering) or defaults will be used (tableMeta).")
-public record UserTableViewReq(
+public record UserTableReq(
     @Schema(description = "If present, show only records that contain fully or partially this username.", example = "John Doe")
     String username,
 

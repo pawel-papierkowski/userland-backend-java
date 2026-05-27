@@ -7,9 +7,8 @@ import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
-import org.portfolio.userland.common.dto.TableMeta;
 import org.portfolio.userland.common.services.table.TableHelper;
-import org.portfolio.userland.features.user.dto.admin.view.UserTableViewReq;
+import org.portfolio.userland.features.user.dto.admin.view.UserTableReq;
 import org.portfolio.userland.features.user.entities.User;
 
 import java.time.LocalDateTime;
@@ -24,42 +23,68 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
   private EntityManager entityManager;
 
   @Override
-  public List<User> viewPage(UserTableViewReq userTableViewReq) {
+  public Long countEntries(UserTableReq userTableReq) {
     CriteriaBuilder cb = entityManager.getCriteriaBuilder();
-    CriteriaQuery<User> cq = cb.createQuery(User.class);
+    CriteriaQuery<Long> cq = cb.createQuery(Long.class);
     Root<User> user = cq.from(User.class);
 
-    List<Predicate> predicates = new ArrayList<>();
+    cq.select(cb.count(user));
 
-    // Apply filters.
-    if (userTableViewReq.username() != null && !userTableViewReq.username().isBlank()) {
-      predicates.add(cb.like(cb.lower(user.get("username")), "%" + userTableViewReq.username().toLowerCase() + "%"));
-    }
-    if (userTableViewReq.email() != null && !userTableViewReq.email().isBlank()) {
-      predicates.add(cb.like(cb.lower(user.get("email")), "%" + userTableViewReq.email().toLowerCase() + "%"));
-    }
-    if (userTableViewReq.status() != null) {
-      predicates.add(cb.equal(user.get("status"), userTableViewReq.status()));
-    }
-    if (userTableViewReq.locked() != null) {
-      predicates.add(cb.equal(user.get("locked"), userTableViewReq.locked()));
-    }
-    if (userTableViewReq.createdFromAt() != null) {
-      predicates.add(cb.greaterThanOrEqualTo(user.get("createdAt"), userTableViewReq.createdFromAt()));
-    }
-    if (userTableViewReq.createdToAt() != null) {
-      predicates.add(cb.lessThanOrEqualTo(user.get("createdAt"), userTableViewReq.createdToAt()));
-    }
-
+    List<Predicate> predicates = generatePredicates(userTableReq, cb, user);
     if (!predicates.isEmpty()) {
       cq.where(cb.and(predicates.toArray(new Predicate[0])));
     }
 
-    TableMeta tableMeta = TableHelper.prepareTableMeta(userTableViewReq.tableMeta());
-    TableHelper.applySorting(cb, cq, user, tableMeta);
+    // Execute the query to get the single result (the count).
+    return entityManager.createQuery(cq).getSingleResult();
+  }
+
+  @Override
+  public List<User> viewPage(UserTableReq userTableReq) {
+    CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+    CriteriaQuery<User> cq = cb.createQuery(User.class);
+    Root<User> user = cq.from(User.class);
+
+    List<Predicate> predicates = generatePredicates(userTableReq, cb, user);
+    if (!predicates.isEmpty()) {
+      cq.where(cb.and(predicates.toArray(new Predicate[0])));
+    }
+
+    TableHelper.applySorting(cb, cq, user, userTableReq.tableMeta());
     TypedQuery<User> query = entityManager.createQuery(cq);
-    TableHelper.applyPagination(query, tableMeta);
+    TableHelper.applyPagination(query, userTableReq.tableMeta());
     return query.getResultList();
+  }
+
+  /**
+   * Filtering logic.
+   * @param userTableReq Filtering data.
+   * @param cb Criteria builder.
+   * @param user User entity as <code>Root</code>.
+   * @return List of predicates that you should assemble using AND.
+   */
+  private List<Predicate> generatePredicates(UserTableReq userTableReq, CriteriaBuilder cb, Root<User> user) {
+    List<Predicate> predicates = new ArrayList<>();
+    // Apply filters.
+    if (userTableReq.username() != null && !userTableReq.username().isBlank()) {
+      predicates.add(cb.like(cb.lower(user.get("username")), "%" + userTableReq.username().toLowerCase() + "%"));
+    }
+    if (userTableReq.email() != null && !userTableReq.email().isBlank()) {
+      predicates.add(cb.like(cb.lower(user.get("email")), "%" + userTableReq.email().toLowerCase() + "%"));
+    }
+    if (userTableReq.status() != null) {
+      predicates.add(cb.equal(user.get("status"), userTableReq.status()));
+    }
+    if (userTableReq.locked() != null) {
+      predicates.add(cb.equal(user.get("locked"), userTableReq.locked()));
+    }
+    if (userTableReq.createdFromAt() != null) {
+      predicates.add(cb.greaterThanOrEqualTo(user.get("createdAt"), userTableReq.createdFromAt()));
+    }
+    if (userTableReq.createdToAt() != null) {
+      predicates.add(cb.lessThanOrEqualTo(user.get("createdAt"), userTableReq.createdToAt()));
+    }
+    return predicates;
   }
 
   //

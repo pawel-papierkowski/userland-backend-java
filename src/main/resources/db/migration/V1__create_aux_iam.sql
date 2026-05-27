@@ -31,7 +31,7 @@ CREATE TABLE aux.config (
 );
 -- Known configuration.
 INSERT INTO aux.config (name, value, description) VALUES ('user.lockdown', '0', 'If 1, no user can log in unless they have admin permissions.');
-INSERT INTO aux.config (name, value, description) VALUES ('general.portfolio', '0', 'If 1, system is in portfolio mode. That means new accounts get admin permissions and accounts are removed automatically after few days of inactivity.');
+INSERT INTO aux.config (name, value, description) VALUES ('general.portfolio', '0', 'If 1, system is in portfolio mode. That means new accounts can get admin permissions and accounts are removed automatically after few days of inactivity.');
 
 -- ============================================================================
 -- Tables for entities specific to our UserLand system.
@@ -64,9 +64,9 @@ CREATE TABLE iam.users (
     -- UUID v4. Business key.
     uuid UUID NOT NULL DEFAULT gen_random_uuid() UNIQUE,
     -- When user account was created.
-    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    created_at TIMESTAMP NOT NULL DEFAULT(now() AT TIME ZONE 'UTC'),
     -- When user account was last modified.
-    modified_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    modified_at TIMESTAMP NOT NULL DEFAULT(now() AT TIME ZONE 'UTC'),
 
     -- Username visible on frontend. Must be present.
     username VARCHAR(100) NOT NULL,
@@ -74,11 +74,12 @@ CREATE TABLE iam.users (
     email VARCHAR(100) NOT NULL UNIQUE,
     -- Password as hash.
     password VARCHAR(100) NOT NULL,
+
     -- Language code like 'en'.
     lang VARCHAR(2) NOT NULL,
 
     -- Status of user.
-    status VARCHAR(50) NOT NULL DEFAULT 'PENDING' CHECK (status IN ('PENDING', 'ACTIVE')),
+    status VARCHAR(50) NOT NULL DEFAULT 'PENDING' CHECK (status IN ('PENDING', 'ACTIVE', 'DEMO')),
     -- Is user locked?
     locked BOOLEAN NOT NULL DEFAULT FALSE
 );
@@ -109,7 +110,7 @@ CREATE TABLE iam.config (
     id_user BIGINT NOT NULL,
 
     -- When user configuration entry was created.
-    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    created_at TIMESTAMP NOT NULL DEFAULT (now() AT TIME ZONE 'UTC'),
 
     -- Name of user configuration entry.
     name VARCHAR(255) NOT NULL,
@@ -130,9 +131,9 @@ CREATE TABLE iam.tokens (
     id_user BIGINT NOT NULL,
 
     -- When token was created.
-    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    created_at TIMESTAMP NOT NULL DEFAULT (now() AT TIME ZONE 'UTC'),
     -- When token expires. Expired tokens cannot be used and will eventually be removed.
-    expires_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    expires_at TIMESTAMP NOT NULL DEFAULT (now() AT TIME ZONE 'UTC'),
 
     -- Token type.
     type VARCHAR(50) NOT NULL CHECK (type IN ('ACTIVATE', 'EMAIL', 'PASSWORD', 'DELETE')),
@@ -155,9 +156,9 @@ CREATE TABLE iam.jwt (
     id_user BIGINT NOT NULL,
 
     -- When token was created.
-    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    created_at TIMESTAMP NOT NULL DEFAULT (now() AT TIME ZONE 'UTC'),
     -- When token expires. Expired tokens cannot be used and will eventually be removed.
-    expires_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    expires_at TIMESTAMP NOT NULL DEFAULT (now() AT TIME ZONE 'UTC'),
 
     -- Token value itself. Business key.
     token TEXT NOT NULL UNIQUE,
@@ -176,7 +177,7 @@ CREATE TABLE iam.history (
     id_user BIGINT NOT NULL,
 
     -- When user history entry was created.
-    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    created_at TIMESTAMP NOT NULL DEFAULT (now() AT TIME ZONE 'UTC'),
 
     -- Who caused user history event?
     who VARCHAR(50) NOT NULL CHECK (who IN ('USER', 'OPERATOR', 'SYSTEM')),
@@ -201,7 +202,7 @@ CREATE TABLE iam.user_permissions (
     id_permission BIGINT NOT NULL,
 
     -- When user permission entry was created.
-    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    created_at TIMESTAMP NOT NULL DEFAULT (now() AT TIME ZONE 'UTC'),
 
     -- Value of permission entry.
     value TEXT NOT NULL,
@@ -228,7 +229,7 @@ CREATE TABLE aux.history (
     id_user BIGINT,
 
     -- When system history entry was created.
-    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    created_at TIMESTAMP NOT NULL DEFAULT (now() AT TIME ZONE 'UTC'),
 
     -- Who caused system history event?
     who VARCHAR(50) NOT NULL CHECK (who IN ('OPERATOR', 'ADMIN', 'SYSTEM')),

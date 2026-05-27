@@ -1,6 +1,6 @@
 package org.portfolio.userland.features.user;
 
-import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.portfolio.userland.features.user.entities.*;
 import org.portfolio.userland.features.user.schedulers.UserScheduler;
@@ -19,7 +19,7 @@ public class UserMaintenanceTest extends BaseUserTest {
   @Autowired
   private UserScheduler userScheduler;
 
-  @AfterEach
+  @BeforeEach
   public void tearDown() {
     resetDatabase();
   }

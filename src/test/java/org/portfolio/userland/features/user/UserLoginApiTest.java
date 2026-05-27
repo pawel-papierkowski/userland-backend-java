@@ -1,7 +1,7 @@
 package org.portfolio.userland.features.user;
 
 import com.google.common.collect.Maps;
-import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.portfolio.userland.features.user.constants.UserConfigConst;
 import org.portfolio.userland.features.user.dto.login.UserLoginReq;
@@ -17,7 +17,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Map;
 
@@ -33,7 +32,7 @@ public class UserLoginApiTest extends BaseUserTest {
   @Autowired
   private ConfigService configService;
 
-  @AfterEach
+  @BeforeEach
   public void tearDown() {
     resetDatabase();
   }
@@ -232,7 +231,6 @@ public class UserLoginApiTest extends BaseUserTest {
   // FAILURES
 
   @Test
-  @Transactional
   public void errMissingAccount() throws Exception {
     // Refuse if user do not exist.
     clock.setFixedTime("2026-04-08T10:00:00Z");
@@ -262,7 +260,6 @@ public class UserLoginApiTest extends BaseUserTest {
   }
 
   @Test
-  @Transactional
   public void errWrongPassword() throws Exception {
     // Refuse if user provided wrong password.
     clock.setFixedTime("2026-04-08T10:00:00Z");
@@ -296,7 +293,6 @@ public class UserLoginApiTest extends BaseUserTest {
   }
 
   @Test
-  @Transactional
   public void errUserLocked() throws Exception {
     // Refuse if user is locked.
     clock.setFixedTime("2026-04-08T10:00:00Z");
@@ -331,7 +327,6 @@ public class UserLoginApiTest extends BaseUserTest {
   }
 
   @Test
-  @Transactional
   public void errUserInvalidStatus() throws Exception {
     // Refuse if user has invalid status (cannot log in when user is PENDING).
     clock.setFixedTime("2026-04-08T10:00:00Z");
@@ -365,7 +360,6 @@ public class UserLoginApiTest extends BaseUserTest {
   }
 
   @Test
-  @Transactional
   public void errLockdown() throws Exception {
     // Login endpoint has special handling of lockdown, so we test it separately.
     clock.setFixedTime("2026-04-08T10:00:00Z");

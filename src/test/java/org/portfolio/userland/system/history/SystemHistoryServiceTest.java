@@ -1,6 +1,6 @@
 package org.portfolio.userland.system.history;
 
-import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.portfolio.userland.system.BaseSystemTest;
 import org.portfolio.userland.system.history.entities.EnHistoryWhat;
@@ -18,7 +18,7 @@ public class SystemHistoryServiceTest extends BaseSystemTest {
   @Autowired
   private SystemHistoryService systemHistoryService;
 
-  @AfterEach
+  @BeforeEach
   public void tearDown() {
     resetDatabase();
   }

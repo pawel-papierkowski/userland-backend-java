@@ -6,11 +6,16 @@ import lombok.Builder;
 import java.util.List;
 
 /**
- * DTO for user list result. Shows single page.
+ * DTO for user list result. Shows single page of entries and related metadata like count of pages.
  */
 @Builder(toBuilder = true)
 @Schema(description = "Response that returns page from user table.")
-public record UserPageResp(
+public record UserTableResp(
     @Schema(description = "Page of user records.")
-    List<UserTableEntry> users
+    List<UserTableEntry> entries,
+
+    @Schema(description = "Count of pages.")
+    Long pageCount,
+    @Schema(description = "Count of all entries.")
+    Long entryCount
 ) {}

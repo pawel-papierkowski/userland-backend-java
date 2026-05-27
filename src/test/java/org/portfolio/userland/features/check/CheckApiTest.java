@@ -1,6 +1,6 @@
 package org.portfolio.userland.features.check;
 
-import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.portfolio.userland.common.constants.EnAppBuild;
 import org.portfolio.userland.common.constants.ValidConst;
@@ -41,7 +41,7 @@ public class CheckApiTest extends BaseCheckTest {
   @Value("${app.main.version}")
   protected String systemVersion;
 
-  @AfterEach
+  @BeforeEach
   public void tearDown() {
     resetDatabase();
   }
@@ -330,13 +330,15 @@ public class CheckApiTest extends BaseCheckTest {
   //
 
   @Test
-  @Transactional
   void errLockdownUnsecuredEndpoint() throws Exception {
     // Try to access unsecured endpoint during lockdown.
     clock.setFixedTime("2026-04-10T10:00:00Z");
 
     // Arrange: Lock down system.
-    configRepository.updateValueByName(ConfigConst.USER_LOCKDOWN, ConfigConst.TRUE);
+    transactionTemplate.execute(_ -> {
+      configRepository.updateValueByName(ConfigConst.USER_LOCKDOWN, ConfigConst.TRUE);
+      return null;
+    });
 
     // Act: Perform the request using MockMvc.
     MvcResult mvcResult = mockMvc.perform(get("/api/checks/alive"))
@@ -356,7 +358,6 @@ public class CheckApiTest extends BaseCheckTest {
   }
 
   @Test
-  @Transactional
   void errLockdownSecuredEndpoint() throws Exception {
     // Try to access secured endpoint during lockdown.
     clock.setFixedTime("2026-04-10T10:00:00Z");
@@ -367,7 +368,10 @@ public class CheckApiTest extends BaseCheckTest {
     String token = userJwtRepository.findAll().getFirst().getToken();
 
     // Arrange: Lock down system.
-    configRepository.updateValueByName(ConfigConst.USER_LOCKDOWN, ConfigConst.TRUE);
+    transactionTemplate.execute(_ -> {
+      configRepository.updateValueByName(ConfigConst.USER_LOCKDOWN, ConfigConst.TRUE);
+      return null;
+    });
 
     // Act: Perform the request using MockMvc.
     MvcResult mvcResult = mockMvc.perform(get("/api/checks/must-be-logged")
