@@ -2,7 +2,7 @@ package org.portfolio.userland.features.user.dto.admin.view;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
-import org.portfolio.userland.common.dto.TableMeta;
+import org.portfolio.userland.common.dto.TableMetaReq;
 import org.portfolio.userland.features.user.entities.EnUserStatus;
 
 import java.time.LocalDateTime;
@@ -39,6 +39,6 @@ public record UserTableReq(
     @Schema(description = "If present, show records with creation date that is same or earlier.", example = "2026-05-24T12:00:00")
     LocalDateTime createdToAt,
 
-    @Schema(description = "Metadata for table result.")
-    TableMeta tableMeta
+    @Schema(description = "Table metadata like pagination settings or sorting.")
+    TableMetaReq tableMeta
 ) {}

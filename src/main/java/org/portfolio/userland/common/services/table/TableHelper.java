@@ -6,7 +6,8 @@ import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Root;
 import org.jspecify.annotations.NonNull;
 import org.portfolio.userland.common.dto.EnSortOrder;
-import org.portfolio.userland.common.dto.TableMeta;
+import org.portfolio.userland.common.dto.TableMetaReq;
+import org.portfolio.userland.common.dto.TableMetaResp;
 
 /**
  * Helper methods for handling table queries.
@@ -19,25 +20,25 @@ public class TableHelper {
 
   /**
    * Handle TableMeta defaults.
-   * @param tableMeta Table meta. Can be null.
+   * @param tableMetaReq Table meta. Can be null.
    * @return Filled table meta.
    */
-  public static TableMeta prepareTableMeta(TableMeta tableMeta) {
-    return TableHelper.prepareTableMeta(tableMeta, DEFAULT_PAGE_SIZE, DEFAULT_PAGE, DEFAULT_SORT_BY, DEFAULT_SORT_ORDER);
+  public static TableMetaReq prepareTableMeta(TableMetaReq tableMetaReq) {
+    return TableHelper.prepareTableMeta(tableMetaReq, DEFAULT_PAGE_SIZE, DEFAULT_PAGE, DEFAULT_SORT_BY, DEFAULT_SORT_ORDER);
   }
 
   /**
    * Handle TableMeta defaults.
-   * @param tableMeta Table meta. Can be null.
+   * @param tableMetaReq Table meta. Can be null.
    * @param defPageSize Page size.
    * @param defPage Page.
    * @param defSortBy Sort by.
    * @param defSortOrder Sort order.
    * @return Filled table meta.
    */
-  public static TableMeta prepareTableMeta(TableMeta tableMeta, int defPageSize, int defPage, @NonNull String defSortBy, @NonNull EnSortOrder defSortOrder) {
-    if (tableMeta == null) {
-      tableMeta = TableMeta.builder()
+  public static TableMetaReq prepareTableMeta(TableMetaReq tableMetaReq, int defPageSize, int defPage, @NonNull String defSortBy, @NonNull EnSortOrder defSortOrder) {
+    if (tableMetaReq == null) {
+      tableMetaReq = TableMetaReq.builder()
           .pageSize(defPageSize)
           .page(defPage)
           .sortBy(defSortBy)
@@ -45,39 +46,59 @@ public class TableHelper {
           .build();
     } else {
       // Fill in any missing fields in the provided tableMeta with defaults.
-      if (tableMeta.pageSize() == null) tableMeta = tableMeta.toBuilder().pageSize(defPageSize).build();
-      if (tableMeta.page() == null) tableMeta = tableMeta.toBuilder().page(defPage).build();
-      if (tableMeta.sortBy() == null || tableMeta.sortBy().isBlank()) tableMeta = tableMeta.toBuilder().sortBy(defSortBy).build();
-      if (tableMeta.sortOrder() == null) tableMeta = tableMeta.toBuilder().sortOrder(defSortOrder).build();
+      if (tableMetaReq.pageSize() == null) tableMetaReq = tableMetaReq.toBuilder().pageSize(defPageSize).build();
+      if (tableMetaReq.page() == null) tableMetaReq = tableMetaReq.toBuilder().page(defPage).build();
+      if (tableMetaReq.sortBy() == null || tableMetaReq.sortBy().isBlank()) tableMetaReq = tableMetaReq.toBuilder().sortBy(defSortBy).build();
+      if (tableMetaReq.sortOrder() == null) tableMetaReq = tableMetaReq.toBuilder().sortOrder(defSortOrder).build();
     }
-    return tableMeta;
+    return tableMetaReq;
   }
 
   /**
    * Applies sorting.
    * @param cb Criteria builder.
    * @param cq Criteria query.
-   * @param tableMeta Table metadata.
+   * @param tableMetaReq Table metadata.
    * @param <T> Entity.
    */
-  public static <T> void applySorting(CriteriaBuilder cb, CriteriaQuery<T> cq, Root<T> entity, TableMeta tableMeta) {
+  public static <T> void applySorting(CriteriaBuilder cb, CriteriaQuery<T> cq, Root<T> entity, TableMetaReq tableMetaReq) {
     // Apply sorting.
-    if (tableMeta.sortOrder() == EnSortOrder.ASC) {
-      cq.orderBy(cb.asc(entity.get(tableMeta.sortBy())));
+    if (tableMetaReq.sortOrder() == EnSortOrder.ASC) {
+      cq.orderBy(cb.asc(entity.get(tableMetaReq.sortBy())));
     } else {
-      cq.orderBy(cb.desc(entity.get(tableMeta.sortBy())));
+      cq.orderBy(cb.desc(entity.get(tableMetaReq.sortBy())));
     }
   }
 
   /**
    * Applies pagination.
    * @param query Typed query.
-   * @param tableMeta Table metadata. Must be filled properly.
+   * @param tableMetaReq Table metadata. Must be filled properly.
    * @param <T> Entity.
    */
-  public static <T> void applyPagination(TypedQuery<T> query, TableMeta tableMeta) {
+  public static <T> void applyPagination(TypedQuery<T> query, TableMetaReq tableMetaReq) {
     // Apply pagination.
-    query.setFirstResult(tableMeta.page() * tableMeta.pageSize());
-    query.setMaxResults(tableMeta.pageSize());
+    query.setFirstResult(tableMetaReq.page() * tableMetaReq.pageSize());
+    query.setMaxResults(tableMetaReq.pageSize());
+  }
+
+  //
+
+  /**
+   * Fill metadata for table page response.
+   * @param tableMetaReq Metadata for table page request.
+   * @param entryCount Entry count.
+   * @return Metadata for table page response.
+   */
+  public static TableMetaResp fillTableMetaResp(TableMetaReq tableMetaReq, Long entryCount) {
+    Long pageCount = entryCount == 0 ? 0L : (entryCount/tableMetaReq.pageSize()) + 1;
+    return TableMetaResp.builder()
+        .pageCount(pageCount)
+        .entryCount(entryCount)
+        .page(tableMetaReq.page())
+        .pageSize(tableMetaReq.pageSize())
+        .sortBy(tableMetaReq.sortBy())
+        .sortOrder(tableMetaReq.sortOrder())
+        .build();
   }
 }

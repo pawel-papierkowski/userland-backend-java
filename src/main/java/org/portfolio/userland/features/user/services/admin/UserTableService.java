@@ -2,7 +2,7 @@ package org.portfolio.userland.features.user.services.admin;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.portfolio.userland.common.dto.TableMeta;
+import org.portfolio.userland.common.dto.TableMetaReq;
 import org.portfolio.userland.common.exception.BadParamsException;
 import org.portfolio.userland.common.services.table.TableHelper;
 import org.portfolio.userland.features.user.dto.admin.edit.UserFullDataReq;
@@ -30,7 +30,7 @@ public class UserTableService extends BaseUserService {
   /**
    * Get page from user table. Request contains filtering and other (pagination, sorting) data needed to return correct
    * results.
-   * @param userTableReq User table view request.
+   * @param userTableReq User table page request.
    * @return User table data response.
    */
   @Transactional(readOnly = true)
@@ -39,25 +39,24 @@ public class UserTableService extends BaseUserService {
     userTableReq = prepareRequest(userTableReq);
     List<User> userPage = userRepository.viewPage(userTableReq);
     Long entryCount = userRepository.countEntries(userTableReq);
-    Long pageCount = entryCount == 0 ? 0L : (entryCount/userTableReq.tableMeta().pageSize()) + 1;
-    return cnvUsersToUserPages(userPage, pageCount, entryCount);
+    return cnvUsersToUserPages(userPage, userTableReq.tableMeta(), entryCount);
   }
 
   /**
    * Prepare request, adding missing fields where needed.
    * @param userTableReq User table view request.
-   * @return Modified user table view request.
+   * @return Modified user table page request.
    */
   private UserTableReq prepareRequest(UserTableReq userTableReq) {
-    TableMeta tableMeta = TableHelper.prepareTableMeta(userTableReq.tableMeta());
+    TableMetaReq tableMetaReq = TableHelper.prepareTableMeta(userTableReq.tableMeta());
     return userTableReq.toBuilder()
-        .tableMeta(tableMeta)
+        .tableMeta(tableMetaReq)
         .build();
   }
 
   /**
    * Verify request. Any error will cause exception.
-   * @param userTableReq User table view request.
+   * @param userTableReq User table page request.
    */
   private void verifyRequest(UserTableReq userTableReq) {
     if (userTableReq.createdFromAt() != null && userTableReq.createdToAt() != null) {
@@ -69,9 +68,11 @@ public class UserTableService extends BaseUserService {
   /**
    * Converts list of user entities to user entries in response.
    * @param userPage List of users.
+   * @param tableMetaReq Metadata for table page request.
+   * @param entryCount Entry count.
    * @return User page response.
    */
-  private UserTableResp cnvUsersToUserPages(List<User> userPage, Long pageCount, Long entryCount) {
+  private UserTableResp cnvUsersToUserPages(List<User> userPage, TableMetaReq tableMetaReq, Long entryCount) {
     List<UserTableEntry> entries = new ArrayList<>();
     for (User user : userPage) {
       UserTableEntry userTableEntry = userMapper.userToUserTableEntry(user);
@@ -79,8 +80,7 @@ public class UserTableService extends BaseUserService {
     }
     return UserTableResp.builder()
         .entries(entries)
-        .pageCount(pageCount)
-        .entryCount(entryCount)
+        .tableMeta(TableHelper.fillTableMetaResp(tableMetaReq, entryCount))
         .build();
   }
 

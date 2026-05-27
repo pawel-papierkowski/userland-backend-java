@@ -3,7 +3,9 @@ package org.portfolio.userland.features.user.admin;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.portfolio.userland.common.dto.EnSortOrder;
-import org.portfolio.userland.common.dto.TableMeta;
+import org.portfolio.userland.common.dto.TableMetaReq;
+import org.portfolio.userland.common.dto.TableMetaResp;
+import org.portfolio.userland.common.services.table.TableHelper;
 import org.portfolio.userland.features.user.BaseUserTest;
 import org.portfolio.userland.features.user.dto.admin.view.UserTableEntry;
 import org.portfolio.userland.features.user.dto.admin.view.UserTableReq;
@@ -87,12 +89,12 @@ public class UserTableApiTest extends BaseUserTest {
   /**
    * Act and assert results.
    * @param req Request.
-   * @param expectedResults Expected results.
+   * @param expectedEntries Expected entries.
    * @param pageCount Expected page count.
    * @param entryCount Expected entry count.
    * @throws Exception When objectMapper chokes on input.
    */
-  private void actAssert(UserTableReq req, List<UserTableEntry> expectedResults, Long pageCount, Long entryCount) throws Exception {
+  private void actAssert(UserTableReq req, List<UserTableEntry> expectedEntries, Long pageCount, Long entryCount) throws Exception {
     // Act: Try to view table page with users.
     MvcResult mvcResult = mockMvc.perform(post("/api/admin/users")
             .contentType(MediaType.APPLICATION_JSON)
@@ -101,9 +103,21 @@ public class UserTableApiTest extends BaseUserTest {
 
     // Assert: API Response.
     assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.OK.value());
-    // Assert: All results from first page returned.
+
+    // Assert: All results from given page returned.
     UserTableResp actualResp = objectMapper.readValue(mvcResult.getResponse().getContentAsString(), UserTableResp.class);
-    UserTableResp expectedResp = new UserTableResp(expectedResults, pageCount, entryCount);
+
+    TableMetaReq tableMetaReq = TableHelper.prepareTableMeta(req.tableMeta());
+    TableMetaResp expectedTableMetaResp = TableMetaResp.builder()
+        .pageCount(pageCount)
+        .entryCount(entryCount)
+        .pageSize(tableMetaReq.pageSize())
+        .page(tableMetaReq.page())
+        .sortBy(tableMetaReq.sortBy())
+        .sortOrder(tableMetaReq.sortOrder())
+        .build();
+
+    UserTableResp expectedResp = new UserTableResp(expectedEntries, expectedTableMetaResp);
     userAdminAssert.assertUserPage(actualResp, expectedResp);
   }
 
@@ -232,7 +246,7 @@ public class UserTableApiTest extends BaseUserTest {
     List<UserTableEntry> expectedResults = List.of(userResults.get(0), userResults.get(1), userResults.get(2));
 
     UserTableReq req = UserTableReq.builder()
-        .tableMeta(TableMeta.builder().page(0).pageSize(3).build())
+        .tableMeta(TableMetaReq.builder().page(0).pageSize(3).build())
         .build();
 
     actAssert(req, expectedResults, 3L, 7L);
@@ -247,7 +261,7 @@ public class UserTableApiTest extends BaseUserTest {
     List<UserTableEntry> expectedResults = List.of(userResults.get(3), userResults.get(4), userResults.get(5));
 
     UserTableReq req = UserTableReq.builder()
-        .tableMeta(TableMeta.builder().page(1).pageSize(3).build())
+        .tableMeta(TableMetaReq.builder().page(1).pageSize(3).build())
         .build();
 
     actAssert(req, expectedResults, 3L, 7L);
@@ -262,7 +276,7 @@ public class UserTableApiTest extends BaseUserTest {
     List<UserTableEntry> expectedResults = List.of(userResults.get(6));
 
     UserTableReq req = UserTableReq.builder()
-        .tableMeta(TableMeta.builder().page(2).pageSize(3).build())
+        .tableMeta(TableMetaReq.builder().page(2).pageSize(3).build())
         .build();
 
     actAssert(req, expectedResults, 3L, 7L);
@@ -277,7 +291,7 @@ public class UserTableApiTest extends BaseUserTest {
     List<UserTableEntry> expectedResults = userResults.reversed();
 
     UserTableReq req = UserTableReq.builder()
-        .tableMeta(TableMeta.builder().sortOrder(EnSortOrder.ASC).build())
+        .tableMeta(TableMetaReq.builder().sortOrder(EnSortOrder.ASC).build())
         .build();
 
     actAssert(req, expectedResults, 1L, 7L);
@@ -292,7 +306,7 @@ public class UserTableApiTest extends BaseUserTest {
     List<UserTableEntry> expectedResults = userResults.stream().sorted(Comparator.comparing(UserTableEntry::email)).collect(Collectors.toList());
 
     UserTableReq req = UserTableReq.builder()
-        .tableMeta(TableMeta.builder().sortBy("email").sortOrder(EnSortOrder.ASC).build())
+        .tableMeta(TableMetaReq.builder().sortBy("email").sortOrder(EnSortOrder.ASC).build())
         .build();
 
     actAssert(req, expectedResults, 1L, 7L);
@@ -312,7 +326,7 @@ public class UserTableApiTest extends BaseUserTest {
         .status(EnUserStatus.ACTIVE)
         .createdFromAt(LocalDateTime.of(2026, 6, 9, 0, 0, 0, 0))
         .createdToAt(LocalDateTime.of(2026, 6, 9, 23, 59, 59, 999999999))
-        .tableMeta(TableMeta.builder().sortBy("username").sortOrder(EnSortOrder.DESC).build())
+        .tableMeta(TableMetaReq.builder().sortBy("username").sortOrder(EnSortOrder.DESC).build())
         .build();
 
     actAssert(req, expectedResults, 1L, 2L);

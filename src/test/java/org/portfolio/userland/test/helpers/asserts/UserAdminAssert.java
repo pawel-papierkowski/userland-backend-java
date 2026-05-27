@@ -1,6 +1,7 @@
 package org.portfolio.userland.test.helpers.asserts;
 
 import lombok.RequiredArgsConstructor;
+import org.portfolio.userland.common.dto.TableMetaResp;
 import org.portfolio.userland.features.user.dto.admin.view.UserTableEntry;
 import org.portfolio.userland.features.user.dto.admin.view.UserTableResp;
 import org.springframework.stereotype.Service;
@@ -24,8 +25,21 @@ public class UserAdminAssert {
    */
   public void assertUserPage(UserTableResp actualResp, UserTableResp expectedResp) {
     assertUserEntries(actualResp.entries(), expectedResp.entries());
+    assertTableMetadata(actualResp.tableMeta(), expectedResp.tableMeta());
+  }
+
+  /**
+   * Assert table metadata response.
+   * @param actualResp Actual table metadata response.
+   * @param expectedResp Expected table metadata response.
+   */
+  public void assertTableMetadata(TableMetaResp actualResp, TableMetaResp expectedResp) {
     assertThat(actualResp.pageCount()).as("Page count is wrong").isEqualTo(expectedResp.pageCount());
     assertThat(actualResp.entryCount()).as("Entry count is wrong").isEqualTo(expectedResp.entryCount());
+    assertThat(actualResp.page()).as("Page is wrong").isEqualTo(expectedResp.page());
+    assertThat(actualResp.pageSize()).as("Page size is wrong").isEqualTo(expectedResp.pageSize());
+    assertThat(actualResp.sortBy()).as("Sort by is wrong").isEqualTo(expectedResp.sortBy());
+    assertThat(actualResp.sortOrder()).as("Sort order is wrong").isEqualTo(expectedResp.sortOrder());
   }
 
   /**
