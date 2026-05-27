@@ -18,7 +18,6 @@ import org.portfolio.userland.test.helpers.problemDetail.ProblemDetailBox;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
 import java.util.Map;
@@ -403,7 +402,6 @@ public class UserRegistrationApiTest extends BaseUserTest {
   }
 
   @Test
-  @Transactional
   public void errExpiredToken() throws Exception {
     // We are trying to activate user using expired token.
     clock.setFixedTime("2026-04-08T10:00:00Z");
