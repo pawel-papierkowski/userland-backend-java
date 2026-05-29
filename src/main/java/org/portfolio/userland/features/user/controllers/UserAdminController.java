@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.*;
 
 /**
  * REST endpoints for user management. All endpoints here require administration panel access permissions.
- * <p>Endpoints:</p>
+ * <p>View endpoints:</p>
  * <ul>
  *   <li><code>POST /api/admin/users</code> - view page of users from table filtered by settings in request.</li>
  *   <li><code>GET /api/admin/users/{id}</code> - get data about single user (basic data and profile).</li>
@@ -30,6 +30,10 @@ import org.springframework.web.bind.annotation.*;
  *   <li><code>GET /api/admin/users/{id}/jwt</code> - get data about JWT for given user.</li>
  *   <li><code>GET /api/admin/users/{id}/config</code> - get data about config for given user.</li>
  *   <li><code>GET /api/admin/users/{id}/permissions</code> - get data about permissions for given user.</li>
+ * </ul>
+ * <p>Edit endpoints:</p>
+ * <ul>
+ *   <li><code>POST /api/admin/users/{id}</code> - change general and profile data of user with given id.</li>
  * </ul>
  */
 @RestController
