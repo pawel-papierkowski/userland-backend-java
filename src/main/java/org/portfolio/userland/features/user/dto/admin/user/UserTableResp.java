@@ -1,4 +1,4 @@
-package org.portfolio.userland.features.user.dto.admin.view;
+package org.portfolio.userland.features.user.dto.admin.user;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;

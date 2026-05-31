@@ -1,4 +1,4 @@
-package org.portfolio.userland.features.user.dto.email;
+package org.portfolio.userland.features.user.dto.standard.email;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;

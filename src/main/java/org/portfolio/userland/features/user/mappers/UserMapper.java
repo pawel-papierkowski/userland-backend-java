@@ -2,10 +2,10 @@ package org.portfolio.userland.features.user.mappers;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-import org.portfolio.userland.features.user.dto.admin.edit.UserFullDataResp;
-import org.portfolio.userland.features.user.dto.admin.view.UserTableEntry;
+import org.portfolio.userland.features.user.dto.admin.user.UserFullDataResp;
+import org.portfolio.userland.features.user.dto.admin.user.UserTableEntry;
 import org.portfolio.userland.features.user.dto.common.UserDataResp;
-import org.portfolio.userland.features.user.dto.register.UserRegisterReq;
+import org.portfolio.userland.features.user.dto.standard.register.UserRegisterReq;
 import org.portfolio.userland.features.user.entities.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;

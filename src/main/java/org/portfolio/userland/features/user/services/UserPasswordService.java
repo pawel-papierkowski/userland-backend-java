@@ -1,8 +1,8 @@
 package org.portfolio.userland.features.user.services;
 
 import lombok.RequiredArgsConstructor;
-import org.portfolio.userland.features.user.dto.password.UserPassResetConfirmReq;
-import org.portfolio.userland.features.user.dto.password.UserPassResetLinkReq;
+import org.portfolio.userland.features.user.dto.standard.password.UserPassResetConfirmReq;
+import org.portfolio.userland.features.user.dto.standard.password.UserPassResetLinkReq;
 import org.portfolio.userland.features.user.entities.EnUserHistoryWhat;
 import org.portfolio.userland.features.user.entities.EnUserTokenType;
 import org.portfolio.userland.features.user.entities.User;

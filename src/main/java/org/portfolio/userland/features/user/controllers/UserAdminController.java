@@ -8,10 +8,10 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.portfolio.userland.features.user.dto.admin.edit.UserFullDataReq;
-import org.portfolio.userland.features.user.dto.admin.edit.UserFullDataResp;
-import org.portfolio.userland.features.user.dto.admin.view.UserTableReq;
-import org.portfolio.userland.features.user.dto.admin.view.UserTableResp;
+import org.portfolio.userland.features.user.dto.admin.user.UserFullDataReq;
+import org.portfolio.userland.features.user.dto.admin.user.UserFullDataResp;
+import org.portfolio.userland.features.user.dto.admin.user.UserTableReq;
+import org.portfolio.userland.features.user.dto.admin.user.UserTableResp;
 import org.portfolio.userland.features.user.services.admin.UserTableService;
 import org.portfolio.userland.swagger.detail.common.ValidationProblemDetail;
 import org.portfolio.userland.swagger.detail.user.BadParamsProblemDetail;
@@ -79,4 +79,8 @@ public class UserAdminController {
     UserFullDataResp userFullDataResp = userTableService.getUserData(userFullDataReq);
     return new ResponseEntity<>(userFullDataResp, HttpStatus.OK);
   }
+
+  //
+
+
 }

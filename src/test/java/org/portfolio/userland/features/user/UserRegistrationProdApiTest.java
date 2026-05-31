@@ -4,7 +4,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.portfolio.userland.features.email.dto.EmailReq;
-import org.portfolio.userland.features.user.dto.register.UserRegisterReq;
+import org.portfolio.userland.features.user.dto.standard.register.UserRegisterReq;
 import org.portfolio.userland.features.user.entities.EnUserStatus;
 import org.portfolio.userland.features.user.entities.User;
 import org.portfolio.userland.features.user.entities.UserProfile;

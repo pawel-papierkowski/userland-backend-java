@@ -2,8 +2,8 @@ package org.portfolio.userland.features.user;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.portfolio.userland.features.user.dto.email.UserEmailChangeConfirmReq;
-import org.portfolio.userland.features.user.dto.email.UserEmailChangeLinkReq;
+import org.portfolio.userland.features.user.dto.standard.email.UserEmailChangeConfirmReq;
+import org.portfolio.userland.features.user.dto.standard.email.UserEmailChangeLinkReq;
 import org.portfolio.userland.features.user.entities.*;
 import org.portfolio.userland.features.user.events.UserEmailChangeConfirmEvent;
 import org.portfolio.userland.features.user.events.UserEmailChangeFailEvent;

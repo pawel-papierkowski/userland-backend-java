@@ -2,7 +2,7 @@ package org.portfolio.userland.features.user;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.portfolio.userland.features.user.dto.delete.UserDeleteLinkReq;
+import org.portfolio.userland.features.user.dto.standard.delete.UserDeleteLinkReq;
 import org.portfolio.userland.features.user.entities.EnUserStatus;
 import org.portfolio.userland.features.user.entities.EnUserTokenType;
 import org.portfolio.userland.features.user.entities.User;

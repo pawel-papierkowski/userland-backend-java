@@ -1,8 +1,8 @@
 package org.portfolio.userland.features.user.services;
 
 import lombok.RequiredArgsConstructor;
-import org.portfolio.userland.features.user.dto.delete.UserDeleteConfirmReq;
-import org.portfolio.userland.features.user.dto.delete.UserDeleteLinkReq;
+import org.portfolio.userland.features.user.dto.standard.delete.UserDeleteConfirmReq;
+import org.portfolio.userland.features.user.dto.standard.delete.UserDeleteLinkReq;
 import org.portfolio.userland.features.user.entities.EnUserHistoryWhat;
 import org.portfolio.userland.features.user.entities.EnUserTokenType;
 import org.portfolio.userland.features.user.entities.User;

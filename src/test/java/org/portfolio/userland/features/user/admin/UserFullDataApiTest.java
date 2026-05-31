@@ -3,7 +3,7 @@ package org.portfolio.userland.features.user.admin;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.portfolio.userland.features.user.BaseUserTest;
-import org.portfolio.userland.features.user.dto.admin.edit.UserFullDataResp;
+import org.portfolio.userland.features.user.dto.admin.user.UserFullDataResp;
 import org.portfolio.userland.features.user.entities.EnUserStatus;
 import org.portfolio.userland.features.user.entities.User;
 import org.portfolio.userland.features.user.entities.UserProfile;

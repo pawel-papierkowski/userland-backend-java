@@ -4,7 +4,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.portfolio.userland.features.user.dto.common.UserDataResp;
 import org.portfolio.userland.features.user.dto.common.UserProfileDataResp;
-import org.portfolio.userland.features.user.dto.edit.UserEditReq;
+import org.portfolio.userland.features.user.dto.standard.edit.UserEditReq;
 import org.portfolio.userland.features.user.entities.EnUserHistoryWhat;
 import org.portfolio.userland.features.user.entities.EnUserStatus;
 import org.portfolio.userland.features.user.entities.User;

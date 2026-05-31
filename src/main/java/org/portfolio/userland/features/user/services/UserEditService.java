@@ -3,7 +3,7 @@ package org.portfolio.userland.features.user.services;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.portfolio.userland.features.user.dto.common.UserDataResp;
-import org.portfolio.userland.features.user.dto.edit.UserEditReq;
+import org.portfolio.userland.features.user.dto.standard.edit.UserEditReq;
 import org.portfolio.userland.features.user.entities.EnUserHistoryWhat;
 import org.portfolio.userland.features.user.entities.User;
 import org.portfolio.userland.features.user.entities.UserProfile;

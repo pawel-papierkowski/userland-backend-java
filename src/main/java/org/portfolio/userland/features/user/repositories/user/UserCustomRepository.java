@@ -1,6 +1,6 @@
 package org.portfolio.userland.features.user.repositories.user;
 
-import org.portfolio.userland.features.user.dto.admin.view.UserTableReq;
+import org.portfolio.userland.features.user.dto.admin.user.UserTableReq;
 import org.portfolio.userland.features.user.entities.User;
 import org.springframework.stereotype.Repository;
 

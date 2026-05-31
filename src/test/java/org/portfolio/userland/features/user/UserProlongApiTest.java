@@ -3,7 +3,7 @@ package org.portfolio.userland.features.user;
 import com.google.common.collect.Maps;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.portfolio.userland.features.user.dto.login.UserProlongResp;
+import org.portfolio.userland.features.user.dto.standard.login.UserProlongResp;
 import org.portfolio.userland.features.user.entities.EnUserHistoryWhat;
 import org.portfolio.userland.features.user.entities.User;
 import org.portfolio.userland.test.helpers.problemDetail.ProblemDetailBox;

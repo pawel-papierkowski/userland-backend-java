@@ -2,8 +2,8 @@ package org.portfolio.userland.test.helpers.asserts;
 
 import lombok.RequiredArgsConstructor;
 import org.portfolio.userland.common.dto.TableMetaResp;
-import org.portfolio.userland.features.user.dto.admin.view.UserTableEntry;
-import org.portfolio.userland.features.user.dto.admin.view.UserTableResp;
+import org.portfolio.userland.features.user.dto.admin.user.UserTableEntry;
+import org.portfolio.userland.features.user.dto.admin.user.UserTableResp;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

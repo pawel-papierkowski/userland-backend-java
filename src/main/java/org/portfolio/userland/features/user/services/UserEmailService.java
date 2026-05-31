@@ -2,8 +2,8 @@ package org.portfolio.userland.features.user.services;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.portfolio.userland.features.user.dto.email.UserEmailChangeConfirmReq;
-import org.portfolio.userland.features.user.dto.email.UserEmailChangeLinkReq;
+import org.portfolio.userland.features.user.dto.standard.email.UserEmailChangeConfirmReq;
+import org.portfolio.userland.features.user.dto.standard.email.UserEmailChangeLinkReq;
 import org.portfolio.userland.features.user.entities.EnUserHistoryWhat;
 import org.portfolio.userland.features.user.entities.EnUserTokenType;
 import org.portfolio.userland.features.user.entities.User;

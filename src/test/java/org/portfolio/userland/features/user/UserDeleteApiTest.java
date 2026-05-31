@@ -2,8 +2,8 @@ package org.portfolio.userland.features.user;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.portfolio.userland.features.user.dto.delete.UserDeleteConfirmReq;
-import org.portfolio.userland.features.user.dto.delete.UserDeleteLinkReq;
+import org.portfolio.userland.features.user.dto.standard.delete.UserDeleteConfirmReq;
+import org.portfolio.userland.features.user.dto.standard.delete.UserDeleteLinkReq;
 import org.portfolio.userland.features.user.entities.*;
 import org.portfolio.userland.features.user.events.UserAccountDeleteConfirmEvent;
 import org.portfolio.userland.features.user.events.UserAccountDeleteRequestEvent;

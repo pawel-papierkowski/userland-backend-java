@@ -8,7 +8,7 @@ import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import org.portfolio.userland.common.services.table.TableHelper;
-import org.portfolio.userland.features.user.dto.admin.view.UserTableReq;
+import org.portfolio.userland.features.user.dto.admin.user.UserTableReq;
 import org.portfolio.userland.features.user.entities.User;
 
 import java.time.LocalDateTime;

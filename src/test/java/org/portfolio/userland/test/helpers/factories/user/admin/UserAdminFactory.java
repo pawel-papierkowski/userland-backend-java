@@ -1,8 +1,8 @@
 package org.portfolio.userland.test.helpers.factories.user.admin;
 
 import lombok.RequiredArgsConstructor;
-import org.portfolio.userland.features.user.dto.admin.edit.UserFullDataResp;
-import org.portfolio.userland.features.user.dto.admin.view.UserTableEntry;
+import org.portfolio.userland.features.user.dto.admin.user.UserFullDataResp;
+import org.portfolio.userland.features.user.dto.admin.user.UserTableEntry;
 import org.portfolio.userland.features.user.dto.common.UserProfileDataResp;
 import org.portfolio.userland.features.user.entities.User;
 import org.portfolio.userland.features.user.entities.UserProfile;
