@@ -1,4 +1,4 @@
-package org.portfolio.userland.features.user.repositories;
+package org.portfolio.userland.features.user.repositories.token;
 
 import org.portfolio.userland.features.user.entities.EnUserTokenType;
 import org.portfolio.userland.features.user.entities.UserToken;

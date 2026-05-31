@@ -1,4 +1,4 @@
-package org.portfolio.userland.features.user.repositories;
+package org.portfolio.userland.features.user.repositories.user;
 
 import org.portfolio.userland.features.user.entities.UserProfile;
 import org.springframework.data.jpa.repository.JpaRepository;

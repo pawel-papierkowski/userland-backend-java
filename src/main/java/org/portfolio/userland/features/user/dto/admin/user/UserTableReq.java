@@ -8,14 +8,14 @@ import org.portfolio.userland.features.user.entities.EnUserStatus;
 import java.time.LocalDateTime;
 
 /**
- * DTO for viewing user table. Contains filters and other settings needed for desired result. All fields can be null
- * or empty, in this case fields won't be used at all (no filtering) or defaults will be used (tableMeta).
+ * DTO for viewing user table. Contains filters and other settings needed for desired result.
+ * All fields can be null or empty, in this case fields won't be used at all (no filtering) or defaults will be used (tableMeta).
  * @param username If present, filter by partial username.
  * @param email If present, filter by partial user email.
  * @param status If present, filter by status.
  * @param locked If present, filter by locked.
- * @param createdFromAt If present, show users created at this date or later.
- * @param createdToAt If present, show users created at this date or earlier.
+ * @param createdFromAt If present, show user records created at this date or later.
+ * @param createdToAt If present, show user records created at this date or earlier.
  * @param tableMeta Table metadata like pagination settings or sorting.
  */
 @Builder(toBuilder = true)
@@ -33,10 +33,10 @@ public record UserTableReq(
     @Schema(description = "If present, show only records of users with given locked value.", example = "false")
     Boolean locked,
 
-    @Schema(description = "If present, show records with creation date that is same or later.", example = "2026-04-01T12:00:00")
+    @Schema(description = "If present, show user records with creation date that is same or later.", example = "2026-04-01T12:00:00")
     LocalDateTime createdFromAt,
 
-    @Schema(description = "If present, show records with creation date that is same or earlier.", example = "2026-05-24T12:00:00")
+    @Schema(description = "If present, show user records with creation date that is same or earlier.", example = "2026-05-24T12:00:00")
     LocalDateTime createdToAt,
 
     @Schema(description = "Table metadata like pagination settings or sorting.")

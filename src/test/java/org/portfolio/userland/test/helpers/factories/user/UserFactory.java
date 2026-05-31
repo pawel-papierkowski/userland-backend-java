@@ -3,7 +3,7 @@ package org.portfolio.userland.test.helpers.factories.user;
 import lombok.RequiredArgsConstructor;
 import org.instancio.Instancio;
 import org.portfolio.userland.features.user.entities.*;
-import org.portfolio.userland.features.user.repositories.PermissionRepository;
+import org.portfolio.userland.features.user.repositories.permission.PermissionRepository;
 import org.portfolio.userland.system.auth.jwt.JwtService;
 import org.portfolio.userland.test.helpers.factories.BaseFactory;
 import org.springframework.security.crypto.password.PasswordEncoder;

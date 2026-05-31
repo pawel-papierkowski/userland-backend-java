@@ -6,8 +6,12 @@ import org.portfolio.userland.features.user.exceptions.UserTokenExpiredException
 import org.portfolio.userland.features.user.exceptions.UserTokenMissingException;
 import org.portfolio.userland.features.user.mappers.UserMapper;
 import org.portfolio.userland.features.user.mappers.UserProfileMapper;
-import org.portfolio.userland.features.user.repositories.*;
+import org.portfolio.userland.features.user.repositories.history.UserHistoryRepository;
 import org.portfolio.userland.features.user.repositories.jwt.UserJwtRepository;
+import org.portfolio.userland.features.user.repositories.permission.PermissionRepository;
+import org.portfolio.userland.features.user.repositories.permission.UserPermissionRepository;
+import org.portfolio.userland.features.user.repositories.token.UserTokenRepository;
+import org.portfolio.userland.features.user.repositories.user.UserProfileRepository;
 import org.portfolio.userland.features.user.repositories.user.UserRepository;
 import org.portfolio.userland.system.base.BaseService;
 import org.springframework.beans.factory.annotation.Autowired;
