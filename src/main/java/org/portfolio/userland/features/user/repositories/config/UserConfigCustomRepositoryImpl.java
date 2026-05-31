@@ -19,7 +19,7 @@ public class UserConfigCustomRepositoryImpl extends EntityTableHandling<UserConf
   @Override
   protected List<Predicate> generatePredicates(UserConfigTableReq req, CriteriaBuilder cb, Root<UserConfig> entity) {
     List<Predicate> predicates = new ArrayList<>();
-    predicates.add(cb.equal(entity.get("id"), req.userId())); // obligatory field
+    predicates.add(cb.equal(entity.get("user").get("id"), req.userId())); // obligatory field
 
     if (req.createdFromAt() != null) {
       predicates.add(cb.greaterThanOrEqualTo(entity.get("createdAt"), req.createdFromAt()));

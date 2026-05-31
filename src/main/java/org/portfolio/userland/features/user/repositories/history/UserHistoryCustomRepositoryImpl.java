@@ -19,7 +19,7 @@ public class UserHistoryCustomRepositoryImpl extends EntityTableHandling<UserHis
   @Override
   protected List<Predicate> generatePredicates(UserHistoryTableReq req, CriteriaBuilder cb, Root<UserHistory> entity) {
     List<Predicate> predicates = new ArrayList<>();
-    predicates.add(cb.equal(entity.get("id"), req.userId())); // obligatory field
+    predicates.add(cb.equal(entity.get("user").get("id"), req.userId())); // obligatory field
 
     if (req.who() != null) {
       predicates.add(cb.equal(entity.get("who"), req.who()));

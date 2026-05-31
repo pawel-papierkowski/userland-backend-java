@@ -23,7 +23,7 @@ public class UserJwtCustomRepositoryImpl extends EntityTableHandling<UserJwtTabl
   @Override
   protected List<Predicate> generatePredicates(UserJwtTableReq req, CriteriaBuilder cb, Root<UserJwt> entity) {
     List<Predicate> predicates = new ArrayList<>();
-    predicates.add(cb.equal(entity.get("id"), req.userId())); // obligatory field
+    predicates.add(cb.equal(entity.get("user").get("id"), req.userId())); // obligatory field
 
     if (req.createdFromAt() != null) {
       predicates.add(cb.greaterThanOrEqualTo(entity.get("createdAt"), req.createdFromAt()));

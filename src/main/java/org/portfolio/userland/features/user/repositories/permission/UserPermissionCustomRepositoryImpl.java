@@ -19,7 +19,7 @@ public class UserPermissionCustomRepositoryImpl extends EntityTableHandling<User
   @Override
   protected List<Predicate> generatePredicates(UserPermissionTableReq req, CriteriaBuilder cb, Root<UserPermission> entity) {
     List<Predicate> predicates = new ArrayList<>();
-    predicates.add(cb.equal(entity.get("id"), req.userId())); // obligatory field
+    predicates.add(cb.equal(entity.get("user").get("id"), req.userId())); // obligatory field
 
     if (req.createdFromAt() != null) {
       predicates.add(cb.greaterThanOrEqualTo(entity.get("createdAt"), req.createdFromAt()));
