@@ -7,21 +7,24 @@ import org.springframework.stereotype.Repository;
 import java.time.LocalDateTime;
 import java.util.List;
 
+/**
+ * More complex queries for <code>User</code> entity.
+ */
 @Repository
 public interface UserCustomRepository {
   /**
    * Return total count of entries for given filtering. Field tableMeta does not matter here.
-   * @param userTableReq User table view request.
+   * @param req User table view request.
    * @return Count of entries.
    */
-  Long countEntries(UserTableReq userTableReq);
+  Long countEntries(UserTableReq req);
 
   /**
    * View page of users. Note: tableMeta must be filled.
-   * @param userTableReq User table view request.
+   * @param req User table view request.
    * @return Page of user entities.
    */
-  List<User> viewPage(UserTableReq userTableReq);
+  List<User> viewPage(UserTableReq req);
 
   //
 

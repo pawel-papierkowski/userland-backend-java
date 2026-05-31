@@ -11,7 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.portfolio.userland.features.user.dto.standard.login.UserLoginReq;
 import org.portfolio.userland.features.user.dto.standard.login.UserLoginResp;
 import org.portfolio.userland.features.user.dto.standard.login.UserProlongResp;
-import org.portfolio.userland.features.user.services.UserLoginService;
+import org.portfolio.userland.features.user.services.standard.UserLoginService;
 import org.portfolio.userland.swagger.annotations.ApiResponsesAuth;
 import org.portfolio.userland.swagger.detail.common.ValidationProblemDetail;
 import org.portfolio.userland.swagger.detail.user.UserWrongPasswordProblemDetail;

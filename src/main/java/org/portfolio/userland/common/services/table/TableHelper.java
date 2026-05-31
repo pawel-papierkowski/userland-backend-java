@@ -59,9 +59,9 @@ public class TableHelper {
    * @param cb Criteria builder.
    * @param cq Criteria query.
    * @param tableMetaReq Table metadata.
-   * @param <T> Entity.
+   * @param <E> Entity.
    */
-  public static <T> void applySorting(CriteriaBuilder cb, CriteriaQuery<T> cq, Root<T> entity, TableMetaReq tableMetaReq) {
+  public static <E> void applySorting(CriteriaBuilder cb, CriteriaQuery<E> cq, Root<E> entity, TableMetaReq tableMetaReq) {
     // Apply sorting.
     if (tableMetaReq.sortOrder() == EnSortOrder.ASC) {
       cq.orderBy(cb.asc(entity.get(tableMetaReq.sortBy())));
@@ -74,9 +74,9 @@ public class TableHelper {
    * Applies pagination.
    * @param query Typed query.
    * @param tableMetaReq Table metadata. Must be filled properly.
-   * @param <T> Entity.
+   * @param <E> Entity.
    */
-  public static <T> void applyPagination(TypedQuery<T> query, TableMetaReq tableMetaReq) {
+  public static <E> void applyPagination(TypedQuery<E> query, TableMetaReq tableMetaReq) {
     // Apply pagination.
     query.setFirstResult(tableMetaReq.page() * tableMetaReq.pageSize());
     query.setMaxResults(tableMetaReq.pageSize());

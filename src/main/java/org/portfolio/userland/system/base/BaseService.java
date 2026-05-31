@@ -3,7 +3,7 @@ package org.portfolio.userland.system.base;
 import org.portfolio.userland.common.constants.EnAppBuild;
 import org.portfolio.userland.common.services.clock.ClockService;
 import org.portfolio.userland.common.services.security.SecurityGeneratorService;
-import org.portfolio.userland.features.user.services.UserHelperService;
+import org.portfolio.userland.features.user.services.standard.UserHelperService;
 import org.portfolio.userland.system.auth.perm.PermissionService;
 import org.portfolio.userland.system.config.service.ConfigService;
 import org.springframework.beans.factory.annotation.Autowired;

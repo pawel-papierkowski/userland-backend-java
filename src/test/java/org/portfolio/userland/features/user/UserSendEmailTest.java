@@ -6,8 +6,8 @@ import org.mockito.ArgumentCaptor;
 import org.portfolio.userland.features.email.dto.EmailReq;
 import org.portfolio.userland.features.user.entities.EnUserTokenType;
 import org.portfolio.userland.features.user.events.*;
-import org.portfolio.userland.features.user.services.UserHelperService;
-import org.portfolio.userland.features.user.services.UserSendEmailService;
+import org.portfolio.userland.features.user.services.standard.UserHelperService;
+import org.portfolio.userland.features.user.services.standard.UserSendEmailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 

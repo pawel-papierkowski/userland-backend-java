@@ -1,4 +1,4 @@
-package org.portfolio.userland.features.user.services;
+package org.portfolio.userland.features.user.services.standard;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

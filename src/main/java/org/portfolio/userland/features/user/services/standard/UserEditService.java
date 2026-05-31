@@ -1,4 +1,4 @@
-package org.portfolio.userland.features.user.services;
+package org.portfolio.userland.features.user.services.standard;
 
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
@@ -7,6 +7,7 @@ import org.portfolio.userland.features.user.dto.standard.edit.UserEditReq;
 import org.portfolio.userland.features.user.entities.EnUserHistoryWhat;
 import org.portfolio.userland.features.user.entities.User;
 import org.portfolio.userland.features.user.entities.UserProfile;
+import org.portfolio.userland.features.user.services.BaseUserService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -56,7 +57,7 @@ public class UserEditService extends BaseUserService {
     }
 
     UserDataResp userDataResp = userMapper.userToDataResp(user);
-    if (userProfile != null) userDataResp = userDataResp.toBuilder().profile(userProfileMapper.profileToDataResp(userProfile)).build();
+    if (userProfile != null) userDataResp = userDataResp.toBuilder().profile(userMapper.profileToDataResp(userProfile)).build();
     return userDataResp;
   }
 

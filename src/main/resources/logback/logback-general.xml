@@ -4,5 +4,5 @@
   <logger name="org.portfolio.userland" level="INFO"/>
 
   <!-- Currently tracked stuff. -->
-  <logger name="org.portfolio.userland.features.user.services.UserLoginService" level="TRACE"/>
+  <logger name="org.portfolio.userland.features.user.services.standard.UserLoginService" level="TRACE"/>
 </included>

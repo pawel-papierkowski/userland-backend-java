@@ -1,4 +1,4 @@
-package org.portfolio.userland.features.user.dto.admin.permissions;
+package org.portfolio.userland.features.user.dto.admin.permission;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
@@ -13,9 +13,9 @@ import java.util.List;
  */
 @Builder(toBuilder = true)
 @Schema(description = "Response that returns page from user permission table.")
-public record UserPermissionsTableResp(
+public record UserPermissionTableResp(
     @Schema(description = "Page of user permission records.")
-    List<UserPermissionsTableEntry> entries,
+    List<UserPermissionTableEntry> entries,
 
     @Schema(description = "Table metadata.")
     TableMetaResp tableMeta

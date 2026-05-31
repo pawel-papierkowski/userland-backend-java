@@ -1,4 +1,4 @@
-package org.portfolio.userland.features.user.dto.admin.tokens;
+package org.portfolio.userland.features.user.dto.admin.token;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
  */
 @Builder(toBuilder = true)
 @Schema(description = "Contains one user token table record.")
-public record UserTokensTableEntry(
+public record UserTokenTableEntry(
     @Schema(description = "Identificator of record.", example = "13")
     Long id,
 

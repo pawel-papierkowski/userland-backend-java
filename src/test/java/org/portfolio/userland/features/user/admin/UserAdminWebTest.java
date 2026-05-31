@@ -1,7 +1,7 @@
 package org.portfolio.userland.features.user.admin;
 
 import org.junit.jupiter.api.Test;
-import org.portfolio.userland.features.user.services.*;
+import org.portfolio.userland.features.user.services.standard.*;
 import org.portfolio.userland.system.auth.details.CustomUserDetailsService;
 import org.portfolio.userland.system.auth.jwt.JwtService;
 import org.portfolio.userland.system.auth.perm.PermissionService;

@@ -1,4 +1,4 @@
-package org.portfolio.userland.features.user.services;
+package org.portfolio.userland.features.user.services.standard;
 
 import com.google.common.collect.Maps;
 import lombok.RequiredArgsConstructor;

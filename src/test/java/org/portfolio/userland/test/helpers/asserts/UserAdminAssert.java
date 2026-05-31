@@ -2,6 +2,8 @@ package org.portfolio.userland.test.helpers.asserts;
 
 import lombok.RequiredArgsConstructor;
 import org.portfolio.userland.common.dto.TableMetaResp;
+import org.portfolio.userland.features.user.dto.admin.config.UserConfigTableEntry;
+import org.portfolio.userland.features.user.dto.admin.config.UserConfigTableResp;
 import org.portfolio.userland.features.user.dto.admin.user.UserTableEntry;
 import org.portfolio.userland.features.user.dto.admin.user.UserTableResp;
 import org.springframework.stereotype.Service;
@@ -29,20 +31,6 @@ public class UserAdminAssert {
   }
 
   /**
-   * Assert table metadata response.
-   * @param actualResp Actual table metadata response.
-   * @param expectedResp Expected table metadata response.
-   */
-  public void assertTableMetadata(TableMetaResp actualResp, TableMetaResp expectedResp) {
-    assertThat(actualResp.pageCount()).as("Page count is wrong").isEqualTo(expectedResp.pageCount());
-    assertThat(actualResp.entryCount()).as("Entry count is wrong").isEqualTo(expectedResp.entryCount());
-    assertThat(actualResp.page()).as("Page is wrong").isEqualTo(expectedResp.page());
-    assertThat(actualResp.pageSize()).as("Page size is wrong").isEqualTo(expectedResp.pageSize());
-    assertThat(actualResp.sortBy()).as("Sort by is wrong").isEqualTo(expectedResp.sortBy());
-    assertThat(actualResp.sortOrder()).as("Sort order is wrong").isEqualTo(expectedResp.sortOrder());
-  }
-
-  /**
    * Assert all user entries.
    * @param actualEntries Actual user entries.
    * @param expectedEntries Expected user entries.
@@ -67,5 +55,60 @@ public class UserAdminAssert {
         .usingRecursiveComparison()
         .ignoringFields(USER_TABLE_ENTRY_FIELDS_IGNORE)
         .isEqualTo(expectedEntry);
+  }
+
+  //
+
+  /**
+   * Assert user config page response.
+   * @param actualResp Actual user config page response.
+   * @param expectedResp Expected user config page response.
+   */
+  public void assertUserConfigPage(UserConfigTableResp actualResp, UserConfigTableResp expectedResp) {
+    assertUserConfigEntries(actualResp.entries(), expectedResp.entries());
+    assertTableMetadata(actualResp.tableMeta(), expectedResp.tableMeta());
+  }
+
+  /**
+   * Assert all user config entries.
+   * @param actualEntries Actual user config entries.
+   * @param expectedEntries Expected user config entries.
+   */
+  private void assertUserConfigEntries(List<UserConfigTableEntry> actualEntries, List<UserConfigTableEntry> expectedEntries) {
+    assertThat(actualEntries.size()).as("Count of entries is wrong").isEqualTo(expectedEntries.size());
+    for (int i=0; i<actualEntries.size(); i++) {
+      UserConfigTableEntry actualEntry = actualEntries.get(i);
+      UserConfigTableEntry expectedEntry = expectedEntries.get(i);
+      assertUserConfigEntry(actualEntry, expectedEntry);
+    }
+  }
+
+  /**
+   * Assert user config table entry.
+   * @param actualEntry Actual user config table entry.
+   * @param expectedEntry Expected user config table entry.
+   */
+  private void assertUserConfigEntry(UserConfigTableEntry actualEntry, UserConfigTableEntry expectedEntry) {
+    assertThat(actualEntry)
+        .as("User config table entry has invalid state")
+        .usingRecursiveComparison()
+        .ignoringFields(USER_TABLE_ENTRY_FIELDS_IGNORE)
+        .isEqualTo(expectedEntry);
+  }
+
+  // //////////////////////////////////////////////////////////////////////////
+
+  /**
+   * Assert table metadata response.
+   * @param actualResp Actual table metadata response.
+   * @param expectedResp Expected table metadata response.
+   */
+  public void assertTableMetadata(TableMetaResp actualResp, TableMetaResp expectedResp) {
+    assertThat(actualResp.pageCount()).as("Page count is wrong").isEqualTo(expectedResp.pageCount());
+    assertThat(actualResp.entryCount()).as("Entry count is wrong").isEqualTo(expectedResp.entryCount());
+    assertThat(actualResp.page()).as("Page is wrong").isEqualTo(expectedResp.page());
+    assertThat(actualResp.pageSize()).as("Page size is wrong").isEqualTo(expectedResp.pageSize());
+    assertThat(actualResp.sortBy()).as("Sort by is wrong").isEqualTo(expectedResp.sortBy());
+    assertThat(actualResp.sortOrder()).as("Sort order is wrong").isEqualTo(expectedResp.sortOrder());
   }
 }

@@ -1,4 +1,4 @@
-package org.portfolio.userland.features.user.dto.admin.tokens;
+package org.portfolio.userland.features.user.dto.admin.token;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
@@ -13,9 +13,9 @@ import java.util.List;
  */
 @Builder(toBuilder = true)
 @Schema(description = "Response that returns page from user token table.")
-public record UserTokensTableResp(
+public record UserTokenTableResp(
     @Schema(description = "Page of user token records.")
-    List<UserTokensTableEntry> entries,
+    List<UserTokenTableEntry> entries,
 
     @Schema(description = "Table metadata.")
     TableMetaResp tableMeta

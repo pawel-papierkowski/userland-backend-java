@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.portfolio.userland.features.user.entities.EnUserTokenType;
 import org.portfolio.userland.features.user.entities.User;
 import org.portfolio.userland.features.user.entities.UserToken;
-import org.portfolio.userland.features.user.services.UserHelperService;
+import org.portfolio.userland.features.user.services.standard.UserHelperService;
 import org.portfolio.userland.test.helpers.factories.BaseFactory;
 import org.springframework.stereotype.Service;
 

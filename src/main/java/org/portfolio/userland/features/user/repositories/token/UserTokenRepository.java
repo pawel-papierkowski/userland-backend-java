@@ -15,7 +15,7 @@ import java.util.Optional;
  * Database interface for user token entry.
  */
 @Repository
-public interface UserTokenRepository extends JpaRepository<UserToken, Long> {
+public interface UserTokenRepository extends JpaRepository<UserToken, Long>, UserTokenCustomRepository {
   /**
    * Just checks if given token string exists.
    * @param type Type of token.

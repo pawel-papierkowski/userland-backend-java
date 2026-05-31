@@ -1,9 +1,10 @@
-package org.portfolio.userland.features.user.services;
+package org.portfolio.userland.features.user.services.standard;
 
 import lombok.RequiredArgsConstructor;
 import org.portfolio.userland.features.user.dto.common.UserDataResp;
 import org.portfolio.userland.features.user.entities.User;
 import org.portfolio.userland.features.user.entities.UserProfile;
+import org.portfolio.userland.features.user.services.BaseUserService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,7 +24,7 @@ public class UserViewService extends BaseUserService {
     UserProfile userProfile = userProfileRepository.findById(user.getId()).orElseThrow();
 
     UserDataResp userDataResp = userMapper.userToDataResp(user);
-    userDataResp = userDataResp.toBuilder().profile(userProfileMapper.profileToDataResp(userProfile)).build();
+    userDataResp = userDataResp.toBuilder().profile(userMapper.profileToDataResp(userProfile)).build();
     return userDataResp;
   }
 }

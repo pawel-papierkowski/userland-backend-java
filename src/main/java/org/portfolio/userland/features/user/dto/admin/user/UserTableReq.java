@@ -3,6 +3,7 @@ package org.portfolio.userland.features.user.dto.admin.user;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import org.portfolio.userland.common.dto.TableMetaReq;
+import org.portfolio.userland.common.repositories.TableReq;
 import org.portfolio.userland.features.user.entities.EnUserStatus;
 
 import java.time.LocalDateTime;
@@ -41,4 +42,4 @@ public record UserTableReq(
 
     @Schema(description = "Table metadata like pagination settings or sorting.")
     TableMetaReq tableMeta
-) {}
+) implements TableReq {}

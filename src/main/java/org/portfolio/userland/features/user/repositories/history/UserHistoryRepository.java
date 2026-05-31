@@ -8,5 +8,5 @@ import org.springframework.stereotype.Repository;
  * Database interface for user history event.
  */
 @Repository
-public interface UserHistoryRepository extends JpaRepository<UserHistory, Long> {
+public interface UserHistoryRepository extends JpaRepository<UserHistory, Long>, UserHistoryCustomRepository {
 }

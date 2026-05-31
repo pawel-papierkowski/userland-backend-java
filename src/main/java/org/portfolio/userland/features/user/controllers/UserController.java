@@ -18,7 +18,7 @@ import org.portfolio.userland.features.user.dto.standard.password.UserPassResetC
 import org.portfolio.userland.features.user.dto.standard.password.UserPassResetLinkReq;
 import org.portfolio.userland.features.user.dto.standard.register.TokenActivateReq;
 import org.portfolio.userland.features.user.dto.standard.register.UserRegisterReq;
-import org.portfolio.userland.features.user.services.*;
+import org.portfolio.userland.features.user.services.standard.*;
 import org.portfolio.userland.swagger.annotations.ApiResponsesAuth;
 import org.portfolio.userland.swagger.annotations.ApiResponsesToken;
 import org.portfolio.userland.swagger.detail.common.ValidationProblemDetail;

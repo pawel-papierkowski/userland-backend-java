@@ -5,7 +5,7 @@ import org.portfolio.userland.features.user.exceptions.UserTokenAlreadyExistsExc
 import org.portfolio.userland.features.user.exceptions.UserTokenExpiredException;
 import org.portfolio.userland.features.user.exceptions.UserTokenMissingException;
 import org.portfolio.userland.features.user.mappers.UserMapper;
-import org.portfolio.userland.features.user.mappers.UserProfileMapper;
+import org.portfolio.userland.features.user.repositories.config.UserConfigRepository;
 import org.portfolio.userland.features.user.repositories.history.UserHistoryRepository;
 import org.portfolio.userland.features.user.repositories.jwt.UserJwtRepository;
 import org.portfolio.userland.features.user.repositories.permission.PermissionRepository;
@@ -28,6 +28,8 @@ public abstract class BaseUserService extends BaseService {
   @Autowired
   protected UserProfileRepository userProfileRepository;
   @Autowired
+  protected UserConfigRepository userConfigRepository;
+  @Autowired
   protected UserHistoryRepository userHistoryRepository;
   @Autowired
   protected UserTokenRepository userTokenRepository;
@@ -40,8 +42,6 @@ public abstract class BaseUserService extends BaseService {
 
   @Autowired
   protected UserMapper userMapper;
-  @Autowired
-  protected UserProfileMapper userProfileMapper;
 
   //
 

@@ -1,4 +1,4 @@
-package org.portfolio.userland.features.user.dto.admin.permissions;
+package org.portfolio.userland.features.user.dto.admin.permission;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
  */
 @Builder(toBuilder = true)
 @Schema(description = "Contains one user permission table record.")
-public record UserPermissionsTableEntry(
+public record UserPermissionTableEntry(
     @Schema(description = "Identificator of record.", example = "13")
     Long id,
 

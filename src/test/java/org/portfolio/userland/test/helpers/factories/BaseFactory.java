@@ -2,7 +2,7 @@ package org.portfolio.userland.test.helpers.factories;
 
 import org.portfolio.userland.common.services.clock.ClockService;
 import org.portfolio.userland.common.services.security.SecurityGeneratorService;
-import org.portfolio.userland.features.user.services.UserHelperService;
+import org.portfolio.userland.features.user.services.standard.UserHelperService;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**

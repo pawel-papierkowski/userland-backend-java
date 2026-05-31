@@ -10,7 +10,7 @@ import java.util.Optional;
  * Database interface for user configuration entry.
  */
 @Repository
-public interface UserConfigRepository extends JpaRepository<UserConfig, Long> {
+public interface UserConfigRepository extends JpaRepository<UserConfig, Long>, UserConfigCustomRepository {
   /**
    * Find configuration entry by user and name.
    * @param name Email.

@@ -10,7 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.portfolio.userland.common.services.lock.LockService;
 import org.portfolio.userland.features.user.constants.UserLockConst;
 import org.portfolio.userland.features.user.schedulers.UserScheduler;
-import org.portfolio.userland.features.user.services.UserMaintenanceService;
+import org.portfolio.userland.features.user.services.standard.UserMaintenanceService;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;

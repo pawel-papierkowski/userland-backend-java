@@ -87,7 +87,7 @@ public class UserTableApiTest extends BaseUserTest {
   }
 
   /**
-   * Act and assert results.
+   * Act and assert table results.
    * @param req Request.
    * @param expectedEntries Expected entries.
    * @param pageCount Expected page count.

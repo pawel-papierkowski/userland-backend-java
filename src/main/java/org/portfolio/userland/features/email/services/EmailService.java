@@ -8,7 +8,7 @@ import org.portfolio.userland.common.constants.GeneralConst;
 import org.portfolio.userland.features.email.dto.EmailReq;
 import org.portfolio.userland.features.email.services.providers.EmailProviderFactory;
 import org.portfolio.userland.features.email.services.providers.IntEmailProvider;
-import org.portfolio.userland.features.user.services.UserSendEmailService;
+import org.portfolio.userland.features.user.services.standard.UserSendEmailService;
 import org.portfolio.userland.gcp.services.GcpEmailService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;

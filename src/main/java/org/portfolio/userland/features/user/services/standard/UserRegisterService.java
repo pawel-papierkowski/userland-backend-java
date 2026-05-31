@@ -1,4 +1,4 @@
-package org.portfolio.userland.features.user.services;
+package org.portfolio.userland.features.user.services.standard;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -9,6 +9,7 @@ import org.portfolio.userland.features.user.entities.*;
 import org.portfolio.userland.features.user.events.UserActivatedEvent;
 import org.portfolio.userland.features.user.events.UserAlreadyRegisteredEvent;
 import org.portfolio.userland.features.user.events.UserRegisteredEvent;
+import org.portfolio.userland.features.user.services.BaseUserService;
 import org.portfolio.userland.system.auth.perm.PermConst;
 import org.portfolio.userland.system.config.service.ConfigConst;
 import org.springframework.beans.factory.annotation.Value;

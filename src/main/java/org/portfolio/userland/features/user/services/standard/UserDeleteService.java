@@ -1,4 +1,4 @@
-package org.portfolio.userland.features.user.services;
+package org.portfolio.userland.features.user.services.standard;
 
 import lombok.RequiredArgsConstructor;
 import org.portfolio.userland.features.user.dto.standard.delete.UserDeleteConfirmReq;
@@ -10,6 +10,7 @@ import org.portfolio.userland.features.user.entities.UserToken;
 import org.portfolio.userland.features.user.events.UserAccountDeleteConfirmEvent;
 import org.portfolio.userland.features.user.events.UserAccountDeleteRequestEvent;
 import org.portfolio.userland.features.user.exceptions.UserWrongPasswordException;
+import org.portfolio.userland.features.user.services.BaseUserService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

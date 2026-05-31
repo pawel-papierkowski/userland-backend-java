@@ -1,4 +1,4 @@
-package org.portfolio.userland.features.user.services;
+package org.portfolio.userland.features.user.services.standard;
 
 import lombok.RequiredArgsConstructor;
 import org.portfolio.userland.features.user.dto.standard.password.UserPassResetConfirmReq;
@@ -9,6 +9,7 @@ import org.portfolio.userland.features.user.entities.User;
 import org.portfolio.userland.features.user.entities.UserToken;
 import org.portfolio.userland.features.user.events.UserPasswordResetConfirmEvent;
 import org.portfolio.userland.features.user.events.UserPasswordResetRequestEvent;
+import org.portfolio.userland.features.user.services.BaseUserService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

@@ -8,5 +8,5 @@ import org.springframework.stereotype.Repository;
  * Database interface for user permission entry.
  */
 @Repository
-public interface UserPermissionRepository extends JpaRepository<UserPermission, Long> {
+public interface UserPermissionRepository extends JpaRepository<UserPermission, Long>, UserPermissionCustomRepository {
 }

@@ -1,4 +1,4 @@
-package org.portfolio.userland.features.user.services;
+package org.portfolio.userland.features.user.services.standard;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -13,6 +13,7 @@ import org.portfolio.userland.features.user.events.UserEmailChangeFailEvent;
 import org.portfolio.userland.features.user.events.UserEmailChangeRequestEvent;
 import org.portfolio.userland.features.user.exceptions.UserEmailAlreadyExistsException;
 import org.portfolio.userland.features.user.exceptions.UserWrongPasswordException;
+import org.portfolio.userland.features.user.services.BaseUserService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

@@ -3,7 +3,7 @@ package org.portfolio.userland.features.user.schedulers;
 import lombok.RequiredArgsConstructor;
 import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 import org.portfolio.userland.features.user.constants.UserLockConst;
-import org.portfolio.userland.features.user.services.UserMaintenanceService;
+import org.portfolio.userland.features.user.services.standard.UserMaintenanceService;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
