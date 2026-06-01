@@ -94,18 +94,19 @@ public abstract class UserMapper {
   public abstract UserConfigTableEntry entityToTableEntry(UserConfig userConfig);
 
   /**
+   * Maps <code>UserPermission</code> entity to <code>UserPermissionTableEntry</code>.
+   * @param userPermission <code>UserPermission</code> entity.
+   * @return <code>UserPermissionTableEntry</code> instance.
+   */
+  @Mapping(target = "name", expression = "java(userPermission.getPermission().getName())")
+  public abstract UserPermissionTableEntry entityToTableEntry(UserPermission userPermission);
+
+  /**
    * Maps <code>UserHistory</code> entity to <code>UserHistoryTableEntry</code>.
    * @param userHistory <code>UserHistory</code> entity.
    * @return <code>UserHistoryTableEntry</code> instance.
    */
   public abstract UserHistoryTableEntry entityToTableEntry(UserHistory userHistory);
-
-  /**
-   * Maps <code>UserJwt</code> entity to <code>UserJwtTableEntry</code>.
-   * @param userJwt <code>UserJwt</code> entity.
-   * @return <code>UserJwtTableEntry</code> instance.
-   */
-  public abstract UserJwtTableEntry entityToTableEntry(UserJwt userJwt);
 
   /**
    * Maps <code>UserToken</code> entity to <code>UserTokenTableEntry</code>.
@@ -115,10 +116,9 @@ public abstract class UserMapper {
   public abstract UserTokenTableEntry entityToTableEntry(UserToken userToken);
 
   /**
-   * Maps <code>UserPermission</code> entity to <code>UserPermissionTableEntry</code>.
-   * TODO: do something about name field...
-   * @param userPermission <code>UserPermission</code> entity.
-   * @return <code>UserPermissionTableEntry</code> instance.
+   * Maps <code>UserJwt</code> entity to <code>UserJwtTableEntry</code>.
+   * @param userJwt <code>UserJwt</code> entity.
+   * @return <code>UserJwtTableEntry</code> instance.
    */
-  public abstract UserPermissionTableEntry entityToTableEntry(UserPermission userPermission);
+  public abstract UserJwtTableEntry entityToTableEntry(UserJwt userJwt);
 }

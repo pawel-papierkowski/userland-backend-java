@@ -18,6 +18,15 @@ import java.time.LocalDateTime;
 public class UserTokenFactory extends BaseFactory {
   private final UserHelperService userHelperService;
 
+  /**
+   * Generate user token entry and assign it to user.
+   * @param user User.
+   * @param type Token type.
+   * @return User token entry.
+   */
+  public UserToken genTokenEntry(User user, EnUserTokenType type) {
+    return genTokenEntry(user, type, null, null);
+  }
 
   /**
    * Generate user token entry and assign it to user.
@@ -35,7 +44,7 @@ public class UserTokenFactory extends BaseFactory {
    * @param user User.
    * @param type Token type.
    * @param tokenStr Token string. Can be null, will generate token string.
-   * @param payload Token payload.
+   * @param payload Token payload. Can be null, it simply means no payload.
    * @return User token entry.
    */
   public UserToken genTokenEntry(User user, EnUserTokenType type, String tokenStr, String payload) {

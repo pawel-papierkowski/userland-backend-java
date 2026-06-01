@@ -38,8 +38,12 @@ public abstract class EntityTableHandling<R extends TableReq, E> {
     Type genericSuperclass = getClass().getGenericSuperclass();
     if (genericSuperclass instanceof ParameterizedType) {
       Type[] actualTypeArguments = ((ParameterizedType) genericSuperclass).getActualTypeArguments();
+
       // 'E' is the second parameter (index 1) in EntityTableHandling<R, E>
-      this.entityClass = (Class<E>) actualTypeArguments[1];
+      @SuppressWarnings("unchecked") // Yes, we know what we are doing.
+      Class<E> resolvedClass = (Class<E>) actualTypeArguments[1];
+
+      this.entityClass = resolvedClass;
     } else {
       throw new IllegalStateException("Class must be parameterized");
     }

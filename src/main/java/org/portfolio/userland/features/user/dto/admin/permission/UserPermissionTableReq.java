@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
  * DTO for viewing user permissions table. Contains filters and other settings needed for desired result.
  * All fields except userId can be null or empty, in this case fields won't be used at all (no filtering) or defaults
  * will be used (tableMeta).
+ * @param userId User identificator.
  * @param createdFromAt If present, show user permissions records created at this date or later.
  * @param createdToAt If present, show user permissions records created at this date or earlier.
  * @param tableMeta Table metadata like pagination settings or sorting.

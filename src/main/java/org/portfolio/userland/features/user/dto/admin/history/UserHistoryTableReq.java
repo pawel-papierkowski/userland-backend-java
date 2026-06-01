@@ -14,6 +14,7 @@ import java.time.LocalDateTime;
  * DTO for viewing user history table. Contains filters and other settings needed for desired result.
  * All fields except userId can be null or empty, in this case fields won't be used at all (no filtering) or defaults
  * will be used (tableMeta).
+ * @param userId User identificator.
  * @param who If present, filter by who.
  * @param what If present, filter by what.
  * @param createdFromAt If present, show user history records created at this date or later.
