@@ -122,10 +122,10 @@ public class UserRegisterService extends BaseUserService {
     user.setUuid(securityGeneratorService.uuid());
     user.setCreatedAt(nowAt);
     user.setModifiedAt(nowAt);
-    user.addHistory(createHistoryEvent(nowAt, EnUserHistoryWhat.CREATE, ""));
+    user.addHistory(createHistoryEvent(nowAt, EnUserHistoryWho.USER, EnUserHistoryWhat.CREATE, ""));
     if (userRegisterReq.activate()) { // already activate user?
       user.setStatus(EnUserStatus.ACTIVE);
-      user.addHistory(createHistoryEvent(nowAt, EnUserHistoryWhat.ACTIVATE, ""));
+      user.addHistory(createHistoryEvent(nowAt, EnUserHistoryWho.USER, EnUserHistoryWhat.ACTIVATE, ""));
     } else user.addToken(createTokenData(nowAt, EnUserTokenType.ACTIVATE));
 
     if (userRegisterReq.isAdmin()) user.addPermission(createPermission(nowAt, PermConst.ROLE, PermConst.ROLE_ADMIN));
@@ -162,7 +162,7 @@ public class UserRegisterService extends BaseUserService {
     userRepository.save(user);
 
     userTokenRepository.deleteToken(userToken.getToken());
-    addHistoryEvent(user, nowAt, EnUserHistoryWhat.ACTIVATE, "");
+    addHistoryEvent(user, nowAt, EnUserHistoryWho.USER, EnUserHistoryWhat.ACTIVATE, "");
 
     log.trace("User '{}' activated successfully.", user.getEmail());
 

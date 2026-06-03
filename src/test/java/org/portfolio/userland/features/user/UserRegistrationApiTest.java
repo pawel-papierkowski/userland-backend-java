@@ -60,13 +60,13 @@ public class UserRegistrationApiTest extends BaseUserTest {
 
     AtomicReference<String> activationToken = new AtomicReference<>();
 
-    // Assert database state.
+    // Assert: Database state.
     transactionTemplate.execute(_ -> {
       // Prepare expected result.
       User expectedUser = userFactory.genUser(EnUserStatus.PENDING);
       UserProfile expectedUserProfile = userProfileFactory.genProfile(expectedUser);
 
-      // Assert user state.
+      // Assert: User state.
       User actualUser = assertAllUser("test@example.com", expectedUser, expectedUserProfile);
       activationToken.set(actualUser.getTokens().getFirst().getToken());
       return null;
@@ -108,7 +108,7 @@ public class UserRegistrationApiTest extends BaseUserTest {
 
     AtomicReference<String> activationToken = new AtomicReference<>();
 
-    // Assert database state.
+    // Assert: Database state.
     transactionTemplate.execute(_ -> {
       // Prepare expected result.
       User expectedUser = userFactory.genUser(EnUserStatus.PENDING);
@@ -116,7 +116,7 @@ public class UserRegistrationApiTest extends BaseUserTest {
       expectedUserProfile.setName("Jane");
       expectedUserProfile.setSurname("Smith");
 
-      // Assert user state.
+      // Assert: User state.
       User actualUser = assertAllUser("test@example.com", expectedUser, expectedUserProfile);
       activationToken.set(actualUser.getTokens().getFirst().getToken());
       return null;
@@ -156,13 +156,13 @@ public class UserRegistrationApiTest extends BaseUserTest {
     assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.CREATED.value());
     assertThat(mvcResult.getResponse().getContentAsString()).as("Response body should be empty").isEqualTo("");
 
-    // Assert database state.
+    // Assert: Database state.
     transactionTemplate.execute(_ -> {
       // Prepare expected result.
       User expectedUser = userFactory.genUser(EnUserStatus.ACTIVE);
       UserProfile expectedUserProfile = userProfileFactory.genProfile(expectedUser);
 
-      // Assert user state.
+      // Assert: User state.
       assertAllUser("test@example.com", expectedUser, expectedUserProfile);
       return null;
     });
@@ -202,13 +202,13 @@ public class UserRegistrationApiTest extends BaseUserTest {
 
     AtomicReference<String> activationToken = new AtomicReference<>();
 
-    // Assert database state.
+    // Assert: Database state.
     transactionTemplate.execute(_ -> {
       // Prepare expected result.
       User expectedUser = userFactory.genUser(EnUserStatus.PENDING, Map.of("role", "admin"));
       UserProfile expectedUserProfile = userProfileFactory.genProfile(expectedUser);
 
-      // Assert user state.
+      // Assert: User state.
       User actualUser = assertAllUser("test@example.com", expectedUser, expectedUserProfile);
       activationToken.set(actualUser.getTokens().getFirst().getToken());
       return null;
@@ -246,13 +246,13 @@ public class UserRegistrationApiTest extends BaseUserTest {
             .content(objectMapper.writeValueAsString(req)))
         .andReturn();
 
-    // Assert database state.
+    // Assert: Database state.
     transactionTemplate.execute(_ -> {
       // Prepare expected result.
       User expectedUser = userFactory.genUser(EnUserStatus.PENDING);
       expectedUser.setUsername("&lt;script&gt;alert(&#39;hacked&#39;)&lt;/script&gt;"); // make sure it is sanitized
       UserProfile expectedUserProfile = userProfileFactory.genProfile(expectedUser);
-      // Assert user state.
+      // Assert: User state.
       assertAllUser("test@example.com", expectedUser, expectedUserProfile);
       return null;
     });
@@ -284,7 +284,7 @@ public class UserRegistrationApiTest extends BaseUserTest {
 
     // Assert that user data is untouched.
     transactionTemplate.execute(_ -> {
-      // Assert user state.
+      // Assert: User state.
       assertAllUser("test@example.com", expectedUser, expectedUserProfile);
       return null;
     });
@@ -338,12 +338,12 @@ public class UserRegistrationApiTest extends BaseUserTest {
     assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.NO_CONTENT.value());
     assertThat(mvcResult.getResponse().getContentAsString()).as("Response body should be empty").isEqualTo("");
 
-    // Assert that user data is correctly updated.
+    // Assert: Database state.
     transactionTemplate.execute(_ -> {
       // Prepare expected result.
       expectedUser.setModifiedAt(clockService.getNowUTC());
       expectedUser.getHistory().get(1).setCreatedAt(clockService.getNowUTC()); // activate event happened now
-      // Assert user state.
+      // Assert: User state.
       assertAllUser("test@example.com", expectedUser, expectedUserProfile);
       // Assert that activate token is removed.
       assertThat(userTokenRepository.count()).as("Count of all user tokens is wrong").isEqualTo(0);

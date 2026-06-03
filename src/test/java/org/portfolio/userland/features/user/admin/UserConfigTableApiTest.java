@@ -76,7 +76,7 @@ public class UserConfigTableApiTest extends BaseUserTest {
    */
   private void actAssert(UserConfigTableReq req, List<UserConfigTableEntry> expectedEntries, Long pageCount, Long entryCount) throws Exception {
     // Act: Try to view table page with user configs.
-    MvcResult mvcResult = mockMvc.perform(post("/api/admin/users/config")
+    MvcResult mvcResult = mockMvc.perform(post("/api/admin/user/configs")
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(req)))
         .andReturn();
@@ -107,7 +107,7 @@ public class UserConfigTableApiTest extends BaseUserTest {
   @WithMockCustomUser(authorities = { "ROLE_OPERATOR" })
   public void viewNonexistentUser() throws Exception {
     List<User> users = arrangeUserData();
-    User userToCheck = users.get(2);
+    User userToCheck = users.getLast();
 
     // Act: get nonexistent user.
     UserConfigTableReq req = UserConfigTableReq.builder().userId(userToCheck.getId()+1).build();

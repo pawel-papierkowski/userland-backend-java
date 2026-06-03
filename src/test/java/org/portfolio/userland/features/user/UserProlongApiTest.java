@@ -5,6 +5,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.portfolio.userland.features.user.dto.standard.login.UserProlongResp;
 import org.portfolio.userland.features.user.entities.EnUserHistoryWhat;
+import org.portfolio.userland.features.user.entities.EnUserHistoryWho;
 import org.portfolio.userland.features.user.entities.User;
 import org.portfolio.userland.test.helpers.problemDetail.ProblemDetailBox;
 import org.springframework.http.HttpStatus;
@@ -45,7 +46,7 @@ public class UserProlongApiTest extends BaseUserTest {
     UserProlongResp actualResp = objectMapper.readValue(mvcResult.getResponse().getContentAsString(), UserProlongResp.class);
 
     // Prepare expected result (user is same, but with new PROLONG history event and new JWT entry).
-    userHistoryFactory.genHistoryEvent(expectedUser, EnUserHistoryWhat.PROLONG, "");
+    userHistoryFactory.genHistoryEvent(expectedUser, EnUserHistoryWho.USER, EnUserHistoryWhat.PROLONG, "");
     expectedUser.getJwts().clear();
     userJwtFactory.genJwtEntry(expectedUser, actualResp.jwtToken());
 

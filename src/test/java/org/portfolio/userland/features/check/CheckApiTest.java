@@ -6,6 +6,7 @@ import org.portfolio.userland.common.constants.EnAppBuild;
 import org.portfolio.userland.common.constants.ValidConst;
 import org.portfolio.userland.features.check.dto.CheckInfoResp;
 import org.portfolio.userland.features.user.entities.EnUserHistoryWhat;
+import org.portfolio.userland.features.user.entities.EnUserHistoryWho;
 import org.portfolio.userland.features.user.entities.EnUserStatus;
 import org.portfolio.userland.features.user.entities.User;
 import org.portfolio.userland.system.auth.jwt.JwtService;
@@ -240,9 +241,9 @@ public class CheckApiTest extends BaseCheckTest {
     // Arrange: Create a user and token. Note UserJwt entry is not added. This will emulate state when we logged in
     // and then logged out. Token is still valid, but we know it is revoked because it is missing from UserJwt table.
     User user = userFactory.genRandUser(EnUserStatus.ACTIVE);
-    userHistoryFactory.genHistoryEvent(user, EnUserHistoryWhat.LOGIN, "");
+    userHistoryFactory.genHistoryEvent(user, EnUserHistoryWho.USER, EnUserHistoryWhat.LOGIN, "");
     String token = jwtService.generateToken(user);
-    userHistoryFactory.genHistoryEvent(user, EnUserHistoryWhat.LOGOUT, "");
+    userHistoryFactory.genHistoryEvent(user, EnUserHistoryWho.USER, EnUserHistoryWhat.LOGOUT, "");
     userRepository.save(user);
 
     // Act: Perform the request using MockMvc.

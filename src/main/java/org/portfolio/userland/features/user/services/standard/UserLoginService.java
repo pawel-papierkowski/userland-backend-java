@@ -8,6 +8,7 @@ import org.portfolio.userland.features.user.dto.standard.login.UserLoginReq;
 import org.portfolio.userland.features.user.dto.standard.login.UserLoginResp;
 import org.portfolio.userland.features.user.dto.standard.login.UserProlongResp;
 import org.portfolio.userland.features.user.entities.EnUserHistoryWhat;
+import org.portfolio.userland.features.user.entities.EnUserHistoryWho;
 import org.portfolio.userland.features.user.entities.User;
 import org.portfolio.userland.features.user.exceptions.UserWrongPasswordException;
 import org.portfolio.userland.features.user.services.BaseUserService;
@@ -60,7 +61,7 @@ public class UserLoginService extends BaseUserService {
     // Add JWT in database. This will allow us to effectively revoke tokens later (logout etc).
     addJwtEntry(user, nowAt, jwtToken);
     // Add login event to user history.
-    addHistoryEvent(user, nowAt, EnUserHistoryWhat.LOGIN, httpHelperService.resolveHttpParams());
+    addHistoryEvent(user, nowAt, EnUserHistoryWho.USER, EnUserHistoryWhat.LOGIN, httpHelperService.resolveHttpParams());
 
     log.trace("User '{}' has been logged in.", user.getEmail());
     return new UserLoginResp(jwtToken);
@@ -100,7 +101,7 @@ public class UserLoginService extends BaseUserService {
     LocalDateTime nowAt = clockService.getNowUTC();
     User user = userHelperService.resolveUser(customUserDetails.getEmail(), false);
     userJwtRepository.deleteAllByUser(user.getId()); // Revoke all JWTs related to this user.
-    addHistoryEvent(user, nowAt, EnUserHistoryWhat.LOGOUT, "");
+    addHistoryEvent(user, nowAt, EnUserHistoryWho.USER, EnUserHistoryWhat.LOGOUT, "");
 
     log.trace("User '{}' has been logged out.", user.getEmail());
   }
@@ -118,7 +119,7 @@ public class UserLoginService extends BaseUserService {
     userJwtRepository.deleteAllByUser(user.getId()); // Revoke all JWTs related to this user.
     String jwtToken = generateJwt(user);
     addJwtEntry(user, nowAt, jwtToken); // Add new JWT.
-    addHistoryEvent(user, nowAt, EnUserHistoryWhat.PROLONG, "");
+    addHistoryEvent(user, nowAt, EnUserHistoryWho.USER, EnUserHistoryWhat.PROLONG, "");
 
     log.trace("Session of user '{}' has been prolonged.", user.getEmail());
     return UserProlongResp.builder()

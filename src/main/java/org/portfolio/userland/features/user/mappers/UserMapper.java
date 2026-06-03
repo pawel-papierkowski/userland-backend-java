@@ -10,7 +10,7 @@ import org.portfolio.userland.features.user.dto.admin.token.UserTokenTableEntry;
 import org.portfolio.userland.features.user.dto.admin.user.UserFullDataResp;
 import org.portfolio.userland.features.user.dto.admin.user.UserTableEntry;
 import org.portfolio.userland.features.user.dto.common.UserDataResp;
-import org.portfolio.userland.features.user.dto.common.UserProfileDataResp;
+import org.portfolio.userland.features.user.dto.common.UserProfileData;
 import org.portfolio.userland.features.user.dto.standard.register.UserRegisterReq;
 import org.portfolio.userland.features.user.entities.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -78,11 +78,11 @@ public abstract class UserMapper {
   //
 
   /**
-   * Maps <code>UserProfile</code> entity to user profile data response.
+   * Maps <code>UserProfile</code> entity to user profile data.
    * @param userProfile <code>UserProfile</code> entity.
-   * @return User profile data response.
+   * @return User profile data.
    */
-  public abstract UserProfileDataResp profileToDataResp(UserProfile userProfile);
+  public abstract UserProfileData profileToData(UserProfile userProfile);
 
   //
 

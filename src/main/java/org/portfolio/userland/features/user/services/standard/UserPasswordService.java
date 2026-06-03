@@ -3,10 +3,7 @@ package org.portfolio.userland.features.user.services.standard;
 import lombok.RequiredArgsConstructor;
 import org.portfolio.userland.features.user.dto.standard.password.UserPassResetConfirmReq;
 import org.portfolio.userland.features.user.dto.standard.password.UserPassResetLinkReq;
-import org.portfolio.userland.features.user.entities.EnUserHistoryWhat;
-import org.portfolio.userland.features.user.entities.EnUserTokenType;
-import org.portfolio.userland.features.user.entities.User;
-import org.portfolio.userland.features.user.entities.UserToken;
+import org.portfolio.userland.features.user.entities.*;
 import org.portfolio.userland.features.user.events.UserPasswordResetConfirmEvent;
 import org.portfolio.userland.features.user.events.UserPasswordResetRequestEvent;
 import org.portfolio.userland.features.user.services.BaseUserService;
@@ -52,7 +49,7 @@ public class UserPasswordService extends BaseUserService {
     user.addToken(token);
     user = userRepository.save(user);
 
-    addHistoryEvent(user, nowAt, EnUserHistoryWhat.PASS_RESET_REQ, "");
+    addHistoryEvent(user, nowAt, EnUserHistoryWho.USER, EnUserHistoryWhat.PASS_RESET_REQ, "");
 
     triggerPassResetReqEvent(userPassResetLinkReq, user, token);
   }
@@ -96,7 +93,7 @@ public class UserPasswordService extends BaseUserService {
     userRepository.save(user);
 
     userTokenRepository.deleteToken(userToken.getToken());
-    addHistoryEvent(user, nowAt, EnUserHistoryWhat.PASS_RESET, "");
+    addHistoryEvent(user, nowAt, EnUserHistoryWho.USER, EnUserHistoryWhat.PASS_RESET, "");
 
     triggerPassResetConfirmEvent(user);
   }

@@ -23,6 +23,7 @@ import java.util.*;
  * public class ProfileController {
  *   &#064;GetMapping("/me")
  *   public String getMyProfile(@AuthenticationPrincipal CustomUserDetails customUserDetails) {
+ *     if (customUserDetails == null) return; // not logged in
  *     // You now have safe, typed access to the authenticated user's details.
  *     Long userId = customUserDetails.getId();
  *     String username = customUserDetails.getUsername();
@@ -32,6 +33,8 @@ import java.util.*;
  * Usage example 2:
  * <pre>
  * CustomUserDetails customUserDetails = AuthHelper.resolveUserDetails();
+ * if (customUserDetails == null) return; // not logged in
+ * // do something...
  * </pre>
  */
 public class CustomUserDetails implements UserDetails {

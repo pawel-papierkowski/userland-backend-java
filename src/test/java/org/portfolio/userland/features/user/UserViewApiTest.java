@@ -3,7 +3,7 @@ package org.portfolio.userland.features.user;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.portfolio.userland.features.user.dto.common.UserDataResp;
-import org.portfolio.userland.features.user.dto.common.UserProfileDataResp;
+import org.portfolio.userland.features.user.dto.common.UserProfileData;
 import org.portfolio.userland.features.user.entities.EnUserStatus;
 import org.portfolio.userland.features.user.entities.User;
 import org.portfolio.userland.features.user.entities.UserProfile;
@@ -45,8 +45,8 @@ public class UserViewApiTest extends BaseUserTest {
 
     // Assert: Endpoint response.
     UserDataResp actualResp = objectMapper.readValue(mvcResult.getResponse().getContentAsString(), UserDataResp.class);
-    UserProfileDataResp profile = UserProfileDataResp.builder().build(); // empty profile
-    UserDataResp expectedResp = new UserDataResp("Jane", "test@example.com", "en", profile);
+    UserProfileData expectedProfile = UserProfileData.builder().build(); // empty profile
+    UserDataResp expectedResp = UserDataResp.builder().username("Jane").email("test@example.com").lang("en").profile(expectedProfile).build();
     assertThat(actualResp).as("User data is invalid").usingRecursiveComparison().isEqualTo(expectedResp);
   }
 
@@ -70,8 +70,8 @@ public class UserViewApiTest extends BaseUserTest {
 
     // Assert: Endpoint response.
     UserDataResp actualResp = objectMapper.readValue(mvcResult.getResponse().getContentAsString(), UserDataResp.class);
-    UserProfileDataResp profile = new UserProfileDataResp("Jennifer", "Doe");
-    UserDataResp expectedResp = new UserDataResp("Jane", "test@example.com", "en", profile);
+    UserProfileData expectedProfile = UserProfileData.builder().name("Jennifer").surname("Doe").build();
+    UserDataResp expectedResp = UserDataResp.builder().username("Jane").email("test@example.com").lang("en").profile(expectedProfile).build();
     assertThat(actualResp).as("User data is invalid").usingRecursiveComparison().isEqualTo(expectedResp);
   }
 }

@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Size;
 import lombok.Builder;
 import org.apache.commons.lang3.StringUtils;
+import org.portfolio.userland.features.user.dto.common.UserProfileData;
 
 /**
  * DTO for editing user. This one is for editing your own user account. Contains fields both for user and user profile.
@@ -14,14 +15,11 @@ import org.apache.commons.lang3.StringUtils;
  * </ul>
  * @param username Username.
  * @param lang User language as simple language code. Example: 'pl'.
- * @param name User name.
- * @param surname User surname.
+ * @param profile User profile data.
  */
 @Builder(toBuilder = true)
 @Schema(description = "Payload required to edit user and/or user profile data. All fields can be null, in this case given field will be ignored.")
 public record UserEditReq(
-  // USER DATA
-
   // basic
 
   @Schema(description = "Name shown on frontend. Can be nickname or similar.", example = "John Doe")
@@ -33,13 +31,8 @@ public record UserEditReq(
   @Schema(description = "Short language code.", example = "en")
   String lang,
 
-  // USER PROFILE DATA (optional)
-
-  @Schema(description = "Name of user.", example = "John")
-  String name,
-
-  @Schema(description = "Surname of user.", example = "Smith")
-  String surname
+  @Schema(description = "User profile.")
+  UserProfileData profile
 ) {
   /**
    * Check if at least one field of user data is not empty.
@@ -56,8 +49,7 @@ public record UserEditReq(
    * @return True if at least one field is not empty, otherwise false.
    */
   public boolean userProfilePresent() {
-    if (StringUtils.isNotEmpty(name)) return true;
-    if (StringUtils.isNotEmpty(surname)) return true;
-    return false;
+    if (profile == null) return false;
+    return profile.userProfilePresent();
   }
 }

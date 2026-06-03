@@ -3,6 +3,7 @@ package org.portfolio.userland.features.user;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.portfolio.userland.features.user.entities.EnUserHistoryWhat;
+import org.portfolio.userland.features.user.entities.EnUserHistoryWho;
 import org.portfolio.userland.features.user.entities.User;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.web.servlet.MvcResult;
@@ -40,7 +41,7 @@ public class UserLogoutApiTest extends BaseUserTest {
     assertThat(mvcResult.getResponse().getContentAsString()).as("Response body should be empty").isEqualTo("");
 
     // Prepare expected result (user is same, but with new LOGOUT history event and with empty JWT table).
-    userHistoryFactory.genHistoryEvent(expectedUser, EnUserHistoryWhat.LOGOUT, "");
+    userHistoryFactory.genHistoryEvent(expectedUser, EnUserHistoryWho.USER, EnUserHistoryWhat.LOGOUT, "");
     expectedUser.getJwts().clear();
 
     // Assert: Database state.

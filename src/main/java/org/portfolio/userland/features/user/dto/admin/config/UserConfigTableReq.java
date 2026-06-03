@@ -18,9 +18,9 @@ import java.time.LocalDateTime;
  * @param tableMeta Table metadata like pagination settings or sorting.
  */
 @Builder(toBuilder = true)
-@Schema(description = "Payload required to return page of results from user config table. All fields can be null/empty, in this case fields won't be used at all (no filtering) or defaults will be used (tableMeta).")
+@Schema(description = "Payload required to return page of results from user config table. All fields except userId can be null/empty, in this case fields won't be used at all (no filtering) or defaults will be used (tableMeta).")
 public record UserConfigTableReq(
-    @NotNull(message = "User identificator must be provided.")
+    @NotNull(message = "User identificator must be provided")
     @Schema(description = "Identificator of user.", example = "13")
     Long userId,
 

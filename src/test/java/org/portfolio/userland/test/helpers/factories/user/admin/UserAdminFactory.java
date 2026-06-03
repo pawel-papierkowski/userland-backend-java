@@ -8,7 +8,7 @@ import org.portfolio.userland.features.user.dto.admin.permission.UserPermissionT
 import org.portfolio.userland.features.user.dto.admin.token.UserTokenTableEntry;
 import org.portfolio.userland.features.user.dto.admin.user.UserFullDataResp;
 import org.portfolio.userland.features.user.dto.admin.user.UserTableEntry;
-import org.portfolio.userland.features.user.dto.common.UserProfileDataResp;
+import org.portfolio.userland.features.user.dto.common.UserProfileData;
 import org.portfolio.userland.features.user.entities.*;
 import org.portfolio.userland.test.helpers.factories.BaseFactory;
 import org.springframework.stereotype.Service;
@@ -63,7 +63,7 @@ public class UserAdminFactory extends BaseFactory {
    */
   public UserFullDataResp genFullData(User user, UserProfile userProfile) {
     // Build manually. Actual code uses mapper.
-    UserProfileDataResp profile = UserProfileDataResp.builder()
+    UserProfileData profile = UserProfileData.builder()
         .name(userProfile.getName())
         .surname(userProfile.getSurname())
         .build();

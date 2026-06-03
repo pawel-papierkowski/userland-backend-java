@@ -100,7 +100,7 @@ public class UserFactory extends BaseFactory {
     user.setLang("en");
     user.setStatus(status);
 
-    userHistoryFactory.genHistoryEvent(user, EnUserHistoryWhat.CREATE, "");
+    userHistoryFactory.genHistoryEvent(user, EnUserHistoryWho.USER, EnUserHistoryWhat.CREATE, "");
     return user;
   }
 
@@ -160,7 +160,7 @@ public class UserFactory extends BaseFactory {
         .ignore(field(User::getPermissions)) // ditto
         .create();
     // all other fields are filled randomly
-    userHistoryFactory.genHistoryEvent(user, EnUserHistoryWhat.CREATE, "");
+    userHistoryFactory.genHistoryEvent(user, EnUserHistoryWho.USER, EnUserHistoryWhat.CREATE, "");
     return user;
   }
 
@@ -173,7 +173,7 @@ public class UserFactory extends BaseFactory {
   private void modifyStatus(User user) {
     EnUserStatus status = user.getStatus();
     if (EnUserStatus.PENDING.equals(status)) userTokenFactory.genTokenEntry(user, EnUserTokenType.ACTIVATE, null);
-    if (EnUserStatus.ACTIVE.equals(status)) userHistoryFactory.genHistoryEvent(user, EnUserHistoryWhat.ACTIVATE, "");
+    if (EnUserStatus.ACTIVE.equals(status)) userHistoryFactory.genHistoryEvent(user, EnUserHistoryWho.USER, EnUserHistoryWhat.ACTIVATE, "");
   }
 
   /**
@@ -181,7 +181,7 @@ public class UserFactory extends BaseFactory {
    * @param user User to modify.
    */
   private void modifyLogged(User user) {
-    userHistoryFactory.genHistoryEvent(user, EnUserHistoryWhat.LOGIN, "");
+    userHistoryFactory.genHistoryEvent(user, EnUserHistoryWho.USER, EnUserHistoryWhat.LOGIN, "");
     String token = jwtService.generateToken(user);
     userJwtFactory.genJwtEntry(user, token);
   }

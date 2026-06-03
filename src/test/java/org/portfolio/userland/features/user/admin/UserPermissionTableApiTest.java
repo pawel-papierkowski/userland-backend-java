@@ -79,7 +79,7 @@ public class UserPermissionTableApiTest extends BaseUserTest {
    */
   private void actAssert(UserPermissionTableReq req, List<UserPermissionTableEntry> expectedEntries, Long pageCount, Long entryCount) throws Exception {
     // Act: Try to view table page with user permissions.
-    MvcResult mvcResult = mockMvc.perform(post("/api/admin/users/permissions")
+    MvcResult mvcResult = mockMvc.perform(post("/api/admin/user/permissions")
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(req)))
         .andReturn();

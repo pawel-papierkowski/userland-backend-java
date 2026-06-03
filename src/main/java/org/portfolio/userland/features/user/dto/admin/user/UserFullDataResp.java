@@ -2,7 +2,7 @@ package org.portfolio.userland.features.user.dto.admin.user;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
-import org.portfolio.userland.features.user.dto.common.UserProfileDataResp;
+import org.portfolio.userland.features.user.dto.common.UserProfileData;
 import org.portfolio.userland.features.user.entities.EnUserStatus;
 
 import java.time.LocalDateTime;
@@ -13,6 +13,16 @@ import java.time.LocalDateTime;
  * <code><pre>
  * UserFullDataResp userData = userMapper.userToFullDataResp(user);
  * UserProfileDataResp userProfileData = userProfileMapper.profileToDataResp(profile);</pre></code>
+ *
+ * @param id User identificator.
+ * @param createdAt Creation date&time.
+ * @param modifiedAt Date&time of last modification.
+ * @param username Username.
+ * @param email Email.
+ * @param status Status.
+ * @param locked Is user locked?
+ * @param lang Language of user.
+ * @param profile User profile.
  */
 @Builder(toBuilder = true)
 @Schema(description = "DTO that relays most of the user and user profile entity data.")
@@ -42,5 +52,5 @@ public record UserFullDataResp(
     String lang,
 
     @Schema(description = "User profile.")
-    UserProfileDataResp profile
+    UserProfileData profile
 ) {}

@@ -4,10 +4,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.portfolio.userland.features.user.dto.standard.email.UserEmailChangeConfirmReq;
 import org.portfolio.userland.features.user.dto.standard.email.UserEmailChangeLinkReq;
-import org.portfolio.userland.features.user.entities.EnUserHistoryWhat;
-import org.portfolio.userland.features.user.entities.EnUserTokenType;
-import org.portfolio.userland.features.user.entities.User;
-import org.portfolio.userland.features.user.entities.UserToken;
+import org.portfolio.userland.features.user.entities.*;
 import org.portfolio.userland.features.user.events.UserEmailChangeConfirmEvent;
 import org.portfolio.userland.features.user.events.UserEmailChangeFailEvent;
 import org.portfolio.userland.features.user.events.UserEmailChangeRequestEvent;
@@ -65,7 +62,7 @@ public class UserEmailService extends BaseUserService {
     user.addToken(token);
     user = userRepository.save(user);
 
-    addHistoryEvent(user, nowAt, EnUserHistoryWhat.EMAIL_CHANGE_REQ, params);
+    addHistoryEvent(user, nowAt, EnUserHistoryWho.USER, EnUserHistoryWhat.EMAIL_CHANGE_REQ, params);
 
     // send two emails: warning for old account and link for new, existing email
     triggerEmailChangeReqEvent(userEmailChangeLinkReq, user, token);
@@ -132,7 +129,7 @@ public class UserEmailService extends BaseUserService {
     userRepository.save(user);
 
     userTokenRepository.deleteToken(userToken.getToken());
-    addHistoryEvent(user, nowAt, EnUserHistoryWhat.EMAIL_CHANGE, params);
+    addHistoryEvent(user, nowAt, EnUserHistoryWho.USER, EnUserHistoryWhat.EMAIL_CHANGE, params);
     
     triggerEmailChangeConfirmEvent(user);
   }

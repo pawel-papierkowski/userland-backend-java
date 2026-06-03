@@ -59,11 +59,11 @@ public class UserEmailApiTest extends BaseUserTest {
 
     // Prepare expected result.
     userTokenFactory.genTokenEntry(expectedUser, EnUserTokenType.EMAIL, null, "new.email@test.com");
-    userHistoryFactory.genHistoryEvent(expectedUser, EnUserHistoryWhat.EMAIL_CHANGE_REQ, "old: 'test@example.com', new: 'new.email@test.com'");
+    userHistoryFactory.genHistoryEvent(expectedUser, EnUserHistoryWho.USER, EnUserHistoryWhat.EMAIL_CHANGE_REQ, "old: 'test@example.com', new: 'new.email@test.com'");
 
     AtomicReference<String> emailChangeToken = new AtomicReference<>();
 
-    // Assert that user data is correctly updated.
+    // Assert: Database state.
     transactionTemplate.execute(_ -> {
       User actualUser = userRepository.findByEmail("test@example.com").orElseThrow();
       userAssert.assertIt(actualUser, expectedUser);
@@ -150,7 +150,7 @@ public class UserEmailApiTest extends BaseUserTest {
     // Arrange: Create active user in database in state indicating it requested email change.
     User expectedUser = userFactory.genUser(EnUserStatus.ACTIVE);
     UserToken token = userTokenFactory.genTokenEntry(expectedUser, EnUserTokenType.EMAIL, null, "new.email@test.com");
-    userHistoryFactory.genHistoryEvent(expectedUser, EnUserHistoryWhat.EMAIL_CHANGE_REQ, "old: 'test@example.com', new: 'new.email@test.com'");
+    userHistoryFactory.genHistoryEvent(expectedUser, EnUserHistoryWho.USER, EnUserHistoryWhat.EMAIL_CHANGE_REQ, "old: 'test@example.com', new: 'new.email@test.com'");
     userRepository.save(expectedUser);
 
     clock.setFixedTime("2026-04-10T10:05:00Z");
@@ -172,9 +172,9 @@ public class UserEmailApiTest extends BaseUserTest {
     expectedUser.setModifiedAt(clockService.getNowUTC());
     expectedUser.setEmail("new.email@test.com");
     expectedUser.getTokens().clear(); // email change token should be gone
-    userHistoryFactory.genHistoryEvent(expectedUser, EnUserHistoryWhat.EMAIL_CHANGE, "old: 'test@example.com', new: 'new.email@test.com'");
+    userHistoryFactory.genHistoryEvent(expectedUser, EnUserHistoryWho.USER, EnUserHistoryWhat.EMAIL_CHANGE, "old: 'test@example.com', new: 'new.email@test.com'");
 
-    // Assert that user data is correctly updated.
+    // Assert: Database state.
     transactionTemplate.execute(_ -> {
       User actualUser = userRepository.findByEmail("new.email@test.com").orElseThrow();
       userAssert.assertIt(actualUser, expectedUser);
@@ -418,7 +418,7 @@ public class UserEmailApiTest extends BaseUserTest {
     userRepository.save(otherUser);
     User expectedUser = userFactory.genUser(EnUserStatus.ACTIVE);
     UserToken token = userTokenFactory.genTokenEntry(expectedUser, EnUserTokenType.EMAIL, null, otherUser.getEmail());
-    userHistoryFactory.genHistoryEvent(expectedUser, EnUserHistoryWhat.EMAIL_CHANGE_REQ, "old: 'test@example.com', new: '"+otherUser.getEmail()+"'");
+    userHistoryFactory.genHistoryEvent(expectedUser, EnUserHistoryWho.USER, EnUserHistoryWhat.EMAIL_CHANGE_REQ, "old: 'test@example.com', new: '"+otherUser.getEmail()+"'");
     userRepository.save(expectedUser);
 
     // Arrange: create email change confirm request.

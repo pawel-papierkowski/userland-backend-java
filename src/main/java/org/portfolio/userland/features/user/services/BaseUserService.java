@@ -141,29 +141,31 @@ public abstract class BaseUserService extends BaseService {
 
   /**
    * Add history event to user. Note it persists event.
-   * @param user User.
-   * @param nowAt Current date&time.
-   * @param what What happened.
+   * @param user   User.
+   * @param nowAt  Current date&time.
+   * @param who    Who caused that event.
+   * @param what   What happened.
    * @param params Event parameters.
    */
-  protected void addHistoryEvent(User user, LocalDateTime nowAt, EnUserHistoryWhat what, String params) {
-    UserHistory historyEvent = createHistoryEvent(nowAt, what, params);
+  protected void addHistoryEvent(User user, LocalDateTime nowAt, EnUserHistoryWho who, EnUserHistoryWhat what, String params) {
+    UserHistory historyEvent = createHistoryEvent(nowAt, who, what, params);
     historyEvent.setUser(user);
     userHistoryRepository.save(historyEvent);
   }
 
   /**
    * Create and fill history event. It does NOT persist event.
-   * @param nowAt Current date&time.
-   * @param what What happened.
+   * @param nowAt  Current date&time.
+   * @param who    Who caused that event.
+   * @param what   What happened.
    * @param params Event parameters.
    * @return User history event.
    */
-  protected UserHistory createHistoryEvent(LocalDateTime nowAt, EnUserHistoryWhat what, String params) {
+  protected UserHistory createHistoryEvent(LocalDateTime nowAt, EnUserHistoryWho who, EnUserHistoryWhat what, String params) {
     UserHistory event = new UserHistory();
     event.setUuid(securityGeneratorService.uuid());
     event.setCreatedAt(nowAt);
-    event.setWho(EnUserHistoryWho.USER);
+    event.setWho(who);
     event.setWhat(what);
     event.setParams(params);
     return event;

@@ -3,10 +3,7 @@ package org.portfolio.userland.features.user.services.standard;
 import lombok.RequiredArgsConstructor;
 import org.portfolio.userland.features.user.dto.standard.delete.UserDeleteConfirmReq;
 import org.portfolio.userland.features.user.dto.standard.delete.UserDeleteLinkReq;
-import org.portfolio.userland.features.user.entities.EnUserHistoryWhat;
-import org.portfolio.userland.features.user.entities.EnUserTokenType;
-import org.portfolio.userland.features.user.entities.User;
-import org.portfolio.userland.features.user.entities.UserToken;
+import org.portfolio.userland.features.user.entities.*;
 import org.portfolio.userland.features.user.events.UserAccountDeleteConfirmEvent;
 import org.portfolio.userland.features.user.events.UserAccountDeleteRequestEvent;
 import org.portfolio.userland.features.user.exceptions.UserWrongPasswordException;
@@ -54,7 +51,7 @@ public class UserDeleteService extends BaseUserService {
     user.addToken(token);
     user = userRepository.save(user);
 
-    addHistoryEvent(user, nowAt, EnUserHistoryWhat.DELETE_REQ, "");
+    addHistoryEvent(user, nowAt, EnUserHistoryWho.USER, EnUserHistoryWhat.DELETE_REQ, "");
 
     triggerDeleteReqEvent(userDeleteLinkReq, user, token);
   }

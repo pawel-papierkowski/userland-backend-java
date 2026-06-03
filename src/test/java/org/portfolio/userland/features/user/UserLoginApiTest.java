@@ -7,6 +7,7 @@ import org.portfolio.userland.features.user.constants.UserConfigConst;
 import org.portfolio.userland.features.user.dto.standard.login.UserLoginReq;
 import org.portfolio.userland.features.user.dto.standard.login.UserLoginResp;
 import org.portfolio.userland.features.user.entities.EnUserHistoryWhat;
+import org.portfolio.userland.features.user.entities.EnUserHistoryWho;
 import org.portfolio.userland.features.user.entities.EnUserStatus;
 import org.portfolio.userland.features.user.entities.User;
 import org.portfolio.userland.system.auth.jwt.JwtService;
@@ -64,7 +65,7 @@ public class UserLoginApiTest extends BaseUserTest {
     UserLoginResp actualResp = objectMapper.readValue(mvcResult.getResponse().getContentAsString(), UserLoginResp.class);
 
     // Prepare expected result (user is same, but with new LOGIN history event and JWT entry).
-    userHistoryFactory.genHistoryEvent(expectedUser, EnUserHistoryWhat.LOGIN, "IP: '192.168.1.50', User-Agent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'");
+    userHistoryFactory.genHistoryEvent(expectedUser, EnUserHistoryWho.USER, EnUserHistoryWhat.LOGIN, "IP: '192.168.1.50', User-Agent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'");
     userJwtFactory.genJwtEntry(expectedUser, actualResp.jwtToken());
 
     // Assert: Database state.
@@ -109,7 +110,7 @@ public class UserLoginApiTest extends BaseUserTest {
     UserLoginResp actualResp = objectMapper.readValue(mvcResult.getResponse().getContentAsString(), UserLoginResp.class);
 
     // Prepare expected result (user is same, but with new LOGIN history event).
-    userHistoryFactory.genHistoryEvent(expectedUser, EnUserHistoryWhat.LOGIN, "IP: '192.168.1.50', User-Agent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'");
+    userHistoryFactory.genHistoryEvent(expectedUser, EnUserHistoryWho.USER, EnUserHistoryWhat.LOGIN, "IP: '192.168.1.50', User-Agent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'");
     userJwtFactory.genJwtEntry(expectedUser, actualResp.jwtToken());
 
     // Assert: Database state.
@@ -160,7 +161,7 @@ public class UserLoginApiTest extends BaseUserTest {
     UserLoginResp actualResp = objectMapper.readValue(mvcResult.getResponse().getContentAsString(), UserLoginResp.class);
 
     // Prepare expected result (user is same, but with new LOGIN history event).
-    userHistoryFactory.genHistoryEvent(expectedUser, EnUserHistoryWhat.LOGIN, "IP: '192.168.1.50', User-Agent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'");
+    userHistoryFactory.genHistoryEvent(expectedUser, EnUserHistoryWho.USER, EnUserHistoryWhat.LOGIN, "IP: '192.168.1.50', User-Agent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'");
     userJwtFactory.genJwtEntry(expectedUser, actualResp.jwtToken());
 
     // Assert: Database state.
@@ -207,7 +208,7 @@ public class UserLoginApiTest extends BaseUserTest {
     UserLoginResp actualResp = objectMapper.readValue(mvcResult.getResponse().getContentAsString(), UserLoginResp.class);
 
     // Prepare expected result (user is same, but with new LOGIN history event and JWT entry).
-    userHistoryFactory.genHistoryEvent(expectedUser, EnUserHistoryWhat.LOGIN, "IP: '192.168.1.50', User-Agent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'");
+    userHistoryFactory.genHistoryEvent(expectedUser, EnUserHistoryWho.USER, EnUserHistoryWhat.LOGIN, "IP: '192.168.1.50', User-Agent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'");
     userJwtFactory.genJwtEntry(expectedUser, actualResp.jwtToken());
 
     // Assert: Database state.

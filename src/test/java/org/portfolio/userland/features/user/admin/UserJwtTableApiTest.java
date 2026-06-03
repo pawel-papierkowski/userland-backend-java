@@ -76,7 +76,7 @@ public class UserJwtTableApiTest extends BaseUserTest {
    */
   private void actAssert(UserJwtTableReq req, List<UserJwtTableEntry> expectedEntries, Long pageCount, Long entryCount) throws Exception {
     // Act: Try to view table page with user JWTs.
-    MvcResult mvcResult = mockMvc.perform(post("/api/admin/users/jwt")
+    MvcResult mvcResult = mockMvc.perform(post("/api/admin/user/jwt")
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(req)))
         .andReturn();

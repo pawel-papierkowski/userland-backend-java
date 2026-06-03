@@ -27,5 +27,5 @@ public record UserDataResp(
     String lang,
 
     @Schema(description = "User profile.")
-    UserProfileDataResp profile
+    UserProfileData profile
 ) {}

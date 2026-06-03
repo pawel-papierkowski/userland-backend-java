@@ -24,7 +24,7 @@ public class UserViewService extends BaseUserService {
     UserProfile userProfile = userProfileRepository.findById(user.getId()).orElseThrow();
 
     UserDataResp userDataResp = userMapper.userToDataResp(user);
-    userDataResp = userDataResp.toBuilder().profile(userMapper.profileToDataResp(userProfile)).build();
+    userDataResp = userDataResp.toBuilder().profile(userMapper.profileToData(userProfile)).build();
     return userDataResp;
   }
 }

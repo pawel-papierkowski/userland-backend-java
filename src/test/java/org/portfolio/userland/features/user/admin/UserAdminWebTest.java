@@ -50,7 +50,7 @@ public class UserAdminWebTest extends BaseWebTest {
   @Test
   public void viewUserDataWhenWrongId() throws Exception {
     // Act: Call the API endpoint.
-    MvcResult mvcResult = mockMvc.perform(post("/api/admin/users/z"))
+    MvcResult mvcResult = mockMvc.perform(post("/api/admin/user/z"))
         .andReturn();
 
     // Assert: API Response.
@@ -59,8 +59,8 @@ public class UserAdminWebTest extends BaseWebTest {
     ProblemDetailBox expectedPdb = new ProblemDetailBox(
         HttpStatus.NOT_FOUND.value(),
         "Not Found",
-        "No static resource api/admin/users/z.",
-        "/api/admin/users/z",
+        "No static resource api/admin/user/z.",
+        "/api/admin/user/z",
         null,
         Map.of()
     );

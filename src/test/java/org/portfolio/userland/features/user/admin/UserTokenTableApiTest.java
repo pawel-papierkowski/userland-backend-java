@@ -75,7 +75,7 @@ public class UserTokenTableApiTest extends BaseUserTest {
    */
   private void actAssert(UserTokenTableReq req, List<UserTokenTableEntry> expectedEntries, Long pageCount, Long entryCount) throws Exception {
     // Act: Try to view table page with user tokens.
-    MvcResult mvcResult = mockMvc.perform(post("/api/admin/users/tokens")
+    MvcResult mvcResult = mockMvc.perform(post("/api/admin/user/tokens")
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(req)))
         .andReturn();

@@ -16,16 +16,18 @@ import org.springframework.stereotype.Service;
 public class UserHistoryFactory extends BaseFactory {
   /**
    * Generate user history event and assign it to user.
-   * @param user User.
-   * @param what What happened?
+   *
+   * @param user   User.
+   * @param who    Who caused this event?
+   * @param what   What happened?
    * @param params History event parameters.
    * @return User history event.
    */
-  public UserHistory genHistoryEvent(User user, EnUserHistoryWhat what, String params) {
+  public UserHistory genHistoryEvent(User user, EnUserHistoryWho who, EnUserHistoryWhat what, String params) {
     UserHistory userHistory = new UserHistory();
     userHistory.setUuid(securityGeneratorService.uuid());
     userHistory.setCreatedAt(clockService.getNowUTC());
-    userHistory.setWho(EnUserHistoryWho.USER);
+    userHistory.setWho(who);
     userHistory.setWhat(what);
     userHistory.setParams(params);
     user.addHistory(userHistory);

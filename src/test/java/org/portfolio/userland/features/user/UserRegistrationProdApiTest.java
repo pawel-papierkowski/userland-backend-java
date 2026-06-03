@@ -57,13 +57,13 @@ public class UserRegistrationProdApiTest extends BaseUserTest {
 
     AtomicReference<String> activationToken = new AtomicReference<>();
 
-    // Assert database state.
+    // Assert: Database state.
     transactionTemplate.execute(_ -> {
       // Prepare expected result.
       User expectedUser = userFactory.genUser(EnUserStatus.PENDING);
       UserProfile expectedUserProfile = userProfileFactory.genProfile(expectedUser);
 
-      // Assert user state.
+      // Assert: User state.
       User actualUser = assertAllUser("test@example.com", expectedUser, expectedUserProfile);
       activationToken.set(actualUser.getTokens().getFirst().getToken());
       return null;
@@ -111,7 +111,7 @@ public class UserRegistrationProdApiTest extends BaseUserTest {
 
     // Assert that user data is untouched.
     transactionTemplate.execute(_ -> {
-      // Assert user state.
+      // Assert: User state.
       assertAllUser("test@example.com", expectedUser, expectedUserProfile);
       return null;
     });

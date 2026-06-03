@@ -58,11 +58,11 @@ public class UserPasswordApiTest extends BaseUserTest {
 
     // Prepare expected result.
     userTokenFactory.genTokenEntry(expectedUser, EnUserTokenType.PASSWORD, null);
-    userHistoryFactory.genHistoryEvent(expectedUser, EnUserHistoryWhat.PASS_RESET_REQ, "");
+    userHistoryFactory.genHistoryEvent(expectedUser, EnUserHistoryWho.USER, EnUserHistoryWhat.PASS_RESET_REQ, "");
 
     AtomicReference<String> passResetToken = new AtomicReference<>();
 
-    // Assert that user data is correctly updated.
+    // Assert: Database state.
     transactionTemplate.execute(_ -> {
       User actualUser = userRepository.findByEmail("test@example.com").orElseThrow();
       userAssert.assertIt(actualUser, expectedUser);
@@ -115,11 +115,11 @@ public class UserPasswordApiTest extends BaseUserTest {
 
     // Prepare expected result.
     userTokenFactory.genTokenEntry(expectedUser, EnUserTokenType.PASSWORD, null);
-    userHistoryFactory.genHistoryEvent(expectedUser, EnUserHistoryWhat.PASS_RESET_REQ, "");
+    userHistoryFactory.genHistoryEvent(expectedUser, EnUserHistoryWho.USER, EnUserHistoryWhat.PASS_RESET_REQ, "");
 
     AtomicReference<String> passResetToken = new AtomicReference<>();
 
-    // Assert that user data is correctly updated.
+    // Assert: Database state.
     transactionTemplate.execute(_ -> {
       User actualUser = userRepository.findByEmail("test@example.com").orElseThrow();
       userAssert.assertIt(actualUser, expectedUser);
@@ -151,7 +151,7 @@ public class UserPasswordApiTest extends BaseUserTest {
     // Arrange: Create active user in database in state indicating it requested password reset.
     User expectedUser = userFactory.genUser(EnUserStatus.ACTIVE);
     UserToken token = userTokenFactory.genTokenEntry(expectedUser, EnUserTokenType.PASSWORD, null);
-    userHistoryFactory.genHistoryEvent(expectedUser, EnUserHistoryWhat.PASS_RESET_REQ, "");
+    userHistoryFactory.genHistoryEvent(expectedUser, EnUserHistoryWho.USER, EnUserHistoryWhat.PASS_RESET_REQ, "");
 
     userRepository.save(expectedUser);
     String oldPassword = expectedUser.getPassword();
@@ -174,9 +174,9 @@ public class UserPasswordApiTest extends BaseUserTest {
     // Prepare expected result.
     expectedUser.setModifiedAt(clockService.getNowUTC());
     expectedUser.getTokens().clear(); // password reset token should be gone
-    userHistoryFactory.genHistoryEvent(expectedUser, EnUserHistoryWhat.PASS_RESET, "");
+    userHistoryFactory.genHistoryEvent(expectedUser, EnUserHistoryWho.USER, EnUserHistoryWhat.PASS_RESET, "");
 
-    // Assert that user data is correctly updated.
+    // Assert: Database state.
     transactionTemplate.execute(_ -> {
       User actualUser = userRepository.findByEmail("test@example.com").orElseThrow();
       userAssert.assertIt(actualUser, expectedUser);
@@ -328,7 +328,7 @@ public class UserPasswordApiTest extends BaseUserTest {
     // Arrange: create user that requested password reset.
     User expectedUser = userFactory.genUser(EnUserStatus.ACTIVE);
     UserToken token = userTokenFactory.genTokenEntry(expectedUser, EnUserTokenType.PASSWORD, null);
-    userHistoryFactory.genHistoryEvent(expectedUser, EnUserHistoryWhat.PASS_RESET_REQ, "");
+    userHistoryFactory.genHistoryEvent(expectedUser, EnUserHistoryWho.USER, EnUserHistoryWhat.PASS_RESET_REQ, "");
     userRepository.save(expectedUser);
 
     // Arrange: password reset confirmation request with deliberately invalid token.

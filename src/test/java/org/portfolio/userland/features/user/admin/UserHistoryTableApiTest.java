@@ -11,6 +11,7 @@ import org.portfolio.userland.features.user.dto.admin.history.UserHistoryTableEn
 import org.portfolio.userland.features.user.dto.admin.history.UserHistoryTableReq;
 import org.portfolio.userland.features.user.dto.admin.history.UserHistoryTableResp;
 import org.portfolio.userland.features.user.entities.EnUserHistoryWhat;
+import org.portfolio.userland.features.user.entities.EnUserHistoryWho;
 import org.portfolio.userland.features.user.entities.EnUserStatus;
 import org.portfolio.userland.features.user.entities.User;
 import org.portfolio.userland.test.helpers.context.WithMockCustomUser;
@@ -44,11 +45,11 @@ public class UserHistoryTableApiTest extends BaseUserTest {
     u00.setUsername("Jan Kowalski");
     u00.setEmail("jan.kowalski@test.com");
     clock.setFixedTime("2026-06-10T11:00:00Z");
-    userHistoryFactory.genHistoryEvent(u00, EnUserHistoryWhat.LOGIN, "");
+    userHistoryFactory.genHistoryEvent(u00, EnUserHistoryWho.USER, EnUserHistoryWhat.LOGIN, "");
     clock.setFixedTime("2026-06-10T12:00:00Z");
-    userHistoryFactory.genHistoryEvent(u00, EnUserHistoryWhat.EDIT, "username");
+    userHistoryFactory.genHistoryEvent(u00, EnUserHistoryWho.USER, EnUserHistoryWhat.EDIT, "username");
     clock.setFixedTime("2026-06-10T13:00:00Z");
-    userHistoryFactory.genHistoryEvent(u00, EnUserHistoryWhat.PASS_RESET_REQ, "");
+    userHistoryFactory.genHistoryEvent(u00, EnUserHistoryWho.USER, EnUserHistoryWhat.PASS_RESET_REQ, "");
     userList.add(u00);
 
     clock.setFixedTime("2026-06-09T15:00:00Z");
@@ -77,7 +78,7 @@ public class UserHistoryTableApiTest extends BaseUserTest {
    */
   private void actAssert(UserHistoryTableReq req, List<UserHistoryTableEntry> expectedEntries, Long pageCount, Long entryCount) throws Exception {
     // Act: Try to view table page with user history.
-    MvcResult mvcResult = mockMvc.perform(post("/api/admin/users/history")
+    MvcResult mvcResult = mockMvc.perform(post("/api/admin/user/history")
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(req)))
         .andReturn();

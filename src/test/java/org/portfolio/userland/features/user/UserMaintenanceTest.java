@@ -89,9 +89,9 @@ public class UserMaintenanceTest extends BaseUserTest {
 
     // Arrange: add some entries in history at certain times.
     clock.setFixedTime("2026-04-20T14:00:00Z");
-    userHistoryFactory.genHistoryEvent(u0, EnUserHistoryWhat.LOGIN, "");
+    userHistoryFactory.genHistoryEvent(u0, EnUserHistoryWho.USER, EnUserHistoryWhat.LOGIN, "");
     clock.setFixedTime("2026-04-20T10:00:00Z");
-    userHistoryFactory.genHistoryEvent(u1, EnUserHistoryWhat.LOGIN, "");
+    userHistoryFactory.genHistoryEvent(u1, EnUserHistoryWho.USER, EnUserHistoryWhat.LOGIN, "");
 
     entityManager.flush();
     entityManager.clear();

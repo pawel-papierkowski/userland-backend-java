@@ -78,6 +78,27 @@ public class UserHelperService {
   }
 
   /**
+   * Resolves user by id and optionally verifies user state.
+   * @param id User identificator.
+   * @param failSilently If true, method will return null instead of throwing exception if user with given email does
+   *                     not exist.
+   * @param verify If false, skip verification.
+   * @return User or null if user could not be found.
+   */
+  public User resolveUser(Long id, boolean failSilently, boolean verify) {
+    User user;
+
+    if (failSilently) user = userRepository.findById(id).orElse(null);
+    else user = userRepository.findById(id).orElseThrow(() -> new UserNotFoundException(id));
+    if (user == null) return null; // failed to find user
+
+    if (verify && !verifyUser(user, failSilently)) return null;
+    return user;
+  }
+
+  //
+
+  /**
    * Resolves user by user detail. In other words, user must be logged in. This version of call should be used for auth
    * purposes.
    * @param failSilently If true, method will return null instead of throwing exception if user does not exist.
