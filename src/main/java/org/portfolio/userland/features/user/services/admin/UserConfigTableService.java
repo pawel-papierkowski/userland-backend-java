@@ -4,10 +4,12 @@ import lombok.RequiredArgsConstructor;
 import org.portfolio.userland.common.dto.TableMetaReq;
 import org.portfolio.userland.common.exception.BadParamsException;
 import org.portfolio.userland.common.services.table.TableHelper;
+import org.portfolio.userland.features.user.dto.admin.config.UserConfigEditReq;
 import org.portfolio.userland.features.user.dto.admin.config.UserConfigTableEntry;
 import org.portfolio.userland.features.user.dto.admin.config.UserConfigTableReq;
 import org.portfolio.userland.features.user.dto.admin.config.UserConfigTableResp;
 import org.portfolio.userland.features.user.entities.UserConfig;
+import org.portfolio.userland.features.user.exceptions.UserConfigMissingException;
 import org.portfolio.userland.features.user.services.BaseUserService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -75,5 +77,31 @@ public class UserConfigTableService extends BaseUserService {
         .entries(entries)
         .tableMeta(TableHelper.fillTableMetaResp(tableMetaReq, entryCount))
         .build();
+  }
+
+  // //////////////////////////////////////////////////////////////////////////
+
+  /**
+   * Add or change user config entry.
+   *
+   * @param editReq User config entry edit request.
+   * @return Added or updated user config entry.
+   */
+  public UserConfig edit(UserConfigEditReq editReq) {
+    if (editReq.id() != null && !userConfigRepository.existsById(editReq.id()))
+      throw new UserConfigMissingException(editReq.id());
+
+    return userConfigRepository.upsert(editReq);
+  }
+
+  /**
+   * Deletes given user config entry.
+   * @param id Identificator of entry.
+   */
+  public void delete(Long id) {
+    if (id == null || !userConfigRepository.existsById(id))
+      throw new UserConfigMissingException(id);
+
+    userConfigRepository.deleteById(id);
   }
 }

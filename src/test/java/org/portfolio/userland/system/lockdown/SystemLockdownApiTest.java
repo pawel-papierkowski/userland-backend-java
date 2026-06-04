@@ -90,7 +90,7 @@ public class SystemLockdownApiTest extends BaseSystemTest {
 
     // Assert: API Response.
     assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.FORBIDDEN.value());
-    // Assert: correct problem detail is present.
+    // Assert: Correct problem detail is present.
     problemDetailService.assertPdForbidden(mvcResult, "/api/system/lockdown");
   }
 
@@ -109,7 +109,7 @@ public class SystemLockdownApiTest extends BaseSystemTest {
 
     // Assert: API Response.
     assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.CONFLICT.value());
-    // Assert: correct problem detail is present.
+    // Assert: Correct problem detail is present.
     ProblemDetailBox expectedPdb = new ProblemDetailBox(
         HttpStatus.CONFLICT.value(),
         "System lockdown is in effect.",

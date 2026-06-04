@@ -1,7 +1,9 @@
 package org.portfolio.userland.features.user.repositories.config;
 
+import org.portfolio.userland.features.user.dto.admin.config.UserConfigEditReq;
 import org.portfolio.userland.features.user.dto.admin.config.UserConfigTableReq;
 import org.portfolio.userland.features.user.entities.UserConfig;
+import org.portfolio.userland.features.user.exceptions.UserConfigMissingException;
 
 import java.util.List;
 
@@ -22,4 +24,27 @@ public interface UserConfigCustomRepository {
    * @return Page of user config entities.
    */
   List<UserConfig> viewPage(UserConfigTableReq req);
+
+  //
+
+  /**
+   * Adds a new user config entry or updates an existing one.
+   * @param editReq User config entry edit request.
+   * @return Created/updated user config entity or null if failed to update entity.
+   * @throws UserConfigMissingException When cannot find user config entry with given id.
+   */
+  default UserConfig upsert(UserConfigEditReq editReq) {
+    return upsert(editReq.id(), editReq.userId(), editReq.name(), editReq.value());
+  }
+
+  /**
+   * Adds a new user config entry or updates an existing one.
+   * @param id     User config entry identificator to update or null to create a new entry.
+   * @param userId Identificator of the user owning this config.
+   * @param name   Name of the config setting.
+   * @param value  Value of the config setting.
+   * @return Created/updated user config entity or null if failed to update entity.
+   * @throws UserConfigMissingException When cannot find user config entry with given id.
+   */
+  UserConfig upsert(Long id, Long userId, String name, String value);
 }

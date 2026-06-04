@@ -8,7 +8,6 @@ import org.springframework.test.web.servlet.MockMvc;
 /**
  * Base class for all pure web API tests.
  */
-@WebTest
 public abstract class BaseWebTest {
   /** Used to simulate HTTP requests. */
   @Autowired

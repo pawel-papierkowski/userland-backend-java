@@ -396,7 +396,7 @@ public class UserRegistrationApiTest extends BaseUserTest {
         "Token '"+tokenStr+"' does not exist.",
         "/api/users/activate",
         "https://api.userland.org/errors/user/token/missing",
-        Map.of("errCode", "user_0012")
+        Map.of("errCode", "user_0011")
     );
     problemDetailService.assertPd(mvcResult, expectedPdb);
   }
@@ -430,7 +430,7 @@ public class UserRegistrationApiTest extends BaseUserTest {
         "Token '"+tokenStr+"' already expired.",
         "/api/users/activate",
         "https://api.userland.org/errors/user/token/expired",
-        Map.of("errCode", "user_0011")
+        Map.of("errCode", "user_0012")
     );
     problemDetailService.assertPd(mvcResult, expectedPdb);
   }

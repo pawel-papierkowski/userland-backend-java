@@ -13,12 +13,14 @@ import org.portfolio.userland.features.user.dto.admin.jwt.UserJwtTableResp;
 import org.portfolio.userland.features.user.entities.EnUserStatus;
 import org.portfolio.userland.features.user.entities.User;
 import org.portfolio.userland.test.helpers.context.WithMockCustomUser;
+import org.portfolio.userland.test.helpers.problemDetail.ProblemDetailBox;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MvcResult;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -104,7 +106,7 @@ public class UserJwtTableApiTest extends BaseUserTest {
   //
 
   @Test
-  @WithMockCustomUser(authorities = { "ROLE_OPERATOR" })
+  @WithMockCustomUser(authorities = { "ROLE_OPERATOR", "USER_VIEW" })
   public void viewNonexistentUser() throws Exception {
     List<User> users = arrangeUserData();
     User userToCheck = users.get(2);
@@ -116,7 +118,7 @@ public class UserJwtTableApiTest extends BaseUserTest {
   }
 
   @Test
-  @WithMockCustomUser(authorities = { "ROLE_OPERATOR" })
+  @WithMockCustomUser(authorities = { "ROLE_OPERATOR", "USER_VIEW" })
   public void viewUserWithoutJwt() throws Exception {
     List<User> users = arrangeUserData();
     User userToCheck = users.get(1);
@@ -128,7 +130,7 @@ public class UserJwtTableApiTest extends BaseUserTest {
   }
 
   @Test
-  @WithMockCustomUser(authorities = { "ROLE_OPERATOR" })
+  @WithMockCustomUser(authorities = { "ROLE_OPERATOR", "USER_VIEW" })
   public void viewUserWithSingleJwt() throws Exception {
     List<User> users = arrangeUserData();
     User userToCheck = users.get(2);
@@ -141,7 +143,7 @@ public class UserJwtTableApiTest extends BaseUserTest {
   }
 
   @Test
-  @WithMockCustomUser(authorities = { "ROLE_OPERATOR" })
+  @WithMockCustomUser(authorities = { "ROLE_OPERATOR", "USER_VIEW" })
   public void viewUserWithManyJwts() throws Exception {
     List<User> users = arrangeUserData();
     User userToCheck = users.getFirst();
@@ -155,5 +157,37 @@ public class UserJwtTableApiTest extends BaseUserTest {
     List<UserJwtTableEntry> expectedResults = List.of(jwtResults.get(0), jwtResults.get(1), jwtResults.get(2));
 
     actAssert(req, expectedResults, 1L, 3L);
+  }
+
+  // //////////////////////////////////////////////////////////////////////////
+  // FAILURES
+
+  @Test
+  @WithMockCustomUser(authorities = { "ROLE_OPERATOR" }) // missing USER_VIEW
+  public void viewWithoutPermissions() throws Exception {
+    // Tests verification: needs correct permissions.
+    List<User> users = arrangeUserData();
+    User userToCheck = users.get(2);
+
+    UserJwtTableReq req = UserJwtTableReq.builder().userId(userToCheck.getId()).build();
+
+    // Act: Try to view table page with user JWTs.
+    MvcResult mvcResult = mockMvc.perform(post("/api/admin/user/jwt")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(req)))
+        .andReturn();
+
+    // Assert: API Response.
+    assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.FORBIDDEN.value());
+    // Assert: Content has correct error.
+    ProblemDetailBox expectedPdb = new ProblemDetailBox(
+        HttpStatus.FORBIDDEN.value(),
+        "Forbidden",
+        "You do not have permission to access this resource.",
+        "/api/admin/user/jwt",
+        "https://api.general.org/errors/forbidden",
+        Map.of()
+    );
+    problemDetailService.assertPd(mvcResult, expectedPdb);
   }
 }

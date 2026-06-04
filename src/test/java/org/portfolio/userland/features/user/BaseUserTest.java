@@ -99,7 +99,7 @@ public abstract class BaseUserTest extends BaseIntegrationTest {
    * Assert all user-related data.
    * @param email Email of user.
    * @param expectedUser Expected user.
-   * @param expectedUserProfile Expected user profile.
+   * @param expectedUserProfile Expected user profile. If null, skip asserting profile.
    * @return Actual user.
    */
   protected User assertAllUser(String email, User expectedUser, UserProfile expectedUserProfile) {
@@ -109,8 +109,10 @@ public abstract class BaseUserTest extends BaseIntegrationTest {
     User actualUser = userRepository.findByEmail(email).orElseThrow();
     userAssert.assertIt(actualUser, expectedUser);
 
-    UserProfile actualUserProfile = userProfileRepository.findById(actualUser.getId()).orElseThrow();
-    userProfileAssert.assertIt(actualUserProfile, expectedUserProfile);
+    if (expectedUserProfile != null) {
+      UserProfile actualUserProfile = userProfileRepository.findById(actualUser.getId()).orElseThrow();
+      userProfileAssert.assertIt(actualUserProfile, expectedUserProfile);
+    }
 
     return actualUser;
   }

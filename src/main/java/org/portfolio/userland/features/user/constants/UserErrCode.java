@@ -7,12 +7,21 @@ public class UserErrCode {
   /** User not found. */
   public final static String NOT_FOUND = "user_0001";
 
-  /** Token is expired. */
-  public final static String TOKEN_EXPIRED = "user_0011";
-  /** Token is missing. */
-  public final static String TOKEN_MISSING = "user_0012";
-  /** Token already exists. */
+  /** User token is missing. */
+  public final static String TOKEN_MISSING = "user_0011";
+  /** User token is expired. */
+  public final static String TOKEN_EXPIRED = "user_0012";
+  /** User token already exists. */
   public final static String TOKEN_ALREADY = "user_0013";
+
+  /** User config entry is missing. */
+  public final static String CONFIG_MISSING = "user_0021";
+
+  /** User permission entry is missing. */
+  public final static String PERMISSION_USER_MISSING = "user_0031";
+
+  /** Permission entry is missing. */
+  public final static String PERMISSION_MISSING = "user_0041";
 
   /** Email already exists. */
   public final static String EMAIL_IN_USE = "user_0111";

@@ -1,6 +1,7 @@
 package org.portfolio.userland.features.user;
 
 import org.junit.jupiter.api.Test;
+import org.portfolio.userland.features.user.controllers.UserController;
 import org.portfolio.userland.features.user.dto.standard.delete.UserDeleteLinkReq;
 import org.portfolio.userland.features.user.dto.standard.password.UserPassResetConfirmReq;
 import org.portfolio.userland.features.user.dto.standard.register.UserRegisterReq;
@@ -9,8 +10,13 @@ import org.portfolio.userland.system.auth.details.CustomUserDetailsService;
 import org.portfolio.userland.system.auth.jwt.JwtService;
 import org.portfolio.userland.system.auth.perm.PermissionService;
 import org.portfolio.userland.system.config.service.ConfigService;
+import org.portfolio.userland.test.base.AnyTest;
 import org.portfolio.userland.test.base.BaseWebTest;
 import org.portfolio.userland.test.helpers.problemDetail.ProblemDetailBox;
+import org.portfolio.userland.test.helpers.problemDetail.ProblemDetailService;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -25,6 +31,12 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 /**
  * Tests only web layer of user handling.
  */
+@AnyTest
+@WebMvcTest(UserController.class)
+@AutoConfigureMockMvc(addFilters = false) // disable web security
+@Import({  // because WebMvcTest by default ignores all services
+    ProblemDetailService.class
+})
 public class UserWebTest extends BaseWebTest {
   // We mock services present on UserController because we only care about testing the Controller's @Valid rules.
   @MockitoBean
@@ -142,7 +154,7 @@ public class UserWebTest extends BaseWebTest {
 
     // Assert: API Response.
     assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.BAD_REQUEST.value());
-
+    // Assert: Correct problem detail is present.
     ProblemDetailBox expectedPdb = new ProblemDetailBox(
         HttpStatus.BAD_REQUEST.value(),
         "Field Validation Failed",

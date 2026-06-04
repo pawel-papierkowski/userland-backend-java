@@ -36,7 +36,7 @@ public class UserFullDataApiTest extends BaseUserTest {
   // //////////////////////////////////////////////////////////////////////////
 
   @Test
-  @WithMockCustomUser(authorities = { "ROLE_OPERATOR" })
+  @WithMockCustomUser(authorities = { "ROLE_OPERATOR", "USER_VIEW" })
   public void viewUserData() throws Exception {
     // We want to load almost all data of given user.
     // Arrange: Create user and user profile.
@@ -63,7 +63,7 @@ public class UserFullDataApiTest extends BaseUserTest {
   //
 
   @Test
-  @WithMockCustomUser(authorities = { "ROLE_OPERATOR" })
+  @WithMockCustomUser(authorities = { "ROLE_OPERATOR", "USER_EDIT" })
   public void editUserNoTrueChanges() throws Exception {
     // We do not change anything, actually. Request has same data as existing user.
     // Arrange: Create user and user profile.
@@ -105,7 +105,7 @@ public class UserFullDataApiTest extends BaseUserTest {
   }
 
   @Test
-  @WithMockCustomUser(authorities = { "ROLE_OPERATOR" })
+  @WithMockCustomUser(authorities = { "ROLE_OPERATOR", "USER_EDIT" })
   public void editUserAll() throws Exception {
     // We want to change almost all data of given user.
     // Arrange: Create user and user profile.
@@ -164,7 +164,7 @@ public class UserFullDataApiTest extends BaseUserTest {
   }
 
   @Test
-  @WithMockCustomUser(authorities = { "ROLE_OPERATOR" })
+  @WithMockCustomUser(authorities = { "ROLE_OPERATOR", "USER_EDIT" })
   public void editUserSome() throws Exception {
     // We want to change some data of given user.
     // Arrange: Create user and user profile.
@@ -212,7 +212,7 @@ public class UserFullDataApiTest extends BaseUserTest {
   }
 
   @Test
-  @WithMockCustomUser(authorities = { "ROLE_OPERATOR" })
+  @WithMockCustomUser(authorities = { "ROLE_OPERATOR", "USER_EDIT" })
   public void editUserProfile() throws Exception {
     // We want to edit only profile.
     // Arrange: Create user and user profile.
@@ -263,7 +263,7 @@ public class UserFullDataApiTest extends BaseUserTest {
   }
 
   @Test
-  @WithMockCustomUser(authorities = { "ROLE_OPERATOR" })
+  @WithMockCustomUser(authorities = { "ROLE_OPERATOR", "USER_EDIT" })
   public void lockUser() throws Exception {
     // We want to lock user.
     // Arrange: Create user and user profile.
@@ -310,7 +310,7 @@ public class UserFullDataApiTest extends BaseUserTest {
   }
 
   @Test
-  @WithMockCustomUser(authorities = { "ROLE_OPERATOR" })
+  @WithMockCustomUser(authorities = { "ROLE_OPERATOR", "USER_EDIT" })
   public void editUserNoFields() throws Exception {
     // We do not change anything. Request has no fields.
     // Arrange: Create user and user profile.
@@ -351,7 +351,37 @@ public class UserFullDataApiTest extends BaseUserTest {
   // FAILURES
 
   @Test
-  @WithMockCustomUser(authorities = { "ROLE_OPERATOR" })
+  @WithMockCustomUser(authorities = { "ROLE_OPERATOR" }) // missing USER_VIEW
+  public void viewUserWithoutPermission() throws Exception {
+    // We want to load almost all data of given user.
+    // Arrange: Create user and user profile.
+    clock.setFixedTime("2026-04-10T10:00:00Z");
+    User expectedUser = userFactory.genUser(EnUserStatus.ACTIVE);
+    UserProfile expectedUserProfile = userProfileFactory.genProfile(expectedUser);
+
+    UserProfile userProfile = userProfileRepository.save(expectedUserProfile);
+    User user = userProfile.getUser();
+
+    // Act: Get user data.
+    MvcResult mvcResult = mockMvc.perform(get("/api/admin/user/"+user.getId()))
+        .andReturn();
+
+    // Assert: API Response.
+    assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.FORBIDDEN.value());
+    // Assert: Content has correct error.
+    ProblemDetailBox expectedPdb = new ProblemDetailBox(
+        HttpStatus.FORBIDDEN.value(),
+        "Forbidden",
+        "You do not have permission to access this resource.",
+        "/api/admin/user/"+user.getId(),
+        "https://api.general.org/errors/forbidden",
+        Map.of()
+    );
+    problemDetailService.assertPd(mvcResult, expectedPdb);
+  }
+
+  @Test
+  @WithMockCustomUser(authorities = { "ROLE_OPERATOR", "USER_VIEW" })
   public void viewUserWithWrongId() throws Exception {
     // Arrange: None needed.
 
@@ -376,7 +406,46 @@ public class UserFullDataApiTest extends BaseUserTest {
   //
 
   @Test
-  @WithMockCustomUser(authorities = { "ROLE_OPERATOR" })
+  @WithMockCustomUser(authorities = { "ROLE_OPERATOR" }) // missing USER_EDIT
+  public void editUserWithoutPermissions() throws Exception {
+    // We want to change almost all data of given user.
+    // Arrange: Create user and user profile.
+    clock.setFixedTime("2026-04-10T10:00:00Z");
+    User expectedUser = userFactory.genUser(EnUserStatus.ACTIVE);
+    UserProfile expectedUserProfile = userProfileFactory.genProfile(expectedUser);
+
+    UserProfile userProfile = userProfileRepository.save(expectedUserProfile);
+    User user = userProfile.getUser();
+
+    // Arrange: Create request to change user data.
+    UserFullDataReq req = UserFullDataReq.builder()
+        .id(user.getId())
+        .username("Monke")
+        .build();
+
+    // Act: Try to change data of existing user.
+    clock.setFixedTime("2026-04-12T10:00:00Z");
+    MvcResult mvcResult = mockMvc.perform(patch("/api/admin/user")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(req)))
+        .andReturn();
+
+    // Assert: API Response.
+    assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.FORBIDDEN.value());
+    // Assert: Content has correct error.
+    ProblemDetailBox expectedPdb = new ProblemDetailBox(
+        HttpStatus.FORBIDDEN.value(),
+        "Forbidden",
+        "You do not have permission to access this resource.",
+        "/api/admin/user",
+        "https://api.general.org/errors/forbidden",
+        Map.of()
+    );
+    problemDetailService.assertPd(mvcResult, expectedPdb);
+  }
+
+  @Test
+  @WithMockCustomUser(authorities = { "ROLE_OPERATOR", "USER_EDIT" })
   public void editUserWithWrongId() throws Exception {
     // Arrange: request that uses id of non-existent user.
     UserFullDataReq req = UserFullDataReq.builder().id(1L).build();
@@ -415,7 +484,8 @@ public class UserFullDataApiTest extends BaseUserTest {
 
     // Arrange: We want to emulate fact of this very user being logged in. We can't use @WithMockCustomUser as we do not
     // know user's id in advance.
-    CustomUserDetails customUserDetails = new CustomUserDetails(user.getId(), true, false, user.getUsername(), user.getEmail(), "", Set.of(), List.of(new SimpleGrantedAuthority("ROLE_OPERATOR")));
+    CustomUserDetails customUserDetails = new CustomUserDetails(user.getId(), true, false, user.getUsername(), user.getEmail(), "", Set.of(),
+      List.of(new SimpleGrantedAuthority("ROLE_OPERATOR"), new SimpleGrantedAuthority("USER_EDIT")));
 
     // Arrange: Create request to change user and user profile data.
     UserFullDataReq req = UserFullDataReq.builder()
@@ -446,7 +516,7 @@ public class UserFullDataApiTest extends BaseUserTest {
   }
 
   @Test
-  @WithMockCustomUser(authorities = { "ROLE_OPERATOR" })
+  @WithMockCustomUser(authorities = { "ROLE_OPERATOR", "USER_EDIT" })
   public void editUserWithExistingEmail() throws Exception {
     // Arrange: Create first user and user profile.
     clock.setFixedTime("2026-04-10T10:00:00Z");

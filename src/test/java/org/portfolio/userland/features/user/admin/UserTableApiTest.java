@@ -124,7 +124,7 @@ public class UserTableApiTest extends BaseUserTest {
   //
 
   @Test
-  @WithMockCustomUser(authorities = { "ROLE_OPERATOR" })
+  @WithMockCustomUser(authorities = { "ROLE_OPERATOR", "USER_VIEW" })
   public void viewEmptyTable() throws Exception {
     // Arrange: all defaults.
     UserTableReq req = UserTableReq.builder().build();
@@ -135,7 +135,7 @@ public class UserTableApiTest extends BaseUserTest {
   //
 
   @Test
-  @WithMockCustomUser(authorities = { "ROLE_OPERATOR" })
+  @WithMockCustomUser(authorities = { "ROLE_OPERATOR", "USER_VIEW" })
   public void viewUsername() throws Exception {
     // Tests getting only one result and username filtering.
     List<User> users = arrangeUserData();
@@ -150,7 +150,7 @@ public class UserTableApiTest extends BaseUserTest {
   }
 
   @Test
-  @WithMockCustomUser(authorities = { "ROLE_OPERATOR" })
+  @WithMockCustomUser(authorities = { "ROLE_OPERATOR", "USER_VIEW" })
   public void viewEmail() throws Exception {
     // Tests getting multiple results and email filtering.
     List<User> users = arrangeUserData();
@@ -165,7 +165,7 @@ public class UserTableApiTest extends BaseUserTest {
   }
 
   @Test
-  @WithMockCustomUser(authorities = { "ROLE_OPERATOR" })
+  @WithMockCustomUser(authorities = { "ROLE_OPERATOR", "USER_VIEW" })
   public void viewStatus() throws Exception {
     // Tests status filtering.
     List<User> users = arrangeUserData();
@@ -180,7 +180,7 @@ public class UserTableApiTest extends BaseUserTest {
   }
 
   @Test
-  @WithMockCustomUser(authorities = { "ROLE_OPERATOR" })
+  @WithMockCustomUser(authorities = { "ROLE_OPERATOR", "USER_VIEW" })
   public void viewLocked() throws Exception {
     // Tests locked filtering.
     List<User> users = arrangeUserData();
@@ -195,7 +195,7 @@ public class UserTableApiTest extends BaseUserTest {
   }
 
   @Test
-  @WithMockCustomUser(authorities = { "ROLE_OPERATOR" })
+  @WithMockCustomUser(authorities = { "ROLE_OPERATOR", "USER_VIEW" })
   public void viewCreatedFromAt() throws Exception {
     // Tests createdFromAt filtering.
     List<User> users = arrangeUserData();
@@ -210,7 +210,7 @@ public class UserTableApiTest extends BaseUserTest {
   }
 
   @Test
-  @WithMockCustomUser(authorities = { "ROLE_OPERATOR" })
+  @WithMockCustomUser(authorities = { "ROLE_OPERATOR", "USER_VIEW" })
   public void viewCreatedToAt() throws Exception {
     // Tests createdToAt filtering.
     List<User> users = arrangeUserData();
@@ -227,7 +227,7 @@ public class UserTableApiTest extends BaseUserTest {
   //
 
   @Test
-  @WithMockCustomUser(authorities = { "ROLE_OPERATOR" })
+  @WithMockCustomUser(authorities = { "ROLE_OPERATOR", "USER_VIEW" })
   public void viewUnfilteredTable() throws Exception {
     List<User> users = arrangeUserData();
     List<UserTableEntry> userResults = userAdminFactory.genUserTableEntries(users);
@@ -238,7 +238,7 @@ public class UserTableApiTest extends BaseUserTest {
   }
 
   @Test
-  @WithMockCustomUser(authorities = { "ROLE_OPERATOR" })
+  @WithMockCustomUser(authorities = { "ROLE_OPERATOR", "USER_VIEW" })
   public void viewFirstPageTable() throws Exception {
     // Tests pagination.
     List<User> users = arrangeUserData();
@@ -253,7 +253,7 @@ public class UserTableApiTest extends BaseUserTest {
   }
 
   @Test
-  @WithMockCustomUser(authorities = { "ROLE_OPERATOR" })
+  @WithMockCustomUser(authorities = { "ROLE_OPERATOR", "USER_VIEW" })
   public void viewSecondPageTable() throws Exception {
     // Tests pagination.
     List<User> users = arrangeUserData();
@@ -268,7 +268,7 @@ public class UserTableApiTest extends BaseUserTest {
   }
 
   @Test
-  @WithMockCustomUser(authorities = { "ROLE_OPERATOR" })
+  @WithMockCustomUser(authorities = { "ROLE_OPERATOR", "USER_VIEW" })
   public void viewThirdPageTable() throws Exception {
     // Tests pagination.
     List<User> users = arrangeUserData();
@@ -283,7 +283,7 @@ public class UserTableApiTest extends BaseUserTest {
   }
 
   @Test
-  @WithMockCustomUser(authorities = { "ROLE_OPERATOR" })
+  @WithMockCustomUser(authorities = { "ROLE_OPERATOR", "USER_VIEW" })
   public void viewReverseOrder() throws Exception {
     // Tests ordering by default column (createdAt), but in other direction.
     List<User> users = arrangeUserData();
@@ -298,7 +298,7 @@ public class UserTableApiTest extends BaseUserTest {
   }
 
   @Test
-  @WithMockCustomUser(authorities = { "ROLE_OPERATOR" })
+  @WithMockCustomUser(authorities = { "ROLE_OPERATOR", "USER_VIEW" })
   public void viewOrderByCustomField() throws Exception {
     // Tests ordering by custom column.
     List<User> users = arrangeUserData();
@@ -315,7 +315,7 @@ public class UserTableApiTest extends BaseUserTest {
   //
 
   @Test
-  @WithMockCustomUser(authorities = { "ROLE_OPERATOR" })
+  @WithMockCustomUser(authorities = { "ROLE_OPERATOR", "USER_VIEW" })
   public void viewMultipleFilters() throws Exception {
     // Tests multiple filters at once.
     List<User> users = arrangeUserData();
@@ -335,9 +335,36 @@ public class UserTableApiTest extends BaseUserTest {
   // //////////////////////////////////////////////////////////////////////////
   // FAILURES
 
+  @Test
+  @WithMockCustomUser(authorities = { "ROLE_OPERATOR" }) // missing USER_VIEW
+  public void viewWithoutPermissions() throws Exception {
+    // Tests verification: needs correct permissions.
+    arrangeUserData();
+
+    UserTableReq req = UserTableReq.builder().build();
+
+    // Act: Try to view table page with users.
+    MvcResult mvcResult = mockMvc.perform(post("/api/admin/users")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(req)))
+        .andReturn();
+
+    // Assert: API Response.
+    assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.FORBIDDEN.value());
+    // Assert: Content has correct error.
+    ProblemDetailBox expectedPdb = new ProblemDetailBox(
+        HttpStatus.FORBIDDEN.value(),
+        "Forbidden",
+        "You do not have permission to access this resource.",
+        "/api/admin/users",
+        "https://api.general.org/errors/forbidden",
+        Map.of()
+    );
+    problemDetailService.assertPd(mvcResult, expectedPdb);
+  }
 
   @Test
-  @WithMockCustomUser(authorities = { "ROLE_OPERATOR" })
+  @WithMockCustomUser(authorities = { "ROLE_OPERATOR", "USER_VIEW" })
   public void viewBadCreated() throws Exception {
     // Tests verification: invalid state of createdFromAt and createdToAt.
     arrangeUserData();

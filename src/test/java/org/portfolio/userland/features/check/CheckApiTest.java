@@ -175,7 +175,7 @@ public class CheckApiTest extends BaseCheckTest {
 
     // Assert: API Response.
     assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR.value());
-    // Assert: correct problem detail is present.
+    // Assert: Correct problem detail is present.
     ProblemDetailBox expectedPdb = new ProblemDetailBox(
         HttpStatus.INTERNAL_SERVER_ERROR.value(),
         "Internal Server Error",
@@ -201,7 +201,7 @@ public class CheckApiTest extends BaseCheckTest {
 
     // Assert: API Response.
     assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.UNAUTHORIZED.value());
-    // Assert: correct problem detail is present.
+    // Assert: Correct problem detail is present.
     problemDetailService.assertPdUnauthorized(mvcResult, "/api/checks/must-be-logged");
   }
 
@@ -222,7 +222,7 @@ public class CheckApiTest extends BaseCheckTest {
     assertThat(authHeader)
         .as("WWW-Authenticate header is missing or incorrect")
         .isEqualTo("Bearer error=\"invalid_token\"");
-    // Assert: correct problem detail is present.
+    // Assert: Correct problem detail is present.
     ProblemDetailBox expectedPdb = new ProblemDetailBox(
         HttpStatus.UNAUTHORIZED.value(),
         "Unauthorized",
@@ -253,7 +253,7 @@ public class CheckApiTest extends BaseCheckTest {
 
     // Assert: API Response.
     assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.UNAUTHORIZED.value());
-    // Assert: correct problem detail is present.
+    // Assert: Correct problem detail is present.
     problemDetailService.assertPdUnauthorized(mvcResult, "/api/checks/must-be-logged");
   }
 
@@ -278,7 +278,7 @@ public class CheckApiTest extends BaseCheckTest {
 
     // Assert: API Response.
     assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.UNAUTHORIZED.value());
-    // Assert: correct problem detail is present.
+    // Assert: Correct problem detail is present.
     problemDetailService.assertPdUnauthorized(mvcResult, "/api/checks/must-be-logged");
   }
 
@@ -303,7 +303,7 @@ public class CheckApiTest extends BaseCheckTest {
 
     // Assert: API Response.
     assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.UNAUTHORIZED.value());
-    // Assert: correct problem detail is present.
+    // Assert: Correct problem detail is present.
     problemDetailService.assertPdUnauthorized(mvcResult, "/api/checks/must-be-logged");
   }
 
@@ -324,7 +324,7 @@ public class CheckApiTest extends BaseCheckTest {
 
     // Assert: API Response.
     assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.FORBIDDEN.value());
-    // Assert: correct problem detail is present.
+    // Assert: Correct problem detail is present.
     problemDetailService.assertPdForbidden(mvcResult, "/api/checks/must-be-admin");
   }
 

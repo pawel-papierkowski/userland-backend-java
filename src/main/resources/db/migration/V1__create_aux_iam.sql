@@ -1,6 +1,9 @@
 -- ============================================================================
--- Helper tables.
+-- Basic tables in aux and iam schema.
 -- ============================================================================
+
+-- Enable trigram support for fuzzy string searching.
+CREATE EXTENSION IF NOT EXISTS pg_trgm;
 
 -- Auxiliary schema: UserLand system and auxiliary tables. Includes tables used by third party libraries like Flyway or
 -- ShedLock.
@@ -29,6 +32,8 @@ CREATE TABLE aux.config (
     -- Description of configuration variable for the developer.
     description TEXT NOT NULL
 );
+-- Indexes for aux.config.
+CREATE INDEX idx_aux_config_name ON aux.config (name);
 -- Known configuration.
 INSERT INTO aux.config (name, value, description) VALUES ('user.lockdown', '0', 'If 1, no user can log in unless they have admin permissions.');
 INSERT INTO aux.config (name, value, description) VALUES ('general.portfolio', '0', 'If 1, system is in portfolio mode. That means new accounts can get admin permissions and accounts are removed automatically after few days of inactivity.');
@@ -42,7 +47,8 @@ CREATE SCHEMA IF NOT EXISTS iam;
 
 -- Permissions available for users.
 -- Field name here combines with value in iam.user_permissions to create valid permission.
--- For example, name='role' and value='admin' results in "ROLE_ADMIN" for Spring authorization.
+-- For example, name='role' from iam.permissions and value='admin' from iam.user_permissions results in "ROLE_ADMIN"
+-- for Spring authorization.
 CREATE TABLE iam.permissions (
     -- Identificator.
     id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
@@ -68,7 +74,7 @@ CREATE TABLE iam.users (
     -- When user account was last modified.
     modified_at TIMESTAMP NOT NULL DEFAULT(now() AT TIME ZONE 'UTC'),
 
-    -- Username visible on frontend. Must be present.
+    -- Username visible on frontend. Not unique, because email is used for that. Must be present.
     username VARCHAR(100) NOT NULL,
     -- User email. 'UNIQUE' ensures no two users can register with the same email. Business key.
     email VARCHAR(100) NOT NULL UNIQUE,
@@ -83,6 +89,16 @@ CREATE TABLE iam.users (
     -- Is user locked?
     locked BOOLEAN NOT NULL DEFAULT FALSE
 );
+-- Indexes for iam.users needed for filtering. Note email already has index due to UNIQUE.
+CREATE INDEX idx_iam_users_created_at ON iam.users (created_at);
+CREATE INDEX idx_iam_users_username ON iam.users (username);
+CREATE INDEX idx_iam_users_status ON iam.users (status);
+CREATE INDEX idx_iam_users_locked ON iam.users (locked);
+-- Trigram index for leading wildcard searches (%search%), as standard B-tree works well only for prefix matches like search%.
+-- We index the lower() version because the Criteria API uses cb.lower().
+-- Note standard index is still needed as GIN cannot be used for sorting or exact matches.
+CREATE INDEX idx_iam_users_username_trgm ON iam.users USING gin (lower(username) gin_trgm_ops);
+CREATE INDEX idx_iam_users_email_trgm ON iam.users USING gin (lower(email) gin_trgm_ops);
 
 -- User profile table. Contains business data about users. Note user do not have any id_profile column (since profile id
 -- is same as main user id) - you are one responsible for ensuring all users have profiles if required.
@@ -122,6 +138,9 @@ CREATE TABLE iam.config (
     -- There can be only one name for given user at once.
     CONSTRAINT uq_user_config_name UNIQUE (id_user, name)
 );
+-- Indexes for iam.config.
+CREATE INDEX idx_iam_config_id_user ON iam.config (id_user);
+CREATE INDEX idx_iam_config_name ON iam.config (name);
 
 -- Tokens for user.
 CREATE TABLE iam.tokens (
@@ -147,6 +166,8 @@ CREATE TABLE iam.tokens (
     -- There can be only one token of given type for given user at once.
     CONSTRAINT uq_user_token_type UNIQUE (id_user, type)
 );
+-- Indexes for iam.tokens.
+CREATE INDEX idx_iam_tokens_id_user ON iam.tokens (id_user);
 
 -- JWT for user. Exists because we need ability to revoke them.
 CREATE TABLE iam.jwt (
@@ -166,6 +187,8 @@ CREATE TABLE iam.jwt (
     -- Table-level constraint for Foreign Key.
     CONSTRAINT fk_user FOREIGN KEY (id_user) REFERENCES iam.users(id) ON DELETE CASCADE
 );
+-- Indexes for iam.tokens.
+CREATE INDEX idx_iam_jwt_id_user ON iam.jwt (id_user);
 
 -- User history.
 CREATE TABLE iam.history (
@@ -189,6 +212,11 @@ CREATE TABLE iam.history (
     -- Table-level constraint for Foreign Key.
     CONSTRAINT fk_user FOREIGN KEY (id_user) REFERENCES iam.users(id) ON DELETE CASCADE
 );
+-- Indexes for iam.history. Note history for single user is expected to get large for active old users.
+CREATE INDEX idx_iam_history_id_user ON iam.history (id_user);
+CREATE INDEX idx_iam_history_created_at ON iam.history (created_at);
+CREATE INDEX idx_iam_history_who ON iam.history (who);
+CREATE INDEX idx_iam_history_what ON iam.history (what);
 
 -- User permission entry.
 CREATE TABLE iam.user_permissions (
@@ -214,6 +242,8 @@ CREATE TABLE iam.user_permissions (
     -- There can be only one permission name+value combination for given user at once.
     CONSTRAINT uq_user_permission UNIQUE (id_user, id_permission, value)
 );
+-- Indexes for iam.user_permissions.
+CREATE INDEX idx_iam_user_permissions_id_user ON iam.user_permissions (id_user);
 
 -- ============================================================================
 -- Other system tables.
@@ -225,7 +255,7 @@ CREATE TABLE aux.history (
     id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     -- UUID v4. Business key.
     uuid UUID NOT NULL DEFAULT gen_random_uuid() UNIQUE,
-    -- Foreign key to user table. Note it is optional!
+    -- Foreign key to user table. Note it is optional, as some system history events aren't related to any particular user.
     id_user BIGINT,
 
     -- When system history entry was created.
@@ -241,3 +271,8 @@ CREATE TABLE aux.history (
     -- Table-level constraint for Foreign Key.
     CONSTRAINT fk_user FOREIGN KEY (id_user) REFERENCES iam.users(id)
 );
+-- Indexes for aux.history.
+CREATE INDEX idx_aux_history_id_user ON aux.history (id_user);
+CREATE INDEX idx_aux_history_created_at ON aux.history (created_at);
+CREATE INDEX idx_aux_history_who ON aux.history (who);
+CREATE INDEX idx_aux_history_what ON aux.history (what);

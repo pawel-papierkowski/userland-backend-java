@@ -8,12 +8,14 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.portfolio.userland.features.user.dto.admin.config.UserConfigEditReq;
 import org.portfolio.userland.features.user.dto.admin.config.UserConfigTableReq;
 import org.portfolio.userland.features.user.dto.admin.config.UserConfigTableResp;
 import org.portfolio.userland.features.user.dto.admin.history.UserHistoryTableReq;
 import org.portfolio.userland.features.user.dto.admin.history.UserHistoryTableResp;
 import org.portfolio.userland.features.user.dto.admin.jwt.UserJwtTableReq;
 import org.portfolio.userland.features.user.dto.admin.jwt.UserJwtTableResp;
+import org.portfolio.userland.features.user.dto.admin.permission.UserPermissionEditReq;
 import org.portfolio.userland.features.user.dto.admin.permission.UserPermissionTableReq;
 import org.portfolio.userland.features.user.dto.admin.permission.UserPermissionTableResp;
 import org.portfolio.userland.features.user.dto.admin.token.UserTokenTableReq;
@@ -23,10 +25,14 @@ import org.portfolio.userland.features.user.dto.admin.user.UserFullDataResp;
 import org.portfolio.userland.features.user.dto.admin.user.UserTableReq;
 import org.portfolio.userland.features.user.dto.admin.user.UserTableResp;
 import org.portfolio.userland.features.user.services.admin.*;
+import org.portfolio.userland.swagger.annotations.ApiResponsesAuthPerm;
 import org.portfolio.userland.swagger.detail.common.ValidationProblemDetail;
 import org.portfolio.userland.swagger.detail.user.BadParamsProblemDetail;
 import org.portfolio.userland.swagger.detail.user.CannotEditUserProblemDetail;
+import org.portfolio.userland.system.auth.annotations.HasUserEditPermission;
+import org.portfolio.userland.system.auth.annotations.HasUserViewPermission;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -48,10 +54,10 @@ import org.springframework.web.bind.annotation.*;
  * <p>Edit endpoints:</p>
  * <ul>
  *   <li><code>PATCH /api/admin/user</code> - change general and profile data of given user.</li>
- *   <li><code>PATCH /api/admin/user/config</code> - change data of given user config.</li>
- *   <li><code>DELETE /api/admin/user/config</code> - delete data of given user config.</li>
- *   <li><code>PATCH /api/admin/user/permission</code> - change data of given user permission.</li>
- *   <li><code>DELETE /api/admin/user/permission</code> - delete data of given user permission.</li>
+ *   <li><code>PATCH /api/admin/user/config</code> - change/add data of given user config.</li>
+ *   <li><code>DELETE /api/admin/user/config/{id}</code> - delete data of given user config.</li>
+ *   <li><code>PATCH /api/admin/user/permission</code> - change/add data of given user permission.</li>
+ *   <li><code>DELETE /api/admin/user/permission/{id}</code> - delete data of given user permission.</li>
  * </ul>
  */
 @RestController
@@ -72,8 +78,10 @@ public class UserAdminController {
    * @param tableReq User table view request.
    * @return Response.
    */
+  @HasUserViewPermission
   @PostMapping(value = "/users", produces = "application/json")
   @Operation(summary = "Load user table", description = "Returns page from user table. Can be filtered.")
+  @ApiResponsesAuthPerm
   @ApiResponses(value = {
       @ApiResponse(responseCode = "200", description = "Successfully retrieved page from user table."),
       @ApiResponse(responseCode = "400", description = "Invalid input (e.g., createdFromAt later than createdToAt).",
@@ -87,10 +95,13 @@ public class UserAdminController {
 
   /**
    * View full user data.
+   * @param id Identificator of user.
    * @return Response.
    */
+  @HasUserViewPermission
   @GetMapping(value = "/user/{id}", produces = "application/json")
   @Operation(summary = "Load user data", description = "Get almost all user and user profile data. It can be any user.")
+  @ApiResponsesAuthPerm
   @ApiResponses(value = {
       @ApiResponse(responseCode = "200", description = "Successfully retrieved user data."),
       @ApiResponse(responseCode = "400", description = "Invalid input (e.g., id is empty).",
@@ -107,8 +118,10 @@ public class UserAdminController {
    * @param userFullDataReq User data edit request.
    * @return Response.
    */
+  @HasUserEditPermission
   @PatchMapping(value = "/user", produces = "application/json")
   @Operation(summary = "Edit user", description = "Change data of user. Null fields will be ignored.")
+  @ApiResponsesAuthPerm
   @ApiResponses(value = {
       @ApiResponse(responseCode = "200", description = "Successfully updated user data."),
       @ApiResponse(responseCode = "400", description = "Invalid input (e.g., id of user is null).",
@@ -131,8 +144,10 @@ public class UserAdminController {
    * @param tableReq User config table view request.
    * @return Response.
    */
+  @HasUserViewPermission
   @PostMapping(value = "/user/configs", produces = "application/json")
   @Operation(summary = "Load user config table", description = "Returns page from user config table. Can be filtered.")
+  @ApiResponsesAuthPerm
   @ApiResponses(value = {
       @ApiResponse(responseCode = "200", description = "Successfully retrieved page from user config table."),
       @ApiResponse(responseCode = "400", description = "Invalid input (e.g., createdFromAt later than createdToAt).",
@@ -144,6 +159,48 @@ public class UserAdminController {
     return new ResponseEntity<>(tableResp, HttpStatus.OK);
   }
 
+  /**
+   * Add or edit user config entry with given id.
+   * @param editReq User config entry request.
+   * @return Response.
+   */
+  @HasUserEditPermission
+  @PatchMapping(value = "/user/config", produces = "application/json")
+  @Operation(summary = "Add/update user config entry", description = "Add or update user config entry.")
+  @ApiResponsesAuthPerm
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200", description = "Successfully retrieved page from user config table.",
+          content = @Content(schema = @Schema(hidden = true))),
+      @ApiResponse(responseCode = "404", description = "User config entry with given id does not exist.",
+          content = @Content(mediaType = "application/problem+json",
+              schema = @Schema(implementation = ProblemDetail.class)))
+  })
+  public ResponseEntity<Void> editUserConfigEntry(@Valid @RequestBody UserConfigEditReq editReq) {
+    userConfigTableService.edit(editReq);
+    return new ResponseEntity<>(HttpStatus.OK);
+  }
+
+  /**
+   * Delete user config entry with given id.
+   * @param id Identificator of user config entry.
+   * @return Response.
+   */
+  @HasUserEditPermission
+  @DeleteMapping(value = "/user/config/{id}", produces = "application/json")
+  @Operation(summary = "Delete user config entry", description = "Delete user config entry.")
+  @ApiResponsesAuthPerm
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200", description = "Successfully deleted user config entry.",
+          content = @Content(schema = @Schema(hidden = true))),
+      @ApiResponse(responseCode = "404", description = "User config entry with given id does not exist.",
+          content = @Content(mediaType = "application/problem+json",
+              schema = @Schema(implementation = ProblemDetail.class)))
+  })
+  public ResponseEntity<Void> deleteUserConfigEntry(@PathVariable Long id) {
+    userConfigTableService.delete(id);
+    return new ResponseEntity<>(HttpStatus.OK);
+  }
+
   //
 
   /**
@@ -152,8 +209,10 @@ public class UserAdminController {
    * @param tableReq User config table view request.
    * @return Response.
    */
+  @HasUserViewPermission
   @PostMapping(value = "/user/history", produces = "application/json")
   @Operation(summary = "Load user history table", description = "Returns page from user history table. Can be filtered.")
+  @ApiResponsesAuthPerm
   @ApiResponses(value = {
       @ApiResponse(responseCode = "200", description = "Successfully retrieved page from user history table."),
       @ApiResponse(responseCode = "400", description = "Invalid input (e.g., createdFromAt later than createdToAt).",
@@ -173,8 +232,10 @@ public class UserAdminController {
    * @param tableReq User permission table view request.
    * @return Response.
    */
+  @HasUserViewPermission
   @PostMapping(value = "/user/permissions", produces = "application/json")
   @Operation(summary = "Load user permission table", description = "Returns page from user permission table. Can be filtered.")
+  @ApiResponsesAuthPerm
   @ApiResponses(value = {
       @ApiResponse(responseCode = "200", description = "Successfully retrieved page from user permission table."),
       @ApiResponse(responseCode = "400", description = "Invalid input (e.g., createdFromAt later than createdToAt).",
@@ -186,6 +247,48 @@ public class UserAdminController {
     return new ResponseEntity<>(tableResp, HttpStatus.OK);
   }
 
+  /**
+   * Add or edit user permission entry with given id.
+   * @param editReq User permission entry request.
+   * @return Response.
+   */
+  @HasUserEditPermission
+  @PatchMapping(value = "/user/permission", produces = "application/json")
+  @Operation(summary = "Add/update user permission entry", description = "Add or update user permission entry.")
+  @ApiResponsesAuthPerm
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200", description = "Successfully retrieved page from user permission table.",
+          content = @Content(schema = @Schema(hidden = true))),
+      @ApiResponse(responseCode = "404", description = "User permission entry with given id does not exist.",
+          content = @Content(mediaType = "application/problem+json",
+              schema = @Schema(implementation = ProblemDetail.class)))
+  })
+  public ResponseEntity<Void> editUserPermissionEntry(@Valid @RequestBody UserPermissionEditReq editReq) {
+    userPermissionTableService.edit(editReq);
+    return new ResponseEntity<>(HttpStatus.OK);
+  }
+
+  /**
+   * Delete user permission entry with given id.
+   * @param id Identificator of user permission entry.
+   * @return Response.
+   */
+  @HasUserEditPermission
+  @DeleteMapping(value = "/user/permission/{id}", produces = "application/json")
+  @Operation(summary = "Delete user permission entry", description = "Delete user permission entry.")
+  @ApiResponsesAuthPerm
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200", description = "Successfully deleted user permission entry.",
+          content = @Content(schema = @Schema(hidden = true))),
+      @ApiResponse(responseCode = "404", description = "User permission entry with given id does not exist.",
+          content = @Content(mediaType = "application/problem+json",
+              schema = @Schema(implementation = ProblemDetail.class)))
+  })
+  public ResponseEntity<Void> deleteUserPermissionEntry(@PathVariable Long id) {
+    userPermissionTableService.delete(id);
+    return new ResponseEntity<>(HttpStatus.OK);
+  }
+
   //
 
   /**
@@ -194,8 +297,10 @@ public class UserAdminController {
    * @param tableReq User token table view request.
    * @return Response.
    */
+  @HasUserViewPermission
   @PostMapping(value = "/user/tokens", produces = "application/json")
   @Operation(summary = "Load user token table", description = "Returns page from user token table. Can be filtered.")
+  @ApiResponsesAuthPerm
   @ApiResponses(value = {
       @ApiResponse(responseCode = "200", description = "Successfully retrieved page from user token table."),
       @ApiResponse(responseCode = "400", description = "Invalid input (e.g., createdFromAt later than createdToAt).",
@@ -215,8 +320,10 @@ public class UserAdminController {
    * @param tableReq User jwt table view request.
    * @return Response.
    */
+  @HasUserViewPermission
   @PostMapping(value = "/user/jwt", produces = "application/json")
   @Operation(summary = "Load user jwt table", description = "Returns page from user jwt table. Can be filtered.")
+  @ApiResponsesAuthPerm
   @ApiResponses(value = {
       @ApiResponse(responseCode = "200", description = "Successfully retrieved page from user jwt table."),
       @ApiResponse(responseCode = "400", description = "Invalid input (e.g., createdFromAt later than createdToAt).",

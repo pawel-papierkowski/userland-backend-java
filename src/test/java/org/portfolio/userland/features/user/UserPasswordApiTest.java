@@ -348,7 +348,7 @@ public class UserPasswordApiTest extends BaseUserTest {
         "Token '"+token.getToken()+"N' does not exist.",
         "/api/users/password/confirm",
         "https://api.userland.org/errors/user/token/missing",
-        Map.of("errCode", "user_0012")
+        Map.of("errCode", "user_0011")
     );
     problemDetailService.assertPd(mvcResult, expectedPdb);
   }

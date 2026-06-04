@@ -4,10 +4,12 @@ import lombok.RequiredArgsConstructor;
 import org.portfolio.userland.common.dto.TableMetaReq;
 import org.portfolio.userland.common.exception.BadParamsException;
 import org.portfolio.userland.common.services.table.TableHelper;
+import org.portfolio.userland.features.user.dto.admin.permission.UserPermissionEditReq;
 import org.portfolio.userland.features.user.dto.admin.permission.UserPermissionTableEntry;
 import org.portfolio.userland.features.user.dto.admin.permission.UserPermissionTableReq;
 import org.portfolio.userland.features.user.dto.admin.permission.UserPermissionTableResp;
 import org.portfolio.userland.features.user.entities.UserPermission;
+import org.portfolio.userland.features.user.exceptions.UserPermissionMissingException;
 import org.portfolio.userland.features.user.services.BaseUserService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -75,5 +77,30 @@ public class UserPermissionTableService extends BaseUserService {
         .entries(entries)
         .tableMeta(TableHelper.fillTableMetaResp(tableMetaReq, entryCount))
         .build();
+  }
+
+  // //////////////////////////////////////////////////////////////////////////
+
+  /**
+   * Add or change user permission entry.
+   * @param editReq User permission entry edit request.
+   * @return Added or updated user permission entry.
+   */
+  public UserPermission edit(UserPermissionEditReq editReq) {
+    if (editReq.id() != null && !userPermissionRepository.existsById(editReq.id()))
+      throw new UserPermissionMissingException(editReq.id());
+
+    return userPermissionRepository.upsert(editReq);
+  }
+
+  /**
+   * Deletes given user permission entry.
+   * @param id Identificator of entry.
+   */
+  public void delete(Long id) {
+    if (id == null || !userPermissionRepository.existsById(id))
+      throw new UserPermissionMissingException(id);
+
+    userPermissionRepository.deleteById(id);
   }
 }

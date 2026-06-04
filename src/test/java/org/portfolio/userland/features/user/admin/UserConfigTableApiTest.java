@@ -7,21 +7,25 @@ import org.portfolio.userland.common.dto.TableMetaReq;
 import org.portfolio.userland.common.dto.TableMetaResp;
 import org.portfolio.userland.common.services.table.TableHelper;
 import org.portfolio.userland.features.user.BaseUserTest;
+import org.portfolio.userland.features.user.dto.admin.config.UserConfigEditReq;
 import org.portfolio.userland.features.user.dto.admin.config.UserConfigTableEntry;
 import org.portfolio.userland.features.user.dto.admin.config.UserConfigTableReq;
 import org.portfolio.userland.features.user.dto.admin.config.UserConfigTableResp;
 import org.portfolio.userland.features.user.entities.EnUserStatus;
 import org.portfolio.userland.features.user.entities.User;
+import org.portfolio.userland.features.user.entities.UserConfig;
 import org.portfolio.userland.test.helpers.context.WithMockCustomUser;
+import org.portfolio.userland.test.helpers.problemDetail.ProblemDetailBox;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MvcResult;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 
 /**
  * Integration test for user config table viewing.
@@ -74,7 +78,7 @@ public class UserConfigTableApiTest extends BaseUserTest {
    * @param entryCount Expected entry count.
    * @throws Exception When objectMapper chokes on input.
    */
-  private void actAssert(UserConfigTableReq req, List<UserConfigTableEntry> expectedEntries, Long pageCount, Long entryCount) throws Exception {
+  private void actAssertView(UserConfigTableReq req, List<UserConfigTableEntry> expectedEntries, Long pageCount, Long entryCount) throws Exception {
     // Act: Try to view table page with user configs.
     MvcResult mvcResult = mockMvc.perform(post("/api/admin/user/configs")
             .contentType(MediaType.APPLICATION_JSON)
@@ -104,7 +108,7 @@ public class UserConfigTableApiTest extends BaseUserTest {
   //
 
   @Test
-  @WithMockCustomUser(authorities = { "ROLE_OPERATOR" })
+  @WithMockCustomUser(authorities = { "ROLE_OPERATOR", "USER_VIEW" })
   public void viewNonexistentUser() throws Exception {
     List<User> users = arrangeUserData();
     User userToCheck = users.getLast();
@@ -112,11 +116,11 @@ public class UserConfigTableApiTest extends BaseUserTest {
     // Act: get nonexistent user.
     UserConfigTableReq req = UserConfigTableReq.builder().userId(userToCheck.getId()+1).build();
 
-    actAssert(req, List.of(), 0L, 0L);
+    actAssertView(req, List.of(), 0L, 0L);
   }
 
   @Test
-  @WithMockCustomUser(authorities = { "ROLE_OPERATOR" })
+  @WithMockCustomUser(authorities = { "ROLE_OPERATOR", "USER_VIEW" })
   public void viewUserWithoutConfig() throws Exception {
     List<User> users = arrangeUserData();
     User userToCheck = users.get(1);
@@ -124,11 +128,11 @@ public class UserConfigTableApiTest extends BaseUserTest {
     // Act: get user with no config entries.
     UserConfigTableReq req = UserConfigTableReq.builder().userId(userToCheck.getId()).build();
 
-    actAssert(req, List.of(), 0L, 0L);
+    actAssertView(req, List.of(), 0L, 0L);
   }
 
   @Test
-  @WithMockCustomUser(authorities = { "ROLE_OPERATOR" })
+  @WithMockCustomUser(authorities = { "ROLE_OPERATOR", "USER_VIEW" })
   public void viewUserWithSingleConfig() throws Exception {
     List<User> users = arrangeUserData();
     User userToCheck = users.get(2);
@@ -137,11 +141,11 @@ public class UserConfigTableApiTest extends BaseUserTest {
     UserConfigTableReq req = UserConfigTableReq.builder().userId(userToCheck.getId()).build();
     List<UserConfigTableEntry> expectedResults = userAdminFactory.genUserConfigTableEntries(userToCheck.getConfigs());
 
-    actAssert(req, expectedResults, 1L, 1L);
+    actAssertView(req, expectedResults, 1L, 1L);
   }
 
   @Test
-  @WithMockCustomUser(authorities = { "ROLE_OPERATOR" })
+  @WithMockCustomUser(authorities = { "ROLE_OPERATOR", "USER_VIEW" })
   public void viewUserWithManyConfigs() throws Exception {
     List<User> users = arrangeUserData();
     User userToCheck = users.getFirst();
@@ -154,6 +158,204 @@ public class UserConfigTableApiTest extends BaseUserTest {
     List<UserConfigTableEntry> configResults = userAdminFactory.genUserConfigTableEntries(userToCheck.getConfigs());
     List<UserConfigTableEntry> expectedResults = List.of(configResults.get(1), configResults.get(0), configResults.get(2));
 
-    actAssert(req, expectedResults, 1L, 3L);
+    actAssertView(req, expectedResults, 1L, 3L);
+  }
+
+  //
+
+  @Test
+  @WithMockCustomUser(authorities = { "ROLE_OPERATOR", "USER_EDIT" })
+  public void editUserConfig() throws Exception {
+    // Arrange: Get user with many config entries.
+    List<User> users = arrangeUserData();
+    User user = users.getFirst();
+    UserConfig userConfig = user.getConfigs().getFirst();
+
+    // Arrange: Prepare request.
+    UserConfigEditReq req = UserConfigEditReq.builder()
+        .id(userConfig.getId())
+        .userId(user.getId())
+        .name("new.config")
+        .value("new.value")
+        .build();
+
+    // Act: Try to change existing user config entry.
+    MvcResult mvcResult = mockMvc.perform(patch("/api/admin/user/config")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(req)))
+        .andReturn();
+
+    // Assert: API Response.
+    assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.OK.value());
+
+    // Assert: Database state.
+    transactionTemplate.execute(_ -> {
+      User expectedUser = users.getFirst();
+      UserConfig expectedUserConfig = user.getConfigs().getFirst();
+      expectedUserConfig.setName("new.config");
+      expectedUserConfig.setValue("new.value");
+
+      // Assert: User state.
+      assertAllUser(user.getEmail(), expectedUser, null);
+      return null;
+    });
+  }
+
+  @Test
+  @WithMockCustomUser(authorities = { "ROLE_OPERATOR", "USER_EDIT" })
+  public void addUserConfig() throws Exception {
+    clock.setFixedTime("2026-06-11T10:00:00Z");
+    // Arrange: Get user with many config entries.
+    List<User> users = arrangeUserData();
+    User user = users.getFirst();
+
+    // Arrange: Prepare request.
+    UserConfigEditReq req = UserConfigEditReq.builder()
+        .id(null) // add new entry
+        .userId(user.getId())
+        .name("new.config")
+        .value("new.value")
+        .build();
+
+    // Act: Try to add new user config entry.
+    MvcResult mvcResult = mockMvc.perform(patch("/api/admin/user/config")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(req)))
+        .andReturn();
+
+    // Assert: API Response.
+    assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.OK.value());
+
+    // Assert: Database state.
+    transactionTemplate.execute(_ -> {
+      User expectedUser = users.getFirst();
+      userConfigFactory.genConfig(expectedUser, "new.config", "new.value");
+
+      // Assert: User state.
+      assertAllUser(user.getEmail(), expectedUser, null);
+      return null;
+    });
+  }
+
+  @Test
+  @WithMockCustomUser(authorities = { "ROLE_OPERATOR", "USER_EDIT" })
+  public void deleteUserConfig() throws Exception {
+    // Arrange: Get user with many config entries.
+    List<User> users = arrangeUserData();
+    User user = users.getFirst();
+    UserConfig userConfig = user.getConfigs().getFirst();
+
+    // Act: Try to remove user config entry.
+    MvcResult mvcResult = mockMvc.perform(delete("/api/admin/user/config/"+userConfig.getId()))
+        .andReturn();
+
+    // Assert: API Response.
+    assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.OK.value());
+
+    // Assert: Database state.
+    transactionTemplate.execute(_ -> {
+      User expectedUser = users.getFirst();
+      expectedUser.getConfigs().removeFirst();
+
+      // Assert: User state.
+      assertAllUser(user.getEmail(), expectedUser, null);
+      return null;
+    });
+  }
+
+  // //////////////////////////////////////////////////////////////////////////
+  // FAILURES
+
+  @Test
+  @WithMockCustomUser(authorities = { "ROLE_OPERATOR" }) // missing USER_VIEW
+  public void viewWithoutPermissions() throws Exception {
+    // Tests verification: needs correct permissions.
+    List<User> users = arrangeUserData();
+    User userToCheck = users.get(2);
+
+    UserConfigTableReq req = UserConfigTableReq.builder().userId(userToCheck.getId()).build();
+
+    // Act: Try to view table page with user history.
+    MvcResult mvcResult = mockMvc.perform(post("/api/admin/user/configs")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(req)))
+        .andReturn();
+
+    // Assert: API Response.
+    assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.FORBIDDEN.value());
+    // Assert: Content has correct error.
+    ProblemDetailBox expectedPdb = new ProblemDetailBox(
+        HttpStatus.FORBIDDEN.value(),
+        "Forbidden",
+        "You do not have permission to access this resource.",
+        "/api/admin/user/configs",
+        "https://api.general.org/errors/forbidden",
+        Map.of()
+    );
+    problemDetailService.assertPd(mvcResult, expectedPdb);
+  }
+
+  //
+
+  @Test
+  @WithMockCustomUser(authorities = { "ROLE_OPERATOR" }) // missing USER_EDIT
+  public void addUserConfigWithoutPermission() throws Exception {
+    clock.setFixedTime("2026-06-11T10:00:00Z");
+    // Arrange: Get user with many config entries.
+    List<User> users = arrangeUserData();
+    User user = users.getFirst();
+
+    // Arrange: Prepare request.
+    UserConfigEditReq req = UserConfigEditReq.builder()
+        .id(null) // add new entry
+        .userId(user.getId())
+        .name("new.config")
+        .value("new.value")
+        .build();
+
+    // Act: Try to add new user config entry.
+    MvcResult mvcResult = mockMvc.perform(patch("/api/admin/user/config")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(req)))
+        .andReturn();
+
+    // Assert: API Response.
+    assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.FORBIDDEN.value());
+    // Assert: Content has correct error.
+    ProblemDetailBox expectedPdb = new ProblemDetailBox(
+        HttpStatus.FORBIDDEN.value(),
+        "Forbidden",
+        "You do not have permission to access this resource.",
+        "/api/admin/user/config",
+        "https://api.general.org/errors/forbidden",
+        Map.of()
+    );
+    problemDetailService.assertPd(mvcResult, expectedPdb);
+  }
+
+  @Test
+  @WithMockCustomUser(authorities = { "ROLE_OPERATOR" }) // missing USER_EDIT
+  public void deleteUserConfigWithoutPermission() throws Exception {
+    // Arrange: Get user with many config entries.
+    List<User> users = arrangeUserData();
+    User user = users.getFirst();
+    UserConfig userConfig = user.getConfigs().getFirst();
+
+    // Act: Try to remove user config entry.
+    MvcResult mvcResult = mockMvc.perform(delete("/api/admin/user/config/"+userConfig.getId()))
+        .andReturn();
+
+    // Assert: API Response.
+    assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.FORBIDDEN.value());
+    // Assert: Content has correct error.
+    ProblemDetailBox expectedPdb = new ProblemDetailBox(
+        HttpStatus.FORBIDDEN.value(),
+        "Forbidden",
+        "You do not have permission to access this resource.",
+        "/api/admin/user/config/"+userConfig.getId(),
+        "https://api.general.org/errors/forbidden",
+        Map.of()
+    );
+    problemDetailService.assertPd(mvcResult, expectedPdb);
   }
 }
