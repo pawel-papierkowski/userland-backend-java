@@ -164,7 +164,7 @@ public class UserPermissionTableApiTest extends BaseUserTest {
   //
 
   @Test
-  @WithMockCustomUser(authorities = { "ROLE_OPERATOR", "USER_EDIT" })
+  @WithMockCustomUser(authorities = { "ROLE_ADMIN" })
   public void editUserPermission() throws Exception {
     // Arrange: Get user with many permission entries.
     List<User> users = arrangeUserData();
@@ -202,7 +202,7 @@ public class UserPermissionTableApiTest extends BaseUserTest {
   }
 
   @Test
-  @WithMockCustomUser(authorities = { "ROLE_OPERATOR", "USER_EDIT" })
+  @WithMockCustomUser(authorities = { "ROLE_ADMIN" })
   public void addUserPermission() throws Exception {
     clock.setFixedTime("2026-06-11T10:00:00Z");
     // Arrange: Get user with many permission entries.
@@ -239,7 +239,7 @@ public class UserPermissionTableApiTest extends BaseUserTest {
   }
 
   @Test
-  @WithMockCustomUser(authorities = { "ROLE_OPERATOR", "USER_EDIT" })
+  @WithMockCustomUser(authorities = { "ROLE_ADMIN" })
   public void deleteUserPermission() throws Exception {
     // Arrange: Get user with many permission entries.
     List<User> users = arrangeUserData();
@@ -300,7 +300,7 @@ public class UserPermissionTableApiTest extends BaseUserTest {
   //
 
   @Test
-  @WithMockCustomUser(authorities = { "ROLE_OPERATOR" }) // missing USER_EDIT
+  @WithMockCustomUser(authorities = { "ROLE_OPERATOR", "USER_EDIT" }) // must be ROLE_ADMIN
   public void editUserPermissionWithoutPermission() throws Exception {
     // Arrange: Get user with many permission entries.
     List<User> users = arrangeUserData();
@@ -336,7 +336,7 @@ public class UserPermissionTableApiTest extends BaseUserTest {
   }
 
   @Test
-  @WithMockCustomUser(authorities = { "ROLE_OPERATOR" }) // missing USER_EDIT
+  @WithMockCustomUser(authorities = { "ROLE_OPERATOR", "USER_EDIT" }) // must be ROLE_ADMIN
   public void deleteUserPermissionWithoutPermission() throws Exception {
     // Arrange: Get user with many permission entries.
     List<User> users = arrangeUserData();

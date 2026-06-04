@@ -164,7 +164,7 @@ public class UserConfigTableApiTest extends BaseUserTest {
   //
 
   @Test
-  @WithMockCustomUser(authorities = { "ROLE_OPERATOR", "USER_EDIT" })
+  @WithMockCustomUser(authorities = { "ROLE_ADMIN" })
   public void editUserConfig() throws Exception {
     // Arrange: Get user with many config entries.
     List<User> users = arrangeUserData();
@@ -202,7 +202,7 @@ public class UserConfigTableApiTest extends BaseUserTest {
   }
 
   @Test
-  @WithMockCustomUser(authorities = { "ROLE_OPERATOR", "USER_EDIT" })
+  @WithMockCustomUser(authorities = { "ROLE_ADMIN" })
   public void addUserConfig() throws Exception {
     clock.setFixedTime("2026-06-11T10:00:00Z");
     // Arrange: Get user with many config entries.
@@ -238,7 +238,7 @@ public class UserConfigTableApiTest extends BaseUserTest {
   }
 
   @Test
-  @WithMockCustomUser(authorities = { "ROLE_OPERATOR", "USER_EDIT" })
+  @WithMockCustomUser(authorities = { "ROLE_ADMIN" })
   public void deleteUserConfig() throws Exception {
     // Arrange: Get user with many config entries.
     List<User> users = arrangeUserData();
@@ -298,7 +298,7 @@ public class UserConfigTableApiTest extends BaseUserTest {
   //
 
   @Test
-  @WithMockCustomUser(authorities = { "ROLE_OPERATOR" }) // missing USER_EDIT
+  @WithMockCustomUser(authorities = { "ROLE_OPERATOR", "USER_EDIT" }) // must be ROLE_ADMIN
   public void addUserConfigWithoutPermission() throws Exception {
     clock.setFixedTime("2026-06-11T10:00:00Z");
     // Arrange: Get user with many config entries.
@@ -334,7 +334,7 @@ public class UserConfigTableApiTest extends BaseUserTest {
   }
 
   @Test
-  @WithMockCustomUser(authorities = { "ROLE_OPERATOR" }) // missing USER_EDIT
+  @WithMockCustomUser(authorities = { "ROLE_OPERATOR", "USER_EDIT" }) // must be ROLE_ADMIN
   public void deleteUserConfigWithoutPermission() throws Exception {
     // Arrange: Get user with many config entries.
     List<User> users = arrangeUserData();

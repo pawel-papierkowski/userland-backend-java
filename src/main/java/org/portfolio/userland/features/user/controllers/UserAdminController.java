@@ -29,6 +29,7 @@ import org.portfolio.userland.swagger.annotations.ApiResponsesAuthPerm;
 import org.portfolio.userland.swagger.detail.common.ValidationProblemDetail;
 import org.portfolio.userland.swagger.detail.user.BadParamsProblemDetail;
 import org.portfolio.userland.swagger.detail.user.CannotEditUserProblemDetail;
+import org.portfolio.userland.system.auth.annotations.HasAdminPermission;
 import org.portfolio.userland.system.auth.annotations.HasUserEditPermission;
 import org.portfolio.userland.system.auth.annotations.HasUserViewPermission;
 import org.springframework.http.HttpStatus;
@@ -164,7 +165,7 @@ public class UserAdminController {
    * @param editReq User config entry request.
    * @return Response.
    */
-  @HasUserEditPermission
+  @HasAdminPermission
   @PatchMapping(value = "/user/config", produces = "application/json")
   @Operation(summary = "Add/update user config entry", description = "Add or update user config entry.")
   @ApiResponsesAuthPerm
@@ -185,7 +186,7 @@ public class UserAdminController {
    * @param id Identificator of user config entry.
    * @return Response.
    */
-  @HasUserEditPermission
+  @HasAdminPermission
   @DeleteMapping(value = "/user/config/{id}", produces = "application/json")
   @Operation(summary = "Delete user config entry", description = "Delete user config entry.")
   @ApiResponsesAuthPerm
@@ -252,7 +253,7 @@ public class UserAdminController {
    * @param editReq User permission entry request.
    * @return Response.
    */
-  @HasUserEditPermission
+  @HasAdminPermission
   @PatchMapping(value = "/user/permission", produces = "application/json")
   @Operation(summary = "Add/update user permission entry", description = "Add or update user permission entry.")
   @ApiResponsesAuthPerm
@@ -273,7 +274,7 @@ public class UserAdminController {
    * @param id Identificator of user permission entry.
    * @return Response.
    */
-  @HasUserEditPermission
+  @HasAdminPermission
   @DeleteMapping(value = "/user/permission/{id}", produces = "application/json")
   @Operation(summary = "Delete user permission entry", description = "Delete user permission entry.")
   @ApiResponsesAuthPerm

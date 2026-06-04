@@ -13,10 +13,10 @@ import org.portfolio.userland.features.check.services.CheckService;
 import org.portfolio.userland.swagger.annotations.ApiResponsesAuth;
 import org.portfolio.userland.swagger.annotations.ApiResponsesAuthPerm;
 import org.portfolio.userland.swagger.detail.common.InternalServerErrorProblemDetail;
+import org.portfolio.userland.system.auth.annotations.HasAdminPermission;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -78,7 +78,7 @@ public class CheckController {
    * @return Response.
    */
   @GetMapping(value = "/must-be-admin", produces = "application/json")
-  @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+  @HasAdminPermission
   @Operation(summary = "Must be admin", description = "You need to be logged in as admin (ROLE_ADMIN) to successfully access this endpoint. Does nothing else.")
   @ApiResponsesAuthPerm
   @ApiResponses(value = {
@@ -98,7 +98,7 @@ public class CheckController {
    * @return Response.
    */
   @GetMapping(value = "/info", produces = "application/json")
-  @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+  @HasAdminPermission
   @Operation(summary = "Information", description = "Returns various data about system.")
   @ApiResponsesAuthPerm
   @ApiResponses(value = {
