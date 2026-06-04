@@ -10,14 +10,15 @@ import java.lang.annotation.Target;
 
 /**
  * Mocks logged in <code>CustomUserDetails</code>.
- * Note that even with this you will often need to create users in database.
+ * Note that even with this you will often need to create users in database or emulate logged-in user in mockMvc
+ * programmatically.
  * @see CustomUserDetails Custom user details.
  */
 @Target({ElementType.TYPE, ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
 @WithSecurityContext(factory = WithMockCustomUserSecurityContextFactory.class)
 public @interface WithMockCustomUser {
-  long id() default 1L;
+  long id() default -1L; // deliberately id that is normally impossible to achieve
   boolean active() default true;
   boolean locked() default false;
   String username() default "test-user";

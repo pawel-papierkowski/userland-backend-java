@@ -7,15 +7,20 @@ import org.portfolio.userland.features.user.dto.admin.user.UserFullDataReq;
 import org.portfolio.userland.features.user.dto.admin.user.UserFullDataResp;
 import org.portfolio.userland.features.user.dto.common.UserProfileData;
 import org.portfolio.userland.features.user.entities.*;
+import org.portfolio.userland.system.auth.details.CustomUserDetails;
 import org.portfolio.userland.test.helpers.context.WithMockCustomUser;
 import org.portfolio.userland.test.helpers.problemDetail.ProblemDetailBox;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.test.web.servlet.MvcResult;
 
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 
@@ -368,6 +373,8 @@ public class UserFullDataApiTest extends BaseUserTest {
     problemDetailService.assertPd(mvcResult, expectedPdb);
   }
 
+  //
+
   @Test
   @WithMockCustomUser(authorities = { "ROLE_OPERATOR" })
   public void editUserWithWrongId() throws Exception {
@@ -395,10 +402,9 @@ public class UserFullDataApiTest extends BaseUserTest {
   }
 
   @Test
-  @WithMockCustomUser(authorities = { "ROLE_OPERATOR" }) // note email of mock JWT is same as edited user
   public void editYourOwnUser() throws Exception {
     // We are trying to edit your own account, but that should not be allowed.
-    // TODO: finish that test
+
     // Arrange: Create user and user profile.
     clock.setFixedTime("2026-04-10T10:00:00Z");
     User expectedUser = userFactory.genUser(EnUserStatus.ACTIVE);
@@ -406,6 +412,10 @@ public class UserFullDataApiTest extends BaseUserTest {
 
     UserProfile userProfile = userProfileRepository.save(expectedUserProfile);
     User user = userProfile.getUser();
+
+    // Arrange: We want to emulate fact of this very user being logged in. We can't use @WithMockCustomUser as we do not
+    // know user's id in advance.
+    CustomUserDetails customUserDetails = new CustomUserDetails(user.getId(), true, false, user.getUsername(), user.getEmail(), "", Set.of(), List.of(new SimpleGrantedAuthority("ROLE_OPERATOR")));
 
     // Arrange: Create request to change user and user profile data.
     UserFullDataReq req = UserFullDataReq.builder()
@@ -416,6 +426,7 @@ public class UserFullDataApiTest extends BaseUserTest {
     // Act: Try to change data of existing user.
     clock.setFixedTime("2026-04-12T10:00:00Z");
     MvcResult mvcResult = mockMvc.perform(patch("/api/admin/user")
+            .with(user(customUserDetails))
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(req)))
         .andReturn();
@@ -425,11 +436,11 @@ public class UserFullDataApiTest extends BaseUserTest {
     // Assert: Content has correct error.
     ProblemDetailBox expectedPdb = new ProblemDetailBox(
         HttpStatus.CONFLICT.value(),
-        "User with given email already exists.",
-        "Email '' already exists.",
+        "Not allowed to edit this user.",
+        "User with id '"+user.getId()+"' cannot be edited.",
         "/api/admin/user",
-        "https://api.userland.org/errors/user/email/alreadyExists",
-        Map.of("errCode", "user_0111")
+        "https://api.userland.org/errors/user/cannotEdit",
+        Map.of("errCode", "user_0201")
     );
     problemDetailService.assertPd(mvcResult, expectedPdb);
   }
@@ -449,7 +460,7 @@ public class UserFullDataApiTest extends BaseUserTest {
     UserProfile userProfile2 = userProfileFactory.genProfile(user2);
     userProfileRepository.save(userProfile2);
 
-    // Arrange: request that uses already existing email.
+    // Arrange: request that change email of first user with email of second user (existing email).
     UserFullDataReq req = UserFullDataReq.builder().id(user1.getId()).email(user2.getEmail()).build();
 
     // Act: Try to change email to existing email.

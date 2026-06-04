@@ -14,6 +14,21 @@ import static org.mockito.Mockito.when;
 public class SpringMocker {
   /**
    * Manually mock Authentication so it returns given custom user details.
+   * <p>Note: you need to use <code>SecurityContextHolder.clearContext();</code> in your <code>@Before/AfterEach</code> method.</p>
+   * <p>Example of use:</p>
+   * <pre>
+   *   CustomUserDetails customUserDetails = new CustomUserDetails(
+   *     1L, // id
+   *     true, // active
+   *     false, // locked
+   *     "Jan Kowalski", // username
+   *     "jan.kowalski@google.com", // email
+   *     "", // password
+   *     Set.of(), // JWTs
+   *     List.of(new SimpleGrantedAuthority("ROLE_OPERATOR")) // authorities
+   *   );
+   *   SpringMocker.mockAuth(customUserDetails);
+   * </pre>
    * @param customUserDetails Custom user details.
    */
   public static void mockAuth(CustomUserDetails customUserDetails) {
