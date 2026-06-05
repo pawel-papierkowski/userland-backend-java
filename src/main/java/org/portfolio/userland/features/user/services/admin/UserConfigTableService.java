@@ -83,10 +83,10 @@ public class UserConfigTableService extends BaseUserService {
 
   /**
    * Add or change user config entry.
-   *
    * @param editReq User config entry edit request.
    * @return Added or updated user config entry.
    */
+  @Transactional
   public UserConfig edit(UserConfigEditReq editReq) {
     if (editReq.id() != null && !userConfigRepository.existsById(editReq.id()))
       throw new UserConfigMissingException(editReq.id());
@@ -98,6 +98,7 @@ public class UserConfigTableService extends BaseUserService {
    * Deletes given user config entry.
    * @param id Identificator of entry.
    */
+  @Transactional
   public void delete(Long id) {
     if (id == null || !userConfigRepository.existsById(id))
       throw new UserConfigMissingException(id);

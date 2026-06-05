@@ -52,6 +52,22 @@ public class UserPermissionCustomRepositoryImpl extends EntityTableHandling<User
 
   @Override
   @Transactional
+  public boolean isRedundant(Long userId, String name, String value) {
+    String query = """
+            SELECT count(up)
+            FROM UserPermission up
+            WHERE up.user.id = :userId and up.permission.name = :name and up.value = :value
+            """;
+    Long count = entityManager.createQuery(query, Long.class)
+        .setParameter("userId", userId)
+        .setParameter("name", name)
+        .setParameter("value", value)
+        .getSingleResult();
+    return count > 0;
+  }
+
+  @Override
+  @Transactional
   public UserPermission upsert(Long id, Long userId, String name, String value) {
     UserPermission userPermission;
 

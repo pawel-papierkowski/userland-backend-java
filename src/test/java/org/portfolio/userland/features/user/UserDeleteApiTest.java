@@ -2,6 +2,7 @@ package org.portfolio.userland.features.user;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.portfolio.userland.features.user.constants.UserErrCode;
 import org.portfolio.userland.features.user.dto.standard.delete.UserDeleteConfirmReq;
 import org.portfolio.userland.features.user.dto.standard.delete.UserDeleteLinkReq;
 import org.portfolio.userland.features.user.entities.*;
@@ -228,7 +229,7 @@ public class UserDeleteApiTest extends BaseUserTest {
         "Wrong password or account was used. Access denied.",
         "/api/users/delete/link",
         "https://api.userland.org/errors/user/wrongPassword",
-        Map.of("errCode", "user_0112")
+        Map.of("errCode", UserErrCode.WRONG_PASSWORD)
     );
     problemDetailService.assertPd(mvcResult, expectedPdb);
   }
@@ -259,7 +260,7 @@ public class UserDeleteApiTest extends BaseUserTest {
         "User with email 'test@example.com' must have valid status.",
         "/api/users/delete/link",
         "https://api.userland.org/errors/user/invalidStatus",
-        Map.of("errCode", "user_0121")
+        Map.of("errCode", UserErrCode.INVALID_STATUS)
     );
     problemDetailService.assertPd(mvcResult, expectedPdb);
   }
@@ -291,7 +292,7 @@ public class UserDeleteApiTest extends BaseUserTest {
         "User with email 'test@example.com' is locked.",
         "/api/users/delete/link",
         "https://api.userland.org/errors/user/locked",
-        Map.of("errCode", "user_0122")
+        Map.of("errCode", UserErrCode.LOCKED)
     );
     problemDetailService.assertPd(mvcResult, expectedPdb);
   }
@@ -323,7 +324,7 @@ public class UserDeleteApiTest extends BaseUserTest {
         "Token of type 'DELETE' already exists and is still valid. You cannot do this action twice in row.",
         "/api/users/delete/link",
         "https://api.userland.org/errors/user/token/alreadyExists",
-        Map.of("errCode", "user_0013")
+        Map.of("errCode", UserErrCode.TOKEN_ALREADY)
     );
     problemDetailService.assertPd(mvcResult, expectedPdb);
   }
@@ -358,7 +359,7 @@ public class UserDeleteApiTest extends BaseUserTest {
         "Token '"+token.getToken()+"N' does not exist.",
         "/api/users/delete/confirm",
         "https://api.userland.org/errors/user/token/missing",
-        Map.of("errCode", "user_0011")
+        Map.of("errCode", UserErrCode.TOKEN_MISSING)
     );
     problemDetailService.assertPd(mvcResult, expectedPdb);
   }

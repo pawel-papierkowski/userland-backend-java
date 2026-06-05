@@ -2,6 +2,7 @@ package org.portfolio.userland.features.user;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.portfolio.userland.features.user.constants.UserErrCode;
 import org.portfolio.userland.features.user.dto.standard.email.UserEmailChangeConfirmReq;
 import org.portfolio.userland.features.user.dto.standard.email.UserEmailChangeLinkReq;
 import org.portfolio.userland.features.user.entities.*;
@@ -223,7 +224,7 @@ public class UserEmailApiTest extends BaseUserTest {
         "Wrong password or account was used. Access denied.",
         "/api/users/email/link",
         "https://api.userland.org/errors/user/wrongPassword",
-        Map.of("errCode", "user_0112")
+        Map.of("errCode", UserErrCode.WRONG_PASSWORD)
     );
     problemDetailService.assertPd(mvcResult, expectedPdb);
   }
@@ -254,7 +255,7 @@ public class UserEmailApiTest extends BaseUserTest {
         "Email 'test@example.com' already exists.",
         "/api/users/email/link",
         "https://api.userland.org/errors/user/email/alreadyExists",
-        Map.of("errCode", "user_0111")
+        Map.of("errCode", UserErrCode.EMAIL_IN_USE)
     );
     problemDetailService.assertPd(mvcResult, expectedPdb);
   }
@@ -306,7 +307,7 @@ public class UserEmailApiTest extends BaseUserTest {
         "User with email 'test@example.com' does not exist.",
         "/api/users/email/link",
         "https://api.userland.org/errors/user/doesNotExist",
-        Map.of("errCode", "user_0001")
+        Map.of("errCode", UserErrCode.NOT_FOUND)
     );
     problemDetailService.assertPd(mvcResult, expectedPdb);
   }
@@ -337,7 +338,7 @@ public class UserEmailApiTest extends BaseUserTest {
         "User with email 'test@example.com' must have valid status.",
         "/api/users/email/link",
         "https://api.userland.org/errors/user/invalidStatus",
-        Map.of("errCode", "user_0121")
+        Map.of("errCode", UserErrCode.INVALID_STATUS)
     );
     problemDetailService.assertPd(mvcResult, expectedPdb);
   }
@@ -369,7 +370,7 @@ public class UserEmailApiTest extends BaseUserTest {
         "User with email 'test@example.com' is locked.",
         "/api/users/email/link",
         "https://api.userland.org/errors/user/locked",
-        Map.of("errCode", "user_0122")
+        Map.of("errCode", UserErrCode.LOCKED)
     );
     problemDetailService.assertPd(mvcResult, expectedPdb);
   }
@@ -401,7 +402,7 @@ public class UserEmailApiTest extends BaseUserTest {
         "Token of type 'EMAIL' already exists and is still valid. You cannot do this action twice in row.",
         "/api/users/email/link",
         "https://api.userland.org/errors/user/token/alreadyExists",
-        Map.of("errCode", "user_0013")
+        Map.of("errCode", UserErrCode.TOKEN_ALREADY)
     );
     problemDetailService.assertPd(mvcResult, expectedPdb);
   }
@@ -438,7 +439,7 @@ public class UserEmailApiTest extends BaseUserTest {
         "Email '"+otherUser.getEmail()+"' already exists.",
         "/api/users/email/confirm",
         "https://api.userland.org/errors/user/email/alreadyExists",
-        Map.of("errCode", "user_0111")
+        Map.of("errCode", UserErrCode.EMAIL_IN_USE)
     );
     problemDetailService.assertPd(mvcResult, expectedPdb);
   }

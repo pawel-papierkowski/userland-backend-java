@@ -4,6 +4,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.portfolio.userland.features.email.dto.EmailReq;
+import org.portfolio.userland.features.user.constants.UserErrCode;
 import org.portfolio.userland.features.user.dto.common.EnFrontendFramework;
 import org.portfolio.userland.features.user.dto.standard.register.TokenActivateReq;
 import org.portfolio.userland.features.user.dto.standard.register.UserRegisterReq;
@@ -396,7 +397,7 @@ public class UserRegistrationApiTest extends BaseUserTest {
         "Token '"+tokenStr+"' does not exist.",
         "/api/users/activate",
         "https://api.userland.org/errors/user/token/missing",
-        Map.of("errCode", "user_0011")
+        Map.of("errCode", UserErrCode.TOKEN_MISSING)
     );
     problemDetailService.assertPd(mvcResult, expectedPdb);
   }
@@ -430,7 +431,7 @@ public class UserRegistrationApiTest extends BaseUserTest {
         "Token '"+tokenStr+"' already expired.",
         "/api/users/activate",
         "https://api.userland.org/errors/user/token/expired",
-        Map.of("errCode", "user_0012")
+        Map.of("errCode", UserErrCode.TOKEN_EXPIRED)
     );
     problemDetailService.assertPd(mvcResult, expectedPdb);
   }

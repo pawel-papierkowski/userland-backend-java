@@ -4,6 +4,7 @@ import com.google.common.collect.Maps;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.portfolio.userland.features.user.constants.UserConfigConst;
+import org.portfolio.userland.features.user.constants.UserErrCode;
 import org.portfolio.userland.features.user.dto.standard.login.UserLoginReq;
 import org.portfolio.userland.features.user.dto.standard.login.UserLoginResp;
 import org.portfolio.userland.features.user.entities.EnUserHistoryWhat;
@@ -255,7 +256,7 @@ public class UserLoginApiTest extends BaseUserTest {
         "Wrong password or account was used. Access denied.",
         "/api/users/login",
         "https://api.userland.org/errors/user/wrongPassword",
-        Map.of("errCode", "user_0112")
+        Map.of("errCode", UserErrCode.WRONG_PASSWORD)
     );
     problemDetailService.assertPd(mvcResult, expectedPdb);
   }
@@ -288,7 +289,7 @@ public class UserLoginApiTest extends BaseUserTest {
         "Wrong password or account was used. Access denied.",
         "/api/users/login",
         "https://api.userland.org/errors/user/wrongPassword",
-        Map.of("errCode", "user_0112")
+        Map.of("errCode", UserErrCode.WRONG_PASSWORD)
     );
     problemDetailService.assertPd(mvcResult, expectedPdb);
   }
@@ -322,7 +323,7 @@ public class UserLoginApiTest extends BaseUserTest {
         "Wrong password or account was used. Access denied.",
         "/api/users/login",
         "https://api.userland.org/errors/user/wrongPassword",
-        Map.of("errCode", "user_0112")
+        Map.of("errCode", UserErrCode.WRONG_PASSWORD)
     );
     problemDetailService.assertPd(mvcResult, expectedPdb);
   }
@@ -355,7 +356,7 @@ public class UserLoginApiTest extends BaseUserTest {
         "Wrong password or account was used. Access denied.",
         "/api/users/login",
         "https://api.userland.org/errors/user/wrongPassword",
-        Map.of("errCode", "user_0112")
+        Map.of("errCode", UserErrCode.WRONG_PASSWORD)
     );
     problemDetailService.assertPd(mvcResult, expectedPdb);
   }

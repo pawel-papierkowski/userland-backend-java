@@ -19,6 +19,8 @@ public class UserErrCode {
 
   /** User permission entry is missing. */
   public final static String PERMISSION_USER_MISSING = "user_0031";
+  /** User permission entry is redundant. */
+  public final static String PERMISSION_USER_REDUNDANT = "user_0032";
 
   /** Permission entry is missing. */
   public final static String PERMISSION_MISSING = "user_0041";

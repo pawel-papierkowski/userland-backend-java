@@ -3,6 +3,7 @@ package org.portfolio.userland.features.user.admin;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.portfolio.userland.features.user.BaseUserTest;
+import org.portfolio.userland.features.user.constants.UserErrCode;
 import org.portfolio.userland.features.user.dto.admin.user.UserFullDataReq;
 import org.portfolio.userland.features.user.dto.admin.user.UserFullDataResp;
 import org.portfolio.userland.features.user.dto.common.UserProfileData;
@@ -398,7 +399,7 @@ public class UserFullDataApiTest extends BaseUserTest {
         "User with id '1' does not exist.",
         "/api/admin/user/1",
         "https://api.userland.org/errors/user/doesNotExist",
-        Map.of("errCode", "user_0001")
+        Map.of("errCode", UserErrCode.NOT_FOUND)
     );
     problemDetailService.assertPd(mvcResult, expectedPdb);
   }
@@ -465,7 +466,7 @@ public class UserFullDataApiTest extends BaseUserTest {
         "User with id '1' does not exist.",
         "/api/admin/user",
         "https://api.userland.org/errors/user/doesNotExist",
-        Map.of("errCode", "user_0001")
+        Map.of("errCode", UserErrCode.NOT_FOUND)
     );
     problemDetailService.assertPd(mvcResult, expectedPdb);
   }
@@ -510,7 +511,7 @@ public class UserFullDataApiTest extends BaseUserTest {
         "User with id '"+user.getId()+"' cannot be edited.",
         "/api/admin/user",
         "https://api.userland.org/errors/user/cannotEdit",
-        Map.of("errCode", "user_0201")
+        Map.of("errCode", UserErrCode.CANNOT_EDIT)
     );
     problemDetailService.assertPd(mvcResult, expectedPdb);
   }
@@ -548,7 +549,7 @@ public class UserFullDataApiTest extends BaseUserTest {
         "Email '"+user2.getEmail()+"' already exists.",
         "/api/admin/user",
         "https://api.userland.org/errors/user/email/alreadyExists",
-        Map.of("errCode", "user_0111")
+        Map.of("errCode", UserErrCode.EMAIL_IN_USE)
     );
     problemDetailService.assertPd(mvcResult, expectedPdb);
   }

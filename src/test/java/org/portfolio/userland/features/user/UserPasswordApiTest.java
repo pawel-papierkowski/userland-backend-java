@@ -2,6 +2,7 @@ package org.portfolio.userland.features.user;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.portfolio.userland.features.user.constants.UserErrCode;
 import org.portfolio.userland.features.user.dto.common.EnFrontendFramework;
 import org.portfolio.userland.features.user.dto.standard.password.UserPassResetConfirmReq;
 import org.portfolio.userland.features.user.dto.standard.password.UserPassResetLinkReq;
@@ -222,7 +223,7 @@ public class UserPasswordApiTest extends BaseUserTest {
         "User with email 'none@test.com' does not exist.",
         "/api/users/password/link",
         "https://api.userland.org/errors/user/doesNotExist",
-        Map.of("errCode", "user_0001")
+        Map.of("errCode", UserErrCode.NOT_FOUND)
     );
     problemDetailService.assertPd(mvcResult, expectedPdb);
   }
@@ -252,7 +253,7 @@ public class UserPasswordApiTest extends BaseUserTest {
         "User with email 'test@example.com' must have valid status.",
         "/api/users/password/link",
         "https://api.userland.org/errors/user/invalidStatus",
-        Map.of("errCode", "user_0121")
+        Map.of("errCode", UserErrCode.INVALID_STATUS)
     );
     problemDetailService.assertPd(mvcResult, expectedPdb);
   }
@@ -283,7 +284,7 @@ public class UserPasswordApiTest extends BaseUserTest {
         "User with email 'test@example.com' is locked.",
         "/api/users/password/link",
         "https://api.userland.org/errors/user/locked",
-        Map.of("errCode", "user_0122")
+        Map.of("errCode", UserErrCode.LOCKED)
     );
     problemDetailService.assertPd(mvcResult, expectedPdb);
   }
@@ -314,7 +315,7 @@ public class UserPasswordApiTest extends BaseUserTest {
         "Token of type 'PASSWORD' already exists and is still valid. You cannot do this action twice in row.",
         "/api/users/password/link",
         "https://api.userland.org/errors/user/token/alreadyExists",
-        Map.of("errCode", "user_0013")
+        Map.of("errCode", UserErrCode.TOKEN_ALREADY)
     );
     problemDetailService.assertPd(mvcResult, expectedPdb);
   }
@@ -348,7 +349,7 @@ public class UserPasswordApiTest extends BaseUserTest {
         "Token '"+token.getToken()+"N' does not exist.",
         "/api/users/password/confirm",
         "https://api.userland.org/errors/user/token/missing",
-        Map.of("errCode", "user_0011")
+        Map.of("errCode", UserErrCode.TOKEN_MISSING)
     );
     problemDetailService.assertPd(mvcResult, expectedPdb);
   }

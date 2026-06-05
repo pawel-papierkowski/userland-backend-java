@@ -7,6 +7,7 @@ import org.portfolio.userland.common.dto.TableMetaReq;
 import org.portfolio.userland.common.dto.TableMetaResp;
 import org.portfolio.userland.common.services.table.TableHelper;
 import org.portfolio.userland.features.user.BaseUserTest;
+import org.portfolio.userland.features.user.constants.UserErrCode;
 import org.portfolio.userland.features.user.dto.admin.permission.UserPermissionEditReq;
 import org.portfolio.userland.features.user.dto.admin.permission.UserPermissionTableEntry;
 import org.portfolio.userland.features.user.dto.admin.permission.UserPermissionTableReq;
@@ -52,6 +53,7 @@ public class UserPermissionTableApiTest extends BaseUserTest {
     userPermissionFactory.genPermissionEntry(u00, permRole, "operator");
     userPermissionFactory.genPermissionEntry(u00, permUser, "view");
     userPermissionFactory.genPermissionEntry(u00, permUser, "edit");
+    userJwtFactory.genJwtEntry(u00, "FAKE_JWT"); // to ensure that editing permissions remove JWT entries
     userList.add(u00);
 
     clock.setFixedTime("2026-06-09T15:00:00Z");
@@ -191,6 +193,7 @@ public class UserPermissionTableApiTest extends BaseUserTest {
     // Assert: Database state.
     transactionTemplate.execute(_ -> {
       User expectedUser = users.getFirst();
+      expectedUser.getJwts().clear();
       UserPermission expectedUserPermission = resolve(user.getPermissions(), "role", "operator");
       expectedUserPermission.setPermission(permissionRepository.findByName("user").orElseThrow());
       expectedUserPermission.setValue("delete");
@@ -229,7 +232,7 @@ public class UserPermissionTableApiTest extends BaseUserTest {
     // Assert: Database state.
     transactionTemplate.execute(_ -> {
       User expectedUser = users.getFirst();
-
+      expectedUser.getJwts().clear();
       userPermissionFactory.genPermissionEntry(expectedUser, permissionRepository.findByName("role").orElseThrow(), "observer");
 
       // Assert: User state.
@@ -256,6 +259,7 @@ public class UserPermissionTableApiTest extends BaseUserTest {
     // Assert: Database state.
     transactionTemplate.execute(_ -> {
       User expectedUser = users.getFirst();
+      expectedUser.getJwts().clear();
       UserPermission expectedUserPermission = resolve(user.getPermissions(), "role", "operator");
       expectedUser.getPermissions().remove(expectedUserPermission);
 
@@ -331,6 +335,42 @@ public class UserPermissionTableApiTest extends BaseUserTest {
         "/api/admin/user/permission",
         "https://api.general.org/errors/forbidden",
         Map.of()
+    );
+    problemDetailService.assertPd(mvcResult, expectedPdb);
+  }
+
+  @Test
+  @WithMockCustomUser(authorities = { "ROLE_ADMIN" })
+  public void addAlreadyExistingUserPermission() throws Exception {
+    clock.setFixedTime("2026-06-11T10:00:00Z");
+    // Arrange: Get user with many permission entries.
+    List<User> users = arrangeUserData();
+    User user = users.getFirst();
+
+    // Arrange: Prepare request.
+    UserPermissionEditReq req = UserPermissionEditReq.builder()
+        .id(null) // add new entry
+        .userId(user.getId())
+        .name("role")
+        .value("admin")
+        .build();
+
+    // Act: Try to add new user permission entry.
+    MvcResult mvcResult = mockMvc.perform(patch("/api/admin/user/permission")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(req)))
+        .andReturn();
+
+    // Assert: API Response.
+    assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.CONFLICT.value());
+    // Assert: Content has correct error.
+    ProblemDetailBox expectedPdb = new ProblemDetailBox(
+        HttpStatus.CONFLICT.value(),
+        "User permission entry is redundant.",
+        "User permission entry 'role_admin' already exists.",
+        "/api/admin/user/permission",
+        "https://api.userland.org/errors/user/permission/redundant",
+        Map.of("errCode", UserErrCode.PERMISSION_USER_REDUNDANT)
     );
     problemDetailService.assertPd(mvcResult, expectedPdb);
   }

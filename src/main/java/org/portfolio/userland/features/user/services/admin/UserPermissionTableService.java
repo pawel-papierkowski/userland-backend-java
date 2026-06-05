@@ -10,6 +10,7 @@ import org.portfolio.userland.features.user.dto.admin.permission.UserPermissionT
 import org.portfolio.userland.features.user.dto.admin.permission.UserPermissionTableResp;
 import org.portfolio.userland.features.user.entities.UserPermission;
 import org.portfolio.userland.features.user.exceptions.UserPermissionMissingException;
+import org.portfolio.userland.features.user.exceptions.UserPermissionRedundantException;
 import org.portfolio.userland.features.user.services.BaseUserService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -86,21 +87,41 @@ public class UserPermissionTableService extends BaseUserService {
    * @param editReq User permission entry edit request.
    * @return Added or updated user permission entry.
    */
+  @Transactional
   public UserPermission edit(UserPermissionEditReq editReq) {
     if (editReq.id() != null && !userPermissionRepository.existsById(editReq.id()))
       throw new UserPermissionMissingException(editReq.id());
 
-    return userPermissionRepository.upsert(editReq);
+    // We need to check if same user permission already exists for this user.
+    // Database enforces it, but in this way we get good, informative error instead of sad little 500.
+    if (userPermissionRepository.isRedundant(editReq))
+      throw new UserPermissionRedundantException(editReq.name()+"_"+editReq.value());
+
+    UserPermission userPermission = userPermissionRepository.upsert(editReq);
+    clearJwt(editReq.userId());
+    return userPermission;
   }
 
   /**
    * Deletes given user permission entry.
    * @param id Identificator of entry.
    */
+  @Transactional
   public void delete(Long id) {
-    if (id == null || !userPermissionRepository.existsById(id))
-      throw new UserPermissionMissingException(id);
+    UserPermission userPermission = userPermissionRepository.findById(id).orElse(null);
+    if (userPermission == null) throw new UserPermissionMissingException(id);
 
     userPermissionRepository.deleteById(id);
+    clearJwt(userPermission.getUser().getId());
+  }
+
+  //
+
+  /**
+   * Clear JWT entries for this user, forcing it to relog with new permissions.
+   * @param userId User identificator.
+   */
+  private void clearJwt(Long userId) {
+    userJwtRepository.deleteAllByUser(userId);
   }
 }

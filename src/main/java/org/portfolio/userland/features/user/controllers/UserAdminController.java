@@ -262,6 +262,9 @@ public class UserAdminController {
           content = @Content(schema = @Schema(hidden = true))),
       @ApiResponse(responseCode = "404", description = "User permission entry with given id does not exist.",
           content = @Content(mediaType = "application/problem+json",
+              schema = @Schema(implementation = ProblemDetail.class))),
+      @ApiResponse(responseCode = "409", description = "User permission entry with given name/value combination already exist.",
+          content = @Content(mediaType = "application/problem+json",
               schema = @Schema(implementation = ProblemDetail.class)))
   })
   public ResponseEntity<Void> editUserPermissionEntry(@Valid @RequestBody UserPermissionEditReq editReq) {
