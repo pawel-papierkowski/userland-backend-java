@@ -1,13 +1,17 @@
 package org.portfolio.userland.common.services.table;
 
+import com.google.common.collect.Lists;
 import jakarta.persistence.TypedQuery;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Order;
 import jakarta.persistence.criteria.Root;
 import org.jspecify.annotations.NonNull;
 import org.portfolio.userland.common.dto.EnSortOrder;
 import org.portfolio.userland.common.dto.TableMetaReq;
 import org.portfolio.userland.common.dto.TableMetaResp;
+
+import java.util.List;
 
 /**
  * Helper methods for handling table queries.
@@ -62,12 +66,26 @@ public class TableHelper {
    * @param <E> Entity.
    */
   public static <E> void applySorting(CriteriaBuilder cb, CriteriaQuery<E> cq, Root<E> entity, TableMetaReq tableMetaReq) {
-    // Apply sorting.
+    List<Order> order = Lists.newArrayList();
+    // Determine custom sorting.
+    Order customOrder;
     if (tableMetaReq.sortOrder() == EnSortOrder.ASC) {
-      cq.orderBy(cb.asc(entity.get(tableMetaReq.sortBy())));
+      customOrder = cb.asc(entity.get(tableMetaReq.sortBy()));
     } else {
-      cq.orderBy(cb.desc(entity.get(tableMetaReq.sortBy())));
+      customOrder = cb.desc(entity.get(tableMetaReq.sortBy()));
     }
+
+    // Determine fallback order if more than one entity has same value in custom field.
+    Order fallbackOrder; // all entities have id field so it is safe
+    if (tableMetaReq.sortOrder() == EnSortOrder.ASC) {
+      fallbackOrder = cb.asc(entity.get("id"));
+    } else {
+      fallbackOrder = cb.desc(entity.get("id"));
+    }
+
+    order.add(customOrder);
+    order.add(fallbackOrder);
+    cq.orderBy(order);
   }
 
   /**

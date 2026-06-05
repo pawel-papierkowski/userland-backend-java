@@ -248,13 +248,13 @@ INSERT INTO iam.jwt(id_user, created_at, expires_at, token)
 VALUES ((SELECT max(id) FROM iam.users), CURRENT_TIMESTAMP AT TIME ZONE 'UTC', (CURRENT_TIMESTAMP + INTERVAL '1 day') AT TIME ZONE 'UTC', 'eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiYWRtaW4iLCJuYW1lIjoiUGF3ZcWCIFBhcGllcmtvd3NraSIsInN1YiI6InBhd2VsLnBhcGllcmtvd3NraUBnbWFpbC5jb20iLCJpYXQiOjE3Nzk4OTIzMjksImV4cCI6MTc3OTk3ODcyOX0.bYvxCevl7FsqN2g9mIoUW0pEqetjvJoIgOrd5T_jmIc');
 
 INSERT INTO iam.users(created_at, modified_at, username, email, password, lang, status, locked)
-VALUES ('2026-05-05 17:12:59', '2026-05-05 17:13:12', 'YoloGuy', 'yolo@fictional.domain.org', '$2a$10$PyQoDnY93QujZCrw0P5h3u0PmiCfGwKrjvf6.7oYGh8qn.mC4iXZO', 'en', 'DEMO', false);
+VALUES ('2026-05-03 11:12:59', '2026-05-03 12:13:12', 'YoloGuy', 'yolo@fictional.domain.org', '$2a$10$PyQoDnY93QujZCrw0P5h3u0PmiCfGwKrjvf6.7oYGh8qn.mC4iXZO', 'en', 'DEMO', false);
 INSERT INTO iam.profiles(id, name, surname)
 VALUES ((SELECT max(id) FROM iam.users), null, null);
 INSERT INTO iam.history(id_user, created_at, who, what, params)
-VALUES ((SELECT max(id) FROM iam.users), '2026-05-05 17:12:59', 'USER', 'CREATE', '');
+VALUES ((SELECT max(id) FROM iam.users), '2026-05-03 11:12:59', 'USER', 'CREATE', '');
 INSERT INTO iam.history(id_user, created_at, who, what, params)
-VALUES ((SELECT max(id) FROM iam.users), '2026-05-05 17:13:12', 'USER', 'ACTIVATE', '');
+VALUES ((SELECT max(id) FROM iam.users), '2026-05-03 12:13:12', 'USER', 'ACTIVATE', '');
 
 INSERT INTO iam.users(created_at, modified_at, username, email, password, lang, status, locked)
 VALUES ('2026-05-05 17:12:59', '2026-05-05 17:13:12', 'Ditherino', 'ditherino3@fictional.domain.org', '$2a$10$PyQoDnY93QujZCrw0P5h3u0PmiCfGwKrjvf6.7oYGh8qn.mC4iXZO', 'pl', 'DEMO', false);

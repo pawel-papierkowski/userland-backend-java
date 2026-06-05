@@ -91,10 +91,10 @@ public class UserTableApiTest extends BaseUserTest {
    * @param req Request.
    * @param expectedEntries Expected entries.
    * @param pageCount Expected page count.
-   * @param entryCount Expected entry count.
+   * @param totalEntryCount Expected total entry count.
    * @throws Exception When objectMapper chokes on input.
    */
-  private void actAssert(UserTableReq req, List<UserTableEntry> expectedEntries, Long pageCount, Long entryCount) throws Exception {
+  private void actAssert(UserTableReq req, List<UserTableEntry> expectedEntries, Long pageCount, Long totalEntryCount) throws Exception {
     // Act: Try to view table page with users.
     MvcResult mvcResult = mockMvc.perform(post("/api/admin/users")
             .contentType(MediaType.APPLICATION_JSON)
@@ -110,7 +110,7 @@ public class UserTableApiTest extends BaseUserTest {
     TableMetaReq tableMetaReq = TableHelper.prepareTableMeta(req.tableMeta());
     TableMetaResp expectedTableMetaResp = TableMetaResp.builder()
         .pageCount(pageCount)
-        .entryCount(entryCount)
+        .entryCount(totalEntryCount)
         .pageSize(tableMetaReq.pageSize())
         .page(tableMetaReq.page())
         .sortBy(tableMetaReq.sortBy())
@@ -330,6 +330,82 @@ public class UserTableApiTest extends BaseUserTest {
         .build();
 
     actAssert(req, expectedResults, 1L, 2L);
+  }
+
+  // //////////////////////////////////////////////////////////////////////////
+
+  /** Create user data for testing fallback sorting. */
+  private List<User> arrangeSimilarUserData() {
+    List<User> userList = new ArrayList<>();
+
+    clock.setFixedTime("2026-06-12T10:00:00Z");
+    User u00 = userFactory.genRandUser(EnUserStatus.ACTIVE);
+    u00.setUsername("Jan Kowalski");
+    u00.setEmail("jan.kowalski@test.com");
+    userList.add(u00);
+
+    clock.setFixedTime("2026-06-11T10:00:00Z");
+    User u01 = userFactory.genRandUser(EnUserStatus.ACTIVE);
+    u01.setUsername("Ala Makota");
+    u01.setEmail("ala.makota@test.com");
+    userList.add(u01);
+
+    clock.setFixedTime("2026-06-10T15:00:00Z");
+    User u02 = userFactory.genRandUser(EnUserStatus.ACTIVE);
+    u02.setUsername("Zbigniew Zbig");
+    u02.setEmail("zbigniew@example.com");
+    userList.add(u02);
+
+    clock.setFixedTime("2026-06-09T15:00:00Z");
+    User u03 = userFactory.genRandUser(EnUserStatus.ACTIVE);
+    u03.setUsername("Jan Kowalski");
+    u03.setEmail("janusz.kowalski@example.com");
+    userList.add(u03);
+
+    userRepository.saveAll(userList);
+    return userList;
+  }
+
+  @Test
+  @WithMockCustomUser(authorities = { "ROLE_OPERATOR", "USER_VIEW" })
+  public void viewBySortDefault() throws Exception {
+    // Baseline: sort by createdAt.
+    List<User> users = arrangeSimilarUserData();
+    List<UserTableEntry> userResults = userAdminFactory.genUserTableEntries(users);
+
+    UserTableReq req = UserTableReq.builder().build();
+
+    actAssert(req, userResults, 1L, 4L);
+  }
+
+  @Test
+  @WithMockCustomUser(authorities = { "ROLE_OPERATOR", "USER_VIEW" })
+  public void viewBySortUsernameAsc() throws Exception {
+    // Sort by username ASC, but there are two users with same username.
+    List<User> users = arrangeSimilarUserData();
+    List<UserTableEntry> userResults = userAdminFactory.genUserTableEntries(users);
+    List<UserTableEntry> expectedResults = List.of(userResults.get(1), userResults.get(0), userResults.get(3), userResults.get(2));
+
+    UserTableReq req = UserTableReq.builder()
+        .tableMeta(TableMetaReq.builder().sortBy("username").sortOrder(EnSortOrder.ASC).build())
+        .build();
+
+    actAssert(req, expectedResults, 1L, 4L);
+  }
+
+  @Test
+  @WithMockCustomUser(authorities = { "ROLE_OPERATOR", "USER_VIEW" })
+  public void viewBySortUsernameDesc() throws Exception {
+    // Sort by username DESC, but there are two users with same username.
+    List<User> users = arrangeSimilarUserData();
+    List<UserTableEntry> userResults = userAdminFactory.genUserTableEntries(users);
+    List<UserTableEntry> expectedResults = List.of(userResults.get(2), userResults.get(3), userResults.get(0), userResults.get(1));
+
+    UserTableReq req = UserTableReq.builder()
+        .tableMeta(TableMetaReq.builder().sortBy("username").sortOrder(EnSortOrder.DESC).build())
+        .build();
+
+    actAssert(req, expectedResults, 1L, 4L);
   }
 
   // //////////////////////////////////////////////////////////////////////////
