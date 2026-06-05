@@ -206,6 +206,44 @@ public class UserPermissionTableApiTest extends BaseUserTest {
 
   @Test
   @WithMockCustomUser(authorities = { "ROLE_ADMIN" })
+  public void editSameUserPermission() throws Exception {
+    // Changing user permission into same user permission is allowed. It won't change user permission, but will still
+    // clear JWTs.
+    // Arrange: Get user with many permission entries.
+    List<User> users = arrangeUserData();
+    User user = users.getFirst();
+    UserPermission userPermission = resolve(user.getPermissions(), "role", "operator");
+
+    // Arrange: Prepare request.
+    UserPermissionEditReq req = UserPermissionEditReq.builder()
+        .id(userPermission.getId())
+        .userId(user.getId())
+        .name("role")
+        .value("operator")
+        .build();
+
+    // Act: Try to change existing user permission entry.
+    MvcResult mvcResult = mockMvc.perform(patch("/api/admin/user/permission")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(req)))
+        .andReturn();
+
+    // Assert: API Response.
+    assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.OK.value());
+
+    // Assert: Database state.
+    transactionTemplate.execute(_ -> {
+      User expectedUser = users.getFirst();
+      expectedUser.getJwts().clear();
+
+      // Assert: User state.
+      assertAllUser(user.getEmail(), expectedUser, null);
+      return null;
+    });
+  }
+
+  @Test
+  @WithMockCustomUser(authorities = { "ROLE_ADMIN" })
   public void addUserPermission() throws Exception {
     clock.setFixedTime("2026-06-11T10:00:00Z");
     // Arrange: Get user with many permission entries.
