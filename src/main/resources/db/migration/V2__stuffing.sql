@@ -294,14 +294,14 @@ VALUES ((SELECT max(id) FROM iam.users), '2026-05-06 09:26:11', 'USER', 'LOGIN',
 -- ==================
 -- Real user: myself.
 INSERT INTO iam.users(created_at, modified_at, username, email, password, lang, status, locked)
-VALUES (CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'Paweł Papierkowski', 'pawel.papierkowski@gmail.com', '$2a$10$hBSXNELF1E/QLpJ/xGHXIeItgrFONEGa.xTk3kurGPFr8bn3N4.Um', 'pl', 'ACTIVE', false);
+VALUES (CURRENT_TIMESTAMP AT TIME ZONE 'UTC', CURRENT_TIMESTAMP AT TIME ZONE 'UTC', 'Paweł Papierkowski', 'pawel.papierkowski@gmail.com', '$2a$10$hBSXNELF1E/QLpJ/xGHXIeItgrFONEGa.xTk3kurGPFr8bn3N4.Um', 'pl', 'ACTIVE', false);
 INSERT INTO iam.profiles(id, name, surname)
 VALUES ((SELECT max(id) FROM iam.users), 'Paweł', 'Papierkowski');
 INSERT INTO iam.history(id_user, created_at, who, what, params)
-VALUES ((SELECT max(id) FROM iam.users), CURRENT_TIMESTAMP, 'USER', 'CREATE', '');
+VALUES ((SELECT max(id) FROM iam.users), CURRENT_TIMESTAMP AT TIME ZONE 'UTC', 'USER', 'CREATE', '');
 INSERT INTO iam.history(id_user, created_at, who, what, params)
-VALUES ((SELECT max(id) FROM iam.users), CURRENT_TIMESTAMP, 'USER', 'ACTIVATE', '');
+VALUES ((SELECT max(id) FROM iam.users), CURRENT_TIMESTAMP AT TIME ZONE 'UTC', 'USER', 'ACTIVATE', '');
 INSERT INTO iam.user_permissions(id_user, id_permission, created_at, value)
-VALUES ((SELECT max(id) FROM iam.users), 1, CURRENT_TIMESTAMP, 'admin');
+VALUES ((SELECT max(id) FROM iam.users), 1, CURRENT_TIMESTAMP AT TIME ZONE 'UTC', 'admin');
 INSERT INTO iam.config(id_user, created_at, name, value)
-VALUES ((SELECT max(id) FROM iam.users), CURRENT_TIMESTAMP, 'jwt.expire', '1440');
+VALUES ((SELECT max(id) FROM iam.users), CURRENT_TIMESTAMP AT TIME ZONE 'UTC', 'jwt.expire', '1440');
