@@ -13,7 +13,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Map;
 
@@ -36,7 +35,6 @@ public class UserDeleteProdApiTest extends BaseUserTest {
 
   @Test
   @WithMockCustomUser
-  @Transactional
   public void errAccDeleteForPendingUser() throws Exception {
     clock.setFixedTime("2026-04-08T10:00:00Z");
 
@@ -68,7 +66,6 @@ public class UserDeleteProdApiTest extends BaseUserTest {
 
   @Test
   @WithMockCustomUser
-  @Transactional
   public void errAccDeleteForLockedUser() throws Exception {
     clock.setFixedTime("2026-04-08T10:00:00Z");
 
@@ -101,7 +98,6 @@ public class UserDeleteProdApiTest extends BaseUserTest {
 
   @Test
   @WithMockCustomUser
-  @Transactional
   public void errAccDeleteWhenTokenExists() throws Exception {
     clock.setFixedTime("2026-04-08T10:00:00Z");
 

@@ -36,9 +36,9 @@ public class UserDeleteApiTest extends BaseUserTest {
   @WithMockCustomUser
   public void requestAccountDeletion() throws Exception {
     clock.setFixedTime("2026-04-10T10:00:00Z");
-    User expectedUser = userFactory.genUser(EnUserStatus.ACTIVE);
 
     // Arrange: Create active user in database.
+    User expectedUser = userFactory.genUser(EnUserStatus.ACTIVE);
     User newUser = userFactory.genUser(EnUserStatus.ACTIVE);
     userRepository.save(newUser);
 
@@ -92,9 +92,9 @@ public class UserDeleteApiTest extends BaseUserTest {
   @WithMockCustomUser
   public void requestAccountDeletionWhenExpiredToken() throws Exception {
     clock.setFixedTime("2026-04-10T10:00:00Z");
-    User expectedUser = userFactory.genUser(EnUserStatus.ACTIVE);
 
     // Arrange: Create active user in database with account deletion token already present...
+    User expectedUser = userFactory.genUser(EnUserStatus.ACTIVE);
     User newUser = userFactory.genUser(EnUserStatus.ACTIVE);
     userTokenFactory.genTokenEntry(newUser, EnUserTokenType.DELETE, null);
     userRepository.save(newUser);
