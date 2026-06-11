@@ -91,6 +91,7 @@ public abstract class UserMapper {
    * @param userConfig <code>UserConfig</code> entity.
    * @return <code>UserConfigTableEntry</code> instance.
    */
+  @Mapping(target = "meta", ignore = true)
   public abstract UserConfigTableEntry entityToTableEntry(UserConfig userConfig);
 
   /**
@@ -99,6 +100,7 @@ public abstract class UserMapper {
    * @return <code>UserPermissionTableEntry</code> instance.
    */
   @Mapping(target = "name", expression = "java(userPermission.getPermission().getName())")
+  @Mapping(target = "meta", ignore = true)
   public abstract UserPermissionTableEntry entityToTableEntry(UserPermission userPermission);
 
   /**

@@ -62,7 +62,7 @@ INSERT INTO iam.history(id_user, created_at, who, what, params)
 VALUES ((SELECT max(id) FROM iam.users), '2026-04-01 19:26:22', 'USER', 'LOGIN', '');
 
 INSERT INTO iam.users(created_at, modified_at, username, email, password, lang, status, locked)
-VALUES ('2026-04-07 19:23:56', '2026-04-07 19:24:36', 'Kwiatek', 'mewkamewka@fictional.domain.org', '$2a$10$PyQoDnY93QujZCrw0P5h3u0PmiCfGwKrjvf6.7oYGh8qn.mC4iXZO', 'pl', 'DEMO', false);
+VALUES ('2026-04-07 19:23:56', '2026-04-07 19:24:36', 'Mewka', 'mewkamewka@fictional.domain.org', '$2a$10$PyQoDnY93QujZCrw0P5h3u0PmiCfGwKrjvf6.7oYGh8qn.mC4iXZO', 'pl', 'DEMO', false);
 INSERT INTO iam.profiles(id, name, surname)
 VALUES ((SELECT max(id) FROM iam.users), 'Aneta', 'Mewka');
 INSERT INTO iam.history(id_user, created_at, who, what, params)

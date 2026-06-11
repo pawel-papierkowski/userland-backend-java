@@ -2,9 +2,7 @@ package org.portfolio.userland.features.user.admin;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.portfolio.userland.common.dto.EnSortOrder;
-import org.portfolio.userland.common.dto.TableMetaReq;
-import org.portfolio.userland.common.dto.TableMetaResp;
+import org.portfolio.userland.common.dto.*;
 import org.portfolio.userland.common.services.table.TableHelper;
 import org.portfolio.userland.features.user.BaseUserTest;
 import org.portfolio.userland.features.user.dto.admin.config.UserConfigEditReq;
@@ -139,7 +137,26 @@ public class UserConfigTableApiTest extends BaseUserTest {
 
     // Act: get user with single config entry.
     UserConfigTableReq req = UserConfigTableReq.builder().userId(userToCheck.getId()).build();
-    List<UserConfigTableEntry> expectedResults = userAdminFactory.genUserConfigTableEntries(userToCheck.getConfigs());
+    EntryMetaResp meta = EntryMetaResp.builder()
+        .options(Map.of("delete", EntryOption.builder().access(EnOptionAccess.DISABLED).reason("adminOnly").build()))
+        .build();
+    List<UserConfigTableEntry> expectedResults = userAdminFactory.genUserConfigTableEntries(userToCheck.getConfigs(), meta);
+
+    actAssertView(req, expectedResults, 1L, 1L);
+  }
+
+  @Test
+  @WithMockCustomUser(authorities = { "ROLE_ADMIN" })
+  public void viewUserWithSingleConfigAsAdmin() throws Exception {
+    List<User> users = arrangeUserData();
+    User userToCheck = users.get(2);
+
+    // Act: get user with single config entry as admin. Result will show I am allowed to delete config entry.
+    UserConfigTableReq req = UserConfigTableReq.builder().userId(userToCheck.getId()).build();
+    EntryMetaResp meta = EntryMetaResp.builder()
+        .options(Map.of("delete", EntryOption.builder().access(EnOptionAccess.ENABLED).reason(null).build()))
+        .build();
+    List<UserConfigTableEntry> expectedResults = userAdminFactory.genUserConfigTableEntries(userToCheck.getConfigs(), meta);
 
     actAssertView(req, expectedResults, 1L, 1L);
   }
@@ -155,7 +172,10 @@ public class UserConfigTableApiTest extends BaseUserTest {
         .userId(userToCheck.getId())
         .tableMeta(TableMetaReq.builder().sortBy("name").sortOrder(EnSortOrder.DESC).build())
         .build();
-    List<UserConfigTableEntry> configResults = userAdminFactory.genUserConfigTableEntries(userToCheck.getConfigs());
+    EntryMetaResp meta = EntryMetaResp.builder()
+        .options(Map.of("delete", EntryOption.builder().access(EnOptionAccess.DISABLED).reason("adminOnly").build()))
+        .build();
+    List<UserConfigTableEntry> configResults = userAdminFactory.genUserConfigTableEntries(userToCheck.getConfigs(), meta);
     List<UserConfigTableEntry> expectedResults = List.of(configResults.get(1), configResults.get(0), configResults.get(2));
 
     actAssertView(req, expectedResults, 1L, 3L);

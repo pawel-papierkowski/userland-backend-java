@@ -1,6 +1,9 @@
 package org.portfolio.userland.features.user.services.admin;
 
 import lombok.RequiredArgsConstructor;
+import org.portfolio.userland.common.dto.EnOptionAccess;
+import org.portfolio.userland.common.dto.EntryMetaResp;
+import org.portfolio.userland.common.dto.EntryOption;
 import org.portfolio.userland.common.dto.TableMetaReq;
 import org.portfolio.userland.common.exception.BadParamsException;
 import org.portfolio.userland.common.services.table.TableHelper;
@@ -11,11 +14,14 @@ import org.portfolio.userland.features.user.dto.admin.config.UserConfigTableResp
 import org.portfolio.userland.features.user.entities.UserConfig;
 import org.portfolio.userland.features.user.exceptions.UserConfigMissingException;
 import org.portfolio.userland.features.user.services.BaseUserService;
+import org.portfolio.userland.system.auth.perm.EnPermKind;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Business logic for viewing data of user config table.
@@ -71,11 +77,46 @@ public class UserConfigTableService extends BaseUserService {
   private UserConfigTableResp cnvEntitiesToEntries(List<UserConfig> entities, TableMetaReq tableMetaReq, Long entryCount) {
     List<UserConfigTableEntry> entries = new ArrayList<>();
     for (UserConfig entity : entities) {
-      entries.add(userMapper.entityToTableEntry(entity));
+      UserConfigTableEntry entry = addMetaData(userMapper.entityToTableEntry(entity));
+      entries.add(entry);
     }
     return UserConfigTableResp.builder()
         .entries(entries)
         .tableMeta(TableHelper.fillTableMetaResp(tableMetaReq, entryCount))
+        .build();
+  }
+
+  /**
+   * Add metadata to given entry.
+   * @param entry Entry to amend.
+   * @return Updated entry.
+   */
+  private UserConfigTableEntry addMetaData(UserConfigTableEntry entry) {
+    Map<String, EntryOption> options = new HashMap<>();
+    options.put("delete", resolveDeleteOption());
+    EntryMetaResp meta = EntryMetaResp.builder()
+        .options(options)
+        .build();
+    return entry.toBuilder()
+        .meta(meta)
+        .build();
+  }
+
+  /**
+   * Find out state of delete option. You can delete user configuration only if you are admin.
+   * @return Entry option for delete.
+   */
+  private EntryOption resolveDeleteOption() {
+    EnOptionAccess access = EnOptionAccess.ENABLED;
+    String reason = null; // frontend will use default reason for tooltip
+
+    if (!permissionService.has(EnPermKind.ADMIN_ONLY)) {
+      reason = "adminOnly";
+      access = EnOptionAccess.DISABLED;
+    }
+    return EntryOption.builder()
+        .access(access)
+        .reason(reason)
         .build();
   }
 

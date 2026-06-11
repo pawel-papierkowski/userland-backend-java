@@ -41,7 +41,7 @@ public class PermissionService {
    * Checks if given user permissions are compatible with given permission kind.
    * @param permKind Permission kind.
    * @param userPermissions User permissions.
-   * @return True if given user has access to admin panel, otherwise false.
+   * @return True if given user has correct permissions, otherwise false.
    */
   public boolean has(EnPermKind permKind, Set<UserPermission>  userPermissions) {
     if (userPermissions == null || userPermissions.isEmpty()) return false;
@@ -99,6 +99,7 @@ public class PermissionService {
   public Map<String, Set<String>> get(EnPermKind permKind) {
     if (permKind == null) return Map.of();
     return switch (permKind) {
+      case ADMIN_ONLY -> Map.of(PermConst.ROLE, Set.of(PermConst.ROLE_ADMIN));
       case ACCESS_TO_ADMIN_PANEL -> Map.of(PermConst.ROLE, Set.of(PermConst.ROLE_ADMIN, PermConst.ROLE_OPERATOR));
       case USER_VIEW -> Map.of(PermConst.ROLE, Set.of(PermConst.ROLE_ADMIN), UserPermConst.USER, Set.of(UserPermConst.USER_VIEW));
       case USER_EDIT -> Map.of(PermConst.ROLE, Set.of(PermConst.ROLE_ADMIN), UserPermConst.USER, Set.of(UserPermConst.USER_EDIT));

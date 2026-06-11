@@ -37,7 +37,7 @@ public class UserScheduler {
   }
 
   /**
-   * Cleans up expired active users. Removes users with ACTIVE status that had last activity too long in past.
+   * Cleans up expired active users. Removes users with ACTIVE status that had last activity too long in the past.
    */
   @Scheduled(
       fixedDelayString = "${app.scheduler.user.cleanup.users.active.delay}",

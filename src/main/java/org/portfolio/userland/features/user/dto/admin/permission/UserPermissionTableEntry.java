@@ -2,6 +2,7 @@ package org.portfolio.userland.features.user.dto.admin.permission;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
+import org.portfolio.userland.common.dto.EntryMetaResp;
 
 import java.time.LocalDateTime;
 
@@ -25,5 +26,8 @@ public record UserPermissionTableEntry(
     String name,
 
     @Schema(description = "Value of permission variable.", example = "operator")
-    String value
+    String value,
+
+    @Schema(description = "Metadata for this entry. Can be null if no metadata provided. ")
+    EntryMetaResp meta
 ) {}

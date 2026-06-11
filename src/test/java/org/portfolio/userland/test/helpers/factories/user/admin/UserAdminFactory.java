@@ -1,6 +1,7 @@
 package org.portfolio.userland.test.helpers.factories.user.admin;
 
 import lombok.RequiredArgsConstructor;
+import org.portfolio.userland.common.dto.EntryMetaResp;
 import org.portfolio.userland.features.user.dto.admin.config.UserConfigTableEntry;
 import org.portfolio.userland.features.user.dto.admin.history.UserHistoryTableEntry;
 import org.portfolio.userland.features.user.dto.admin.jwt.UserJwtTableEntry;
@@ -85,12 +86,13 @@ public class UserAdminFactory extends BaseFactory {
   /**
    * Create user config table entries based on user config entities.
    * @param entities List of user config entities.
+   * @param meta Metadata for all entries.
    * @return List ot user config table entries.
    */
-  public List<UserConfigTableEntry> genUserConfigTableEntries(List<UserConfig> entities) {
+  public List<UserConfigTableEntry> genUserConfigTableEntries(List<UserConfig> entities, EntryMetaResp meta) {
     List<UserConfigTableEntry> entries = new ArrayList<>();
     for (UserConfig entity : entities) {
-      UserConfigTableEntry entry = genUserConfigTableEntry(entity);
+      UserConfigTableEntry entry = genUserConfigTableEntry(entity, meta);
       entries.add(entry);
     }
     return entries;
@@ -99,15 +101,17 @@ public class UserAdminFactory extends BaseFactory {
   /**
    * Create user config table entry based on user config entity.
    * @param entity User config entity.
+   * @param meta Metadata for this entry.
    * @return User config table entry.
    */
-  private UserConfigTableEntry genUserConfigTableEntry(UserConfig entity) {
+  private UserConfigTableEntry genUserConfigTableEntry(UserConfig entity, EntryMetaResp meta) {
     // Build manually. Actual code uses mapper.
     return UserConfigTableEntry.builder()
         .id(entity.getId())
         .createdAt(entity.getCreatedAt())
         .name(entity.getName())
         .value(entity.getValue())
+        .meta(meta)
         .build();
   }
 

@@ -4,6 +4,8 @@ package org.portfolio.userland.system.auth.perm;
  * Various kinds of permissions available in system.
  */
 public enum EnPermKind {
+  /** Only administrator. */
+  ADMIN_ONLY,
   /** Can access admin panel. */
   ACCESS_TO_ADMIN_PANEL,
   /** Can view users.*/
