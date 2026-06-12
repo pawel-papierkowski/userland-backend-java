@@ -15,6 +15,8 @@ import org.portfolio.userland.features.user.entities.UserPermission;
 import org.portfolio.userland.features.user.exceptions.UserPermissionMissingException;
 import org.portfolio.userland.features.user.exceptions.UserPermissionRedundantException;
 import org.portfolio.userland.features.user.services.BaseUserService;
+import org.portfolio.userland.system.auth.AuthHelper;
+import org.portfolio.userland.system.auth.details.CustomUserDetails;
 import org.portfolio.userland.system.auth.perm.EnPermKind;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -42,7 +44,7 @@ public class UserPermissionTableService extends BaseUserService {
     tableReq = prepareRequest(tableReq);
     Long entryCount = userPermissionRepository.countEntries(tableReq);
     List<UserPermission> userPage = userPermissionRepository.viewPage(tableReq);
-    return cnvEntitiesToEntries(userPage, tableReq.tableMeta(), entryCount);
+    return cnvEntitiesToEntries(tableReq.userId(), userPage, tableReq.tableMeta(), entryCount);
   }
 
   /**
@@ -70,15 +72,16 @@ public class UserPermissionTableService extends BaseUserService {
 
   /**
    * Converts list of user permission entities to user permission entries in response.
+   * @param userId User identificator for this entry.
    * @param entities List of user permissions.
    * @param tableMetaReq Metadata for table page request.
    * @param entryCount Entry count.
    * @return User permission page response.
    */
-  private UserPermissionTableResp cnvEntitiesToEntries(List<UserPermission> entities, TableMetaReq tableMetaReq, Long entryCount) {
+  private UserPermissionTableResp cnvEntitiesToEntries(Long userId, List<UserPermission> entities, TableMetaReq tableMetaReq, Long entryCount) {
     List<UserPermissionTableEntry> entries = new ArrayList<>();
     for (UserPermission entity : entities) {
-      UserPermissionTableEntry entry = addMetaData(userMapper.entityToTableEntry(entity));
+      UserPermissionTableEntry entry = addMetaData(userId, userMapper.entityToTableEntry(entity));
       entries.add(entry);
     }
     return UserPermissionTableResp.builder()
@@ -91,13 +94,14 @@ public class UserPermissionTableService extends BaseUserService {
 
   /**
    * Add metadata to given entry.
+   * @param userId User identificator for this entry.
    * @param entry Entry to amend.
    * @return Updated entry.
    */
-  private UserPermissionTableEntry addMetaData(UserPermissionTableEntry entry) {
+  private UserPermissionTableEntry addMetaData(Long userId, UserPermissionTableEntry entry) {
     Map<String, EntryOption> options = new HashMap<>();
-    options.put("edit", resolveOption());
-    options.put("delete", resolveOption());
+    options.put("edit", resolveOption(userId));
+    options.put("delete", resolveOption(userId));
     EntryMetaResp meta = EntryMetaResp.builder()
         .options(options)
         .build();
@@ -108,12 +112,19 @@ public class UserPermissionTableService extends BaseUserService {
 
   /**
    * Find out state of option. You can edit/delete user permissions only if you are admin.
+   * @param userId User identificator for this entry.
    * @return Entry option.
    */
-  private EntryOption resolveOption() {
+  private EntryOption resolveOption(Long userId) {
     EnOptionAccess access = EnOptionAccess.ENABLED;
     String reason = null; // frontend will use default reason for tooltip
 
+    CustomUserDetails userDetails = AuthHelper.resolveUserDetails();
+    Long loggedUserId = userDetails == null ? null : userDetails.getId();
+    if (userId.equals(loggedUserId)) {
+      reason = "notYourself";
+      access = EnOptionAccess.DISABLED;
+    }
     if (!permissionService.has(EnPermKind.ADMIN_ONLY)) {
       reason = "adminOnly";
       access = EnOptionAccess.DISABLED;

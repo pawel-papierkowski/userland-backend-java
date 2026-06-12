@@ -14,6 +14,8 @@ import org.portfolio.userland.features.user.dto.admin.config.UserConfigTableResp
 import org.portfolio.userland.features.user.entities.UserConfig;
 import org.portfolio.userland.features.user.exceptions.UserConfigMissingException;
 import org.portfolio.userland.features.user.services.BaseUserService;
+import org.portfolio.userland.system.auth.AuthHelper;
+import org.portfolio.userland.system.auth.details.CustomUserDetails;
 import org.portfolio.userland.system.auth.perm.EnPermKind;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -41,7 +43,7 @@ public class UserConfigTableService extends BaseUserService {
     tableReq = prepareRequest(tableReq);
     Long entryCount = userConfigRepository.countEntries(tableReq);
     List<UserConfig> userPage = userConfigRepository.viewPage(tableReq);
-    return cnvEntitiesToEntries(userPage, tableReq.tableMeta(), entryCount);
+    return cnvEntitiesToEntries(tableReq.userId(), userPage, tableReq.tableMeta(), entryCount);
   }
 
   /**
@@ -69,15 +71,16 @@ public class UserConfigTableService extends BaseUserService {
 
   /**
    * Converts list of user config entities to user config entries in response.
+   * @param userId User identificator for this entry.
    * @param entities List of user configs.
    * @param tableMetaReq Metadata for table page request.
    * @param entryCount Entry count.
    * @return User config page response.
    */
-  private UserConfigTableResp cnvEntitiesToEntries(List<UserConfig> entities, TableMetaReq tableMetaReq, Long entryCount) {
+  private UserConfigTableResp cnvEntitiesToEntries(Long userId, List<UserConfig> entities, TableMetaReq tableMetaReq, Long entryCount) {
     List<UserConfigTableEntry> entries = new ArrayList<>();
     for (UserConfig entity : entities) {
-      UserConfigTableEntry entry = addMetaData(userMapper.entityToTableEntry(entity));
+      UserConfigTableEntry entry = addMetaData(userId, userMapper.entityToTableEntry(entity));
       entries.add(entry);
     }
     return UserConfigTableResp.builder()
@@ -90,13 +93,14 @@ public class UserConfigTableService extends BaseUserService {
 
   /**
    * Add metadata to given entry.
+   * @param userId User identificator for this entry.
    * @param entry Entry to amend.
    * @return Updated entry.
    */
-  private UserConfigTableEntry addMetaData(UserConfigTableEntry entry) {
+  private UserConfigTableEntry addMetaData(Long userId, UserConfigTableEntry entry) {
     Map<String, EntryOption> options = new HashMap<>();
-    options.put("edit", resolveOption());
-    options.put("delete", resolveOption());
+    options.put("edit", resolveOption(userId));
+    options.put("delete", resolveOption(userId));
     EntryMetaResp meta = EntryMetaResp.builder()
         .options(options)
         .build();
@@ -107,12 +111,19 @@ public class UserConfigTableService extends BaseUserService {
 
   /**
    * Find out state of option. You can edit/delete user configuration only if you are admin.
+   * @param userId User identificator for this entry.
    * @return Entry option.
    */
-  private EntryOption resolveOption() {
+  private EntryOption resolveOption(Long userId) {
     EnOptionAccess access = EnOptionAccess.ENABLED;
     String reason = null; // frontend will use default reason for tooltip
 
+    CustomUserDetails userDetails = AuthHelper.resolveUserDetails();
+    Long loggedUserId = userDetails == null ? null : userDetails.getId();
+    if (userId.equals(loggedUserId)) {
+      reason = "notYourself";
+      access = EnOptionAccess.DISABLED;
+    }
     if (!permissionService.has(EnPermKind.ADMIN_ONLY)) {
       reason = "adminOnly";
       access = EnOptionAccess.DISABLED;
