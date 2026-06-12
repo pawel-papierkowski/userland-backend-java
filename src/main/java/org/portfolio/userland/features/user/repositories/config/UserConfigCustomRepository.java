@@ -28,6 +28,24 @@ public interface UserConfigCustomRepository {
   //
 
   /**
+   * Check if user config with same name combination already exists.
+   * @param editReq User config entry edit request.
+   * @return True if name already exists, otherwise false.
+   */
+  default boolean isRedundant(UserConfigEditReq editReq) {
+    return isRedundant(editReq.id(), editReq.userId(), editReq.name());
+  }
+
+  /**
+   * Check if user config with same name combination already exists.
+   * @param id     User config entry identificator. Can be null if new entry.
+   * @param userId Identificator of the user owning this config.
+   * @param name   Name of the config setting.
+   * @return True if name already exists, otherwise false.
+   */
+  boolean isRedundant(Long id, Long userId, String name);
+
+  /**
    * Adds a new user config entry or updates an existing one.
    * @param editReq User config entry edit request.
    * @return Created/updated user config entity or null if failed to update entity.

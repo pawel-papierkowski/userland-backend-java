@@ -16,6 +16,8 @@ public class UserErrCode {
 
   /** User config entry is missing. */
   public final static String CONFIG_MISSING = "user_0021";
+  /** User config entry is redundant. */
+  public final static String CONFIG_REDUNDANT = "user_0022";
 
   /** User permission entry is missing. */
   public final static String PERMISSION_USER_MISSING = "user_0031";

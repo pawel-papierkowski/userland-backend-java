@@ -12,7 +12,9 @@ import org.portfolio.userland.features.user.dto.admin.config.UserConfigTableEntr
 import org.portfolio.userland.features.user.dto.admin.config.UserConfigTableReq;
 import org.portfolio.userland.features.user.dto.admin.config.UserConfigTableResp;
 import org.portfolio.userland.features.user.entities.UserConfig;
+import org.portfolio.userland.features.user.exceptions.UserCannotEditException;
 import org.portfolio.userland.features.user.exceptions.UserConfigMissingException;
+import org.portfolio.userland.features.user.exceptions.UserConfigRedundantException;
 import org.portfolio.userland.features.user.services.BaseUserService;
 import org.portfolio.userland.system.auth.AuthHelper;
 import org.portfolio.userland.system.auth.details.CustomUserDetails;
@@ -143,21 +145,44 @@ public class UserConfigTableService extends BaseUserService {
    */
   @Transactional
   public UserConfig edit(UserConfigEditReq editReq) {
-    if (editReq.id() != null && !userConfigRepository.existsById(editReq.id()))
-      throw new UserConfigMissingException(editReq.id());
+    resolve(editReq.id(), editReq.userId()); // side effects are important here
+
+    // We need to check if same user config already exists for this user.
+    // Database enforces it, but in this way we get good, informative error instead of sad little 500.
+    if (userConfigRepository.isRedundant(editReq))
+      throw new UserConfigRedundantException(editReq.name());
 
     return userConfigRepository.upsert(editReq);
   }
 
   /**
    * Deletes given user config entry.
-   * @param id Identificator of entry.
+   * @param entryId Identificator of entry.
    */
   @Transactional
-  public void delete(Long id) {
-    if (id == null || !userConfigRepository.existsById(id))
-      throw new UserConfigMissingException(id);
+  public void delete(Long entryId) {
+    resolve(entryId, null); // side effects are important here
+    userConfigRepository.deleteById(entryId);
+  }
 
-    userConfigRepository.deleteById(id);
+  /**
+   * Resolve configuration entry.
+   * @param entryId Identificator of configuration entry.
+   * @param userId Identificator of user.
+   * @return Configuration entry.
+   */
+  private UserConfig resolve(Long entryId, Long userId) {
+    if (entryId == null && userId == null) return null;
+
+    UserConfig configEntry = null;
+    if (entryId != null)
+      configEntry = userConfigRepository.findById(entryId).orElseThrow(()-> new UserConfigMissingException(entryId));
+
+    if (userId == null) userId = configEntry.getUser().getId();
+    CustomUserDetails userDetails = AuthHelper.resolveUserDetails();
+    if (userDetails == null) throw new IllegalStateException(); // Should not happen.
+    if (userDetails.getId().equals(userId)) // We are not allowed to edit our own account.
+      throw new UserCannotEditException(userId);
+    return configEntry;
   }
 }

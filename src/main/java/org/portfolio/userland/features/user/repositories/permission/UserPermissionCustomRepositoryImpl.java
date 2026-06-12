@@ -53,6 +53,7 @@ public class UserPermissionCustomRepositoryImpl extends EntityTableHandling<User
   @Override
   @Transactional(readOnly = true)
   public boolean isRedundant(Long id, Long userId, String name, String value) {
+    // Note we ignore entry that we edit (if any).
     String query = """
       SELECT count(up)
       FROM UserPermission up

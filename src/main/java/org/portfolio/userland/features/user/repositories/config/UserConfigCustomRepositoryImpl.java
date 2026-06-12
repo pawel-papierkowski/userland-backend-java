@@ -48,6 +48,23 @@ public class UserConfigCustomRepositoryImpl extends EntityTableHandling<UserConf
   //
 
   @Override
+  @Transactional(readOnly = true)
+  public boolean isRedundant(Long id, Long userId, String name) {
+    // Note we ignore entry that we edit (if any).
+    String query = """
+      SELECT count(uc)
+      FROM UserConfig uc
+      WHERE (:id IS NULL OR uc.id <> :id) and uc.user.id = :userId and uc.name = :name
+    """;
+    Long count = entityManager.createQuery(query, Long.class)
+        .setParameter("id", id)
+        .setParameter("userId", userId)
+        .setParameter("name", name)
+        .getSingleResult();
+    return count > 0;
+  }
+
+  @Override
   @Transactional
   public UserConfig upsert(Long id, Long userId, String name, String value) {
     UserConfig userConfig;

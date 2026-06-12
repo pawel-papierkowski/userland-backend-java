@@ -473,7 +473,7 @@ public class UserFullDataApiTest extends BaseUserTest {
 
   @Test
   public void editYourOwnUser() throws Exception {
-    // We are trying to edit your own account, but that should not be allowed.
+    // We are trying to edit our own account, but that should not be allowed.
 
     // Arrange: Create user and user profile.
     clock.setFixedTime("2026-04-10T10:00:00Z");

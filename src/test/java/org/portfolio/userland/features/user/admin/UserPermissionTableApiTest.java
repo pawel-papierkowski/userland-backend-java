@@ -14,15 +14,18 @@ import org.portfolio.userland.features.user.entities.EnUserStatus;
 import org.portfolio.userland.features.user.entities.Permission;
 import org.portfolio.userland.features.user.entities.User;
 import org.portfolio.userland.features.user.entities.UserPermission;
+import org.portfolio.userland.system.auth.details.CustomUserDetails;
 import org.portfolio.userland.test.helpers.context.WithMockCustomUser;
 import org.portfolio.userland.test.helpers.problemDetail.ProblemDetailBox;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.test.web.servlet.MvcResult;
 
 import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 
 /**
@@ -154,7 +157,7 @@ public class UserPermissionTableApiTest extends BaseUserTest {
     List<User> users = arrangeUserData();
     User userToCheck = users.get(2);
 
-    // Act: get user with single permission entry.
+    // Act: get user with single permission entry. Result will show I am allowed to alter permission entry.
     UserPermissionTableReq req = UserPermissionTableReq.builder().userId(userToCheck.getId()).build();
     EntryMetaResp meta = EntryMetaResp.builder()
         .options(Map.of("edit", EntryOption.builder().access(EnOptionAccess.ENABLED).reason(null).build(),
@@ -184,6 +187,45 @@ public class UserPermissionTableApiTest extends BaseUserTest {
     List<UserPermissionTableEntry> expectedResults = permissionResults.stream().sorted(Comparator.comparing(UserPermissionTableEntry::value)).toList();
 
     actAssert(req, expectedResults, 1L, 4L);
+  }
+
+  //
+
+  @Test
+  @WithMockCustomUser(authorities = { "ROLE_ADMIN" })
+  public void addUserPermission() throws Exception {
+    clock.setFixedTime("2026-06-11T10:00:00Z");
+    // Arrange: Get user with many permission entries.
+    List<User> users = arrangeUserData();
+    User user = users.getFirst();
+
+    // Arrange: Prepare request.
+    UserPermissionEditReq req = UserPermissionEditReq.builder()
+        .id(null) // add new entry
+        .userId(user.getId())
+        .name("role")
+        .value("observer")
+        .build();
+
+    // Act: Try to add new user permission entry.
+    MvcResult mvcResult = mockMvc.perform(patch("/api/admin/user/permission")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(req)))
+        .andReturn();
+
+    // Assert: API Response.
+    assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.OK.value());
+
+    // Assert: Database state.
+    transactionTemplate.execute(_ -> {
+      User expectedUser = users.getFirst();
+      expectedUser.getJwts().clear();
+      userPermissionFactory.genPermissionEntry(expectedUser, permissionRepository.findByName("role").orElseThrow(), "observer");
+
+      // Assert: User state.
+      assertAllUser(user.getEmail(), expectedUser, null);
+      return null;
+    });
   }
 
   //
@@ -265,42 +307,7 @@ public class UserPermissionTableApiTest extends BaseUserTest {
     });
   }
 
-  @Test
-  @WithMockCustomUser(authorities = { "ROLE_ADMIN" })
-  public void addUserPermission() throws Exception {
-    clock.setFixedTime("2026-06-11T10:00:00Z");
-    // Arrange: Get user with many permission entries.
-    List<User> users = arrangeUserData();
-    User user = users.getFirst();
-
-    // Arrange: Prepare request.
-    UserPermissionEditReq req = UserPermissionEditReq.builder()
-        .id(null) // add new entry
-        .userId(user.getId())
-        .name("role")
-        .value("observer")
-        .build();
-
-    // Act: Try to add new user permission entry.
-    MvcResult mvcResult = mockMvc.perform(patch("/api/admin/user/permission")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(req)))
-        .andReturn();
-
-    // Assert: API Response.
-    assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.OK.value());
-
-    // Assert: Database state.
-    transactionTemplate.execute(_ -> {
-      User expectedUser = users.getFirst();
-      expectedUser.getJwts().clear();
-      userPermissionFactory.genPermissionEntry(expectedUser, permissionRepository.findByName("role").orElseThrow(), "observer");
-
-      // Assert: User state.
-      assertAllUser(user.getEmail(), expectedUser, null);
-      return null;
-    });
-  }
+  //
 
   @Test
   @WithMockCustomUser(authorities = { "ROLE_ADMIN" })
@@ -366,21 +373,21 @@ public class UserPermissionTableApiTest extends BaseUserTest {
 
   @Test
   @WithMockCustomUser(authorities = { "ROLE_OPERATOR", "USER_EDIT" }) // must be ROLE_ADMIN
-  public void editUserPermissionWithoutPermission() throws Exception {
+  public void addUserPermissionWithoutPermission() throws Exception {
+    clock.setFixedTime("2026-06-11T10:00:00Z");
     // Arrange: Get user with many permission entries.
     List<User> users = arrangeUserData();
     User user = users.getFirst();
-    UserPermission userPermission = resolve(user.getPermissions(), "role", "operator");
 
     // Arrange: Prepare request.
     UserPermissionEditReq req = UserPermissionEditReq.builder()
-        .id(userPermission.getId())
+        .id(null) // add new entry
         .userId(user.getId())
-        .name("user")
-        .value("delete")
+        .name("role")
+        .value("observer")
         .build();
 
-    // Act: Try to change existing user permission entry.
+    // Act: Try to add new user permission entry.
     MvcResult mvcResult = mockMvc.perform(patch("/api/admin/user/permission")
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(req)))
@@ -436,6 +443,87 @@ public class UserPermissionTableApiTest extends BaseUserTest {
     problemDetailService.assertPd(mvcResult, expectedPdb);
   }
 
+  //
+
+  @Test
+  @WithMockCustomUser(authorities = { "ROLE_OPERATOR", "USER_EDIT" }) // must be ROLE_ADMIN
+  public void editUserPermissionWithoutPermission() throws Exception {
+    // Arrange: Get user with many permission entries.
+    List<User> users = arrangeUserData();
+    User user = users.getFirst();
+    UserPermission userPermission = resolve(user.getPermissions(), "role", "operator");
+
+    // Arrange: Prepare request.
+    UserPermissionEditReq req = UserPermissionEditReq.builder()
+        .id(userPermission.getId())
+        .userId(user.getId())
+        .name("user")
+        .value("delete")
+        .build();
+
+    // Act: Try to change existing user permission entry.
+    MvcResult mvcResult = mockMvc.perform(patch("/api/admin/user/permission")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(req)))
+        .andReturn();
+
+    // Assert: API Response.
+    assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.FORBIDDEN.value());
+    // Assert: Content has correct error.
+    ProblemDetailBox expectedPdb = new ProblemDetailBox(
+        HttpStatus.FORBIDDEN.value(),
+        "Forbidden",
+        "You do not have permission to access this resource.",
+        "/api/admin/user/permission",
+        "https://api.general.org/errors/forbidden",
+        Map.of()
+    );
+    problemDetailService.assertPd(mvcResult, expectedPdb);
+  }
+
+  @Test
+  public void editYourOwnUserPermission() throws Exception {
+    // Arrange: Get user with many permission entries.
+    List<User> users = arrangeUserData();
+    User user = users.getFirst();
+    UserPermission userPermission = resolve(user.getPermissions(), "role", "operator");
+
+    // Arrange: Prepare request.
+    UserPermissionEditReq req = UserPermissionEditReq.builder()
+        .id(userPermission.getId())
+        .userId(user.getId())
+        .name("user")
+        .value("delete")
+        .build();
+
+    // Arrange: We want to emulate fact of this very user being logged in. We can't use @WithMockCustomUser as we do not
+    // know user's id in advance.
+    CustomUserDetails customUserDetails = new CustomUserDetails(user.getId(), true, false, user.getUsername(), user.getEmail(), "", Set.of(),
+        List.of(new SimpleGrantedAuthority("ROLE_ADMIN")));
+
+    // Act: Try to change existing user permission entry.
+    MvcResult mvcResult = mockMvc.perform(patch("/api/admin/user/permission")
+            .with(user(customUserDetails))
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(req)))
+        .andReturn();
+
+    // Assert: API Response.
+    assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.CONFLICT.value());
+    // Assert: Content has correct error.
+    ProblemDetailBox expectedPdb = new ProblemDetailBox(
+        HttpStatus.CONFLICT.value(),
+        "Not allowed to edit this user.",
+        "User with id '"+user.getId()+"' cannot be edited.",
+        "/api/admin/user/permission",
+        "https://api.userland.org/errors/user/cannotEdit",
+        Map.of("errCode", UserErrCode.CANNOT_EDIT)
+    );
+    problemDetailService.assertPd(mvcResult, expectedPdb);
+  }
+
+  //
+
   @Test
   @WithMockCustomUser(authorities = { "ROLE_OPERATOR", "USER_EDIT" }) // must be ROLE_ADMIN
   public void deleteUserPermissionWithoutPermission() throws Exception {
@@ -458,6 +546,37 @@ public class UserPermissionTableApiTest extends BaseUserTest {
         "/api/admin/user/permission/"+userPermission.getId(),
         "https://api.general.org/errors/forbidden",
         Map.of()
+    );
+    problemDetailService.assertPd(mvcResult, expectedPdb);
+  }
+
+  @Test
+  public void deleteYourOwnUserPermission() throws Exception {
+    // Arrange: Get user with many permission entries.
+    List<User> users = arrangeUserData();
+    User user = users.getFirst();
+    UserPermission userPermission = resolve(user.getPermissions(), "role", "operator");
+
+    // Arrange: We want to emulate fact of this very user being logged in. We can't use @WithMockCustomUser as we do not
+    // know user's id in advance.
+    CustomUserDetails customUserDetails = new CustomUserDetails(user.getId(), true, false, user.getUsername(), user.getEmail(), "", Set.of(),
+        List.of(new SimpleGrantedAuthority("ROLE_ADMIN")));
+
+    // Act: Try to remove user permission entry.
+    MvcResult mvcResult = mockMvc.perform(delete("/api/admin/user/permission/"+userPermission.getId())
+            .with(user(customUserDetails)))
+        .andReturn();
+
+    // Assert: API Response.
+    assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.CONFLICT.value());
+    // Assert: Content has correct error.
+    ProblemDetailBox expectedPdb = new ProblemDetailBox(
+        HttpStatus.CONFLICT.value(),
+        "Not allowed to edit this user.",
+        "User with id '"+user.getId()+"' cannot be edited.",
+        "/api/admin/user/permission/"+userPermission.getId(),
+        "https://api.userland.org/errors/user/cannotEdit",
+        Map.of("errCode", UserErrCode.CANNOT_EDIT)
     );
     problemDetailService.assertPd(mvcResult, expectedPdb);
   }

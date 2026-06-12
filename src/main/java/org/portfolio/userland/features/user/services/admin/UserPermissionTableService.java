@@ -12,6 +12,7 @@ import org.portfolio.userland.features.user.dto.admin.permission.UserPermissionT
 import org.portfolio.userland.features.user.dto.admin.permission.UserPermissionTableReq;
 import org.portfolio.userland.features.user.dto.admin.permission.UserPermissionTableResp;
 import org.portfolio.userland.features.user.entities.UserPermission;
+import org.portfolio.userland.features.user.exceptions.UserCannotEditException;
 import org.portfolio.userland.features.user.exceptions.UserPermissionMissingException;
 import org.portfolio.userland.features.user.exceptions.UserPermissionRedundantException;
 import org.portfolio.userland.features.user.services.BaseUserService;
@@ -144,33 +145,51 @@ public class UserPermissionTableService extends BaseUserService {
    */
   @Transactional
   public UserPermission edit(UserPermissionEditReq editReq) {
-    if (editReq.id() != null && !userPermissionRepository.existsById(editReq.id()))
-      throw new UserPermissionMissingException(editReq.id());
+    resolve(editReq.id(), editReq.userId()); // side effects are important here
 
     // We need to check if same user permission already exists for this user.
     // Database enforces it, but in this way we get good, informative error instead of sad little 500.
     if (userPermissionRepository.isRedundant(editReq))
       throw new UserPermissionRedundantException(editReq.name()+"_"+editReq.value());
 
-    UserPermission userPermission = userPermissionRepository.upsert(editReq);
+    UserPermission permissionEntry = userPermissionRepository.upsert(editReq);
     clearJwt(editReq.userId());
-    return userPermission;
+    return permissionEntry;
   }
 
   /**
    * Deletes given user permission entry.
-   * @param id Identificator of entry.
+   * @param entryId Identificator of entry.
    */
   @Transactional
-  public void delete(Long id) {
-    UserPermission userPermission = userPermissionRepository.findById(id).orElse(null);
-    if (userPermission == null) throw new UserPermissionMissingException(id);
-
-    userPermissionRepository.deleteById(id);
-    clearJwt(userPermission.getUser().getId());
+  public void delete(Long entryId) {
+    UserPermission permissionEntry = resolve(entryId, null);
+    userPermissionRepository.deleteById(entryId);
+    clearJwt(permissionEntry.getUser().getId());
   }
 
   //
+
+  /**
+   * Resolve permission entry.
+   * @param entryId Identificator of permission entry.
+   * @param userId Identificator of user.
+   * @return Permission entry.
+   */
+  private UserPermission resolve(Long entryId, Long userId) {
+    if (entryId == null && userId == null) return null;
+
+    UserPermission permissionEntry = null;
+    if (entryId != null)
+     permissionEntry = userPermissionRepository.findById(entryId).orElseThrow(()-> new UserPermissionMissingException(entryId));
+
+    if (userId == null) userId = permissionEntry.getUser().getId();
+    CustomUserDetails userDetails = AuthHelper.resolveUserDetails();
+    if (userDetails == null) throw new IllegalStateException(); // Should not happen.
+    if (userDetails.getId().equals(userId)) // We are not allowed to edit our own account.
+      throw new UserCannotEditException(userId);
+    return permissionEntry;
+  }
 
   /**
    * Clear JWT entries for this user, forcing it to relog with new permissions.
