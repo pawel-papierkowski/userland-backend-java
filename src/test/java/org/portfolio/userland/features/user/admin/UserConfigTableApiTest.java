@@ -138,7 +138,8 @@ public class UserConfigTableApiTest extends BaseUserTest {
     // Act: get user with single config entry.
     UserConfigTableReq req = UserConfigTableReq.builder().userId(userToCheck.getId()).build();
     EntryMetaResp meta = EntryMetaResp.builder()
-        .options(Map.of("delete", EntryOption.builder().access(EnOptionAccess.DISABLED).reason("adminOnly").build()))
+        .options(Map.of("edit", EntryOption.builder().access(EnOptionAccess.DISABLED).reason("adminOnly").build(),
+            "delete", EntryOption.builder().access(EnOptionAccess.DISABLED).reason("adminOnly").build()))
         .build();
     List<UserConfigTableEntry> expectedResults = userAdminFactory.genUserConfigTableEntries(userToCheck.getConfigs(), meta);
 
@@ -154,7 +155,8 @@ public class UserConfigTableApiTest extends BaseUserTest {
     // Act: get user with single config entry as admin. Result will show I am allowed to delete config entry.
     UserConfigTableReq req = UserConfigTableReq.builder().userId(userToCheck.getId()).build();
     EntryMetaResp meta = EntryMetaResp.builder()
-        .options(Map.of("delete", EntryOption.builder().access(EnOptionAccess.ENABLED).reason(null).build()))
+        .options(Map.of("edit", EntryOption.builder().access(EnOptionAccess.ENABLED).reason(null).build(),
+            "delete", EntryOption.builder().access(EnOptionAccess.ENABLED).reason(null).build()))
         .build();
     List<UserConfigTableEntry> expectedResults = userAdminFactory.genUserConfigTableEntries(userToCheck.getConfigs(), meta);
 
@@ -173,7 +175,8 @@ public class UserConfigTableApiTest extends BaseUserTest {
         .tableMeta(TableMetaReq.builder().sortBy("name").sortOrder(EnSortOrder.DESC).build())
         .build();
     EntryMetaResp meta = EntryMetaResp.builder()
-        .options(Map.of("delete", EntryOption.builder().access(EnOptionAccess.DISABLED).reason("adminOnly").build()))
+        .options(Map.of("edit", EntryOption.builder().access(EnOptionAccess.DISABLED).reason("adminOnly").build(),
+            "delete", EntryOption.builder().access(EnOptionAccess.DISABLED).reason("adminOnly").build()))
         .build();
     List<UserConfigTableEntry> configResults = userAdminFactory.genUserConfigTableEntries(userToCheck.getConfigs(), meta);
     List<UserConfigTableEntry> expectedResults = List.of(configResults.get(1), configResults.get(0), configResults.get(2));

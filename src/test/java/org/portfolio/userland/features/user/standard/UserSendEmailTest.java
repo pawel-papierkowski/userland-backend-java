@@ -1,9 +1,10 @@
-package org.portfolio.userland.features.user;
+package org.portfolio.userland.features.user.standard;
 
 import com.google.common.collect.Maps;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.portfolio.userland.features.email.dto.EmailReq;
+import org.portfolio.userland.features.user.BaseUserTest;
 import org.portfolio.userland.features.user.entities.EnUserTokenType;
 import org.portfolio.userland.features.user.events.*;
 import org.portfolio.userland.features.user.services.standard.UserHelperService;

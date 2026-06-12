@@ -1,7 +1,8 @@
-package org.portfolio.userland.features.user;
+package org.portfolio.userland.features.user.standard;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.portfolio.userland.features.user.BaseUserTest;
 import org.portfolio.userland.features.user.constants.UserErrCode;
 import org.portfolio.userland.features.user.dto.standard.email.UserEmailChangeLinkReq;
 import org.portfolio.userland.features.user.entities.EnUserStatus;

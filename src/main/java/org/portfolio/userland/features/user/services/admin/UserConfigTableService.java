@@ -86,6 +86,8 @@ public class UserConfigTableService extends BaseUserService {
         .build();
   }
 
+  //
+
   /**
    * Add metadata to given entry.
    * @param entry Entry to amend.
@@ -93,7 +95,8 @@ public class UserConfigTableService extends BaseUserService {
    */
   private UserConfigTableEntry addMetaData(UserConfigTableEntry entry) {
     Map<String, EntryOption> options = new HashMap<>();
-    options.put("delete", resolveDeleteOption());
+    options.put("edit", resolveOption());
+    options.put("delete", resolveOption());
     EntryMetaResp meta = EntryMetaResp.builder()
         .options(options)
         .build();
@@ -103,10 +106,10 @@ public class UserConfigTableService extends BaseUserService {
   }
 
   /**
-   * Find out state of delete option. You can delete user configuration only if you are admin.
-   * @return Entry option for delete.
+   * Find out state of option. You can edit/delete user configuration only if you are admin.
+   * @return Entry option.
    */
-  private EntryOption resolveDeleteOption() {
+  private EntryOption resolveOption() {
     EnOptionAccess access = EnOptionAccess.ENABLED;
     String reason = null; // frontend will use default reason for tooltip
 

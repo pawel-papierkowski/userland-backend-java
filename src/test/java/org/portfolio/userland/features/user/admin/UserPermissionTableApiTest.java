@@ -2,9 +2,7 @@ package org.portfolio.userland.features.user.admin;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.portfolio.userland.common.dto.EnSortOrder;
-import org.portfolio.userland.common.dto.TableMetaReq;
-import org.portfolio.userland.common.dto.TableMetaResp;
+import org.portfolio.userland.common.dto.*;
 import org.portfolio.userland.common.services.table.TableHelper;
 import org.portfolio.userland.features.user.BaseUserTest;
 import org.portfolio.userland.features.user.constants.UserErrCode;
@@ -141,7 +139,28 @@ public class UserPermissionTableApiTest extends BaseUserTest {
 
     // Act: get user with single permission entry.
     UserPermissionTableReq req = UserPermissionTableReq.builder().userId(userToCheck.getId()).build();
-    List<UserPermissionTableEntry> expectedResults = userAdminFactory.genUserPermissionTableEntries(userToCheck.getPermissions());
+    EntryMetaResp meta = EntryMetaResp.builder()
+        .options(Map.of("edit", EntryOption.builder().access(EnOptionAccess.DISABLED).reason("adminOnly").build(),
+            "delete", EntryOption.builder().access(EnOptionAccess.DISABLED).reason("adminOnly").build()))
+        .build();
+    List<UserPermissionTableEntry> expectedResults = userAdminFactory.genUserPermissionTableEntries(userToCheck.getPermissions(), meta);
+
+    actAssert(req, expectedResults, 1L, 1L);
+  }
+
+  @Test
+  @WithMockCustomUser(authorities = { "ROLE_ADMIN" })
+  public void viewUserWithSinglePermissionAsAdmin() throws Exception {
+    List<User> users = arrangeUserData();
+    User userToCheck = users.get(2);
+
+    // Act: get user with single permission entry.
+    UserPermissionTableReq req = UserPermissionTableReq.builder().userId(userToCheck.getId()).build();
+    EntryMetaResp meta = EntryMetaResp.builder()
+        .options(Map.of("edit", EntryOption.builder().access(EnOptionAccess.ENABLED).reason(null).build(),
+            "delete", EntryOption.builder().access(EnOptionAccess.ENABLED).reason(null).build()))
+        .build();
+    List<UserPermissionTableEntry> expectedResults = userAdminFactory.genUserPermissionTableEntries(userToCheck.getPermissions(), meta);
 
     actAssert(req, expectedResults, 1L, 1L);
   }
@@ -157,7 +176,11 @@ public class UserPermissionTableApiTest extends BaseUserTest {
         .userId(userToCheck.getId())
         .tableMeta(TableMetaReq.builder().sortBy("value").sortOrder(EnSortOrder.ASC).build())
         .build();
-    List<UserPermissionTableEntry> permissionResults = userAdminFactory.genUserPermissionTableEntries(userToCheck.getPermissions());
+    EntryMetaResp meta = EntryMetaResp.builder()
+        .options(Map.of("edit", EntryOption.builder().access(EnOptionAccess.DISABLED).reason("adminOnly").build(),
+            "delete", EntryOption.builder().access(EnOptionAccess.DISABLED).reason("adminOnly").build()))
+        .build();
+    List<UserPermissionTableEntry> permissionResults = userAdminFactory.genUserPermissionTableEntries(userToCheck.getPermissions(), meta);
     List<UserPermissionTableEntry> expectedResults = permissionResults.stream().sorted(Comparator.comparing(UserPermissionTableEntry::value)).toList();
 
     actAssert(req, expectedResults, 1L, 4L);

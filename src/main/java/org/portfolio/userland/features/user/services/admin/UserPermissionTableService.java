@@ -1,6 +1,9 @@
 package org.portfolio.userland.features.user.services.admin;
 
 import lombok.RequiredArgsConstructor;
+import org.portfolio.userland.common.dto.EnOptionAccess;
+import org.portfolio.userland.common.dto.EntryMetaResp;
+import org.portfolio.userland.common.dto.EntryOption;
 import org.portfolio.userland.common.dto.TableMetaReq;
 import org.portfolio.userland.common.exception.BadParamsException;
 import org.portfolio.userland.common.services.table.TableHelper;
@@ -12,11 +15,14 @@ import org.portfolio.userland.features.user.entities.UserPermission;
 import org.portfolio.userland.features.user.exceptions.UserPermissionMissingException;
 import org.portfolio.userland.features.user.exceptions.UserPermissionRedundantException;
 import org.portfolio.userland.features.user.services.BaseUserService;
+import org.portfolio.userland.system.auth.perm.EnPermKind;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Business logic for viewing data of user permission table.
@@ -72,11 +78,49 @@ public class UserPermissionTableService extends BaseUserService {
   private UserPermissionTableResp cnvEntitiesToEntries(List<UserPermission> entities, TableMetaReq tableMetaReq, Long entryCount) {
     List<UserPermissionTableEntry> entries = new ArrayList<>();
     for (UserPermission entity : entities) {
-      entries.add(userMapper.entityToTableEntry(entity));
+      UserPermissionTableEntry entry = addMetaData(userMapper.entityToTableEntry(entity));
+      entries.add(entry);
     }
     return UserPermissionTableResp.builder()
         .entries(entries)
         .tableMeta(TableHelper.fillTableMetaResp(tableMetaReq, entryCount))
+        .build();
+  }
+
+  //
+
+  /**
+   * Add metadata to given entry.
+   * @param entry Entry to amend.
+   * @return Updated entry.
+   */
+  private UserPermissionTableEntry addMetaData(UserPermissionTableEntry entry) {
+    Map<String, EntryOption> options = new HashMap<>();
+    options.put("edit", resolveOption());
+    options.put("delete", resolveOption());
+    EntryMetaResp meta = EntryMetaResp.builder()
+        .options(options)
+        .build();
+    return entry.toBuilder()
+        .meta(meta)
+        .build();
+  }
+
+  /**
+   * Find out state of option. You can edit/delete user permissions only if you are admin.
+   * @return Entry option.
+   */
+  private EntryOption resolveOption() {
+    EnOptionAccess access = EnOptionAccess.ENABLED;
+    String reason = null; // frontend will use default reason for tooltip
+
+    if (!permissionService.has(EnPermKind.ADMIN_ONLY)) {
+      reason = "adminOnly";
+      access = EnOptionAccess.DISABLED;
+    }
+    return EntryOption.builder()
+        .access(access)
+        .reason(reason)
         .build();
   }
 

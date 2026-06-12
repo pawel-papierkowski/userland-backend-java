@@ -152,14 +152,15 @@ public class UserAdminFactory extends BaseFactory {
   /**
    * Create user permission table entries based on user permission entities.
    * @param entities Set of user permission entities.
+   * @param meta Metadata for all entries.
    * @return List ot user permission table entries.
    */
-  public List<UserPermissionTableEntry> genUserPermissionTableEntries(Set<UserPermission> entities) {
+  public List<UserPermissionTableEntry> genUserPermissionTableEntries(Set<UserPermission> entities, EntryMetaResp meta) {
     // We need consistent order.
     List<UserPermission> entitiesList = entities.stream().sorted(Comparator.comparing(UserPermission::getId)).toList();
     List<UserPermissionTableEntry> entries = new ArrayList<>();
     for (UserPermission entity : entitiesList) {
-      UserPermissionTableEntry entry = genUserPermissionTableEntry(entity);
+      UserPermissionTableEntry entry = genUserPermissionTableEntry(entity, meta);
       entries.add(entry);
     }
     return entries;
@@ -168,15 +169,17 @@ public class UserAdminFactory extends BaseFactory {
   /**
    * Create user permission table entry based on user permission entity.
    * @param entity User permission entity.
+   * @param meta Metadata for all entries.
    * @return User permission table entry.
    */
-  private UserPermissionTableEntry genUserPermissionTableEntry(UserPermission entity) {
+  private UserPermissionTableEntry genUserPermissionTableEntry(UserPermission entity, EntryMetaResp meta) {
     // Build manually. Actual code uses mapper.
     return UserPermissionTableEntry.builder()
         .id(entity.getId())
         .createdAt(entity.getCreatedAt())
         .name(entity.getPermission().getName())
         .value(entity.getValue())
+        .meta(meta)
         .build();
   }
 

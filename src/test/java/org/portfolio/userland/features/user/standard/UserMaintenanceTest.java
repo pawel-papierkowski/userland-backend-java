@@ -1,7 +1,8 @@
-package org.portfolio.userland.features.user;
+package org.portfolio.userland.features.user.standard;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.portfolio.userland.features.user.BaseUserTest;
 import org.portfolio.userland.features.user.entities.*;
 import org.portfolio.userland.features.user.schedulers.UserScheduler;
 import org.portfolio.userland.system.config.service.ConfigConst;
