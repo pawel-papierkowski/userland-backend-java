@@ -174,13 +174,14 @@ public abstract class BaseUserService extends BaseService {
   //
 
   /**
-   * Add JWT entry to user.
+   * Add JWT entry to user and save it.
    * @param user User.
    * @param nowAt Current date&time.
+   * @param customExpiration Custom expiration in minutes. Can be null, will use default expiration.
    * @param jwtStr JWT string.
    */
-  protected void addJwtEntry(User user, LocalDateTime nowAt, String jwtStr) {
-    UserJwt jwtEntry = createJwtEntry(nowAt, jwtStr);
+  protected void addJwtEntry(User user, LocalDateTime nowAt, String jwtStr, Long customExpiration) {
+    UserJwt jwtEntry = createJwtEntry(nowAt, jwtStr, customExpiration);
     jwtEntry.setUser(user);
     userJwtRepository.save(jwtEntry);
   }
@@ -189,12 +190,13 @@ public abstract class BaseUserService extends BaseService {
    * Create and fill JWT data.
    * @param nowAt Current date&time.
    * @param jwtStr JWT string.
+   * @param customExpiration Custom expiration in minutes. Can be null, will use default expiration.
    * @return User JWT entry.
    */
-  protected UserJwt createJwtEntry(LocalDateTime nowAt, String jwtStr) {
+  protected UserJwt createJwtEntry(LocalDateTime nowAt, String jwtStr, Long customExpiration) {
     UserJwt token = new UserJwt();
     token.setCreatedAt(nowAt);
-    token.setExpiresAt(userHelperService.resolveJwtExpiration(nowAt));
+    token.setExpiresAt(userHelperService.resolveJwtExpiration(nowAt, customExpiration));
     token.setToken(jwtStr);
     return token;
   }

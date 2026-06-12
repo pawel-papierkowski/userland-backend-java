@@ -56,10 +56,8 @@ public class UserLoginService extends BaseUserService {
 
     LocalDateTime nowAt = clockService.getNowUTC();
 
-    // Login is successful. Generate JWT token now.
-    String jwtToken = generateJwt(user);
-    // Add JWT in database. This will allow us to effectively revoke tokens later (logout etc).
-    addJwtEntry(user, nowAt, jwtToken);
+    // Login is successful. Generate JWT token now and save it in database.
+    String jwtToken = generateJwt(user, nowAt);
     // Add login event to user history.
     addHistoryEvent(user, nowAt, EnUserHistoryWho.USER, EnUserHistoryWhat.LOGIN, httpHelperService.resolveHttpParams());
 
@@ -117,8 +115,8 @@ public class UserLoginService extends BaseUserService {
     LocalDateTime nowAt = clockService.getNowUTC();
     User user = userHelperService.resolveAuthUser(false);
     userJwtRepository.deleteAllByUser(user.getId()); // Revoke all JWTs related to this user.
-    String jwtToken = generateJwt(user);
-    addJwtEntry(user, nowAt, jwtToken); // Add new JWT.
+
+    String jwtToken = generateJwt(user, nowAt);
     addHistoryEvent(user, nowAt, EnUserHistoryWho.USER, EnUserHistoryWhat.PROLONG, "");
 
     log.trace("Session of user '{}' has been prolonged.", user.getEmail());
@@ -130,12 +128,17 @@ public class UserLoginService extends BaseUserService {
   // //////////////////////////////////////////////////////////////////////////
 
   /**
-   * Generate JWT token.
+   * Generate JWT token and save it.
    * @param user User.
+   * @param nowAt Current date and time.
    * @return JWT token.
    */
-  private String generateJwt(User user) {
+  private String generateJwt(User user, LocalDateTime nowAt) {
     Long jwtExpire = userConfigService.getLong(user, UserConfigConst.JWT_EXPIRE, null);
-    return jwtService.generateToken(user, jwtExpire);
+    String jwtToken = jwtService.generateToken(user, jwtExpire);
+
+    // Add JWT in database. This will allow us to effectively revoke tokens later (logout etc).
+    addJwtEntry(user, nowAt, jwtToken, jwtExpire);
+    return jwtToken;
   }
 }

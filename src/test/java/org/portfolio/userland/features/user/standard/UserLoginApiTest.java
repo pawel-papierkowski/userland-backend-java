@@ -177,7 +177,7 @@ public class UserLoginApiTest extends BaseUserTest {
     // Assert: Validate it is proper JWT token with correct signature and payload.
     Map<String, Object> expectedClaimMap = Maps.newHashMap();
     expectedClaimMap.put("iat", 1775815500L); // issued
-    expectedClaimMap.put("exp", 1775837100L); // expires
+    expectedClaimMap.put("exp", 1775837100L); // expires (default amount - 6 hours)
     expectedClaimMap.put("sub", "test@example.com"); // user account email as subject
     expectedClaimMap.put("name", "Jane"); // username
     expectedClaimMap.put("role", "operator"); // from permission entry
@@ -211,7 +211,7 @@ public class UserLoginApiTest extends BaseUserTest {
 
     // Prepare expected result (user is same, but with new LOGIN history event and JWT entry).
     userHistoryFactory.genHistoryEvent(expectedUser, EnUserHistoryWho.USER, EnUserHistoryWhat.LOGIN, "IP: '192.168.1.50', User-Agent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'");
-    userJwtFactory.genJwtEntry(expectedUser, actualResp.jwtToken());
+    userJwtFactory.genJwtEntry(expectedUser, actualResp.jwtToken(), 60L);
 
     // Assert: Database state.
     transactionTemplate.execute(_ -> {
@@ -224,7 +224,7 @@ public class UserLoginApiTest extends BaseUserTest {
     // Assert: Validate it is proper JWT token with correct signature and payload.
     Map<String, Object> expectedClaimMap = Maps.newHashMap();
     expectedClaimMap.put("iat", 1775815500L); // issued
-    expectedClaimMap.put("exp", 1775819100L); // expires in 1 hour (custom duration)
+    expectedClaimMap.put("exp", 1775819100L); // expires in 1 hour (custom duration): difference of 3600
     expectedClaimMap.put("sub", "test@example.com"); // user account email as subject
     expectedClaimMap.put("name", "Jane"); // username
     jwtAssert.assertIt(actualResp.jwtToken(), expectedUser.getEmail(), expectedClaimMap);
