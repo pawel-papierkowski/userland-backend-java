@@ -189,6 +189,28 @@ public class UserPermissionTableApiTest extends BaseUserTest {
     actAssert(req, expectedResults, 1L, 4L);
   }
 
+  @Test
+  @WithMockCustomUser(authorities = { "ROLE_OPERATOR", "USER_VIEW" })
+  public void viewUserSortByPermName() throws Exception {
+    // Sorting by permission name field needs special handling.
+    List<User> users = arrangeUserData();
+    User userToCheck = users.getFirst();
+
+    // Act: get user with many permission entries.
+    UserPermissionTableReq req = UserPermissionTableReq.builder()
+        .userId(userToCheck.getId())
+        .tableMeta(TableMetaReq.builder().sortBy("name").sortOrder(EnSortOrder.ASC).build())
+        .build();
+    EntryMetaResp meta = EntryMetaResp.builder()
+        .options(Map.of("edit", EntryOption.builder().access(EnOptionAccess.DISABLED).reason("adminOnly").build(),
+            "delete", EntryOption.builder().access(EnOptionAccess.DISABLED).reason("adminOnly").build()))
+        .build();
+    List<UserPermissionTableEntry> permissionResults = userAdminFactory.genUserPermissionTableEntries(userToCheck.getPermissions(), meta);
+    List<UserPermissionTableEntry> expectedResults = permissionResults.stream().sorted(Comparator.comparing(UserPermissionTableEntry::name)).toList();
+
+    actAssert(req, expectedResults, 1L, 4L);
+  }
+
   //
 
   @Test

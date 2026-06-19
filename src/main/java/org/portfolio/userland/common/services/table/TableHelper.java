@@ -2,10 +2,7 @@ package org.portfolio.userland.common.services.table;
 
 import com.google.common.collect.Lists;
 import jakarta.persistence.TypedQuery;
-import jakarta.persistence.criteria.CriteriaBuilder;
-import jakarta.persistence.criteria.CriteriaQuery;
-import jakarta.persistence.criteria.Order;
-import jakarta.persistence.criteria.Root;
+import jakarta.persistence.criteria.*;
 import org.jspecify.annotations.NonNull;
 import org.portfolio.userland.common.dto.EnSortOrder;
 import org.portfolio.userland.common.dto.TableMetaReq;
@@ -62,17 +59,19 @@ public class TableHelper {
    * Applies sorting.
    * @param cb Criteria builder.
    * @param cq Criteria query.
+   * @param entity Entity.
    * @param tableMetaReq Table metadata.
-   * @param <E> Entity.
+   * @param <E> Entity class.
    */
   public static <E> void applySorting(CriteriaBuilder cb, CriteriaQuery<E> cq, Root<E> entity, TableMetaReq tableMetaReq) {
     List<Order> order = Lists.newArrayList();
     // Determine custom sorting.
     Order customOrder;
+    Path<?> path = resolvePath(entity, tableMetaReq.sortBy());
     if (tableMetaReq.sortOrder() == EnSortOrder.ASC) {
-      customOrder = cb.asc(entity.get(tableMetaReq.sortBy()));
+      customOrder = cb.asc(path);
     } else {
-      customOrder = cb.desc(entity.get(tableMetaReq.sortBy()));
+      customOrder = cb.desc(path);
     }
 
     // Determine fallback order if more than one entity has same value in custom field.
@@ -86,6 +85,25 @@ public class TableHelper {
     order.add(customOrder);
     order.add(fallbackOrder);
     cq.orderBy(order);
+  }
+
+  /**
+   * Resolve path for entity. Can handle joins.
+   * <p>Example: if <code>fields = "permission.name"</code>, code will join <code>permission</code> first, then use
+   * field <code>name</code> on <code>permission</code> table.</p>
+   * @param entity Entity.
+   * @param fields Field names. If separated by dot, we assume it is join.
+   * @return Path.
+   * @param <E> Entity class.
+   */
+  private static <E> Path<?> resolvePath(Root<E> entity, String fields) {
+    String[] fieldsArr = fields.split("\\.");
+
+    From<?, ?> from = entity; // Root extends From, so this works
+    for (int i = 0; i < fieldsArr.length - 1; i++) {
+      from = from.join(fieldsArr[i]);
+    }
+    return from.get(fieldsArr[fieldsArr.length - 1]);
   }
 
   /**

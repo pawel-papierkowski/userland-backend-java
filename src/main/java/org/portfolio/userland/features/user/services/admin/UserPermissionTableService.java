@@ -43,9 +43,12 @@ public class UserPermissionTableService extends BaseUserService {
   public UserPermissionTableResp getPage(UserPermissionTableReq tableReq) {
     verifyRequest(tableReq);
     tableReq = prepareRequest(tableReq);
+    TableMetaReq baseMeta = tableReq.tableMeta(); // we need sortBy with original value
+    tableReq = prepareMeta(tableReq);
+
     Long entryCount = userPermissionRepository.countEntries(tableReq);
     List<UserPermission> userPage = userPermissionRepository.viewPage(tableReq);
-    return cnvEntitiesToEntries(tableReq.userId(), userPage, tableReq.tableMeta(), entryCount);
+    return cnvEntitiesToEntries(tableReq.userId(), userPage, baseMeta, entryCount);
   }
 
   /**
@@ -58,6 +61,20 @@ public class UserPermissionTableService extends BaseUserService {
     return tableReq.toBuilder()
         .tableMeta(tableMetaReq)
         .build();
+  }
+
+  /**
+   * Prepare table meta separately due to sort handling.
+   * @param tableReq User permission table page request.
+   * @return New version of table meta request.
+   */
+  private UserPermissionTableReq prepareMeta(UserPermissionTableReq tableReq) {
+    TableMetaReq tableMetaReq = tableReq.tableMeta();
+    if ("name".equals(tableMetaReq.sortBy())) {
+      // Name needs special sort handling.
+      tableMetaReq = tableMetaReq.toBuilder().sortBy("permission.name").build();
+    }
+    return tableReq.toBuilder().tableMeta(tableMetaReq).build();
   }
 
   /**
