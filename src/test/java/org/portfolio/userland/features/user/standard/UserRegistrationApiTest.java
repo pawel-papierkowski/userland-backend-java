@@ -185,7 +185,7 @@ public class UserRegistrationApiTest extends BaseUserTest {
 
   @Test
   public void registerNewUserInPortfolioMode() throws Exception {
-    // Registering new user with minimum data in portfolio mode.
+    // Registering new user with minimum data (plus isAdmin = true) in portfolio mode.
     clock.setFixedTime("2026-04-10T10:00:00Z");
     configService.set(ConfigConst.GENERAL_PORTFOLIO, "1"); // set to portfolio mode
 
