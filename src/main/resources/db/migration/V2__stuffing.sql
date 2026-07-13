@@ -305,3 +305,5 @@ INSERT INTO iam.user_permissions(id_user, id_permission, created_at, value)
 VALUES ((SELECT max(id) FROM iam.users), 1, CURRENT_TIMESTAMP AT TIME ZONE 'UTC', 'admin');
 INSERT INTO iam.config(id_user, created_at, name, value)
 VALUES ((SELECT max(id) FROM iam.users), CURRENT_TIMESTAMP AT TIME ZONE 'UTC', 'jwt.expire', '4320');
+INSERT INTO iam.config(id_user, created_at, name, value)
+VALUES ((SELECT max(id) FROM iam.users), CURRENT_TIMESTAMP AT TIME ZONE 'UTC', 'portfolio.noDelete', '1');

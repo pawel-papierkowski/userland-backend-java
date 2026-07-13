@@ -4,6 +4,7 @@ import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import org.portfolio.userland.common.repositories.EntityTableHandling;
+import org.portfolio.userland.features.user.constants.UserConfigConst;
 import org.portfolio.userland.features.user.dto.admin.user.UserTableReq;
 import org.portfolio.userland.features.user.entities.User;
 
@@ -50,12 +51,17 @@ public class UserCustomRepositoryImpl extends EntityTableHandling<UserTableReq, 
             DELETE FROM User u
             WHERE u.status = 'ACTIVE'
             AND NOT EXISTS (
-                SELECT h FROM UserHistory h
-                WHERE h.user = u AND h.createdAt >= :cutoffDateAt
+                SELECT uh FROM UserHistory uh
+                WHERE uh.user = u AND uh.createdAt >= :cutoffDateAt
+            )
+            AND NOT EXISTS (
+                SELECT uc FROM UserConfig uc
+                WHERE uc.user = u AND uc.name = :configName and uc.value = '1'
             )
             """;
     return entityManager.createQuery(query)
         .setParameter("cutoffDateAt", cutoffDateAt)
+        .setParameter("configName", UserConfigConst.PORTFOLIO_NODELETE)
         .executeUpdate();
   }
 }

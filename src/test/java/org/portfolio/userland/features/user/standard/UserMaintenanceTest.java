@@ -3,6 +3,7 @@ package org.portfolio.userland.features.user.standard;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.portfolio.userland.features.user.BaseUserTest;
+import org.portfolio.userland.features.user.constants.UserConfigConst;
 import org.portfolio.userland.features.user.entities.*;
 import org.portfolio.userland.features.user.schedulers.UserScheduler;
 import org.portfolio.userland.system.config.service.ConfigConst;
@@ -23,6 +24,37 @@ public class UserMaintenanceTest extends BaseUserTest {
   @BeforeEach
   public void tearDown() {
     resetDatabase();
+  }
+
+  //
+
+  /**
+   * Clean active users: arrange and act.
+   * @return Users created during arrange.
+   */
+  private User[] cleanActiveUsersAA() {
+    // Arrange: add a bunch of random users ensuring each one has different creation time.
+    clock.setFixedTime("2026-04-10T10:00:00Z");
+    User u0 = userRepository.save(userFactory.genRandUser(EnUserStatus.ACTIVE)); // Will not be removed due to recent activity.
+    User u1 = userRepository.save(userFactory.genRandUser(EnUserStatus.ACTIVE)); // Will be removed due to being idle for too long.
+    User u2 = userRepository.save(userFactory.genRandUser(EnUserStatus.PENDING)); // Will not be removed due to PENDING status, even though it is idle for too long.
+    User u3 = userRepository.save(userFactory.genRandUser(EnUserStatus.ACTIVE)); // Will not be removed due to presence of config entry 'portfolio.noDelete' = '1'.
+
+    // Arrange: add some entries in history at certain times.
+    clock.setFixedTime("2026-04-20T14:00:00Z");
+    userHistoryFactory.genHistoryEvent(u0, EnUserHistoryWho.USER, EnUserHistoryWhat.LOGIN, "");
+    clock.setFixedTime("2026-04-20T10:00:00Z");
+    userHistoryFactory.genHistoryEvent(u1, EnUserHistoryWho.USER, EnUserHistoryWhat.LOGIN, "");
+    userConfigFactory.genConfig(u3, UserConfigConst.PORTFOLIO_NODELETE, "1");
+
+    entityManager.flush();
+    entityManager.clear();
+
+    // Act: manually call scheduler method for cleaning up old active users.
+    clock.setFixedTime("2026-04-23T12:30:00Z"); // anything before "2026-04-20T12:30:00Z" will be behind cutoff
+    userScheduler.cleanActiveUsers();
+
+    return new User[] {u0, u1, u2, u3};
   }
 
   // //////////////////////////////////////////////////////////////////////////
@@ -56,11 +88,11 @@ public class UserMaintenanceTest extends BaseUserTest {
   @Test
   @Transactional
   public void cleanActiveUsers() {
-    // Not in portfolio mode, no users will be removed.
+    // Not in portfolio mode, so no users will be removed.
     cleanActiveUsersAA();
 
     // Assert: all users should exist.
-    assertThat(userRepository.count()).as("Count of all users is wrong").isEqualTo(3);
+    assertThat(userRepository.count()).as("Count of all users is wrong").isEqualTo(4);
   }
 
   @Test
@@ -70,38 +102,12 @@ public class UserMaintenanceTest extends BaseUserTest {
     User[] savedUsers = cleanActiveUsersAA();
 
     // Assert: only some users should exist, rest is deleted.
-    assertThat(userRepository.count()).as("Count of all users is wrong").isEqualTo(2);
+    assertThat(userRepository.count()).as("Count of all users after clean is wrong").isEqualTo(3);
     // Make sure correct users survived.
     List<User> users = userRepository.findAll();
     assertThat(users.contains(savedUsers[0])).as("User 0 (ACTIVE but recently active) should exist").isEqualTo(true);
     assertThat(users.contains(savedUsers[2])).as("User 2 (idle for long but PENDING) should exist").isEqualTo(true);
-  }
-
-  /**
-   * Clean active users: arrange and act.
-   * @return Users created during arrange.
-   */
-  private User[] cleanActiveUsersAA() {
-    // Arrange: add a bunch of random users ensuring each one has different creation time.
-    clock.setFixedTime("2026-04-10T10:00:00Z");
-    User u0 = userRepository.save(userFactory.genRandUser(EnUserStatus.ACTIVE)); // Will not be removed due to recent activity.
-    User u1 = userRepository.save(userFactory.genRandUser(EnUserStatus.ACTIVE)); // Will be removed due to being idle for too long.
-    User u2 = userRepository.save(userFactory.genRandUser(EnUserStatus.PENDING)); // Will not be removed due to PENDING status, even though it is idle for too long.
-
-    // Arrange: add some entries in history at certain times.
-    clock.setFixedTime("2026-04-20T14:00:00Z");
-    userHistoryFactory.genHistoryEvent(u0, EnUserHistoryWho.USER, EnUserHistoryWhat.LOGIN, "");
-    clock.setFixedTime("2026-04-20T10:00:00Z");
-    userHistoryFactory.genHistoryEvent(u1, EnUserHistoryWho.USER, EnUserHistoryWhat.LOGIN, "");
-
-    entityManager.flush();
-    entityManager.clear();
-
-    // Act: manually call scheduler method for cleaning up old active users.
-    clock.setFixedTime("2026-04-23T12:30:00Z"); // anything before "2026-04-20T12:30:00Z" will be behind cutoff
-    userScheduler.cleanActiveUsers();
-
-    return new User[] {u0, u1, u2};
+    assertThat(users.contains(savedUsers[3])).as("User 3 (ACTIVE, idle for long but having 'portfolio.noDelete' = '1') should exist").isEqualTo(true);
   }
 
   //

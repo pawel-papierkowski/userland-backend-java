@@ -29,10 +29,9 @@ public interface UserCustomRepository {
   //
 
   /**
-   * Delete active users that were inactive for too long.
+   * Delete active users that were inactive for too long and do not have config 'portfolio.noDelete' with value '1'.
    * @param cutoffDateAt Cutoff date.
    * @return Number of deleted users.
    */
   int deleteActiveUsers(LocalDateTime cutoffDateAt);
-
 }
