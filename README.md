@@ -1,19 +1,20 @@
 # USERLAND-BACKEND-JAVA
 
-This is simple **backend project** demonstrating basics of modern Java and Spring Boot project focused on pure user management. It was made from scratch using Spring Initializr. It is intended to be used with **frontend project** that I will write later.
+This project is **backend** part of **UserLand system**, designed to work with frontend project `userland-frontend-vue`.
 
-Project is actively developed and most functionality is already implemented.
+It demonstrates basics of modern Java and Spring Boot project focused on pure user management. It was made from scratch using Spring Initializr.
 
-Description below sums up intended state when project is completed: functionality, features etc.
+Project is finished.
 
 ## Basic info
 
 Author: **Paweł Papierkowski**
 
 Date: **2026**
+
 Used IDE: **IntelliJ IDEA**
 
-- Public backend address: https://userland-backend-java-299988087135.europe-central2.run.app
+- Public backend address (GCP): https://userland-backend-java-299988087135.europe-central2.run.app
 - Locally run server: http://localhost:8080/
 - Link to source code: https://github.com/pawel-papierkowski/userland-backend-java
 
@@ -38,15 +39,15 @@ You can think of it as baseline for other projects, as almost any project, syste
 - **Admin user**:
   - Viewing **table of users**, including pagination and filtration.
   - Viewing data of selected user (both base user and profile).
-    - Editing data of user. 
+    - Editing data of user (requires separate permission). 
     - Viewing user **config**, **tokens**, **JWTs**, **history** and **permissions**.
-    - Only admin can edit **config**/**permissions** records. **JWTs** can be only removed.
+    - Only admin can edit **config**/**permissions** records.
     - User **lock/unlock**.
 - Other options: 
   - **System lockdown**: if turned on, only users with admin rights can call any endpoint.
   - **System history** for global events like lockdown. 
 - Other features:
-  - **Debug endpoint** `/api/checks` that allow testing various scenarios (access without/with authentication, error handling etc.) for frontend development. 
+  - **Debug endpoints** `/api/checks/*` that allow testing various scenarios (access without/with authentication, error handling etc.) for frontend development. 
   - Sending **emails** (JavaMailSender or Resend).
 
 ## GitHub config
