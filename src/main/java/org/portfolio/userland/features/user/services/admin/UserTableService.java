@@ -106,6 +106,7 @@ public class UserTableService extends BaseUserService {
    * @param userFullDataReq User data to change.
    * @return Updated user data.
    */
+  @Transactional
   public UserFullDataResp editUserData(UserFullDataReq userFullDataReq) {
     verifyRequest(userFullDataReq);
     CustomUserDetails userDetails = AuthHelper.resolveUserDetails();
@@ -114,11 +115,28 @@ public class UserTableService extends BaseUserService {
     User user = userHelperService.resolveUser(userFullDataReq.id(), false, false);
     if (userDetails.getId().equals(user.getId())) // We are not allowed to edit our own account.
       throw new UserCannotEditException(user.getId());
-
     UserProfile userProfile = userProfileRepository.findById(user.getId()).orElseThrow(); // profile should always exist
 
+    user = updateUserData(userFullDataReq, user, userProfile);
+
+    return resolveResponse(user, userProfile);
+  }
+
+  /**
+   * Verify request.
+   * @param userFullDataReq User data to change.
+   */
+  private void verifyRequest(UserFullDataReq userFullDataReq) {
+    // Verify if email is valid.
+    User user = userRepository.findByEmail(userFullDataReq.email()).orElse(null);
+    if (user != null && !user.getId().equals(userFullDataReq.id()))
+      throw new UserEmailAlreadyExistsException(userFullDataReq.email());
+  }
+
+  private User updateUserData(UserFullDataReq userFullDataReq, User user, UserProfile userProfile) {
     boolean userPresent = userFullDataReq.userPresent();
     boolean userProfilePresent = userFullDataReq.userProfilePresent();
+
     String params = "";
     if (userPresent || userProfilePresent) {
       if (userPresent) params += updateUser(userFullDataReq, user);
@@ -135,18 +153,10 @@ public class UserTableService extends BaseUserService {
       }
     }
 
-    return resolveResponse(user, userProfile);
-  }
+    // If email changed, we need to clear all JWTs.
+    if (params.contains("email")) userJwtRepository.deleteAllByUser(user.getId());
 
-  /**
-   * Verify request.
-   * @param userFullDataReq User data to change.
-   */
-  private void verifyRequest(UserFullDataReq userFullDataReq) {
-    // Verify if email is valid.
-    User user = userRepository.findByEmail(userFullDataReq.email()).orElse(null);
-    if (user != null && !user.getId().equals(userFullDataReq.id()))
-      throw new UserEmailAlreadyExistsException(userFullDataReq.email());
+    return user;
   }
 
   /**

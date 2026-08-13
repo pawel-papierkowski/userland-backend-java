@@ -128,6 +128,7 @@ public class UserEmailService extends BaseUserService {
     user.setEmail(userToken.getPayload());
     userRepository.save(user);
 
+    userJwtRepository.deleteAllByUser(user.getId());
     userTokenRepository.deleteToken(userToken.getToken());
     addHistoryEvent(user, nowAt, EnUserHistoryWho.USER, EnUserHistoryWhat.EMAIL_CHANGE, params);
     

@@ -151,6 +151,7 @@ public class UserEmailApiTest extends BaseUserTest {
 
     // Arrange: Create active user in database in state indicating it requested email change.
     User expectedUser = userFactory.genUser(EnUserStatus.ACTIVE);
+    userJwtFactory.genJwtEntry(expectedUser, "some.jwt.string");
     UserToken token = userTokenFactory.genTokenEntry(expectedUser, EnUserTokenType.EMAIL, null, "new.email@test.com");
     userHistoryFactory.genHistoryEvent(expectedUser, EnUserHistoryWho.USER, EnUserHistoryWhat.EMAIL_CHANGE_REQ, "old: 'test@example.com', new: 'new.email@test.com'");
     userRepository.save(expectedUser);
@@ -173,6 +174,7 @@ public class UserEmailApiTest extends BaseUserTest {
     // Prepare expected result.
     expectedUser.setModifiedAt(clockService.getNowUTC());
     expectedUser.setEmail("new.email@test.com");
+    expectedUser.getJwts().clear(); // change of email clears all user sessions, since they are based on email
     expectedUser.getTokens().clear(); // email change token should be gone
     userHistoryFactory.genHistoryEvent(expectedUser, EnUserHistoryWho.USER, EnUserHistoryWhat.EMAIL_CHANGE, "old: 'test@example.com', new: 'new.email@test.com'");
 

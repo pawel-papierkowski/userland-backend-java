@@ -171,6 +171,7 @@ public class UserFullDataApiTest extends BaseUserTest {
     // Arrange: Create user and user profile.
     clock.setFixedTime("2026-04-10T10:00:00Z");
     User expectedUser = userFactory.genUser(EnUserStatus.ACTIVE);
+    userJwtFactory.genJwtEntry(expectedUser, "some.jwt.string");
     UserProfile expectedUserProfile = userProfileFactory.genProfile(expectedUser);
 
     UserProfile userProfile = userProfileRepository.save(expectedUserProfile);
@@ -180,7 +181,7 @@ public class UserFullDataApiTest extends BaseUserTest {
     UserFullDataReq req = UserFullDataReq.builder()
         .id(user.getId())
         .username("Monke")
-        .locked(false)
+        .locked(false) // note user has it false already, so field will be ignored
         .build();
 
     // Act: Try to change data of existing user.
@@ -304,6 +305,55 @@ public class UserFullDataApiTest extends BaseUserTest {
 
     // Assert: Database state.
     transactionTemplate.execute(_ -> {
+      // Assert: User state.
+      assertAllUser(user.getEmail(), expectedUser, expectedUserProfile);
+      return null;
+    });
+  }
+
+  @Test
+  @WithMockCustomUser(authorities = { "ROLE_OPERATOR", "USER_EDIT" })
+  public void editUserEmail() throws Exception {
+    // We want to change email of user. This means removal of JWT data to force user relog.
+    // Arrange: Create user and user profile.
+    clock.setFixedTime("2026-04-10T10:00:00Z");
+    User expectedUser = userFactory.genUser(EnUserStatus.ACTIVE);
+    userJwtFactory.genJwtEntry(expectedUser, "some.jwt.string");
+    UserProfile expectedUserProfile = userProfileFactory.genProfile(expectedUser);
+
+    UserProfile userProfile = userProfileRepository.save(expectedUserProfile);
+    User user = userProfile.getUser();
+
+    // Arrange: Create request that changes email of user.
+    UserFullDataReq req = UserFullDataReq.builder()
+        .id(user.getId())
+        .email("different.email@fictional.domain.com")
+        .profile(null)
+        .build();
+
+    // Act: Try to change data of existing user.
+    clock.setFixedTime("2026-04-12T10:00:00Z");
+    MvcResult mvcResult = mockMvc.perform(patch("/api/admin/user")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(req)))
+        .andReturn();
+
+    // Assert: API Response.
+    assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.OK.value());
+
+    // Prepare expected entities manually.
+    expectedUser.setModifiedAt(clockService.getNowUTC());
+    expectedUser.setEmail("different.email@fictional.domain.com");
+    userHistoryFactory.genHistoryEvent(expectedUser, EnUserHistoryWho.OPERATOR, EnUserHistoryWhat.EDIT, "email");
+
+    // Assert: Verify that endpoint response is correct.
+    UserFullDataResp actualResp = objectMapper.readValue(mvcResult.getResponse().getContentAsString(), UserFullDataResp.class);
+    UserFullDataResp expectedResp = userAdminFactory.genFullData(expectedUser, expectedUserProfile);
+    assertThat(actualResp).as("User full data is invalid").usingRecursiveComparison().isEqualTo(expectedResp);
+
+    // Assert: Database state.
+    transactionTemplate.execute(_ -> {
+      expectedUser.getJwts().clear(); // changing email removes all JWTs, since user sessions are based on email
       // Assert: User state.
       assertAllUser(user.getEmail(), expectedUser, expectedUserProfile);
       return null;

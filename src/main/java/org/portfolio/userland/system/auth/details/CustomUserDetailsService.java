@@ -24,7 +24,7 @@ public class CustomUserDetailsService implements UserDetailsService {
    * @throws UsernameNotFoundException When user was not found.
    */
   @Override
-  @Transactional
+  @Transactional(readOnly = true)
   public @NonNull CustomUserDetails loadUserByUsername(@NonNull String email) throws UsernameNotFoundException {
     // Note we use special version of findByEmail that eagerly loads permissions and jwt, as they are always used
     // in CustomUserDetails.

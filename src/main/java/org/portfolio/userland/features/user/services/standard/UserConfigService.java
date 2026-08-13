@@ -18,10 +18,10 @@ public class UserConfigService extends BaseUserService {
   private final UserConfigRepository userConfigRepository;
 
   /**
-   * Get value of configuration variable.
+   * Get value of configuration variable as string.
    * @param name Name of configuration variable.
    * @param defaultValue Returns this if configuration variable is missing.
-   * @return Value of configuration variable.
+   * @return Value of configuration variable as string.
    */
   @Transactional(readOnly = true)
   public String get(User user, String name, String defaultValue) {
@@ -33,8 +33,8 @@ public class UserConfigService extends BaseUserService {
   /**
    * Get value of configuration variable as Long.
    * @param name Name of configuration variable.
-   * @param defaultValue Returns this if configuration variable is missing.
-   * @return Value of configuration variable as Long. If value cannot be presented as Long, returns defaultValue.
+   * @param defaultValue Returns this if configuration variable is missing (null) or invalid (cannot be parsed as Long).
+   * @return Value of configuration variable as Long.
    */
   @Transactional(readOnly = true)
   public Long getLong(User user, String name, Long defaultValue) {

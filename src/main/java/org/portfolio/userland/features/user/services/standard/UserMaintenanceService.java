@@ -36,6 +36,7 @@ public class UserMaintenanceService {
   @Value("${app.user.cleanup.active.removal-delay}")
   private long activeRemovalDelay;
 
+  /** Deletes all pending users that are too old. */
   @Transactional
   public void cleanPendingUsers() {
     log.info("Starting scheduled cleanup of expired pending users...");
@@ -51,6 +52,7 @@ public class UserMaintenanceService {
     log.info("Cleaned up {} expired pending users. Total time: {} s", deletedUsers, stopWatch.getTotalTimeSeconds());
   }
 
+  /** Deletes all active users that are too old if system is in portfolio mode. */
   @Transactional
   public void cleanActiveUsers() {
     // Only in portfolio mode.
@@ -72,6 +74,7 @@ public class UserMaintenanceService {
 
   //
 
+  /** Deletes all expired tokens. */
   @Transactional
   public void cleanExpiredTokens() {
     log.info("Starting scheduled cleanup of expired tokens...");
@@ -86,6 +89,7 @@ public class UserMaintenanceService {
     log.info("Cleaned up {} expired tokens. Total time: {} s", deletedTokens, stopWatch.getTotalTimeSeconds());
   }
 
+  /** Deletes all expired JWTs. */
   @Transactional
   public void cleanExpiredJwts() {
     log.info("Starting scheduled cleanup of expired JWTs...");

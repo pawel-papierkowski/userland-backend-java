@@ -15,7 +15,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 
 /**
- * Business logic for editing of user account (both user and user profile).
+ * Business logic for editing of your own user account (both user and user profile). As such, only some fields are
+ * allowed to be changed.
  * <p>Notes:</p>
  * <ul>
  *   <li>Email change is not handled here, as it requires more complex flow for security reasons (sending email with
