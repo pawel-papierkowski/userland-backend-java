@@ -75,7 +75,7 @@ This is a modern **Java 25**, **Spring Boot 4.0.5** application. The backend ser
   - Protected and private classes can have comments.
 
 ## 💼 Business Rules
-- User and UserProfile have 1:1 relationship and profile always exist if user exist.
+- `User` and `UserProfile` have 1:1 relationship and profile always exist if user exist.
 
 ## 🌐 Internationalization (I18n)
 - We use a custom `I18nConfig` with a custom `YamlPropertiesPersister` to load `.yaml` files as message sources.

@@ -164,7 +164,7 @@ UserLand has endpoints available publicly to use by frontend, PostMan etc.
 ### Main
 
 - **Java** 25 (Temurin)
-- **Spring Boot** 4.0.5
+- **Spring Boot** 4.1.0
 - **PostgreSQL** 17.9 (Aiven)
 
 ### Dependencies
