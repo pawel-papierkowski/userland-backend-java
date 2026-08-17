@@ -8,7 +8,7 @@ public enum EnUserHistoryWhat {
   CREATE,
   /** User was activated. */
   ACTIVATE,
-  /** User edited their account. */
+  /** User account was edited in some way. */
   EDIT,
   /** Email change was requested. */
   EMAIL_CHANGE_REQ,
@@ -25,5 +25,9 @@ public enum EnUserHistoryWhat {
   /** User logged out. */
   LOGOUT,
   /** User prolonged session. */
-  PROLONG
+  PROLONG,
+  /** User permissions were edited in some way. */
+  EDIT_PERM,
+  /** User configuration was edited in some way. */
+  EDIT_CONFIG,
 }

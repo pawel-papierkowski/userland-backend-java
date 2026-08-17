@@ -11,6 +11,8 @@ import org.portfolio.userland.features.user.dto.admin.permission.UserPermissionE
 import org.portfolio.userland.features.user.dto.admin.permission.UserPermissionTableEntry;
 import org.portfolio.userland.features.user.dto.admin.permission.UserPermissionTableReq;
 import org.portfolio.userland.features.user.dto.admin.permission.UserPermissionTableResp;
+import org.portfolio.userland.features.user.entities.EnUserHistoryWhat;
+import org.portfolio.userland.features.user.entities.EnUserHistoryWho;
 import org.portfolio.userland.features.user.entities.UserPermission;
 import org.portfolio.userland.features.user.exceptions.UserCannotEditException;
 import org.portfolio.userland.features.user.exceptions.UserPermissionMissingException;
@@ -22,6 +24,7 @@ import org.portfolio.userland.system.auth.perm.EnPermKind;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -162,13 +165,27 @@ public class UserPermissionTableService extends BaseUserService {
    */
   @Transactional
   public UserPermission edit(UserPermissionEditReq editReq) {
-    resolve(editReq.id(), editReq.userId()); // side effects are important here
+    UserPermission userPermission = resolve(editReq.id(), editReq.userId()); // side effects are important here
 
     // We need to check if same user permission already exists for this user.
     // Database enforces it, but in this way we get good, informative error instead of sad little 500.
     if (userPermissionRepository.isRedundant(editReq))
       throw new UserPermissionRedundantException(editReq.name()+"_"+editReq.value());
 
+    LocalDateTime nowAt = clockService.getNowUTC();
+    String newPerm = editReq.name() + "_" + editReq.value();
+    if (userPermission == null) { // Leave trace in user history about user permission addition.
+      String params = "add " + newPerm;
+      addHistoryEvent(editReq.userId(), nowAt, EnUserHistoryWho.OPERATOR, EnUserHistoryWhat.EDIT_PERM, params);
+    } else { // Leave trace in user history about user permission edit.
+      String oldPerm = userPermission.getPermission().getName() + "_" +userPermission.getValue();
+      String params = "set ";
+      if (newPerm.equals(oldPerm)) params += newPerm;
+      else params += oldPerm + " to " + newPerm;
+      addHistoryEvent(editReq.userId(), nowAt, EnUserHistoryWho.OPERATOR, EnUserHistoryWhat.EDIT_PERM, params);
+    }
+
+    // Actually add/edit user permission entry.
     UserPermission permissionEntry = userPermissionRepository.upsert(editReq);
     clearJwt(editReq.userId());
     return permissionEntry;
@@ -181,6 +198,13 @@ public class UserPermissionTableService extends BaseUserService {
   @Transactional
   public void delete(Long entryId) {
     UserPermission permissionEntry = resolve(entryId, null);
+
+    // Leave trace in user history about user permission deletion.
+    LocalDateTime nowAt = clockService.getNowUTC();
+    String params = "del "+permissionEntry.getPermission().getName()+"_"+permissionEntry.getValue();
+    addHistoryEvent(permissionEntry.getUser(), nowAt, EnUserHistoryWho.OPERATOR, EnUserHistoryWhat.EDIT_PERM, params);
+
+    // Actually delete user permission entry.
     userPermissionRepository.deleteById(entryId);
     clearJwt(permissionEntry.getUser().getId());
   }

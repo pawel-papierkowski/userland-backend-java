@@ -10,10 +10,7 @@ import org.portfolio.userland.features.user.dto.admin.permission.UserPermissionE
 import org.portfolio.userland.features.user.dto.admin.permission.UserPermissionTableEntry;
 import org.portfolio.userland.features.user.dto.admin.permission.UserPermissionTableReq;
 import org.portfolio.userland.features.user.dto.admin.permission.UserPermissionTableResp;
-import org.portfolio.userland.features.user.entities.EnUserStatus;
-import org.portfolio.userland.features.user.entities.Permission;
-import org.portfolio.userland.features.user.entities.User;
-import org.portfolio.userland.features.user.entities.UserPermission;
+import org.portfolio.userland.features.user.entities.*;
 import org.portfolio.userland.system.auth.details.CustomUserDetails;
 import org.portfolio.userland.test.helpers.context.WithMockCustomUser;
 import org.portfolio.userland.test.helpers.problemDetail.ProblemDetailBox;
@@ -241,8 +238,9 @@ public class UserPermissionTableApiTest extends BaseUserTest {
     // Assert: Database state.
     transactionTemplate.execute(_ -> {
       User expectedUser = users.getFirst();
-      expectedUser.getJwts().clear();
+      expectedUser.getJwts().clear(); // permission change enforce user logout
       userPermissionFactory.genPermissionEntry(expectedUser, permissionRepository.findByName("role").orElseThrow(), "observer");
+      userHistoryFactory.genHistoryEvent(expectedUser, EnUserHistoryWho.OPERATOR, EnUserHistoryWhat.EDIT_PERM, "add role_observer");
 
       // Assert: User state.
       assertAllUser(user.getEmail(), expectedUser, null);
@@ -284,6 +282,7 @@ public class UserPermissionTableApiTest extends BaseUserTest {
       UserPermission expectedUserPermission = resolve(user.getPermissions(), "role", "operator");
       expectedUserPermission.setPermission(permissionRepository.findByName("user").orElseThrow());
       expectedUserPermission.setValue("delete");
+      userHistoryFactory.genHistoryEvent(expectedUser, EnUserHistoryWho.OPERATOR, EnUserHistoryWhat.EDIT_PERM, "set role_operator to user_delete");
 
       // Assert: User state.
       assertAllUser(user.getEmail(), expectedUser, null);
@@ -301,7 +300,7 @@ public class UserPermissionTableApiTest extends BaseUserTest {
     User user = users.getFirst();
     UserPermission userPermission = resolve(user.getPermissions(), "role", "operator");
 
-    // Arrange: Prepare request.
+    // Arrange: Prepare request. Note it edits 'role_operator' into 'role_operator'.
     UserPermissionEditReq req = UserPermissionEditReq.builder()
         .id(userPermission.getId())
         .userId(user.getId())
@@ -322,6 +321,7 @@ public class UserPermissionTableApiTest extends BaseUserTest {
     transactionTemplate.execute(_ -> {
       User expectedUser = users.getFirst();
       expectedUser.getJwts().clear();
+      userHistoryFactory.genHistoryEvent(expectedUser, EnUserHistoryWho.OPERATOR, EnUserHistoryWhat.EDIT_PERM, "set role_operator");
 
       // Assert: User state.
       assertAllUser(user.getEmail(), expectedUser, null);
@@ -352,6 +352,7 @@ public class UserPermissionTableApiTest extends BaseUserTest {
       expectedUser.getJwts().clear();
       UserPermission expectedUserPermission = resolve(user.getPermissions(), "role", "operator");
       expectedUser.getPermissions().remove(expectedUserPermission);
+      userHistoryFactory.genHistoryEvent(expectedUser, EnUserHistoryWho.OPERATOR, EnUserHistoryWhat.EDIT_PERM, "del role_operator");
 
       // Assert: User state.
       assertAllUser(user.getEmail(), expectedUser, null);

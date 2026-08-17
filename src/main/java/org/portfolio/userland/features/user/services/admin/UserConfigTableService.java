@@ -11,6 +11,8 @@ import org.portfolio.userland.features.user.dto.admin.config.UserConfigEditReq;
 import org.portfolio.userland.features.user.dto.admin.config.UserConfigTableEntry;
 import org.portfolio.userland.features.user.dto.admin.config.UserConfigTableReq;
 import org.portfolio.userland.features.user.dto.admin.config.UserConfigTableResp;
+import org.portfolio.userland.features.user.entities.EnUserHistoryWhat;
+import org.portfolio.userland.features.user.entities.EnUserHistoryWho;
 import org.portfolio.userland.features.user.entities.UserConfig;
 import org.portfolio.userland.features.user.exceptions.UserCannotEditException;
 import org.portfolio.userland.features.user.exceptions.UserConfigMissingException;
@@ -22,6 +24,7 @@ import org.portfolio.userland.system.auth.perm.EnPermKind;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -145,13 +148,25 @@ public class UserConfigTableService extends BaseUserService {
    */
   @Transactional
   public UserConfig edit(UserConfigEditReq editReq) {
-    resolve(editReq.id(), editReq.userId()); // side effects are important here
+    UserConfig userConfig = resolve(editReq.id(), editReq.userId()); // side effects are important here
 
     // We need to check if same user config already exists for this user.
     // Database enforces it, but in this way we get good, informative error instead of sad little 500.
     if (userConfigRepository.isRedundant(editReq))
       throw new UserConfigRedundantException(editReq.name());
 
+    LocalDateTime nowAt = clockService.getNowUTC();
+    if (userConfig == null) { // Leave trace in user history about user config addition.
+      String params = "add " + editReq.name();
+      addHistoryEvent(editReq.userId(), nowAt, EnUserHistoryWho.OPERATOR, EnUserHistoryWhat.EDIT_CONFIG, params);
+    } else { // Leave trace in user history about user config edit.
+      String params = "set ";
+      if (editReq.name().equals(userConfig.getName())) params += editReq.name();
+      else params += userConfig.getName() + " to " + editReq.name();
+      addHistoryEvent(editReq.userId(), nowAt, EnUserHistoryWho.OPERATOR, EnUserHistoryWhat.EDIT_CONFIG, params);
+    }
+
+    // Actually add/edit user config entry.
     return userConfigRepository.upsert(editReq);
   }
 
@@ -161,15 +176,22 @@ public class UserConfigTableService extends BaseUserService {
    */
   @Transactional
   public void delete(Long entryId) {
-    resolve(entryId, null); // side effects are important here
+    UserConfig userConfig = resolve(entryId, null); // side effects are important here
+
+    // Leave trace in user history about user config deletion.
+    LocalDateTime nowAt = clockService.getNowUTC();
+    String params = "del "+userConfig.getName();
+    addHistoryEvent(userConfig.getUser(), nowAt, EnUserHistoryWho.OPERATOR, EnUserHistoryWhat.EDIT_CONFIG, params);
+
+    // Actually delete user config entry.
     userConfigRepository.deleteById(entryId);
   }
 
   /**
    * Resolve configuration entry.
-   * @param entryId Identificator of configuration entry.
+   * @param entryId Identificator of configuration entry. Can be null if it is new entry.
    * @param userId Identificator of user.
-   * @return Configuration entry.
+   * @return Configuration entry or null if it is new entry.
    */
   private UserConfig resolve(Long entryId, Long userId) {
     if (entryId == null && userId == null) return null;
