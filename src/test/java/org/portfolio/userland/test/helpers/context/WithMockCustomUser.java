@@ -11,7 +11,7 @@ import java.lang.annotation.Target;
 /**
  * Mocks logged in <code>CustomUserDetails</code>.
  * Note that even with this you will often need to create users in database or emulate logged-in user in mockMvc
- * programmatically.
+ * programmatically (via <code>.header("Authorization", "Bearer " + token)</code>).
  * @see CustomUserDetails Custom user details.
  */
 @Target({ElementType.TYPE, ElementType.METHOD})

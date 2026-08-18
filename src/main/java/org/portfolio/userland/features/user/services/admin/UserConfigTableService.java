@@ -83,9 +83,13 @@ public class UserConfigTableService extends BaseUserService {
    * @return User config page response.
    */
   private UserConfigTableResp cnvEntitiesToEntries(Long userId, List<UserConfig> entities, TableMetaReq tableMetaReq, Long entryCount) {
+    // All entries have same metadata, as they all are for same user and there is same logged-in user (that may or may not be same user as one referred by userId).
+    // Meta is not dependent on content of entity.
+    EntryMetaResp meta = resolveMetadata(userId);
+
     List<UserConfigTableEntry> entries = new ArrayList<>();
     for (UserConfig entity : entities) {
-      UserConfigTableEntry entry = addMetaData(userId, userMapper.entityToTableEntry(entity));
+      UserConfigTableEntry entry = toEntry(entity, meta);
       entries.add(entry);
     }
     return UserConfigTableResp.builder()
@@ -97,20 +101,28 @@ public class UserConfigTableService extends BaseUserService {
   //
 
   /**
-   * Add metadata to given entry.
-   * @param userId User identificator for this entry.
-   * @param entry Entry to amend.
+   * Convert entity to entry and add metadata to it.
+   * @param entity User config entity.
+   * @param meta Metadata for this entry.
    * @return Updated entry.
    */
-  private UserConfigTableEntry addMetaData(Long userId, UserConfigTableEntry entry) {
+  private UserConfigTableEntry toEntry(UserConfig entity, EntryMetaResp meta) {
+    return userMapper.entityToTableEntry(entity).toBuilder()
+        .meta(meta)
+        .build();
+  }
+
+  /**
+   * Resolve metadata for user config entry.
+   * @param userId User identificator for this entry.
+   * @return Entry metadata.
+   */
+  private EntryMetaResp resolveMetadata(Long userId) {
     Map<String, EntryOption> options = new HashMap<>();
     options.put("edit", resolveOption(userId));
     options.put("delete", resolveOption(userId));
-    EntryMetaResp meta = EntryMetaResp.builder()
+    return EntryMetaResp.builder()
         .options(options)
-        .build();
-    return entry.toBuilder()
-        .meta(meta)
         .build();
   }
 

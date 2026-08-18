@@ -124,15 +124,15 @@ public class SystemLockdownApiTest extends BaseSystemTest {
   // //////////////////////////////////////////////////////////////////////////
 
   @Test
-  @WithMockCustomUser(email = "admin@test.com", authorities = { "ROLE_ADMIN" })
   public void activateLockdown() throws Exception {
     // Lockdown is inactive, activate it.
     clock.setFixedTime("2026-04-10T10:00:00Z");
+
     // Arrange: Add two users, one standard and other admin. Both are logged in.
     User expectedUserStandard = userFactory.genRandUserLogged();
     userRepository.save(expectedUserStandard);
     User expectedUserAdmin = userFactory.genRandUserLogged(Map.of("role", "admin"));
-    expectedUserAdmin.setEmail("admin@test.com");
+    String token = expectedUserAdmin.getJwts().stream().toList().getFirst().getToken();
     User userAdmin = userRepository.save(expectedUserAdmin);
 
     // Arrange: Request.
@@ -140,6 +140,7 @@ public class SystemLockdownApiTest extends BaseSystemTest {
 
     // Act: Set system lockdown.
     MvcResult mvcResult = mockMvc.perform(post("/api/system/lockdown")
+        .header("Authorization", "Bearer " + token)
         .contentType(MediaType.APPLICATION_JSON)
         .content(objectMapper.writeValueAsString(req)))
         .andReturn();
@@ -170,13 +171,12 @@ public class SystemLockdownApiTest extends BaseSystemTest {
   }
 
   @Test
-  @WithMockCustomUser(email = "admin@test.com", authorities = { "ROLE_ADMIN" })
   public void deactivateLockdown() throws Exception {
     // Lockdown is active, deactivate it.
     clock.setFixedTime("2026-04-10T10:00:00Z");
     // Arrange: Add admin user.
     User expectedUserAdmin = userFactory.genRandUserLogged(Map.of("role", "admin"));
-    expectedUserAdmin.setEmail("admin@test.com");
+    String token = expectedUserAdmin.getJwts().stream().toList().getFirst().getToken();
     User userAdmin = userRepository.save(expectedUserAdmin);
 
     // Arrange: Activate lockdown.
@@ -190,6 +190,7 @@ public class SystemLockdownApiTest extends BaseSystemTest {
 
     // Act: Set system lockdown.
     MvcResult mvcResult = mockMvc.perform(post("/api/system/lockdown")
+            .header("Authorization", "Bearer " + token)
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(req)))
         .andReturn();
