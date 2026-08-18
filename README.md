@@ -119,6 +119,14 @@ You need to configure environment variables for your run configuration. Most var
 If you run test deployment locally via `TestUserLandApplication`, you need Docker engine running on your computer.
 Same with running tests in general.
 
+### Commands
+
+Note we use Maven wrapper.
+
+Run all tests for this project: `.\mvnw.cmd clean test`
+
+Run all tests from given test file: `.\mvnw.cmd clean test -Dtest=ClassNameTest`
+
 ### Coverage
 
 For informative coverage you need to configure your coverage tool. In particular, you need to exclude:

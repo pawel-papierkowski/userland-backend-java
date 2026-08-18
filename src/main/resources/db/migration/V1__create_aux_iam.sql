@@ -268,8 +268,8 @@ CREATE TABLE aux.history (
     -- Parameters for system history event.
     params TEXT NOT NULL,
 
-    -- Table-level constraint for Foreign Key.
-    CONSTRAINT fk_user FOREIGN KEY (id_user) REFERENCES iam.users(id)
+    -- Table-level constraint for Foreign Key. Note that system history should survive user deletion.
+    CONSTRAINT fk_user FOREIGN KEY (id_user) REFERENCES iam.users(id) ON DELETE SET NULL
 );
 -- Indexes for aux.history.
 CREATE INDEX idx_aux_history_id_user ON aux.history (id_user);

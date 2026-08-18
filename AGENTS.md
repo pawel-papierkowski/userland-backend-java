@@ -15,12 +15,14 @@ This is a modern **Java 25**, **Spring Boot 4.1.0** application. The backend ser
 - **Database:** PostgreSQL 17 via Spring Data JPA
 - **Templating:** Thymeleaf (specifically for emails)
 
-### ⌨️ Build & Run Commands
-- Compile the project: `mvn clean compile`
-- Run all tests: `mvn clean test`
-- Run a single test class: `mvn test -Dtest=ClassNameTest`
-- Generate JaCoCo coverage report: `mvn clean test jacoco:report`
-- Start the application locally: `mvn spring-boot:run`
+## 💻 Terminal commands
+- **Maven:** Use Maven wrapper `.\mvnw`.
+  - Compile the project: `.\mvnw clean compile`
+  - Run single test: `.\mvnw test "-Dtest=ClassNameTest#nameOfTestFunction"`
+  - Run all tests from single file: `.\mvnw test "-Dtest=ClassNameTest"`
+  - Run all tests for entire project: `.\mvnw clean test` (only at end of work/task to make sure nothing broke)
+  - Generate JaCoCo coverage report: `.\mvnw clean test jacoco:report`
+  - Start the application locally: `.\mvnw spring-boot:run`
 
 *Note: You do not need to start a local database manually. The project uses Testcontainers and Docker Compose support for local development and testing.*
 

@@ -6,7 +6,14 @@ import org.portfolio.userland.features.user.BaseUserTest;
 import org.portfolio.userland.features.user.constants.UserConfigConst;
 import org.portfolio.userland.features.user.entities.*;
 import org.portfolio.userland.features.user.schedulers.UserScheduler;
+import org.portfolio.userland.features.user.services.standard.UserMaintenanceService;
 import org.portfolio.userland.system.config.service.ConfigConst;
+import org.portfolio.userland.system.history.entities.EnHistoryWhat;
+import org.portfolio.userland.system.history.entities.EnHistoryWho;
+import org.portfolio.userland.system.history.entities.SystemHistory;
+import org.portfolio.userland.system.history.services.SystemHistoryService;
+import org.portfolio.userland.test.helpers.asserts.SystemHistoryAssert;
+import org.portfolio.userland.test.helpers.factories.system.SystemHistoryFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,6 +27,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class UserMaintenanceTest extends BaseUserTest {
   @Autowired
   private UserScheduler userScheduler;
+  @Autowired
+  private UserMaintenanceService userMaintenanceService;
+  @Autowired
+  private SystemHistoryService systemHistoryService;
+  @Autowired
+  private SystemHistoryFactory systemHistoryFactory;
+  @Autowired
+  private SystemHistoryAssert systemHistoryAssert;
 
   @BeforeEach
   public void tearDown() {
@@ -108,6 +123,39 @@ public class UserMaintenanceTest extends BaseUserTest {
     assertThat(users.contains(savedUsers[0])).as("User 0 (ACTIVE but recently active) should exist").isEqualTo(true);
     assertThat(users.contains(savedUsers[2])).as("User 2 (idle for long but PENDING) should exist").isEqualTo(true);
     assertThat(users.contains(savedUsers[3])).as("User 3 (ACTIVE, idle for long but having 'portfolio.noDelete' = '1') should exist").isEqualTo(true);
+  }
+
+  @Test
+  @Transactional
+  public void cleanActiveUsersWithSystemHistory() {
+    configService.set(ConfigConst.GENERAL_PORTFOLIO, "1"); // set to portfolio mode
+
+    // Arrange: Add active user that is idle for too long (it will be removed by the cleanup).
+    clock.setFixedTime("2026-04-10T10:00:00Z");
+    User user = userRepository.save(userFactory.genRandUser(EnUserStatus.ACTIVE));
+
+    // Arrange: Add system history event assigned to that user. This simulates user performing action that
+    // got logged in aux.history (like admin toggling lockdown). Expected event: note user must be null after cleanup.
+    SystemHistory expectedHistoryEvent = systemHistoryFactory.genHistoryEvent(null, EnHistoryWho.ADMIN, EnHistoryWhat.LOCKDOWN, "ON");
+    systemHistoryService.addEvent(user.getId(), EnHistoryWho.ADMIN, EnHistoryWhat.LOCKDOWN, "ON");
+
+    entityManager.flush();
+    entityManager.clear();
+
+    // Act: manually call cleanup of old active users. Note: user is present in aux.history (system history), so its FK
+    // has ON DELETE SET NULL. Cleanup must not crash and history must survive.
+    // Note: we call the service directly instead of the scheduler, because scheduler is guarded by ShedLock
+    // (lockAtLeastFor = 1m) and another test in this class may still hold the lock, silently skipping the call.
+    clock.setFixedTime("2026-04-23T12:30:00Z"); // anything before "2026-04-20T12:30:00Z" will be behind cutoff
+    userMaintenanceService.cleanActiveUsers();
+
+    entityManager.flush();
+    entityManager.clear();
+
+    // Assert: user is removed.
+    assertThat(userRepository.count()).as("Count of all users is wrong").isEqualTo(0);
+    // Assert: system history event survived the cleanup, but is no longer linked to the deleted user.
+    systemHistoryAssert.assertAll(List.of(expectedHistoryEvent));
   }
 
   //

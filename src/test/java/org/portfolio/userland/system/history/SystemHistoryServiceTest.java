@@ -10,6 +10,7 @@ import org.portfolio.userland.system.history.entities.EnHistoryWho;
 import org.portfolio.userland.system.history.entities.SystemHistory;
 import org.portfolio.userland.system.history.services.SystemHistoryService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -54,6 +55,32 @@ public class SystemHistoryServiceTest extends BaseSystemTest {
     systemHistoryService.addEvent(user.getId(), EnHistoryWho.ADMIN, EnHistoryWhat.LOCKDOWN, "ON");
 
     // Assert: System history event is in database.
+    systemHistoryAssert.assertAll(List.of(expectedHistoryEvent));
+  }
+
+  @Test
+  @Transactional
+  public void historyEventSurvivesUserDeletion() {
+    clock.setFixedTime("2026-04-10T10:00:00Z");
+    // Arrange: Add user.
+    User user = userFactory.genRandUser(EnUserStatus.ACTIVE);
+    user = userRepository.save(user);
+
+    // Arrange: Add system history event assigned to that user.
+    systemHistoryService.addEvent(user.getId(), EnHistoryWho.ADMIN, EnHistoryWhat.LOCKDOWN, "ON");
+
+    // Detach everything, so user deletion happens as in production (no stale references in persistence context).
+    entityManager.flush();
+    entityManager.clear();
+
+    // Act: Delete the user. Note system history events live in aux.history (system audit), not in user-owned tables,
+    // so they must survive the deletion (FK id_user has ON DELETE SET NULL).
+    userRepository.delete(user);
+    entityManager.flush();
+    entityManager.clear();
+
+    // Assert: System history event is still in database, but it is no longer linked to the deleted user.
+    SystemHistory expectedHistoryEvent = systemHistoryFactory.genHistoryEvent(null, EnHistoryWho.ADMIN, EnHistoryWhat.LOCKDOWN, "ON");
     systemHistoryAssert.assertAll(List.of(expectedHistoryEvent));
   }
 }
