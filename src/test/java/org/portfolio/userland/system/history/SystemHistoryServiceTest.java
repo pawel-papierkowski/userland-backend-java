@@ -2,6 +2,8 @@ package org.portfolio.userland.system.history;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.portfolio.userland.features.user.entities.EnUserStatus;
+import org.portfolio.userland.features.user.entities.User;
 import org.portfolio.userland.system.BaseSystemTest;
 import org.portfolio.userland.system.history.entities.EnHistoryWhat;
 import org.portfolio.userland.system.history.entities.EnHistoryWho;
@@ -26,13 +28,30 @@ public class SystemHistoryServiceTest extends BaseSystemTest {
   //
 
   @Test
-  public void addHistoryEvent() {
+  public void addHistoryEventLockdown() {
     clock.setFixedTime("2026-04-10T10:00:00Z");
     // Arrange: Expected result.
     SystemHistory expectedHistoryEvent = systemHistoryFactory.genHistoryEvent(null, EnHistoryWho.ADMIN, EnHistoryWhat.LOCKDOWN, "ON");
 
-    // Act: Add system history event to database.
+    // Act: Add system history event to database. Note no user is assigned.
     systemHistoryService.addEvent(null, EnHistoryWho.ADMIN, EnHistoryWhat.LOCKDOWN, "ON");
+
+    // Assert: System history event is in database.
+    systemHistoryAssert.assertAll(List.of(expectedHistoryEvent));
+  }
+
+  @Test
+  public void addHistoryEventForUser() {
+    clock.setFixedTime("2026-04-10T10:00:00Z");
+    // Arrange: Add user.
+    User user = userFactory.genRandUser(EnUserStatus.ACTIVE);
+    user = userRepository.save(user);
+
+    // Arrange: Expected result.
+    SystemHistory expectedHistoryEvent = systemHistoryFactory.genHistoryEvent(user, EnHistoryWho.ADMIN, EnHistoryWhat.LOCKDOWN, "ON");
+
+    // Act: Add system history event to database assigned to certain user.
+    systemHistoryService.addEvent(user.getId(), EnHistoryWho.ADMIN, EnHistoryWhat.LOCKDOWN, "ON");
 
     // Assert: System history event is in database.
     systemHistoryAssert.assertAll(List.of(expectedHistoryEvent));

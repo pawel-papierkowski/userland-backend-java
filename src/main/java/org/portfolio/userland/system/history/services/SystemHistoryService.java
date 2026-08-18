@@ -36,21 +36,23 @@ public class SystemHistoryService extends BaseService {
   public void addEvent(EnHistoryWho who, EnHistoryWhat what, String params) {
     // Try to resolve logged user, if any exists.
     CustomUserDetails userDetails = AuthHelper.resolveUserDetails();
-    User user = null;
-    if (userDetails != null) user = userRepository.findByEmail(userDetails.getEmail()).orElse(null);
-    addEvent(user, who, what, params);
+    Long userId = null;
+    if (userDetails != null) userId = userDetails.getId();
+    addEvent(userId, who, what, params);
   }
 
   /**
    * Add system history event to database.
-   * @param user User. Can be null.
+   * @param userId User identificator. Can be null if no user is involved in this system history event.
    * @param who Who did that?
    * @param what What happened?
    * @param params Event parameters.
    */
   @Transactional
-  public void addEvent(User user, EnHistoryWho who, EnHistoryWhat what, String params) {
+  public void addEvent(Long userId, EnHistoryWho who, EnHistoryWhat what, String params) {
     LocalDateTime nowAt = clockService.getNowUTC();
+
+    User user = userId == null ? null : userRepository.getReferenceById(userId);
 
     SystemHistory systemHistoryEvent = new SystemHistory();
     systemHistoryEvent.setUuid(securityGeneratorService.uuid());
