@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 import org.portfolio.userland.common.annotations.NoCoverageGenerated;
 
 import java.time.LocalDateTime;
@@ -30,6 +32,7 @@ public class UserConfig {
   /** User that has this configuration entry. */
   @ManyToOne
   @JoinColumn(name = "id_user")
+  @OnDelete(action = OnDeleteAction.CASCADE)
   private User user;
 
   //

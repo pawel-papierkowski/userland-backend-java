@@ -5,6 +5,8 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 import org.portfolio.userland.common.annotations.NoCoverageGenerated;
 import org.portfolio.userland.common.constants.ValidConst;
 
@@ -82,27 +84,32 @@ public class User {
   // related tables (note profile is missing)
 
   /** Configuration of this user. */
-  @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+  @OneToMany(mappedBy = "user", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+  @OnDelete(action = OnDeleteAction.CASCADE) // DB handles cascade delete of children
   @OrderBy("id ASC")
   private List<UserConfig> configs = new ArrayList<>();
 
   /** History of this user. Has potential to be large. */
-  @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+  @OneToMany(mappedBy = "user", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+  @OnDelete(action = OnDeleteAction.CASCADE) // DB handles cascade delete of children
   @OrderBy("id ASC")
   private List<UserHistory> history = new ArrayList<>();
 
   /** Tokens that this user has. Same user can have only one token of given type at once. */
-  @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+  @OneToMany(mappedBy = "user", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+  @OnDelete(action = OnDeleteAction.CASCADE) // DB handles cascade delete of children
   @OrderBy("id ASC")
   private List<UserToken> tokens = new ArrayList<>();
 
   /** JWT assigned to this user. */
-  @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+  @OneToMany(mappedBy = "user", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+  @OnDelete(action = OnDeleteAction.CASCADE) // DB handles cascade delete of children
   @OrderBy("id ASC")
   private Set<UserJwt> jwts = new HashSet<>();
 
   /** Permissions that this user has. */
-  @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+  @OneToMany(mappedBy = "user", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+  @OnDelete(action = OnDeleteAction.CASCADE) // DB handles cascade delete of children
   @OrderBy("id ASC")
   private Set<UserPermission> permissions = new HashSet<>();
 

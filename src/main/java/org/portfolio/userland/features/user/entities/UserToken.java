@@ -3,6 +3,8 @@ package org.portfolio.userland.features.user.entities;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 import org.portfolio.userland.common.annotations.NoCoverageGenerated;
 
 import java.time.LocalDateTime;
@@ -24,6 +26,7 @@ public class UserToken {
   /** User that has this token entry. */
   @ManyToOne
   @JoinColumn(name = "id_user")
+  @OnDelete(action = OnDeleteAction.CASCADE)
   private User user;
 
   //

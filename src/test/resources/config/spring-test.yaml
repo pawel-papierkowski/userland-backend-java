@@ -4,6 +4,10 @@
 spring:
   main:
     lazy-initialization: false # enforce initializing all beans on startup, so any issue will show at start
+  jpa:
+    properties:
+      hibernate:
+        generate_statistics: true # enables SessionFactory statistics, needed for query-count assertions
 
 security:
   jwt:

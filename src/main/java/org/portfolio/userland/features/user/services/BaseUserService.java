@@ -99,9 +99,10 @@ public abstract class BaseUserService extends BaseService {
     UserToken token = findToken(tokens, type);
     if (token == null) return true; // no token of this type present at all, everything is fine
 
-    // Expired token will be removed to make place for new token.
+    // Expired token will be removed to make place for new token. Note orphan removal is not used, so we delete it explicitly.
     if (token.getExpiresAt().isBefore(nowAt)) {
       tokens.remove(token);
+      userTokenRepository.delete(token);
       // Important to flush here, otherwise Bad Things Happen. It is fine if it is saved in rollback scenario, as
       // expired tokens cannot be used anyway.
       userRepository.saveAndFlush(user);

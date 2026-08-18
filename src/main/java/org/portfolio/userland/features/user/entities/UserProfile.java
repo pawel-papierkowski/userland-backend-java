@@ -3,6 +3,8 @@ package org.portfolio.userland.features.user.entities;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 /**
  * <p>User profile. User always has profile. Note database does not enforce it, you are responsible for that.</p>
@@ -19,10 +21,12 @@ public class UserProfile {
   /** Identificator. Note: no generated value, as we use @MapsId. Profile will always have same id as main user table. */
   @Id
   private Long id;
+
   /** User entity that owns this profile. Note UserProfile owns this relationship. */
   @OneToOne(optional = false, fetch = FetchType.LAZY)
   @MapsId // Ensures id of UserProfile is same as id of User.
   @JoinColumn(name = "id", unique = true, nullable = false, updatable = false)
+  @OnDelete(action = OnDeleteAction.CASCADE)
   private User user;
 
   //
