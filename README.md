@@ -32,7 +32,7 @@ You can think of it as baseline for other projects, as almost any project, syste
   - User **login**.
   - User **logout**.
   - **Editing** of your own user account.
-  - Secure **email change** (sensitive operation).
+  - Safe **email change** (sensitive operation).
   - **Password reset** via email.
   - User **account deletion** via email.
 - Handling **user permissions** (standard user vs panel admin operator).
@@ -41,7 +41,7 @@ You can think of it as baseline for other projects, as almost any project, syste
   - Viewing data of selected user (both base user and profile).
     - Editing data of user (requires separate permission). 
     - Viewing user **config**, **tokens**, **JWTs**, **history** and **permissions**.
-    - Only admin can edit **config**/**permissions** records.
+    - Only admin or operator with appropriate permissions can edit **config**/**permissions** records.
     - User **lock/unlock**.
 - Other options: 
   - **System lockdown**: if turned on, only users with admin rights can call any endpoint.
@@ -134,7 +134,7 @@ This app uses (free tier for all of these):
   - **Run** for backend hosting.
   - **Tasks** for email send requests hosting. Note: in local development emails are sent as is without using Cloud Tasks.
 - **Aiven** for PostgreSQL database hosting.
-- **Resend** (or JavaMailSender) for email services.
+- **Resend** (or `JavaMailSender`) for email services.
 
 **UserLand** app is deployed via **GitHub Actions**.
 

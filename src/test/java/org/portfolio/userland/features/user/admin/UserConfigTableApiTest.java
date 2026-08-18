@@ -218,7 +218,7 @@ public class UserConfigTableApiTest extends BaseUserTest {
     transactionTemplate.execute(_ -> {
       User expectedUser = users.getFirst();
       userConfigFactory.genConfig(expectedUser, "new.config", "new.value");
-      userHistoryFactory.genHistoryEvent(expectedUser, EnUserHistoryWho.OPERATOR, EnUserHistoryWhat.EDIT_CONFIG, "add new.config");
+      userHistoryFactory.genHistoryEvent(expectedUser, EnUserHistoryWho.OPERATOR, EnUserHistoryWhat.EDIT_CONFIG, "add 'new.config'");
 
       // Assert: User state.
       assertAllUser(user.getEmail(), expectedUser, null);
@@ -259,7 +259,7 @@ public class UserConfigTableApiTest extends BaseUserTest {
       UserConfig expectedUserConfig = user.getConfigs().getFirst();
       expectedUserConfig.setName("new.config");
       expectedUserConfig.setValue("new.value");
-      userHistoryFactory.genHistoryEvent(expectedUser, EnUserHistoryWho.OPERATOR, EnUserHistoryWhat.EDIT_CONFIG, "set other.config.var to new.config");
+      userHistoryFactory.genHistoryEvent(expectedUser, EnUserHistoryWho.OPERATOR, EnUserHistoryWhat.EDIT_CONFIG, "set 'other.config.var' to 'new.config'");
 
       // Assert: User state.
       assertAllUser(user.getEmail(), expectedUser, null);
@@ -270,7 +270,7 @@ public class UserConfigTableApiTest extends BaseUserTest {
   @Test
   @WithMockCustomUser(authorities = { "ROLE_ADMIN" })
   public void editSameUserConfig() throws Exception {
-    // Changing user config into same user config is allowed, if pointless. Only side effect is additional entry in history.
+    // Changing user config into same user config is allowed, if pointless. Only side effect is new entry in history.
 
     // Arrange: Get user with many config entries.
     List<User> users = arrangeUserData();
@@ -297,7 +297,7 @@ public class UserConfigTableApiTest extends BaseUserTest {
     // Assert: Database state.
     transactionTemplate.execute(_ -> {
       User expectedUser = users.getFirst();
-      userHistoryFactory.genHistoryEvent(expectedUser, EnUserHistoryWho.OPERATOR, EnUserHistoryWhat.EDIT_CONFIG, "set other.config.var");
+      userHistoryFactory.genHistoryEvent(expectedUser, EnUserHistoryWho.OPERATOR, EnUserHistoryWhat.EDIT_CONFIG, "set 'other.config.var'");
 
       // Assert: User state.
       assertAllUser(user.getEmail(), expectedUser, null);
@@ -326,7 +326,7 @@ public class UserConfigTableApiTest extends BaseUserTest {
     transactionTemplate.execute(_ -> {
       User expectedUser = users.getFirst();
       expectedUser.getConfigs().removeFirst();
-      userHistoryFactory.genHistoryEvent(expectedUser, EnUserHistoryWho.OPERATOR, EnUserHistoryWhat.EDIT_CONFIG, "del other.config.var");
+      userHistoryFactory.genHistoryEvent(expectedUser, EnUserHistoryWho.OPERATOR, EnUserHistoryWhat.EDIT_CONFIG, "del 'other.config.var'");
 
       // Assert: User state.
       assertAllUser(user.getEmail(), expectedUser, null);

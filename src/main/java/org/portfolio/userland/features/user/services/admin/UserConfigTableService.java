@@ -149,20 +149,21 @@ public class UserConfigTableService extends BaseUserService {
   @Transactional
   public UserConfig edit(UserConfigEditReq editReq) {
     UserConfig userConfig = resolve(editReq.id(), editReq.userId()); // side effects are important here
+    String newConfig = editReq.name();
 
     // We need to check if same user config already exists for this user.
     // Database enforces it, but in this way we get good, informative error instead of sad little 500.
     if (userConfigRepository.isRedundant(editReq))
-      throw new UserConfigRedundantException(editReq.name());
+      throw new UserConfigRedundantException(newConfig);
 
     LocalDateTime nowAt = clockService.getNowUTC();
     if (userConfig == null) { // Leave trace in user history about user config addition.
-      String params = "add " + editReq.name();
+      String params = "add '" + newConfig + "'";
       addHistoryEvent(editReq.userId(), nowAt, EnUserHistoryWho.OPERATOR, EnUserHistoryWhat.EDIT_CONFIG, params);
     } else { // Leave trace in user history about user config edit.
       String params = "set ";
-      if (editReq.name().equals(userConfig.getName())) params += editReq.name();
-      else params += userConfig.getName() + " to " + editReq.name();
+      if (newConfig.equals(userConfig.getName())) params += "'" + newConfig + "'"; // changed only value, if that
+      else params += "'" + userConfig.getName() + "' to '" + newConfig + "'";
       addHistoryEvent(editReq.userId(), nowAt, EnUserHistoryWho.OPERATOR, EnUserHistoryWhat.EDIT_CONFIG, params);
     }
 
@@ -180,7 +181,7 @@ public class UserConfigTableService extends BaseUserService {
 
     // Leave trace in user history about user config deletion.
     LocalDateTime nowAt = clockService.getNowUTC();
-    String params = "del "+userConfig.getName();
+    String params = "del '"+userConfig.getName() + "'";
     addHistoryEvent(userConfig.getUser(), nowAt, EnUserHistoryWho.OPERATOR, EnUserHistoryWhat.EDIT_CONFIG, params);
 
     // Actually delete user config entry.

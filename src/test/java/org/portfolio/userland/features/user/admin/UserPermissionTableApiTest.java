@@ -240,7 +240,7 @@ public class UserPermissionTableApiTest extends BaseUserTest {
       User expectedUser = users.getFirst();
       expectedUser.getJwts().clear(); // permission change enforce user logout
       userPermissionFactory.genPermissionEntry(expectedUser, permissionRepository.findByName("role").orElseThrow(), "observer");
-      userHistoryFactory.genHistoryEvent(expectedUser, EnUserHistoryWho.OPERATOR, EnUserHistoryWhat.EDIT_PERM, "add role_observer");
+      userHistoryFactory.genHistoryEvent(expectedUser, EnUserHistoryWho.OPERATOR, EnUserHistoryWhat.EDIT_PERM, "add 'role_observer'");
 
       // Assert: User state.
       assertAllUser(user.getEmail(), expectedUser, null);
@@ -282,7 +282,7 @@ public class UserPermissionTableApiTest extends BaseUserTest {
       UserPermission expectedUserPermission = resolve(user.getPermissions(), "role", "operator");
       expectedUserPermission.setPermission(permissionRepository.findByName("user").orElseThrow());
       expectedUserPermission.setValue("delete");
-      userHistoryFactory.genHistoryEvent(expectedUser, EnUserHistoryWho.OPERATOR, EnUserHistoryWhat.EDIT_PERM, "set role_operator to user_delete");
+      userHistoryFactory.genHistoryEvent(expectedUser, EnUserHistoryWho.OPERATOR, EnUserHistoryWhat.EDIT_PERM, "set 'role_operator' to 'user_delete'");
 
       // Assert: User state.
       assertAllUser(user.getEmail(), expectedUser, null);
@@ -295,6 +295,7 @@ public class UserPermissionTableApiTest extends BaseUserTest {
   public void editSameUserPermission() throws Exception {
     // Changing user permission into same user permission is allowed. It won't change user permission, but will still
     // clear JWTs.
+
     // Arrange: Get user with many permission entries.
     List<User> users = arrangeUserData();
     User user = users.getFirst();
@@ -321,7 +322,7 @@ public class UserPermissionTableApiTest extends BaseUserTest {
     transactionTemplate.execute(_ -> {
       User expectedUser = users.getFirst();
       expectedUser.getJwts().clear();
-      userHistoryFactory.genHistoryEvent(expectedUser, EnUserHistoryWho.OPERATOR, EnUserHistoryWhat.EDIT_PERM, "set role_operator");
+      userHistoryFactory.genHistoryEvent(expectedUser, EnUserHistoryWho.OPERATOR, EnUserHistoryWhat.EDIT_PERM, "set 'role_operator'");
 
       // Assert: User state.
       assertAllUser(user.getEmail(), expectedUser, null);
@@ -352,7 +353,7 @@ public class UserPermissionTableApiTest extends BaseUserTest {
       expectedUser.getJwts().clear();
       UserPermission expectedUserPermission = resolve(user.getPermissions(), "role", "operator");
       expectedUser.getPermissions().remove(expectedUserPermission);
-      userHistoryFactory.genHistoryEvent(expectedUser, EnUserHistoryWho.OPERATOR, EnUserHistoryWhat.EDIT_PERM, "del role_operator");
+      userHistoryFactory.genHistoryEvent(expectedUser, EnUserHistoryWho.OPERATOR, EnUserHistoryWhat.EDIT_PERM, "del 'role_operator'");
 
       // Assert: User state.
       assertAllUser(user.getEmail(), expectedUser, null);

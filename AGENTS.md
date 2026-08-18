@@ -2,16 +2,20 @@
 
 This file contains rules and context for AI coding agents working on the UserLand backend project. Always review these rules before writing code, modifying architecture, or running tests.
 
-This is a modern **Java 25**, **Spring Boot 4.0.5** application. The backend serves a **REST API** and handles data persistence via ***PostgreSQL***.
+**UserLand** is a portfolio project for backend in Java. It is part of bigger project that contains frontend and backend.
 
-## 🛠️ Tech Stack
+This is a modern **Java 25**, **Spring Boot 4.1.0** application. The backend serves a **REST API** and handles data persistence via ***PostgreSQL***.
+
+## General
+
+### 🛠️ Tech Stack
 - **Language:** Java 25 (Temurin)
-- **Framework:** Spring Boot 4.0.5
+- **Framework:** Spring Boot 4.1.0
 - **Build Tool:** Maven
-- **Database:** PostgreSQL via Spring Data JPA
+- **Database:** PostgreSQL 17 via Spring Data JPA
 - **Templating:** Thymeleaf (specifically for emails)
 
-## ⌨️ Build & Run Commands
+### ⌨️ Build & Run Commands
 - Compile the project: `mvn clean compile`
 - Run all tests: `mvn clean test`
 - Run a single test class: `mvn test -Dtest=ClassNameTest`
@@ -20,7 +24,13 @@ This is a modern **Java 25**, **Spring Boot 4.0.5** application. The backend ser
 
 *Note: You do not need to start a local database manually. The project uses Testcontainers and Docker Compose support for local development and testing.*
 
-## 🏗️ Project Structure
+### 🚀 Deployment & CI/CD
+- **Target:** Google Cloud Run (Serverless).
+- **Memory Limit:** 512 Mi (Severely constrained).
+- **Build Method:** Paketo Buildpacks via `mvnw spring-boot:build-image`.
+- **Rule:** Do not add heavy, long-running background polling dependencies (like Quartz, Kafka, or heavy schedulers) because Cloud Run throttles CPU to zero when not processing HTTP requests.
+
+### 🏗️ Project Structure
 - `common/` - Shared utilities, constants, and custom annotations (like `@NoCoverageGenerated`).
 - `config/` - Classes annotated with `@Configuration` used to configure various aspects of Spring or application.
 - `features/` - Logically separated pieces of business logic (domain-driven package structure).
@@ -40,12 +50,14 @@ This is a modern **Java 25**, **Spring Boot 4.0.5** application. The backend ser
   - `history/` - Handles system history feature.
   - `lockdown/` - Handles system lockdown feature.
 
-## ⚙️ Features
-- `check` - Debug endpoints to get health and status of UserLand. Independent of Actuator.
+### ⚙️ Features
+- `check` - Debug endpoints to get health and status of system. Independent of Actuator.
 - `email` - Email handling services.
 - `user` - User handling services.
 
-## 📐 Code Style & Conventions
+## Code
+
+### 📐 Code Style & Conventions
 - **Java Version:** Use modern Java 25 features (Records, Switch Expressions, Pattern Matching) wherever possible.
 - **Dependency Injection:**
   - Use Constructor Injection via `@RequiredArgsConstructor`.
@@ -71,20 +83,20 @@ This is a modern **Java 25**, **Spring Boot 4.0.5** application. The backend ser
 - **Validation:** Use `jakarta.validation` annotations (like `@NotBlank`, `@Email`) on entity fields and DTOs.
 - **Comments:** Code is thoroughly commented.
   - All classes must have comment describing what this class is for.
-  - All public methods must have comment describing what this method is for. Omit this requirement for `@Override`d methods.
+  - All public methods must have comment describing what this method is for. You can omit this requirement for `@Override`d methods.
   - Protected and private classes can have comments.
 
-## 💼 Business Rules
+### 💼 Business Rules
 - `User` and `UserProfile` have 1:1 relationship and profile always exist if user exist.
 
-## 🌐 Internationalization (I18n)
+### 🌐 Internationalization (I18n)
 - We use a custom `I18nConfig` with a custom `YamlPropertiesPersister` to load `.yaml` files as message sources.
 - Do not use standard `.properties` files for translations.
 - Thymeleaf templates are located in `src/main/resources/templates/` and its subdirectories.
 - Translation files are located in `src/main/resources/i18n/` and its subdirectories.
 - Ensure `TemplateEngine` uses the `MessageSource` for evaluating `#{...}` tags.
 
-## 🧪 Testing Guidelines
+### 🧪 Testing Guidelines
 - Use **JUnit 5** (`@Test`) and **AssertJ** (`assertThat`) for all assertions.
 - Do not use Mockito `verify()` unless absolutely necessary; prefer testing actual state changes or return values.
 - Package structure: 
@@ -99,11 +111,17 @@ This is a modern **Java 25**, **Spring Boot 4.0.5** application. The backend ser
       - `problemDetail/` - Handles problem details in testing.
 - Do not use context slicing (like `@DataJpaTest` or `@WebMvcTest`) unless explicitly asked; prefer `BaseIntegrationTest` to ensure configurations load correctly.
 
-## 🚀 Deployment & CI/CD
-- **Target:** Google Cloud Run (Serverless).
-- **Memory Limit:** 512 Mi (Severely constrained).
-- **Build Method:** Paketo Buildpacks via `mvnw spring-boot:build-image`.
-- **Rule:** Do not add heavy, long-running background polling dependencies (like Quartz, Kafka, or heavy schedulers) because Cloud Run throttles CPU to zero when not processing HTTP requests.
+## 🔎 Reviewing code
+
+When I ask for review, in order of importance:
+- Analyze general purpose and functionality.
+- Check code for bugs, mistakes and other potential issues. If there are a lot of stuff here, skip rest of steps: we need to fix that stuff first.
+- Verify algorithm and logic. Is this correct way to do it? Can it be done better?
+- Make sure common programming principles (like DRY) are followed.
+- Find tests for reviewed code and review them too. If tests are missing, note their absence and plan what tests should be added. Do not add them automatically unless explicitly asked.
+- I might ask to review same code multiple times (to re-check code after changes implemented from previous review). Re-read files as neccessary.
+  - You can skip some steps if appropriate (for example, skip purpose/functionality analysis if purpose and functionality is already known).
+  - If previously reported issues still exist, inform about them again unless they were explained or rejected.
 
 ## 🛑 What NOT to do
 - Do not use generic `Exception` or `RuntimeException`. Always throw domain-specific exceptions that extend our `GeneralException`.

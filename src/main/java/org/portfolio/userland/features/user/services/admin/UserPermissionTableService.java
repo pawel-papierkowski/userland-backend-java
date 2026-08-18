@@ -166,22 +166,22 @@ public class UserPermissionTableService extends BaseUserService {
   @Transactional
   public UserPermission edit(UserPermissionEditReq editReq) {
     UserPermission userPermission = resolve(editReq.id(), editReq.userId()); // side effects are important here
+    String newPerm = editReq.name() + "_" + editReq.value();
 
     // We need to check if same user permission already exists for this user.
     // Database enforces it, but in this way we get good, informative error instead of sad little 500.
     if (userPermissionRepository.isRedundant(editReq))
-      throw new UserPermissionRedundantException(editReq.name()+"_"+editReq.value());
+      throw new UserPermissionRedundantException(newPerm);
 
     LocalDateTime nowAt = clockService.getNowUTC();
-    String newPerm = editReq.name() + "_" + editReq.value();
     if (userPermission == null) { // Leave trace in user history about user permission addition.
-      String params = "add " + newPerm;
+      String params = "add '" + newPerm + "'";
       addHistoryEvent(editReq.userId(), nowAt, EnUserHistoryWho.OPERATOR, EnUserHistoryWhat.EDIT_PERM, params);
     } else { // Leave trace in user history about user permission edit.
       String oldPerm = userPermission.getPermission().getName() + "_" +userPermission.getValue();
       String params = "set ";
-      if (newPerm.equals(oldPerm)) params += newPerm;
-      else params += oldPerm + " to " + newPerm;
+      if (newPerm.equals(oldPerm)) params += "'" + newPerm + "'"; // no actual change
+      else params += "'" + oldPerm + "' to '" + newPerm + "'";
       addHistoryEvent(editReq.userId(), nowAt, EnUserHistoryWho.OPERATOR, EnUserHistoryWhat.EDIT_PERM, params);
     }
 
@@ -201,7 +201,7 @@ public class UserPermissionTableService extends BaseUserService {
 
     // Leave trace in user history about user permission deletion.
     LocalDateTime nowAt = clockService.getNowUTC();
-    String params = "del "+permissionEntry.getPermission().getName()+"_"+permissionEntry.getValue();
+    String params = "del '"+permissionEntry.getPermission().getName()+"_"+permissionEntry.getValue() + "'";
     addHistoryEvent(permissionEntry.getUser(), nowAt, EnUserHistoryWho.OPERATOR, EnUserHistoryWhat.EDIT_PERM, params);
 
     // Actually delete user permission entry.
