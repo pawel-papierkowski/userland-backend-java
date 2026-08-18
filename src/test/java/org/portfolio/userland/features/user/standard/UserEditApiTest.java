@@ -228,8 +228,8 @@ public class UserEditApiTest extends BaseUserTest {
 
   @Test
   @WithMockCustomUser
-  public void editUserProfileOneField() throws Exception {
-    // Edit user: change only single field, but in profile.
+  public void editUserProfileName() throws Exception {
+    // Edit user: change only name field in profile.
     clock.setFixedTime("2026-04-10T10:00:00Z");
 
     // Arrange: Create active user and profile.
@@ -263,6 +263,53 @@ public class UserEditApiTest extends BaseUserTest {
     expectedUser.setModifiedAt(clockService.getNowUTC());
     expectedUserProfile.setName("Tom");
     userHistoryFactory.genHistoryEvent(expectedUser, EnUserHistoryWho.USER, EnUserHistoryWhat.EDIT, "name");
+
+    // Assert: Database state.
+    transactionTemplate.execute(_ -> {
+      // Assert: User state.
+      User user = assertAllUser("test@example.com", expectedUser, expectedUserProfile);
+      assertThat(user.getPassword()).as("Password hash should be same").isEqualTo(expectedUser.getPassword());
+      return null;
+    });
+  }
+
+  @Test
+  @WithMockCustomUser
+  public void editUserProfileSurname() throws Exception {
+    // Edit user: change only surname field in profile.
+    clock.setFixedTime("2026-04-10T10:00:00Z");
+
+    // Arrange: Create active user and profile.
+    User expectedUser = userFactory.genUser(EnUserStatus.ACTIVE);
+    UserProfile expectedUserProfile = userProfileFactory.genRandProfile(expectedUser);
+    userProfileRepository.save(expectedUserProfile);
+
+    clock.setFixedTime("2026-04-10T10:05:00Z");
+
+    // Arrange: Create request for editing of user account.
+    UserProfileData profileReq = UserProfileData.builder().surname("Bombadil").build();
+    UserEditReq req = UserEditReq.builder().profile(profileReq).build();
+
+    // Act: Try to edit user account.
+    MvcResult mvcResult = mockMvc.perform(patch("/api/users/edit")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(req)))
+        .andReturn();
+
+    // Assert: API Response.
+    assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.OK.value());
+
+    // Assert: Verify that endpoint response is correct.
+    UserDataResp actualResp = objectMapper.readValue(mvcResult.getResponse().getContentAsString(), UserDataResp.class);
+    UserProfileData expectedProfile = userMapper.profileToData(expectedUserProfile); // random profile used
+    expectedProfile = expectedProfile.toBuilder().surname("Bombadil").build(); // only one field changed
+    UserDataResp expectedResp = UserDataResp.builder().username("Jane").email("test@example.com").lang("en").profile(expectedProfile).build();
+    assertThat(actualResp).as("User data is invalid").usingRecursiveComparison().isEqualTo(expectedResp);
+
+    // Prepare expected result.
+    expectedUser.setModifiedAt(clockService.getNowUTC());
+    expectedUserProfile.setSurname("Bombadil");
+    userHistoryFactory.genHistoryEvent(expectedUser, EnUserHistoryWho.USER, EnUserHistoryWhat.EDIT, "surname");
 
     // Assert: Database state.
     transactionTemplate.execute(_ -> {

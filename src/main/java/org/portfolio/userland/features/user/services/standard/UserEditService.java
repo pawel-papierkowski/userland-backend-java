@@ -101,7 +101,7 @@ public class UserEditService extends BaseUserService {
       userProfile.setName(userEditReq.profile().name());
       params += "name ";
     }
-    if (StringUtils.isNotEmpty(userEditReq.profile().surname()) && !userEditReq.profile().name().equals(userProfile.getSurname())) {
+    if (StringUtils.isNotEmpty(userEditReq.profile().surname()) && !userEditReq.profile().surname().equals(userProfile.getSurname())) {
       userProfile.setSurname(userEditReq.profile().surname());
       params += "surname ";
     }
