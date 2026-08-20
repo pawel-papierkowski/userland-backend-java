@@ -7,13 +7,12 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.lang3.StringUtils;
 import org.portfolio.userland.features.user.entities.EnUserStatus;
-import org.portfolio.userland.features.user.entities.Permission;
 import org.portfolio.userland.features.user.entities.User;
-import org.portfolio.userland.features.user.entities.UserPermission;
 import org.portfolio.userland.features.user.exceptions.UserInvalidStatusException;
 import org.portfolio.userland.features.user.exceptions.UserLockedException;
+import org.portfolio.userland.system.auth.jwt.constants.JwtClaims;
+import org.portfolio.userland.system.auth.perm.PermissionHelper;
 import org.portfolio.userland.system.base.BaseService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -21,9 +20,7 @@ import org.springframework.stereotype.Service;
 import javax.crypto.SecretKey;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.Comparator;
 import java.util.Date;
-import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
@@ -38,9 +35,6 @@ public class JwtService extends BaseService {
   /** Secret key used to sign JWT tokens. Must be at least 256 bits (32 characters) long. */
   @Value("${security.jwt.secret}")
   private String secretKey;
-  /** How long before JWT token expires in minutes. */
-  @Value("${security.jwt.expiration}")
-  private long jwtExpiration;
 
   /**
    * Generate JWT token based on user data.
@@ -86,42 +80,19 @@ public class JwtService extends BaseService {
   /**
    * Convert user data to claims. Custom claims:
    * <ul>
-   *   <li>name of user</li>
-   *   <li>permissions</li>
+   *   <li>name - name of user</li>
+   *   <li>perm - permissions</li>
    * </ul>
    * @param user User data.
    * @return Claims as <code>Map</code>.
    */
   private Map<String, ?> resolveClaims(User user) {
-    Map<String, String> claimMap = Maps.newHashMap();
-    claimMap.put("name", user.getUsername());
-    claimMap.putAll(resolvePermissions(user));
-    return claimMap;
-  }
+    Map<String, String> permMap = Maps.newHashMap();
+    permMap.putAll(PermissionHelper.resolvePermissions(user));
 
-  /**
-   * Convert user permissions to claims.
-   * @param user User data.
-   * @return Claims as <code>Map</code>.
-   */
-  private Map<String, String> resolvePermissions(User user) {
-    Map<String, String> claimMap = Maps.newHashMap();
-    // We need to have sorted list of permissions to ensure consistent results. For example, if you have role operator
-    // and role admin, it will always be saved as "role" -> "admin,operator".
-    List<UserPermission> permissions = user.getPermissions()
-        .stream()
-        .sorted(Comparator.comparing(UserPermission::getValue))
-        .toList();
-
-    for (UserPermission permissionEntry : permissions) {
-      Permission permission = permissionEntry.getPermission();
-      if (!permission.getInJwt()) continue;
-      String permValue = "";
-      if (claimMap.containsKey(permission.getName())) permValue = claimMap.get(permission.getName());
-      if (StringUtils.isNotEmpty(permValue)) permValue += ",";
-      permValue += permissionEntry.getValue();
-      claimMap.put(permission.getName(), permValue);
-    }
+    Map<String, Object> claimMap = Maps.newHashMap();
+    claimMap.put(JwtClaims.NAME, user.getUsername());
+    claimMap.put(JwtClaims.PERMS, permMap);
     return claimMap;
   }
 
@@ -187,7 +158,7 @@ public class JwtService extends BaseService {
    * @param claimsResolver Claim to get.
    * @return Value from claimsResolver.
    */
-  public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
+  private <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
     final Claims claims = extractAllClaims(token);
     return claimsResolver.apply(claims);
   }

@@ -9,6 +9,7 @@ import org.portfolio.userland.features.user.entities.Permission;
 import org.portfolio.userland.features.user.entities.User;
 import org.portfolio.userland.features.user.exceptions.UserInvalidStatusException;
 import org.portfolio.userland.features.user.exceptions.UserLockedException;
+import org.portfolio.userland.system.auth.jwt.constants.JwtClaims;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
@@ -55,10 +56,11 @@ public class JwtServiceTest extends BaseUserTest {
     assertThat(isValid).as("Token must be valid").isTrue();
     Map<String, Object> actualClaimMap = jwtService.extractAllClaims(token);
     Map<String, Object> expectedClaimMap = Maps.newHashMap();
-    expectedClaimMap.put("iat", iat); // issued
-    expectedClaimMap.put("exp", exp); // expires
-    expectedClaimMap.put("sub", user.getEmail()); // user account email as subject
-    expectedClaimMap.put("name", user.getUsername()); // username
+    expectedClaimMap.put(JwtClaims.ISSUED, iat); // issued
+    expectedClaimMap.put(JwtClaims.EXPIRES, exp); // expires
+    expectedClaimMap.put(JwtClaims.SUBJECT, user.getEmail()); // user account email as subject
+    expectedClaimMap.put(JwtClaims.NAME, user.getUsername()); // username
+    expectedClaimMap.put(JwtClaims.PERMS, Map.of()); // perms
     assertThat(actualClaimMap).as("Claim map is invalid").isEqualTo(expectedClaimMap);
   }
 
@@ -81,10 +83,11 @@ public class JwtServiceTest extends BaseUserTest {
     assertThat(isValid).as("Token must be valid").isTrue();
     Map<String, Object> actualClaimMap = jwtService.extractAllClaims(token);
     Map<String, Object> expectedClaimMap = Maps.newHashMap();
-    expectedClaimMap.put("iat", iat); // issued
-    expectedClaimMap.put("exp", exp); // expires in hour
-    expectedClaimMap.put("sub", user.getEmail()); // user account email as subject
-    expectedClaimMap.put("name", user.getUsername()); // username
+    expectedClaimMap.put(JwtClaims.ISSUED, iat); // issued
+    expectedClaimMap.put(JwtClaims.EXPIRES, exp); // expires in hour
+    expectedClaimMap.put(JwtClaims.SUBJECT, user.getEmail()); // user account email as subject
+    expectedClaimMap.put(JwtClaims.NAME, user.getUsername()); // username
+    expectedClaimMap.put(JwtClaims.PERMS, Map.of()); // perms
     assertThat(actualClaimMap).as("Claim map is invalid").isEqualTo(expectedClaimMap);
   }
 
@@ -112,12 +115,11 @@ public class JwtServiceTest extends BaseUserTest {
     assertThat(isValid).as("Token must be valid").isTrue();
     Map<String, Object> actualClaimMap = jwtService.extractAllClaims(token);
     Map<String, Object> expectedClaimMap = Maps.newHashMap();
-    expectedClaimMap.put("iat", iat); // issued
-    expectedClaimMap.put("exp", exp); // expires
-    expectedClaimMap.put("sub", user.getEmail()); // user account email as subject
-    expectedClaimMap.put("name", user.getUsername()); // username
-    expectedClaimMap.put("user", "edit");
-    expectedClaimMap.put("role", "admin,operator"); // two perms for same role handled properly
+    expectedClaimMap.put(JwtClaims.ISSUED, iat); // issued
+    expectedClaimMap.put(JwtClaims.EXPIRES, exp); // expires
+    expectedClaimMap.put(JwtClaims.SUBJECT, user.getEmail()); // user account email as subject
+    expectedClaimMap.put(JwtClaims.NAME, user.getUsername()); // username
+    expectedClaimMap.put(JwtClaims.PERMS, Map.of("role", "admin,operator", "user", "edit")); // two perms for same role handled properly
     assertThat(actualClaimMap).as("Claim map is invalid").isEqualTo(expectedClaimMap);
   }
 

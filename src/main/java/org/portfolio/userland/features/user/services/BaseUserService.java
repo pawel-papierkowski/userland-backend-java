@@ -208,7 +208,7 @@ public abstract class BaseUserService extends BaseService {
    * @param customExpiration Custom expiration in minutes. Can be null, will use default expiration.
    * @return User JWT entry.
    */
-  protected UserJwt createJwtEntry(LocalDateTime nowAt, String jwtStr, Long customExpiration) {
+  private UserJwt createJwtEntry(LocalDateTime nowAt, String jwtStr, Long customExpiration) {
     UserJwt token = new UserJwt();
     token.setCreatedAt(nowAt);
     token.setExpiresAt(userHelperService.resolveJwtExpiration(nowAt, customExpiration));

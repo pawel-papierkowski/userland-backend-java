@@ -5,12 +5,14 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.portfolio.userland.features.user.entities.EnUserStatus;
 import org.portfolio.userland.features.user.entities.User;
-import org.portfolio.userland.features.user.entities.UserPermission;
+import org.portfolio.userland.system.auth.perm.PermissionHelper;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * User details specific to custom user. Represents data encoded in JWT and from User entity in database.
@@ -62,7 +64,7 @@ public class CustomUserDetails implements UserDetails {
     this.username = user.getUsername();
     this.email = user.getEmail();
 
-    this.authorities = resolveAuthorities(user.getPermissions());
+    this.authorities = PermissionHelper.resolveAuthorities(user.getPermissions());
     this.auths = resolveAuths();
   }
 
@@ -96,27 +98,6 @@ public class CustomUserDetails implements UserDetails {
       auths.add(grantedAuthority.getAuthority());
     }
     return auths;
-  }
-
-  //
-
-  /**
-   * Map user permissions to authorities.
-   * @param userPermissions User permissions.
-   * @return Spring Authorities.
-   */
-  private Collection<? extends GrantedAuthority> resolveAuthorities(Set<UserPermission> userPermissions) {
-    // Map permissions to authorities.
-    // Example: permission "role" and userPermission "operator" will result in "ROLE_OPERATOR".
-    return userPermissions.stream()
-        .filter(userPermission -> userPermission.getPermission().getInAuthorities())
-        .map(userPermission -> {
-          String authorityStr = userPermission.getPermission().getName().toUpperCase()
-              + "_" + userPermission.getValue().toUpperCase();
-          return new SimpleGrantedAuthority(authorityStr);
-        })
-        .sorted(Comparator.comparing(GrantedAuthority::getAuthority)) // sorted by natural key required by UserDetail
-        .toList();
   }
 
   //

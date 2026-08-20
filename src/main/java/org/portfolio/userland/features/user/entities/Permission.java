@@ -24,7 +24,7 @@ public class Permission {
   @Column(unique = true, nullable = false)
   private String name;
 
-  /** Indicates if that permission should be embedded in JWT key. */
+  /** Indicates if that permission should be embedded in JWT token. */
   @Column(nullable = false)
   private Boolean inJwt;
 

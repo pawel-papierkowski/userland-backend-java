@@ -13,6 +13,7 @@ import org.portfolio.userland.features.user.entities.EnUserHistoryWho;
 import org.portfolio.userland.features.user.entities.EnUserStatus;
 import org.portfolio.userland.features.user.entities.User;
 import org.portfolio.userland.system.auth.jwt.JwtService;
+import org.portfolio.userland.system.auth.jwt.constants.JwtClaims;
 import org.portfolio.userland.system.config.service.ConfigConst;
 import org.portfolio.userland.system.config.service.ConfigService;
 import org.portfolio.userland.test.helpers.problemDetail.ProblemDetailBox;
@@ -80,10 +81,11 @@ public class UserLoginApiTest extends BaseUserTest {
 
     // Assert: Validate it is proper JWT token with correct signature and payload.
     Map<String, Object> expectedClaimMap = Maps.newHashMap();
-    expectedClaimMap.put("iat", 1775815500L); // issued
-    expectedClaimMap.put("exp", 1775837100L); // expires
-    expectedClaimMap.put("sub", "test@example.com"); // user account email as subject
-    expectedClaimMap.put("name", "Jane"); // username
+    expectedClaimMap.put(JwtClaims.ISSUED, 1775815500L); // issued
+    expectedClaimMap.put(JwtClaims.EXPIRES, 1775837100L); // expires
+    expectedClaimMap.put(JwtClaims.SUBJECT, "test@example.com"); // user account email as subject
+    expectedClaimMap.put(JwtClaims.NAME, "Jane"); // username
+    expectedClaimMap.put(JwtClaims.PERMS, Map.of()); // perms
     jwtAssert.assertIt(actualResp.jwtToken(), expectedUser.getEmail(), expectedClaimMap);
   }
 
@@ -125,11 +127,11 @@ public class UserLoginApiTest extends BaseUserTest {
 
     // Assert: Validate it is proper JWT token with correct signature and payload.
     Map<String, Object> expectedClaimMap = Maps.newHashMap();
-    expectedClaimMap.put("iat", 1775815500L); // issued
-    expectedClaimMap.put("exp", 1775837100L); // expires
-    expectedClaimMap.put("sub", "test@example.com"); // user account email as subject
-    expectedClaimMap.put("name", "Jane"); // username
-    expectedClaimMap.put("role", "operator"); // from permission entry
+    expectedClaimMap.put(JwtClaims.ISSUED, 1775815500L); // issued
+    expectedClaimMap.put(JwtClaims.EXPIRES, 1775837100L); // expires
+    expectedClaimMap.put(JwtClaims.SUBJECT, "test@example.com"); // user account email as subject
+    expectedClaimMap.put(JwtClaims.NAME, "Jane"); // username
+    expectedClaimMap.put(JwtClaims.PERMS, Map.of("role", "operator")); // perms
     jwtAssert.assertIt(actualResp.jwtToken(), expectedUser.getEmail(), expectedClaimMap);
   }
 
@@ -176,11 +178,11 @@ public class UserLoginApiTest extends BaseUserTest {
 
     // Assert: Validate it is proper JWT token with correct signature and payload.
     Map<String, Object> expectedClaimMap = Maps.newHashMap();
-    expectedClaimMap.put("iat", 1775815500L); // issued
-    expectedClaimMap.put("exp", 1775837100L); // expires (default amount - 6 hours)
-    expectedClaimMap.put("sub", "test@example.com"); // user account email as subject
-    expectedClaimMap.put("name", "Jane"); // username
-    expectedClaimMap.put("role", "operator"); // from permission entry
+    expectedClaimMap.put(JwtClaims.ISSUED, 1775815500L); // issued
+    expectedClaimMap.put(JwtClaims.EXPIRES, 1775837100L); // expires (default amount - 6 hours)
+    expectedClaimMap.put(JwtClaims.SUBJECT, "test@example.com"); // user account email as subject
+    expectedClaimMap.put(JwtClaims.NAME, "Jane"); // username
+    expectedClaimMap.put(JwtClaims.PERMS, Map.of("role", "operator")); // perms
     jwtAssert.assertIt(actualResp.jwtToken(), expectedUser.getEmail(), expectedClaimMap);
   }
 
@@ -223,10 +225,11 @@ public class UserLoginApiTest extends BaseUserTest {
 
     // Assert: Validate it is proper JWT token with correct signature and payload.
     Map<String, Object> expectedClaimMap = Maps.newHashMap();
-    expectedClaimMap.put("iat", 1775815500L); // issued
-    expectedClaimMap.put("exp", 1775819100L); // expires in 1 hour (custom duration): difference of 3600
-    expectedClaimMap.put("sub", "test@example.com"); // user account email as subject
-    expectedClaimMap.put("name", "Jane"); // username
+    expectedClaimMap.put(JwtClaims.ISSUED, 1775815500L); // issued
+    expectedClaimMap.put(JwtClaims.EXPIRES, 1775819100L); // expires in 1 hour (custom duration): difference of 3600
+    expectedClaimMap.put(JwtClaims.SUBJECT, "test@example.com"); // user account email as subject
+    expectedClaimMap.put(JwtClaims.NAME, "Jane"); // username
+    expectedClaimMap.put(JwtClaims.PERMS, Map.of()); // perms
     jwtAssert.assertIt(actualResp.jwtToken(), expectedUser.getEmail(), expectedClaimMap);
   }
 

@@ -8,6 +8,7 @@ import org.portfolio.userland.features.user.dto.standard.login.UserProlongResp;
 import org.portfolio.userland.features.user.entities.EnUserHistoryWhat;
 import org.portfolio.userland.features.user.entities.EnUserHistoryWho;
 import org.portfolio.userland.features.user.entities.User;
+import org.portfolio.userland.system.auth.jwt.constants.JwtClaims;
 import org.portfolio.userland.test.helpers.problemDetail.ProblemDetailBox;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.web.servlet.MvcResult;
@@ -61,10 +62,11 @@ public class UserProlongApiTest extends BaseUserTest {
 
     // Assert: Validate it is proper JWT token with correct signature and payload.
     Map<String, Object> expectedClaimMap = Maps.newHashMap();
-    expectedClaimMap.put("iat", 1775822400L); // issued
-    expectedClaimMap.put("exp", 1775844000L); // expires
-    expectedClaimMap.put("sub", "test@example.com"); // user account email as subject
-    expectedClaimMap.put("name", "Jane"); // username
+    expectedClaimMap.put(JwtClaims.ISSUED, 1775822400L); // issued
+    expectedClaimMap.put(JwtClaims.EXPIRES, 1775844000L); // expires
+    expectedClaimMap.put(JwtClaims.SUBJECT, "test@example.com"); // user account email as subject
+    expectedClaimMap.put(JwtClaims.NAME, "Jane"); // username
+    expectedClaimMap.put(JwtClaims.PERMS, Map.of()); // perms
     jwtAssert.assertIt(actualResp.jwtToken(), expectedUser.getEmail(), expectedClaimMap);
   }
 

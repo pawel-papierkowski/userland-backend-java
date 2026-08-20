@@ -40,7 +40,7 @@ public class UserHelperService {
   @Value("${app.user.token.deletion.expires}")
   private long deletionTokenExpires;
 
-  /** How long before JWT token expires in minutes. */
+  /** How long before JWT token expires in minutes. It is default value, config specific to user can change it. */
   @Value("${security.jwt.expiration}")
   private long jwtExpiration;
 
