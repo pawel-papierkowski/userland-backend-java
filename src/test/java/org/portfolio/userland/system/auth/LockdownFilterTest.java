@@ -91,7 +91,7 @@ public class LockdownFilterTest {
     MockFilterChain filterChain = new MockFilterChain();
 
     // Arrange: Setup authentication mock.
-    CustomUserDetails customUserDetails = new CustomUserDetails(1L, true, false, "Jan Kowalski", "jan.kowalski@google.com", "p@S5wordN1c3", null);
+    CustomUserDetails customUserDetails = new CustomUserDetails(1L, true, false, "Jan Kowalski", "jan.kowalski@google.com", null);
     SpringMocker.mockAuth(customUserDetails);
 
     // Arrange: Mock services.
@@ -118,7 +118,7 @@ public class LockdownFilterTest {
     MockFilterChain filterChain = new MockFilterChain();
 
     // Arrange: Setup authentication mock.
-    CustomUserDetails customUserDetails = new CustomUserDetails(1L, true, false, "Jan Kowalski", "jan.kowalski@google.com", "p@S5wordN1c3", List.of(new SimpleGrantedAuthority("ROLE_ADMIN")));
+    CustomUserDetails customUserDetails = new CustomUserDetails(1L, true, false, "Jan Kowalski", "jan.kowalski@google.com", List.of(new SimpleGrantedAuthority("ROLE_ADMIN")));
     SpringMocker.mockAuth(customUserDetails);
 
     // Arrange: Mock services.

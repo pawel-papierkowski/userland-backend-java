@@ -49,7 +49,6 @@ public class WithMockCustomUserSecurityContextFactory
         annotation.locked(),
         annotation.username(),
         annotation.email(),
-        annotation.password(),
         authorities
     );
   }

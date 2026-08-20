@@ -23,6 +23,5 @@ public @interface WithMockCustomUser {
   boolean locked() default false;
   String username() default "test-user";
   String email() default "test@example.com";
-  String password() default "$2a$10$testtesttesttesttestte";
   String[] authorities() default { "ROLE_USER" };
 }

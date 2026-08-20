@@ -33,7 +33,7 @@ public class PermissionService {
    */
   public boolean has(EnPermKind permKind, CustomUserDetails customUserDetails) {
     if (customUserDetails == null) return false; // not logged in means no access
-    Map<String, Set<String>> rawPermissions = get(permKind);
+    Map<String, Set<String>> rawPermissions = getMap(permKind);
     return customUserDetails.hasAnyAuthority(mapToArray(rawPermissions));
   }
 
@@ -45,7 +45,7 @@ public class PermissionService {
    */
   public boolean has(EnPermKind permKind, Set<UserPermission>  userPermissions) {
     if (userPermissions == null || userPermissions.isEmpty()) return false;
-    Map<String, Set<String>> rawPermissions = get(permKind);
+    Map<String, Set<String>> rawPermissions = getMap(permKind);
 
     for (UserPermission userPermission : userPermissions) {
       String name = userPermission.getPermission().getName();
@@ -96,7 +96,7 @@ public class PermissionService {
    * @param permKind Permission kind.
    * @return Map of permissions.
    */
-  public Map<String, Set<String>> get(EnPermKind permKind) {
+  public Map<String, Set<String>> getMap(EnPermKind permKind) {
     if (permKind == null) return Map.of();
     return switch (permKind) {
       case ADMIN_ONLY -> Map.of(PermConst.ROLE, Set.of(PermConst.ROLE_ADMIN));

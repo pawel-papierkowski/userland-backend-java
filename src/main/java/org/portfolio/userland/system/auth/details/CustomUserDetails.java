@@ -1,12 +1,10 @@
 package org.portfolio.userland.system.auth.details;
 
-import com.google.common.collect.Sets;
 import lombok.Getter;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.portfolio.userland.features.user.entities.EnUserStatus;
 import org.portfolio.userland.features.user.entities.User;
-import org.portfolio.userland.features.user.entities.UserJwt;
 import org.portfolio.userland.features.user.entities.UserPermission;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -47,7 +45,6 @@ public class CustomUserDetails implements UserDetails {
   private final String username;
   @Getter
   private final String email;
-  private final String password;
 
   private final Collection<? extends GrantedAuthority> authorities;
 
@@ -64,7 +61,6 @@ public class CustomUserDetails implements UserDetails {
     this.locked = user.getLocked();
     this.username = user.getUsername();
     this.email = user.getEmail();
-    this.password = user.getPassword(); // Used for login validation, then erased.
 
     this.authorities = resolveAuthorities(user.getPermissions());
     this.auths = resolveAuths();
@@ -77,17 +73,15 @@ public class CustomUserDetails implements UserDetails {
    * @param locked Is this user locked?
    * @param username Username.
    * @param email Email.
-   * @param password Password.
    * @param authorities Authorities.
    */
-  public CustomUserDetails(Long id, Boolean active, Boolean locked, String username, String email, String password,
+  public CustomUserDetails(Long id, Boolean active, Boolean locked, String username, String email,
                            Collection<? extends GrantedAuthority> authorities) {
     this.id = id;
     this.active = active;
     this.locked = locked;
     this.username = username;
     this.email = email;
-    this.password = password; // Used for login validation, then erased.
     this.authorities = authorities == null ? List.of() : authorities;
     this.auths = resolveAuths();
   }
@@ -125,19 +119,6 @@ public class CustomUserDetails implements UserDetails {
         .toList();
   }
 
-  /**
-   * Find out all JWTs.
-   * @param jwts JWT.
-   * @return Set of tokens.
-   */
-  private Set<String> resolveJwts(Set<UserJwt> jwts) {
-    Set<String> tokens = Sets.newHashSet();
-    for (UserJwt jwt : jwts) {
-      tokens.add(jwt.getToken());
-    }
-    return tokens;
-  }
-
   //
 
   @Override
@@ -157,7 +138,8 @@ public class CustomUserDetails implements UserDetails {
 
   @Override
   public @Nullable String getPassword() {
-    return password;
+    // Password is unused, but method must be present due to UserDetails interface.
+    return null;
   }
 
   @Override

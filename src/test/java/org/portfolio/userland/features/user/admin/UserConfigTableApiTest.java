@@ -494,7 +494,7 @@ public class UserConfigTableApiTest extends BaseUserTest {
 
     // Arrange: We want to emulate fact of this very user being logged in. We can't use @WithMockCustomUser as we do not
     // know user's id in advance.
-    CustomUserDetails customUserDetails = new CustomUserDetails(user.getId(), true, false, user.getUsername(), user.getEmail(), "",
+    CustomUserDetails customUserDetails = new CustomUserDetails(user.getId(), true, false, user.getUsername(), user.getEmail(),
         List.of(new SimpleGrantedAuthority("ROLE_ADMIN")));
 
     // Act: Try to change existing user config entry.
@@ -555,7 +555,7 @@ public class UserConfigTableApiTest extends BaseUserTest {
 
     // Arrange: We want to emulate fact of this very user being logged in. We can't use @WithMockCustomUser as we do not
     // know user's id in advance.
-    CustomUserDetails customUserDetails = new CustomUserDetails(user.getId(), true, false, user.getUsername(), user.getEmail(), "",
+    CustomUserDetails customUserDetails = new CustomUserDetails(user.getId(), true, false, user.getUsername(), user.getEmail(),
         List.of(new SimpleGrantedAuthority("ROLE_ADMIN")));
 
     // Act: Try to remove user config entry.

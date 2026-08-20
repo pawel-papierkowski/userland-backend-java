@@ -534,7 +534,7 @@ public class UserFullDataApiTest extends BaseUserTest {
 
     // Arrange: We want to emulate fact of this very user being logged in. We can't use @WithMockCustomUser as we do not
     // know user's id in advance.
-    CustomUserDetails customUserDetails = new CustomUserDetails(user.getId(), true, false, user.getUsername(), user.getEmail(), "",
+    CustomUserDetails customUserDetails = new CustomUserDetails(user.getId(), true, false, user.getUsername(), user.getEmail(),
       List.of(new SimpleGrantedAuthority("ROLE_OPERATOR"), new SimpleGrantedAuthority("USER_EDIT")));
 
     // Arrange: Create request to change user and user profile data.

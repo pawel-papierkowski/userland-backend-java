@@ -73,7 +73,7 @@ public class JwtAuthFilterTest {
 
     // Arrange: Mock services.
     String email = "testuser@example.com";
-    CustomUserDetails customUserDetails = new CustomUserDetails(1L, true, false, "Jan Kowalski", email, "p@S5wordN1c3", null);
+    CustomUserDetails customUserDetails = new CustomUserDetails(1L, true, false, "Jan Kowalski", email, null);
 
     when(userJwtRepository.existsByToken(TOKEN_VALID)).thenReturn(true);
     when(jwtService.extractEmail(TOKEN_VALID)).thenReturn(email);
@@ -97,7 +97,6 @@ public class JwtAuthFilterTest {
     assertThat(principal.getLocked()).isFalse();
     assertThat(principal.getUsername()).isEqualTo("Jan Kowalski");
     assertThat(principal.getEmail()).isEqualTo(email);
-    assertThat(principal.getPassword()).isEqualTo("p@S5wordN1c3");
     assertThat(principal.getAuthorities()).isEqualTo(List.of());
 
     verify(userJwtRepository).existsByToken(TOKEN_VALID);
