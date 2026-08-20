@@ -33,15 +33,13 @@ public interface UserRepository extends JpaRepository<User, Long>, UserCustomRep
   //
 
   /**
-   * Find user by email for authorization purposes. Eagerly loads permissions and jwt data, as these are always needed
-   * during authorization.
+   * Find user by email for authorization purposes. Eagerly loads permissions, as these are always needed during authorization.
    * @param email Email.
    * @return User or empty optional.
    */
   @EntityGraph(attributePaths = {
       "permissions",
-      "permissions.permission",
-      "jwts"
+      "permissions.permission"
   })
   Optional<User> findAuthByEmail(String email);
 

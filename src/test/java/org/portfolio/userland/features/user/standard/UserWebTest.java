@@ -5,6 +5,7 @@ import org.portfolio.userland.features.user.controllers.UserController;
 import org.portfolio.userland.features.user.dto.standard.delete.UserDeleteLinkReq;
 import org.portfolio.userland.features.user.dto.standard.password.UserPassResetConfirmReq;
 import org.portfolio.userland.features.user.dto.standard.register.UserRegisterReq;
+import org.portfolio.userland.features.user.repositories.jwt.UserJwtRepository;
 import org.portfolio.userland.features.user.services.standard.*;
 import org.portfolio.userland.system.auth.details.CustomUserDetailsService;
 import org.portfolio.userland.system.auth.jwt.JwtService;
@@ -55,6 +56,8 @@ public class UserWebTest extends BaseWebTest {
   // Other needed mocks.
   @MockitoBean
   private ConfigService configService;
+  @MockitoBean
+  private UserJwtRepository userJwtRepository;
   @MockitoBean
   private JwtService jwtService;
   @MockitoBean

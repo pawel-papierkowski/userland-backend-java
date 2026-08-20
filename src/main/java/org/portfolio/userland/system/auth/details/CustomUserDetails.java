@@ -49,8 +49,6 @@ public class CustomUserDetails implements UserDetails {
   private final String email;
   private final String password;
 
-  @Getter
-  private final Set<String> jwts;
   private final Collection<? extends GrantedAuthority> authorities;
 
   /** Contains authority strings. */
@@ -69,7 +67,6 @@ public class CustomUserDetails implements UserDetails {
     this.password = user.getPassword(); // Used for login validation, then erased.
 
     this.authorities = resolveAuthorities(user.getPermissions());
-    this.jwts = resolveJwts(user.getJwts());
     this.auths = resolveAuths();
   }
 
@@ -84,15 +81,13 @@ public class CustomUserDetails implements UserDetails {
    * @param authorities Authorities.
    */
   public CustomUserDetails(Long id, Boolean active, Boolean locked, String username, String email, String password,
-                           Set<String> jwts, Collection<? extends GrantedAuthority> authorities) {
+                           Collection<? extends GrantedAuthority> authorities) {
     this.id = id;
     this.active = active;
     this.locked = locked;
     this.username = username;
     this.email = email;
     this.password = password; // Used for login validation, then erased.
-
-    this.jwts = jwts == null ? Set.of() : jwts;
     this.authorities = authorities == null ? List.of() : authorities;
     this.auths = resolveAuths();
   }

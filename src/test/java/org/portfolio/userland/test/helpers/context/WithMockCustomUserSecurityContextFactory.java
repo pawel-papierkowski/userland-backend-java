@@ -8,7 +8,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.test.context.support.WithSecurityContextFactory;
 
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
 
 /**
@@ -51,7 +50,6 @@ public class WithMockCustomUserSecurityContextFactory
         annotation.username(),
         annotation.email(),
         annotation.password(),
-        new HashSet<>(Arrays.stream(annotation.jwts()).toList()),
         authorities
     );
   }

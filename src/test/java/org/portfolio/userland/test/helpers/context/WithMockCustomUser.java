@@ -24,6 +24,5 @@ public @interface WithMockCustomUser {
   String username() default "test-user";
   String email() default "test@example.com";
   String password() default "$2a$10$testtesttesttesttestte";
-  String[] jwts() default { "TOKEN" };
   String[] authorities() default { "ROLE_USER" };
 }

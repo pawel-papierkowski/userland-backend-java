@@ -14,6 +14,12 @@ import java.time.LocalDateTime;
  */
 @Repository
 public interface UserJwtRepository extends JpaRepository<UserJwt, Long>, UserJwtCustomRepository {
+  /**
+   * Finds out if given token exists in JWT table.
+   * @param token Token string.
+   * @return True if given token exists, otherwise false.
+   */
+  boolean existsByToken(String token);
 
   /**
    * Delete all expired JWTs.

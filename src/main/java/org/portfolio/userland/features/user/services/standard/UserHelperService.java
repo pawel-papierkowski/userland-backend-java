@@ -145,7 +145,7 @@ public class UserHelperService {
   }
 
   /**
-   * Verifies user state. If user state is invalid, throws exception or returns false.
+   * Verifies user state (status and locked). If user state is invalid, throws exception or returns false.
    * @param user User.
    * @param failSilently If true, return false instead of throwing exception.
    * @return True if verification succeed, otherwise false. Applicable only if <code>failSilently == true</code>.

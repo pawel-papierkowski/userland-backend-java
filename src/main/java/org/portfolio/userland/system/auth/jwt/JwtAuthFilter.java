@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NonNull;
 import org.portfolio.userland.config.security.SecurityConfig;
 import org.portfolio.userland.config.security.constants.EndpointConst;
+import org.portfolio.userland.features.user.repositories.jwt.UserJwtRepository;
 import org.portfolio.userland.system.auth.details.CustomUserDetails;
 import org.portfolio.userland.system.auth.details.CustomUserDetailsService;
 import org.portfolio.userland.system.auth.jwt.exceptions.InvalidBearerTokenException;
@@ -54,6 +55,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
   /** Length of prefix above. */
   private final static int HEADER_TOKEN_PREFIX_LENGTH = HEADER_TOKEN_PREFIX.length();
 
+  private final UserJwtRepository userJwtRepository;
   private final JwtService jwtService;
   private final CustomUserDetailsService customUserDetailsService;
 
@@ -195,7 +197,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
    */
   private boolean verifyCustomUser(CustomUserDetails customUserDetails, String jwtStr) {
     // Check if JWT is present in database (not revoked).
-    if (!customUserDetails.getJwts().contains(jwtStr)) return false;
+    if (!userJwtRepository.existsByToken(jwtStr)) return false;
     // Other checks.
     return customUserDetails.getActive() && !customUserDetails.getLocked();
   }
