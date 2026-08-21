@@ -75,14 +75,15 @@ This is a modern **Java 25**, **Spring Boot 4.1.0** application. The backend ser
     - All request classes have `Req` suffix. Endpoints with requests have `@Valid` annotation.
     - All response classes have `Resp` suffix.
     - Document all endpoints using Swagger/OpenAPI `@Operation`, `@Schema`, and custom meta-annotations like `@ApiAuthResponses`. `ProblemDetail` and derived classes are used for errors.
-- **Entities:**
-  - Do not use Lombok's `@Data` for Hibernate entities. Use `@Getter` and `@Setter`.
-  - Map tables using `@Table(name = "...", schema = "...")`.
-  - Joins must always specify fetch type explicitly.
-  - Generate manual `equals()`/`hashCode()` methods using **business key** (single field). If given entity do not have any field that can be used as business key, create dedicated UUID field that will be used as business key.
 - **Database:**
   - We run on PostgreSQL.
   - We use Flyway. See `src/main/resources/db/migration/` files for structure of database.
+- **Entities:**
+  - Entity definition and annotations must be consistent with database structure. 
+  - Do not use Lombok's `@Data` for Hibernate entities. Use `@Getter` and `@Setter`.
+  - Map tables using `@Table(name = "...", schema = "...")`.
+  - Association annotations like `@ManyToOne` must always specify fetch type explicitly.
+  - Generate manual `equals()`/`hashCode()` methods using **business key** (single field). If given entity do not have any field that can be used as business key, create dedicated UUID field that will be used as business key. Any exception to this rule must be documented.
 - **Validation:** Use `jakarta.validation` annotations (like `@NotBlank`, `@Email`) on entity fields and DTOs.
 - **Comments:** Code is thoroughly commented.
   - All classes must have comment describing what this class is for.

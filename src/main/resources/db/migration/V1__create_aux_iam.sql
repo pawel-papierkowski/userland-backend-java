@@ -138,6 +138,7 @@ CREATE TABLE iam.config (
 );
 -- Indexes for iam.config.
 CREATE INDEX idx_iam_config_id_user ON iam.config (id_user);
+CREATE INDEX idx_iam_config_created_at ON iam.config (created_at);
 CREATE INDEX idx_iam_config_name ON iam.config (name);
 
 -- Tokens for user.
@@ -166,6 +167,7 @@ CREATE TABLE iam.tokens (
 );
 -- Indexes for iam.tokens.
 CREATE INDEX idx_iam_tokens_id_user ON iam.tokens (id_user);
+CREATE INDEX idx_iam_tokens_created_at ON iam.tokens (created_at);
 
 -- JWT for user. Exists because we need ability to revoke them.
 CREATE TABLE iam.jwt (
@@ -187,6 +189,7 @@ CREATE TABLE iam.jwt (
 );
 -- Indexes for iam.tokens.
 CREATE INDEX idx_iam_jwt_id_user ON iam.jwt (id_user);
+CREATE INDEX idx_iam_jwt_created_at ON iam.jwt (created_at);
 
 -- User history.
 CREATE TABLE iam.history (
@@ -242,6 +245,7 @@ CREATE TABLE iam.user_permissions (
 );
 -- Indexes for iam.user_permissions.
 CREATE INDEX idx_iam_user_permissions_id_user ON iam.user_permissions (id_user);
+CREATE INDEX idx_iam_user_permissions_created_at ON iam.user_permissions (created_at);
 
 -- ============================================================================
 -- Other system tables.

@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
  *   <li>Cleanup of expired tokens.</li>
  *   <li>Cleanup of expired JWT.</li>
  * </ul>
+ * Note that it will fully work only on real or local server, not our GCP serverless instance.
  */
 @Service
 @RequiredArgsConstructor

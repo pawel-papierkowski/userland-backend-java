@@ -108,11 +108,12 @@ public class UserTableService extends BaseUserService {
    */
   @Transactional
   public UserFullDataResp editUserData(UserFullDataReq userFullDataReq) {
-    verifyRequest(userFullDataReq);
+    User user = userHelperService.resolveUser(userFullDataReq.id(), false, false);
+
+    verifyRequest(userFullDataReq, user);
     CustomUserDetails userDetails = AuthHelper.resolveUserDetails();
     if (userDetails == null) return null; // Should not happen.
 
-    User user = userHelperService.resolveUser(userFullDataReq.id(), false, false);
     if (userDetails.getId().equals(user.getId())) // We are not allowed to edit our own account.
       throw new UserCannotEditException(user.getId());
     UserProfile userProfile = userProfileRepository.findById(user.getId()).orElseThrow(); // profile should always exist
@@ -125,11 +126,15 @@ public class UserTableService extends BaseUserService {
   /**
    * Verify request.
    * @param userFullDataReq User data to change.
+   * @param user User. Can be null.
    */
-  private void verifyRequest(UserFullDataReq userFullDataReq) {
-    // Verify if email is valid.
-    User user = userRepository.findByEmail(userFullDataReq.email()).orElse(null);
-    if (user != null && !user.getId().equals(userFullDataReq.id()))
+  private void verifyRequest(UserFullDataReq userFullDataReq, User user) {
+    // No email to modify or no change in email.
+    if (userFullDataReq.email() == null || userFullDataReq.email().equals(user.getEmail())) return;
+
+    boolean emailExists = userRepository.existsByEmail(userFullDataReq.email());
+    // Verify if email is valid. Note user id discrepancy will also be presented as email issue to prevent id leak.
+    if (emailExists || !user.getId().equals(userFullDataReq.id()))
       throw new UserEmailAlreadyExistsException(userFullDataReq.email());
   }
 

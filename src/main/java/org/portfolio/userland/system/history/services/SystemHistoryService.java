@@ -61,6 +61,6 @@ public class SystemHistoryService extends BaseService {
     systemHistoryEvent.setWho(who);
     systemHistoryEvent.setWhat(what);
     systemHistoryEvent.setParams(params);
-    systemHistoryRepository.saveAndFlush(systemHistoryEvent);
+    systemHistoryRepository.save(systemHistoryEvent);
   }
 }

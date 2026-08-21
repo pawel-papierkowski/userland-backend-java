@@ -12,6 +12,8 @@ import org.hibernate.annotations.OnDeleteAction;
  * Later user can fill more data if needed for payment or whatever you have.</p>
  * <p>Note: for this particular use having separate 1:1 user profile table is overkill, since we have only two fields.
  * I decided to do it for demonstration purposes, since it is portfolio project.</p>
+ * <p>Note: no custom equals/hashCode(). This entity is 1:1 with user, and we should never have it in collection or
+ * compare to other profiles.</p>
  */
 @Entity
 @Table(name = "profiles", schema = "iam")

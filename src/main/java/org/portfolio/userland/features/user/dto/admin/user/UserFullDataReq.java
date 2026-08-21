@@ -13,11 +13,11 @@ import org.portfolio.userland.features.user.dto.common.UserProfileData;
  * field is skipped.
  *
  * @param id Identificator of user.
- * @param username Username.
- * @param email Email.
- * @param locked Is user locked?
- * @param lang Language of user.
- * @param profile User profile data.
+ * @param username New username.
+ * @param email New email.
+ * @param locked New locked.
+ * @param lang New language of user.
+ * @param profile New user profile data.
  */
 @Builder(toBuilder = true)
 @Schema(description = "Request for user and user profile data. All fields except id are optional.")

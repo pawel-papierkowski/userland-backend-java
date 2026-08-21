@@ -17,13 +17,11 @@ public interface ConfigRepository extends JpaRepository<Config, Long> {
 
   /**
    * Updates the value of a configuration variable by its name.
-   * Remember, if you loaded same config variable before this call, change won't be reflected until it is explicitly
-   * refreshed.
    * @param name The name of the configuration variable to update.
    * @param newValue The new value to set.
    * @return The number of rows affected (should be 1 if found, 0 if not).
    */
-  @Modifying
+  @Modifying(clearAutomatically=true)
   @Query("UPDATE Config c SET c.value = :newValue WHERE c.name = :name")
   int updateValueByName(String name, String newValue);
 }

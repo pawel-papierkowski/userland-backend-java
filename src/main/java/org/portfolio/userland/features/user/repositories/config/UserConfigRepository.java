@@ -13,7 +13,8 @@ import java.util.Optional;
 public interface UserConfigRepository extends JpaRepository<UserConfig, Long>, UserConfigCustomRepository {
   /**
    * Find configuration entry by user and name.
-   * @param name Email.
+   * @param userId User identificator.
+   * @param name Configuration name.
    * @return User configuration entry or empty optional.
    */
   Optional<UserConfig> findByUserIdAndName(Long userId, String name);
