@@ -151,6 +151,11 @@ public class UserTableService extends BaseUserService {
       // possible to skip this if we "changed" fields to same value
       if (!params.isEmpty()) {
         LocalDateTime nowAt = clockService.getNowUTC();
+        // Note: modifiedAt is normally maintained automatically by JPA auditing, but here we set it explicitly because
+        // (a) auditing stamps the field only at flush time, which is too late - response below is built from the
+        //     in-memory entity and must carry the new value already;
+        // (b) auditing cannot see changes to UserProfile (separate entity), yet business rules require bumping
+        //     modifiedAt when profile changes. Setting the field explicitly also guarantees an UPDATE is issued.
         user.setModifiedAt(nowAt);
         user = userRepository.save(user);
         if (userProfilePresent) userProfileRepository.save(userProfile);

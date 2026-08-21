@@ -9,6 +9,8 @@ import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 import org.portfolio.userland.common.annotations.NoCoverageGenerated;
 import org.portfolio.userland.common.constants.ValidConst;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -24,6 +26,7 @@ import java.util.*;
  * </pre>
  */
 @Entity
+@EntityListeners(AuditingEntityListener.class)
 @Table(name = "users", schema = "iam") // "user" is a reserved keyword in PostgreSQL, always use "users"
 @Getter
 @Setter
@@ -41,8 +44,10 @@ public class User {
   @Column(nullable = false, updatable = false)
   private LocalDateTime createdAt;
 
-  /** Date&time of account last modification. Note: affected only by changes to user or user profile entity. */
+  /** Date&time of account last modification. Note: affected only by changes to user or user profile entity.
+   * <p>Maintained automatically by JPA auditing (see <code>org.portfolio.userland.config.JpaAuditingConfig</code>), do not set it manually.</p> */
   @Column(nullable = false)
+  @LastModifiedDate
   private LocalDateTime modifiedAt;
 
   // basic data

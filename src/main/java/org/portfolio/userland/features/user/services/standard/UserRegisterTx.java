@@ -94,7 +94,7 @@ public class UserRegisterTx extends BaseUserService {
     user.setPassword(passwordHash);
     user.setUuid(securityGeneratorService.uuid());
     user.setCreatedAt(nowAt);
-    user.setModifiedAt(nowAt);
+    // modifiedAt is maintained automatically by JPA auditing
     user.addHistory(createHistoryEvent(nowAt, EnUserHistoryWho.USER, EnUserHistoryWhat.CREATE, ""));
     if (userRegisterReq.activate()) { // already activate user?
       user.setStatus(EnUserStatus.ACTIVE);
@@ -130,9 +130,8 @@ public class UserRegisterTx extends BaseUserService {
 
     UserToken userToken = resolveToken(nowAt, EnUserTokenType.ACTIVATE, tokenActivateReq.token());
     User user = userToken.getUser();
-    user.setModifiedAt(nowAt);
     user.setStatus(EnUserStatus.ACTIVE);
-    userRepository.save(user);
+    userRepository.save(user); // modifiedAt is maintained automatically by JPA auditing
 
     userTokenRepository.deleteToken(userToken.getToken());
     addHistoryEvent(user, nowAt, EnUserHistoryWho.USER, EnUserHistoryWhat.ACTIVATE, "");

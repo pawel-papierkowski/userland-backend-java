@@ -66,9 +66,8 @@ public class UserEmailService extends BaseUserService {
     userHelperService.verifyUser(user, false); // must have valid state
     String params = "old: '"+user.getEmail()+"', new: '"+userToken.getPayload()+"'";
 
-    user.setModifiedAt(nowAt);
     user.setEmail(userToken.getPayload());
-    userRepository.save(user);
+    userRepository.save(user); // modifiedAt is maintained automatically by JPA auditing
 
     userJwtRepository.deleteAllByUser(user.getId());
     userTokenRepository.deleteToken(userToken.getToken());
