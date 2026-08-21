@@ -55,9 +55,10 @@ public class UserMaintenanceTest extends BaseUserTest {
     User u2 = userRepository.save(userFactory.genRandUser(EnUserStatus.PENDING)); // Will not be removed due to PENDING status, even though it is idle for too long.
     User u3 = userRepository.save(userFactory.genRandUser(EnUserStatus.ACTIVE)); // Will not be removed due to presence of config entry 'portfolio.noDelete' = '1'.
 
-    // Arrange: add some entries in history at certain times.
+    // Arrange: add some entries in history at certain times. Note: each entry is saved immediately,
+    // as JPA auditing stamps timestamps at persist time using current clock value.
     clock.setFixedTime("2026-04-20T14:00:00Z");
-    userHistoryFactory.genHistoryEvent(u0, EnUserHistoryWho.USER, EnUserHistoryWhat.LOGIN, "");
+    userHistoryRepository.save(userHistoryFactory.genHistoryEvent(u0, EnUserHistoryWho.USER, EnUserHistoryWhat.LOGIN, ""));
     clock.setFixedTime("2026-04-20T10:00:00Z");
     userHistoryFactory.genHistoryEvent(u1, EnUserHistoryWho.USER, EnUserHistoryWhat.LOGIN, "");
     userConfigFactory.genConfig(u3, UserConfigConst.PORTFOLIO_NODELETE, "1");

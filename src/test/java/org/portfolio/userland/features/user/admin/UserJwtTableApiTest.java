@@ -19,6 +19,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MvcResult;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
@@ -36,7 +37,7 @@ public class UserJwtTableApiTest extends BaseUserTest {
 
   // //////////////////////////////////////////////////////////////////////////
 
-  /** Create user data for testing. */
+  /** Create user data for testing. Note: each entity is saved immediately, as JPA auditing stamps timestamps at persist time using current clock value. */
   private List<User> arrangeUserData() {
     List<User> userList = new ArrayList<>();
 
@@ -44,28 +45,28 @@ public class UserJwtTableApiTest extends BaseUserTest {
     User u00 = userFactory.genRandUser(EnUserStatus.ACTIVE);
     u00.setUsername("Jan Kowalski");
     u00.setEmail("jan.kowalski@test.com");
+    userList.add(userRepository.save(u00));
     clock.setFixedTime("2026-06-11T13:00:00Z");
-    userJwtFactory.genJwtEntry(u00, "fake.jwt.string");
+    userJwtRepository.save(userJwtFactory.genJwtEntry(u00, "fake.jwt.string"));
     clock.setFixedTime("2026-06-11T14:00:00Z");
-    userJwtFactory.genJwtEntry(u00, "other.jwt.string");
+    userJwtRepository.save(userJwtFactory.genJwtEntry(u00, "other.jwt.string"));
     clock.setFixedTime("2026-06-11T15:00:00Z");
-    userJwtFactory.genJwtEntry(u00, "apparently.jwt.string");
-    userList.add(u00);
+    userJwtRepository.save(userJwtFactory.genJwtEntry(u00, "apparently.jwt.string"));
 
     clock.setFixedTime("2026-06-09T15:00:00Z");
     User u01 = userFactory.genRandUser(EnUserStatus.ACTIVE);
     u01.setUsername("Aleksandra Kota");
     u01.setEmail("aleksandra.kota@example.com");
-    userList.add(u01);
+    userList.add(userRepository.save(u01));
 
     clock.setFixedTime("2026-06-09T14:00:00Z");
     User u02 = userFactory.genRandUser(EnUserStatus.ACTIVE);
     u02.setUsername("Roman Nowak");
     u02.setEmail("nadkonduktor@test.com");
-    userJwtFactory.genJwtEntry(u02, "different.jwt.string");
-    userList.add(u02);
+    userList.add(userRepository.save(u02));
+    userJwtRepository.save(userJwtFactory.genJwtEntry(u02, "different.jwt.string"));
 
-    return userRepository.saveAll(userList);
+    return userList;
   }
 
   /**
@@ -154,7 +155,9 @@ public class UserJwtTableApiTest extends BaseUserTest {
         .tableMeta(TableMetaReq.builder().sortBy("createdAt").sortOrder(EnSortOrder.DESC).build())
         .build();
     List<UserJwtTableEntry> jwtResults = userAdminFactory.genUserJwtTableEntries(userToCheck.getJwts());
-    List<UserJwtTableEntry> expectedResults = List.of(jwtResults.get(0), jwtResults.get(1), jwtResults.get(2));
+    List<UserJwtTableEntry> expectedResults = jwtResults.stream()
+        .sorted(Comparator.comparing(UserJwtTableEntry::createdAt).reversed())
+        .toList();
 
     actAssert(req, expectedResults, 1L, 3L);
   }

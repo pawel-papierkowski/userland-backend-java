@@ -39,7 +39,7 @@ public class UserTableApiTest extends BaseUserTest {
 
   // //////////////////////////////////////////////////////////////////////////
 
-  /** Create user data for testing. */
+  /** Create user data for testing. Note: each user is saved immediately, as JPA auditing stamps timestamps at persist time using current clock value. */
   private List<User> arrangeUserData() {
     List<User> userList = new ArrayList<>();
 
@@ -47,42 +47,41 @@ public class UserTableApiTest extends BaseUserTest {
     User u00 = userFactory.genRandUser(EnUserStatus.ACTIVE);
     u00.setUsername("Jan Kowalski");
     u00.setEmail("jan.kowalski@test.com");
-    userList.add(u00);
+    userList.add(userRepository.save(u00));
 
     clock.setFixedTime("2026-06-09T15:00:00Z");
     User u01 = userFactory.genRandUser(EnUserStatus.ACTIVE);
     u01.setUsername("Aleksandra Kota");
     u01.setEmail("aleksandra.kota@example.com");
-    userList.add(u01);
+    userList.add(userRepository.save(u01));
     clock.setFixedTime("2026-06-09T14:00:00Z");
     User u02 = userFactory.genRandUser(EnUserStatus.PENDING);
     u02.setUsername("Roman Nowak");
     u02.setEmail("nadkonduktor@test.com");
-    userList.add(u02);
+    userList.add(userRepository.save(u02));
     clock.setFixedTime("2026-06-09T13:00:00Z");
     User u03 = userFactory.genRandUser(EnUserStatus.ACTIVE);
     u03.setUsername("Alma");
     u03.setEmail("alma22@test.com");
-    userList.add(u03);
+    userList.add(userRepository.save(u03));
     clock.setFixedTime("2026-06-09T12:00:00Z");
     User u04 = userFactory.genRandUser(EnUserStatus.PENDING);
     u04.setUsername("CatZilla");
     u04.setEmail("enumerator@example.com");
-    userList.add(u04);
+    userList.add(userRepository.save(u04));
 
     clock.setFixedTime("2026-06-08T15:00:00Z");
     User u05 = userFactory.genRandUser(EnUserStatus.ACTIVE);
     u05.setUsername("Shrek");
     u05.setEmail("shrek@test.com");
     u05.setLocked(true);
-    userList.add(u05);
+    userList.add(userRepository.save(u05));
     clock.setFixedTime("2026-06-07T05:45:00Z");
     User u06 = userFactory.genRandUser(EnUserStatus.ACTIVE);
     u06.setUsername("Kunkator");
     u06.setEmail("kawaii@example.com");
-    userList.add(u06);
+    userList.add(userRepository.save(u06));
 
-    userRepository.saveAll(userList);
     return userList;
   }
 
@@ -334,7 +333,7 @@ public class UserTableApiTest extends BaseUserTest {
 
   // //////////////////////////////////////////////////////////////////////////
 
-  /** Create user data for testing fallback sorting. */
+  /** Create user data for testing fallback sorting. Note: each user is saved immediately, as JPA auditing stamps timestamps at persist time using current clock value. */
   private List<User> arrangeSimilarUserData() {
     List<User> userList = new ArrayList<>();
 
@@ -342,27 +341,26 @@ public class UserTableApiTest extends BaseUserTest {
     User u00 = userFactory.genRandUser(EnUserStatus.ACTIVE);
     u00.setUsername("Jan Kowalski");
     u00.setEmail("jan.kowalski@test.com");
-    userList.add(u00);
+    userList.add(userRepository.save(u00));
 
     clock.setFixedTime("2026-06-11T10:00:00Z");
     User u01 = userFactory.genRandUser(EnUserStatus.ACTIVE);
     u01.setUsername("Ala Makota");
     u01.setEmail("ala.makota@test.com");
-    userList.add(u01);
+    userList.add(userRepository.save(u01));
 
     clock.setFixedTime("2026-06-10T15:00:00Z");
     User u02 = userFactory.genRandUser(EnUserStatus.ACTIVE);
     u02.setUsername("Zbigniew Zbig");
     u02.setEmail("zbigniew@example.com");
-    userList.add(u02);
+    userList.add(userRepository.save(u02));
 
     clock.setFixedTime("2026-06-09T15:00:00Z");
     User u03 = userFactory.genRandUser(EnUserStatus.ACTIVE);
     u03.setUsername("Jan Kowalski");
     u03.setEmail("janusz.kowalski@example.com");
-    userList.add(u03);
+    userList.add(userRepository.save(u03));
 
-    userRepository.saveAll(userList);
     return userList;
   }
 
