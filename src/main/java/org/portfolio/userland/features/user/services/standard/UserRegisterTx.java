@@ -93,15 +93,14 @@ public class UserRegisterTx extends BaseUserService {
     // Note: mapper does NOT set password, hashing has to happen outside of transaction (CPU-heavy BCrypt).
     user.setPassword(passwordHash);
     user.setUuid(securityGeneratorService.uuid());
-    user.setCreatedAt(nowAt);
-    // modifiedAt is maintained automatically by JPA auditing
+    // createdAt and modifiedAt is maintained automatically by JPA auditing
     user.addHistory(createHistoryEvent(nowAt, EnUserHistoryWho.USER, EnUserHistoryWhat.CREATE, ""));
     if (userRegisterReq.activate()) { // already activate user?
       user.setStatus(EnUserStatus.ACTIVE);
       user.addHistory(createHistoryEvent(nowAt, EnUserHistoryWho.USER, EnUserHistoryWhat.ACTIVATE, ""));
     } else user.addToken(createTokenData(nowAt, EnUserTokenType.ACTIVATE));
 
-    if (userRegisterReq.isAdmin()) user.addPermission(createPermission(nowAt, PermConst.ROLE, PermConst.ROLE_ADMIN));
+    if (userRegisterReq.isAdmin()) user.addPermission(createPermission(PermConst.ROLE, PermConst.ROLE_ADMIN));
     return user;
   }
 

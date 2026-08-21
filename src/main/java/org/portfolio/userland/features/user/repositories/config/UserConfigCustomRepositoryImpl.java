@@ -5,7 +5,6 @@ import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import lombok.RequiredArgsConstructor;
 import org.portfolio.userland.common.repositories.EntityTableHandling;
-import org.portfolio.userland.common.services.clock.ClockService;
 import org.portfolio.userland.common.services.security.SecurityGeneratorService;
 import org.portfolio.userland.features.user.dto.admin.config.UserConfigTableReq;
 import org.portfolio.userland.features.user.entities.User;
@@ -21,8 +20,6 @@ import java.util.List;
  */
 @RequiredArgsConstructor
 public class UserConfigCustomRepositoryImpl extends EntityTableHandling<UserConfigTableReq, UserConfig> implements UserConfigCustomRepository {
-  /** Date & time. */
-  private final ClockService clockService;
   /** Generator of random tokens, UUIDs etc. */
   private final SecurityGeneratorService securityGeneratorService;
 
@@ -70,7 +67,7 @@ public class UserConfigCustomRepositoryImpl extends EntityTableHandling<UserConf
     } else {
       userConfig = new UserConfig();
       userConfig.setUuid(securityGeneratorService.uuid());
-      userConfig.setCreatedAt(clockService.getNowUTC());
+      // Note createdAt is maintained automatically by JPA auditing.
       userConfig.setUser(entityManager.getReference(User.class, userId)); // avoid fully loading user entity
     }
 

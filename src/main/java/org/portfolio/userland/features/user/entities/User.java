@@ -9,6 +9,7 @@ import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 import org.portfolio.userland.common.annotations.NoCoverageGenerated;
 import org.portfolio.userland.common.constants.ValidConst;
+import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
@@ -40,8 +41,10 @@ public class User {
   @Column(unique = true, nullable = false, updatable = false)
   private UUID uuid;
 
-  /** Date&time of account creation. */
+  /** Date&time of account creation.
+   * <p>Maintained automatically by JPA auditing (see <code>org.portfolio.userland.config.JpaAuditingConfig</code>), do not set it manually.</p> */
   @Column(nullable = false, updatable = false)
+  @CreatedDate
   private LocalDateTime createdAt;
 
   /** Date&time of account last modification. Note: affected only by changes to user or user profile entity.

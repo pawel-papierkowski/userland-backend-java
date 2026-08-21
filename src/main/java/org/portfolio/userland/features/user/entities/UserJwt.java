@@ -6,6 +6,8 @@ import lombok.Setter;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 import org.portfolio.userland.common.annotations.NoCoverageGenerated;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
 import java.util.Objects;
@@ -14,6 +16,7 @@ import java.util.Objects;
  * User JWT entry. Exists because we need ability to revoke them.
  */
 @Entity
+@EntityListeners(AuditingEntityListener.class)
 @Table(name = "jwt", schema = "iam")
 @Getter
 @Setter
@@ -31,8 +34,10 @@ public class UserJwt {
 
   //
 
-  /** Date&time of token creation. */
+  /** Date&time of token creation.
+   * <p>Maintained automatically by JPA auditing (see <code>org.portfolio.userland.config.JpaAuditingConfig</code>), do not set it manually.</p> */
   @Column(nullable = false, updatable = false)
+  @CreatedDate
   private LocalDateTime createdAt;
 
   /** Date&time of token expiration. */

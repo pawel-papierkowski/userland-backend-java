@@ -6,6 +6,8 @@ import lombok.Setter;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 import org.portfolio.userland.common.annotations.NoCoverageGenerated;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
 import java.util.Objects;
@@ -17,6 +19,7 @@ import java.util.UUID;
  * so we cannot use @ManyToMany.
  */
 @Entity
+@EntityListeners(AuditingEntityListener.class)
 @Table(name = "user_permissions", schema = "iam", uniqueConstraints = @UniqueConstraint(columnNames = {"id_user", "id_permission", "value"}))
 @Getter
 @Setter
@@ -43,8 +46,10 @@ public class UserPermission {
 
   //
 
-  /** Date&time of user permission entry creation. */
+  /** Date&time of user permission entry creation.
+   * <p>Maintained automatically by JPA auditing (see <code>org.portfolio.userland.config.JpaAuditingConfig</code>), do not set it manually.</p> */
   @Column(nullable = false, updatable = false)
+  @CreatedDate
   private LocalDateTime createdAt;
 
   /** Value of permission entry. */

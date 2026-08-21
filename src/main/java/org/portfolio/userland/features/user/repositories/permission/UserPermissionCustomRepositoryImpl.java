@@ -8,7 +8,6 @@ import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import lombok.RequiredArgsConstructor;
 import org.portfolio.userland.common.repositories.EntityTableHandling;
-import org.portfolio.userland.common.services.clock.ClockService;
 import org.portfolio.userland.common.services.security.SecurityGeneratorService;
 import org.portfolio.userland.features.user.dto.admin.permission.UserPermissionTableReq;
 import org.portfolio.userland.features.user.entities.Permission;
@@ -28,8 +27,6 @@ import java.util.List;
 public class UserPermissionCustomRepositoryImpl extends EntityTableHandling<UserPermissionTableReq, UserPermission> implements UserPermissionCustomRepository {
   private final EntityManager entityManager;
 
-  /** Date & time. */
-  private final ClockService clockService;
   /** Generator of random tokens, UUIDs etc. */
   private final SecurityGeneratorService securityGeneratorService;
 
@@ -86,7 +83,7 @@ public class UserPermissionCustomRepositoryImpl extends EntityTableHandling<User
     } else {
       userPermission = new UserPermission();
       userPermission.setUuid(securityGeneratorService.uuid());
-      userPermission.setCreatedAt(clockService.getNowUTC());
+      // Note createdAt is maintained automatically by JPA auditing.
       userPermission.setUser(entityManager.getReference(User.class, userId)); // avoid fully loading user entity
     }
 

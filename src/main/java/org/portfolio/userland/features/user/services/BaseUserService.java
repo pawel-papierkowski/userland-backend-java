@@ -76,7 +76,7 @@ public abstract class BaseUserService extends BaseService {
    */
   protected UserToken createTokenData(LocalDateTime nowAt, EnUserTokenType type, String payload) {
     UserToken token = new UserToken();
-    token.setCreatedAt(nowAt);
+    // Note createdAt is maintained automatically by JPA auditing.
     token.setExpiresAt(userHelperService.resolveExpirationSince(nowAt, type));
     token.setType(type);
     token.setToken(securityGeneratorService.token());
@@ -168,7 +168,7 @@ public abstract class BaseUserService extends BaseService {
   protected UserHistory createHistoryEvent(LocalDateTime nowAt, EnUserHistoryWho who, EnUserHistoryWhat what, String params) {
     UserHistory event = new UserHistory();
     event.setUuid(securityGeneratorService.uuid());
-    event.setCreatedAt(nowAt);
+    // Note createdAt is maintained automatically by JPA auditing.
     event.setWho(who);
     event.setWhat(what);
     event.setParams(params);
@@ -199,7 +199,7 @@ public abstract class BaseUserService extends BaseService {
    */
   private UserJwt createJwtEntry(LocalDateTime nowAt, String jwtStr, Long customExpiration) {
     UserJwt token = new UserJwt();
-    token.setCreatedAt(nowAt);
+    // Note createdAt is maintained automatically by JPA auditing.
     token.setExpiresAt(userHelperService.resolveJwtExpiration(nowAt, customExpiration));
     token.setToken(jwtStr);
     return token;
@@ -207,18 +207,18 @@ public abstract class BaseUserService extends BaseService {
 
   //
 
-  protected void addPermission(LocalDateTime nowAt, User user, String name, String value) {
-    UserPermission permissionEntry = createPermission(nowAt, name, value);
+  protected void addPermission(User user, String name, String value) {
+    UserPermission permissionEntry = createPermission(name, value);
     permissionEntry.setUser(user);
     userPermissionRepository.save(permissionEntry);
   }
 
-  protected UserPermission createPermission(LocalDateTime nowAt, String name, String value) {
+  protected UserPermission createPermission(String name, String value) {
     Permission permission = permissionRepository.findByName(name).orElseThrow();
 
     UserPermission permissionEntry = new UserPermission();
     permissionEntry.setUuid(securityGeneratorService.uuid());
-    permissionEntry.setCreatedAt(nowAt);
+    // Note createdAt is maintained automatically by JPA auditing.
     permissionEntry.setPermission(permission);
     permissionEntry.setValue(value);
     return permissionEntry;

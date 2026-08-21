@@ -63,7 +63,7 @@ public class UserConfigService extends BaseUserService {
     if (configEntry == null) {
       configEntry = new UserConfig();
       configEntry.setUuid(securityGeneratorService.uuid());
-      configEntry.setCreatedAt(clockService.getNowUTC());
+      // Note createdAt is maintained automatically by JPA auditing.
       configEntry.setName(name);
       user.addConfig(configEntry);
     }

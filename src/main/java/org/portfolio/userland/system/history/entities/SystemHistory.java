@@ -7,6 +7,8 @@ import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 import org.portfolio.userland.common.annotations.NoCoverageGenerated;
 import org.portfolio.userland.features.user.entities.User;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
 import java.util.Objects;
@@ -16,6 +18,7 @@ import java.util.UUID;
  * System history event.
  */
 @Entity
+@EntityListeners(AuditingEntityListener.class)
 @Table(name = "history", schema = "aux")
 @Getter
 @Setter
@@ -37,8 +40,10 @@ public class SystemHistory {
 
   //
 
-  /** Date&time of history event creation. */
+  /** Date&time of history event creation.
+   * <p>Maintained automatically by JPA auditing (see <code>org.portfolio.userland.config.JpaAuditingConfig</code>), do not set it manually.</p> */
   @Column(nullable = false, updatable = false)
+  @CreatedDate
   private LocalDateTime createdAt;
 
   //

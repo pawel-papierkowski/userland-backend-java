@@ -14,8 +14,6 @@ import org.portfolio.userland.system.history.repositories.SystemHistoryRepositor
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
-
 /**
  * Service for system history.
  */
@@ -50,13 +48,11 @@ public class SystemHistoryService extends BaseService {
    */
   @Transactional
   public void addEvent(Long userId, EnHistoryWho who, EnHistoryWhat what, String params) {
-    LocalDateTime nowAt = clockService.getNowUTC();
-
     User user = userId == null ? null : userRepository.getReferenceById(userId);
 
     SystemHistory systemHistoryEvent = new SystemHistory();
     systemHistoryEvent.setUuid(securityGeneratorService.uuid());
-    systemHistoryEvent.setCreatedAt(nowAt);
+    // Note createdAt is maintained automatically by JPA auditing.
     systemHistoryEvent.setUser(user);
     systemHistoryEvent.setWho(who);
     systemHistoryEvent.setWhat(what);
