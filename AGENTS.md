@@ -78,6 +78,7 @@ This is a modern **Java 25**, **Spring Boot 4.1.0** application. The backend ser
 - **Entities:**
   - Do not use Lombok's `@Data` for Hibernate entities. Use `@Getter` and `@Setter`.
   - Map tables using `@Table(name = "...", schema = "...")`.
+  - Joins must always specify fetch type explicitly.
   - Generate manual `equals()`/`hashCode()` methods using **business key** (single field). If given entity do not have any field that can be used as business key, create dedicated UUID field that will be used as business key.
 - **Database:**
   - We run on PostgreSQL.

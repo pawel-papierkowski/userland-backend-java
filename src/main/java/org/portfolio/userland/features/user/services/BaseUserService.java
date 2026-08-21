@@ -17,7 +17,7 @@ import org.portfolio.userland.system.base.BaseService;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.time.LocalDateTime;
-import java.util.List;
+import java.util.Optional;
 
 /**
  * Base for all user services.
@@ -88,6 +88,8 @@ public abstract class BaseUserService extends BaseService {
    * Ensures token of given type for given user does not exist. If token exists, but is expired, it will be removed.
    * If token exists and is still valid, throws exception or returns false.
    * <p>Reminder: one user can have only one token of given type at once.</p>
+   * <p>Note: token is fetched directly from database instead of traversing user's lazy 'tokens' collection,
+   * so no unnecessary data is loaded.</p>
    * @param nowAt Current date&time.
    * @param type  Type of token.
    * @param user  User.
@@ -95,36 +97,23 @@ public abstract class BaseUserService extends BaseService {
    * @return True if operation succeeded, otherwise false. Applicable only if <code>failSilently == true</code>.
    */
   protected boolean ensureTokenDoesNotExist(LocalDateTime nowAt, EnUserTokenType type, User user, boolean failSilently) {
-    List<UserToken> tokens = user.getTokens();
-    UserToken token = findToken(tokens, type);
-    if (token == null) return true; // no token of this type present at all, everything is fine
+    Optional<UserToken> found = userTokenRepository.findByUserAndType(user.getId(), type);
+    if (found.isEmpty()) return true; // no token of this type present at all, everything is fine
+    UserToken token = found.get();
 
     // Expired token will be removed to make place for new token. Note orphan removal is not used, so we delete it explicitly.
     if (token.getExpiresAt().isBefore(nowAt)) {
-      tokens.remove(token);
       userTokenRepository.delete(token);
-      // Important to flush here, otherwise Bad Things Happen. It is fine if it is saved in rollback scenario, as
+      // Important to flush here, otherwise Bad Things Happen (inserting new token of same type later in same transaction
+      // would violate unique constraint uq_user_token_type). It is fine if it is saved in rollback scenario, as
       // expired tokens cannot be used anyway.
-      userRepository.saveAndFlush(user);
+      userTokenRepository.flush();
       return true;
     }
 
     // Token still valid, throw exception or return false.
     if (failSilently) return false;
     throw new UserTokenAlreadyExistsException(type);
-  }
-
-  /**
-   * Find token of given type from list.
-   * @param tokens List of user tokens.
-   * @param type Type of user token to find.
-   * @return User token or null if it could not find token.
-   */
-  private UserToken findToken(List<UserToken> tokens, EnUserTokenType type) {
-    for (UserToken currToken : tokens) {
-      if (type.equals(currToken.getType())) return currToken;
-    }
-    return null;
   }
 
   /**

@@ -58,9 +58,10 @@ public class UserEmailService extends BaseUserService {
     String params = "old: '"+user.getEmail()+"', new: '"+userEmailChangeLinkReq.newEmail()+"'";
     ensureTokenDoesNotExist(nowAt, EnUserTokenType.EMAIL, user, false);
 
+    // Save token directly via repository.
     UserToken token = createTokenData(nowAt, EnUserTokenType.EMAIL, userEmailChangeLinkReq.newEmail());
-    user.addToken(token);
-    user = userRepository.save(user);
+    token.setUser(user);
+    userTokenRepository.save(token);
 
     addHistoryEvent(user, nowAt, EnUserHistoryWho.USER, EnUserHistoryWhat.EMAIL_CHANGE_REQ, params);
 

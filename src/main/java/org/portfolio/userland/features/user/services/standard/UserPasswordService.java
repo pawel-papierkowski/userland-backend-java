@@ -45,9 +45,10 @@ public class UserPasswordService extends BaseUserService {
     boolean result = ensureTokenDoesNotExist(nowAt, EnUserTokenType.PASSWORD, user, !build.getTest());
     if (!result) return; // fail silently to prevent email enumeration attack
 
+    // Save token directly via repository.
     UserToken token = createTokenData(nowAt, EnUserTokenType.PASSWORD);
-    user.addToken(token);
-    user = userRepository.save(user);
+    token.setUser(user);
+    userTokenRepository.save(token);
 
     addHistoryEvent(user, nowAt, EnUserHistoryWho.USER, EnUserHistoryWhat.PASS_RESET_REQ, "");
 

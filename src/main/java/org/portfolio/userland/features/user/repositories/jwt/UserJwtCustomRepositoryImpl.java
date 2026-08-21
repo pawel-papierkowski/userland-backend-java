@@ -7,7 +7,6 @@ import jakarta.persistence.criteria.Root;
 import org.portfolio.userland.common.repositories.EntityTableHandling;
 import org.portfolio.userland.features.user.dto.admin.jwt.UserJwtTableReq;
 import org.portfolio.userland.features.user.entities.UserJwt;
-import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -39,7 +38,6 @@ public class UserJwtCustomRepositoryImpl extends EntityTableHandling<UserJwtTabl
 
   @Override
   @Transactional
-  @Modifying(clearAutomatically = true, flushAutomatically = true)
   public int revokeAllTokensExcept(Map<String, Set<String>> allowedPermissions) {
     // If the map is empty, apply total lockdown (delete all tokens).
     if (allowedPermissions == null || allowedPermissions.isEmpty()) {

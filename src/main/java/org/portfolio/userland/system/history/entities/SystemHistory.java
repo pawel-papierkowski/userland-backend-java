@@ -30,7 +30,7 @@ public class SystemHistory {
   private UUID uuid;
 
   /** User that has this history event. */
-  @ManyToOne
+  @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "id_user")
   @OnDelete(action = OnDeleteAction.SET_NULL)
   private User user;

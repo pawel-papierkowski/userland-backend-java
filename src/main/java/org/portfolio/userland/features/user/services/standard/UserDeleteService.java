@@ -47,9 +47,10 @@ public class UserDeleteService extends BaseUserService {
     LocalDateTime nowAt = clockService.getNowUTC();
     ensureTokenDoesNotExist(nowAt, EnUserTokenType.DELETE, user, false);
 
+    // Save token directly via repository.
     UserToken token = createTokenData(nowAt, EnUserTokenType.DELETE);
-    user.addToken(token);
-    user = userRepository.save(user);
+    token.setUser(user);
+    userTokenRepository.save(token);
 
     addHistoryEvent(user, nowAt, EnUserHistoryWho.USER, EnUserHistoryWhat.DELETE_REQ, "");
 
