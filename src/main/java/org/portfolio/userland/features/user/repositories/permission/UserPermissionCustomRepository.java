@@ -1,6 +1,7 @@
 package org.portfolio.userland.features.user.repositories.permission;
 
 import org.portfolio.userland.features.user.dto.admin.permission.UserPermissionEditReq;
+import org.portfolio.userland.features.user.dto.admin.permission.UserPermissionEntryInfo;
 import org.portfolio.userland.features.user.dto.admin.permission.UserPermissionTableReq;
 import org.portfolio.userland.features.user.entities.UserPermission;
 import org.portfolio.userland.features.user.exceptions.UserPermissionMissingException;
@@ -26,6 +27,14 @@ public interface UserPermissionCustomRepository {
   List<UserPermission> viewPage(UserPermissionTableReq req);
 
   //
+  
+  /**
+   * Get basic info about user permission entry without loading full entities.
+   * @param id User permission entry identificator.
+   * @return Basic info about the entry (user id, permission name, value).
+   * @throws UserPermissionMissingException When cannot find user permission entry with given id.
+   */
+  UserPermissionEntryInfo findEntryInfo(Long id);
 
   /**
    * Check if user permission with same name/value combination already exists.

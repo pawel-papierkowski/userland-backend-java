@@ -9,6 +9,7 @@ import jakarta.persistence.criteria.Root;
 import lombok.RequiredArgsConstructor;
 import org.portfolio.userland.common.repositories.EntityTableHandling;
 import org.portfolio.userland.common.services.security.SecurityGeneratorService;
+import org.portfolio.userland.features.user.dto.admin.permission.UserPermissionEntryInfo;
 import org.portfolio.userland.features.user.dto.admin.permission.UserPermissionTableReq;
 import org.portfolio.userland.features.user.entities.Permission;
 import org.portfolio.userland.features.user.entities.User;
@@ -53,6 +54,23 @@ public class UserPermissionCustomRepositoryImpl extends EntityTableHandling<User
   }
 
   //
+
+  @Override
+  @Transactional(readOnly = true)
+  public UserPermissionEntryInfo findEntryInfo(Long id) {
+    try {
+      // Get only needed fields, so we do not hydrate full UserPermission and Permission entities.
+      return entityManager.createQuery("""
+          SELECT new org.portfolio.userland.features.user.dto.admin.permission.UserPermissionEntryInfo(up.user.id, up.permission.name, up.value)
+          FROM UserPermission up
+          WHERE up.id = :id
+        """, UserPermissionEntryInfo.class)
+          .setParameter("id", id)
+          .getSingleResult();
+    } catch (NoResultException ex) {
+      throw new UserPermissionMissingException(id);
+    }
+  }
 
   @Override
   @Transactional(readOnly = true)

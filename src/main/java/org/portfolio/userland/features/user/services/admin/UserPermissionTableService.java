@@ -7,15 +7,11 @@ import org.portfolio.userland.common.dto.EntryOption;
 import org.portfolio.userland.common.dto.TableMetaReq;
 import org.portfolio.userland.common.exception.BadParamsException;
 import org.portfolio.userland.common.services.table.TableHelper;
-import org.portfolio.userland.features.user.dto.admin.permission.UserPermissionEditReq;
-import org.portfolio.userland.features.user.dto.admin.permission.UserPermissionTableEntry;
-import org.portfolio.userland.features.user.dto.admin.permission.UserPermissionTableReq;
-import org.portfolio.userland.features.user.dto.admin.permission.UserPermissionTableResp;
+import org.portfolio.userland.features.user.dto.admin.permission.*;
 import org.portfolio.userland.features.user.entities.EnUserHistoryWhat;
 import org.portfolio.userland.features.user.entities.EnUserHistoryWho;
 import org.portfolio.userland.features.user.entities.UserPermission;
 import org.portfolio.userland.features.user.exceptions.UserCannotEditException;
-import org.portfolio.userland.features.user.exceptions.UserPermissionMissingException;
 import org.portfolio.userland.features.user.exceptions.UserPermissionRedundantException;
 import org.portfolio.userland.features.user.services.BaseUserService;
 import org.portfolio.userland.system.auth.AuthHelper;
@@ -177,7 +173,7 @@ public class UserPermissionTableService extends BaseUserService {
    */
   @Transactional
   public UserPermission edit(UserPermissionEditReq editReq) {
-    UserPermission userPermission = resolve(editReq.id(), editReq.userId()); // side effects are important here
+    UserPermissionEntryInfo oldInfo = resolve(editReq.id(), editReq.userId()); // side effects are important here
     String newPerm = editReq.name() + "_" + editReq.value();
 
     // We need to check if same user permission already exists for this user.
@@ -186,11 +182,11 @@ public class UserPermissionTableService extends BaseUserService {
       throw new UserPermissionRedundantException(newPerm);
 
     LocalDateTime nowAt = clockService.getNowUTC();
-    if (userPermission == null) { // Leave trace in user history about user permission addition.
+    if (oldInfo == null) { // Leave trace in user history about user permission addition.
       String params = "add '" + newPerm + "'";
       addHistoryEvent(editReq.userId(), nowAt, EnUserHistoryWho.OPERATOR, EnUserHistoryWhat.EDIT_PERM, params);
     } else { // Leave trace in user history about user permission edit.
-      String oldPerm = userPermission.getPermission().getName() + "_" +userPermission.getValue();
+      String oldPerm = oldInfo.permissionName() + "_" + oldInfo.value();
       String params = "set ";
       if (newPerm.equals(oldPerm)) params += "'" + newPerm + "'"; // no actual change
       else params += "'" + oldPerm + "' to '" + newPerm + "'";
@@ -209,39 +205,39 @@ public class UserPermissionTableService extends BaseUserService {
    */
   @Transactional
   public void delete(Long entryId) {
-    UserPermission permissionEntry = resolve(entryId, null);
+    UserPermissionEntryInfo info = resolve(entryId, null);
 
     // Leave trace in user history about user permission deletion.
     LocalDateTime nowAt = clockService.getNowUTC();
-    String params = "del '"+permissionEntry.getPermission().getName()+"_"+permissionEntry.getValue() + "'";
-    addHistoryEvent(permissionEntry.getUser(), nowAt, EnUserHistoryWho.OPERATOR, EnUserHistoryWhat.EDIT_PERM, params);
+    String params = "del '"+info.permissionName()+"_"+info.value() + "'";
+    addHistoryEvent(info.userId(), nowAt, EnUserHistoryWho.OPERATOR, EnUserHistoryWhat.EDIT_PERM, params);
 
     // Actually delete user permission entry.
     userPermissionRepository.deleteById(entryId);
-    clearJwt(permissionEntry.getUser().getId());
+    clearJwt(info.userId());
   }
 
   //
 
   /**
-   * Resolve permission entry.
+   * Resolve permission entry basic info without loading full entities.
+   * Also verifies access rights: logged-in user is not allowed to edit own account.
    * @param entryId Identificator of permission entry.
    * @param userId Identificator of user.
-   * @return Permission entry.
+   * @return Basic info about permission entry or null if both identificators are null.
    */
-  private UserPermission resolve(Long entryId, Long userId) {
+  private UserPermissionEntryInfo resolve(Long entryId, Long userId) {
     if (entryId == null && userId == null) return null;
 
-    UserPermission permissionEntry = null;
-    if (entryId != null)
-     permissionEntry = userPermissionRepository.findById(entryId).orElseThrow(()-> new UserPermissionMissingException(entryId));
+    UserPermissionEntryInfo info = null;
+    if (entryId != null) info = userPermissionRepository.findEntryInfo(entryId);
 
-    if (userId == null) userId = permissionEntry.getUser().getId();
+    if (userId == null) userId = info.userId();
     CustomUserDetails userDetails = AuthHelper.resolveUserDetails();
     if (userDetails == null) throw new IllegalStateException(); // Should not happen.
     if (userDetails.getId().equals(userId)) // We are not allowed to edit our own account.
       throw new UserCannotEditException(userId);
-    return permissionEntry;
+    return info;
   }
 
   /**
