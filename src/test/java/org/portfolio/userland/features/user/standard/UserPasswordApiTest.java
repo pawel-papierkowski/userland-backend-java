@@ -200,6 +200,51 @@ public class UserPasswordApiTest extends BaseUserTest {
         });
   }
 
+  @Test
+  public void errAlreadyUsedToken() throws Exception {
+    // We are resetting password and then trying to use the same token again (simulates double-click).
+    clock.setFixedTime("2026-04-10T10:00:00Z");
+
+    // Arrange: Create active user in database in state indicating it requested password reset.
+    User expectedUser = userFactory.genUser(EnUserStatus.ACTIVE);
+    UserToken token = userTokenFactory.genTokenEntry(expectedUser, EnUserTokenType.PASSWORD, null);
+    userRepository.save(expectedUser);
+
+    clock.setFixedTime("2026-04-10T10:05:00Z");
+    UserPassResetConfirmReq req = new UserPassResetConfirmReq(token.getToken(), "N3vP@ssw0rd");
+
+    // Act: Reset password using valid token.
+    MvcResult firstResult = mockMvc.perform(patch("/api/users/password/confirm")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(req)))
+        .andReturn();
+    assertThat(firstResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.NO_CONTENT.value());
+
+    // Act & Assert: Second attempt with the same token must fail. Note token is atomically consumed during first
+    // reset, so by the time of the second request it no longer exists in database.
+    MvcResult mvcResult = mockMvc.perform(patch("/api/users/password/confirm")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(req)))
+        .andReturn();
+    assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.NOT_FOUND.value());
+
+    // Assert: Content has correct error.
+    ProblemDetailBox expectedPdb = new ProblemDetailBox(
+        HttpStatus.NOT_FOUND.value(),
+        "User token is missing.",
+        "Token '"+token.getToken()+"' does not exist.",
+        "/api/users/password/confirm",
+        "https://api.userland.org/errors/user/token/missing",
+        Map.of("errCode", UserErrCode.TOKEN_MISSING)
+    );
+    problemDetailService.assertPd(mvcResult, expectedPdb);
+
+    // Assert that password reset confirm event was published exactly once.
+    assertThat(applicationEvents.stream(UserPasswordResetConfirmEvent.class))
+        .as("Password reset confirm event should be published exactly once")
+        .hasSize(1);
+  }
+
   // //////////////////////////////////////////////////////////////////////////
   // FAILURES
 

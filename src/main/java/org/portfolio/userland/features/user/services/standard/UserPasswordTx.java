@@ -56,7 +56,6 @@ public class UserPasswordTx extends BaseUserService {
     user.setPassword(passwordHash);
     userRepository.save(user); // modifiedAt is maintained automatically by JPA auditing
 
-    userTokenRepository.deleteToken(userToken.getToken());
     addHistoryEvent(user, nowAt, EnUserHistoryWho.USER, EnUserHistoryWhat.PASS_RESET, "");
 
     triggerPassResetConfirmEvent(user);

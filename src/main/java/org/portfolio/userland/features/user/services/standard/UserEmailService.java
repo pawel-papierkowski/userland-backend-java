@@ -70,7 +70,6 @@ public class UserEmailService extends BaseUserService {
     userRepository.save(user); // modifiedAt is maintained automatically by JPA auditing
 
     userJwtRepository.deleteAllByUser(user.getId());
-    userTokenRepository.deleteToken(userToken.getToken());
     addHistoryEvent(user, nowAt, EnUserHistoryWho.USER, EnUserHistoryWhat.EMAIL_CHANGE, params);
 
     triggerEmailChangeConfirmEvent(user);

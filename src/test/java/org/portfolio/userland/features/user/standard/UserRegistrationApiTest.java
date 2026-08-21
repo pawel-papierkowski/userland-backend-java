@@ -372,6 +372,51 @@ public class UserRegistrationApiTest extends BaseUserTest {
     });
   }
 
+  @Test
+  public void errAlreadyUsedToken() throws Exception {
+    // We are activating user and then trying to use the same token again (simulates double-click).
+    clock.setFixedTime("2026-04-10T10:00:00Z");
+
+    // Arrange: Create user, profile and activation token.
+    User user = userFactory.genUser(EnUserStatus.PENDING);
+    userProfileRepository.save(userProfileFactory.genRandProfile(user));
+    String tokenStr = user.getTokens().getFirst().getToken();
+
+    clock.setFixedTime("2026-04-10T10:05:00Z");
+    TokenActivateReq req = new TokenActivateReq(tokenStr, null);
+
+    // Act: Activate user using valid token.
+    MvcResult firstResult = mockMvc.perform(post("/api/users/activate")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(req)))
+        .andReturn();
+    assertThat(firstResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.NO_CONTENT.value());
+
+    // Act & Assert: Second attempt with the same token must fail. Note token is atomically consumed during first
+    // activation, so by the time of the second request it no longer exists in database.
+    MvcResult mvcResult = mockMvc.perform(post("/api/users/activate")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(req)))
+        .andReturn();
+    assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.NOT_FOUND.value());
+
+    // Assert: Content has correct error.
+    ProblemDetailBox expectedPdb = new ProblemDetailBox(
+        HttpStatus.NOT_FOUND.value(),
+        "User token is missing.",
+        "Token '"+tokenStr+"' does not exist.",
+        "/api/users/activate",
+        "https://api.userland.org/errors/user/token/missing",
+        Map.of("errCode", UserErrCode.TOKEN_MISSING)
+    );
+    problemDetailService.assertPd(mvcResult, expectedPdb);
+
+    // Assert that only one activation event (and thus one email) was published.
+    assertThat(applicationEvents.stream(UserActivatedEvent.class))
+        .as("Activation event should be published exactly once")
+        .hasSize(1);
+  }
+
   // //////////////////////////////////////////////////////////////////////////
   // FAILURES
 

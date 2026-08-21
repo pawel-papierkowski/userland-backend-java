@@ -2,6 +2,7 @@ package org.portfolio.userland.features.user.services;
 
 import org.portfolio.userland.features.user.entities.*;
 import org.portfolio.userland.features.user.exceptions.UserTokenAlreadyExistsException;
+import org.portfolio.userland.features.user.exceptions.UserTokenAlreadyUsedException;
 import org.portfolio.userland.features.user.exceptions.UserTokenExpiredException;
 import org.portfolio.userland.features.user.exceptions.UserTokenMissingException;
 import org.portfolio.userland.features.user.mappers.UserMapper;
@@ -117,13 +118,25 @@ public abstract class BaseUserService extends BaseService {
   }
 
   /**
-   * Retrieve user token based on token string. Will throw exception if token is not found or is expired.
+   * Retrieve user token based on token string and atomically consume it, so it cannot be used again.
+   * Will throw exception if token is not found, is expired or was already used by another (concurrent) request.
+   * <p>Note: consumption is done via atomic conditional delete, so even if multiple requests race with the same
+   * token, exactly one of them will win here - all others will fail and will not perform their action.
+   * The returned token entry is already deleted in the database (but still usable as read-only data).</p>
+   * @param nowAt Current date&time.
+   * @param type Type of token.
    * @param tokenStr Token string.
+   * @return User token entry (already consumed in database).
    */
   protected UserToken resolveToken(LocalDateTime nowAt, EnUserTokenType type, String tokenStr) {
     UserToken userToken = userTokenRepository.findByTypeAndToken(type, tokenStr)
         .orElseThrow(() -> new UserTokenMissingException(tokenStr));
     if (userToken.getExpiresAt().isBefore(nowAt)) throw new UserTokenExpiredException(tokenStr);
+
+    // Atomically claim the token: if another concurrent transaction consumed it in the meantime,
+    // nothing will be deleted here and this request must not perform its action.
+    int consumed = userTokenRepository.consumeToken(type, tokenStr, nowAt);
+    if (consumed == 0) throw new UserTokenAlreadyUsedException(tokenStr);
     return userToken;
   }
 

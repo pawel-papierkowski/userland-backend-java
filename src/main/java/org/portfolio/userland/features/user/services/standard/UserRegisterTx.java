@@ -132,7 +132,6 @@ public class UserRegisterTx extends BaseUserService {
     user.setStatus(EnUserStatus.ACTIVE);
     userRepository.save(user); // modifiedAt is maintained automatically by JPA auditing
 
-    userTokenRepository.deleteToken(userToken.getToken());
     addHistoryEvent(user, nowAt, EnUserHistoryWho.USER, EnUserHistoryWhat.ACTIVATE, "");
 
     log.trace("User '{}' activated successfully.", user.getEmail());

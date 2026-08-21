@@ -41,6 +41,19 @@ public interface UserTokenRepository extends JpaRepository<UserToken, Long>, Use
   @Query("SELECT t FROM UserToken t WHERE t.user.id = :userId and t.type = :type")
   Optional<UserToken> findByUserAndType(@Param("userId") Long userId, @Param("type") EnUserTokenType type);
 
+  /**
+   * Atomically consumes given token: deletes it only if it exists and is not expired yet.
+   * <p>Note: this is a compare-and-delete operation, safe to be called by multiple concurrent transactions -
+   * exactly one of them will get return value of 1. Intended to be used right after {@link #findByTypeAndToken}.</p>
+   * @param type Type of token.
+   * @param token Token string.
+   * @param nowAt Current date&time.
+   * @return Count of removed tokens (1 if token was consumed, 0 if it was already consumed or expired).
+   */
+  @Modifying
+  @Query("DELETE FROM UserToken t WHERE t.type = :type AND t.token = :token AND t.expiresAt > :nowAt")
+  int consumeToken(@Param("type") EnUserTokenType type, @Param("token") String token, @Param("nowAt") LocalDateTime nowAt);
+
   //
 
   /**
@@ -51,13 +64,4 @@ public interface UserTokenRepository extends JpaRepository<UserToken, Long>, Use
   @Modifying(clearAutomatically = true, flushAutomatically = true)
   @Query("DELETE FROM UserToken t WHERE t.expiresAt < :nowAt")
   int deleteExpiredTokens(@Param("nowAt") LocalDateTime nowAt);
-
-  /**
-   * Delete given token.
-   * @param token Token string.
-   * @return Count of removed tokens.
-   */
-  @Modifying(clearAutomatically = true, flushAutomatically = true)
-  @Query("DELETE FROM UserToken t WHERE t.token = :token")
-  int deleteToken(@Param("token") String token);
 }

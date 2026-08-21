@@ -101,6 +101,7 @@ This is a modern **Java 25**, **Spring Boot 4.1.0** application. The backend ser
 - Ensure `TemplateEngine` uses the `MessageSource` for evaluating `#{...}` tags.
 
 ### 🧪 Testing Guidelines
+- Tests use singleton Postgres container. Ensure reset of database state before each test that uses database.
 - Use **JUnit 5** (`@Test`) and **AssertJ** (`assertThat`) for all assertions.
 - Do not use Mockito `verify()` unless absolutely necessary; prefer testing actual state changes or return values.
 - Package structure: 
