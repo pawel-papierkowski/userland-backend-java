@@ -16,7 +16,6 @@ import org.portfolio.userland.features.user.entities.User;
 import org.portfolio.userland.features.user.entities.UserPermission;
 import org.portfolio.userland.features.user.exceptions.PermissionMissingException;
 import org.portfolio.userland.features.user.exceptions.UserPermissionMissingException;
-import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
@@ -25,7 +24,6 @@ import java.util.List;
 /**
  * Implementation of custom repository for user permission.
  */
-@Repository
 @RequiredArgsConstructor
 public class UserPermissionCustomRepositoryImpl extends EntityTableHandling<UserPermissionTableReq, UserPermission> implements UserPermissionCustomRepository {
   private final EntityManager entityManager;

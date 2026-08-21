@@ -6,7 +6,6 @@ import jakarta.persistence.criteria.Root;
 import org.portfolio.userland.common.repositories.EntityTableHandling;
 import org.portfolio.userland.features.user.dto.admin.history.UserHistoryTableReq;
 import org.portfolio.userland.features.user.entities.UserHistory;
-import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,7 +13,6 @@ import java.util.List;
 /**
  * Implementation of custom repository for user history.
  */
-@Repository
 public class UserHistoryCustomRepositoryImpl extends EntityTableHandling<UserHistoryTableReq, UserHistory> implements UserHistoryCustomRepository {
   @Override
   protected List<Predicate> generatePredicates(UserHistoryTableReq req, CriteriaBuilder cb, Root<UserHistory> entity) {

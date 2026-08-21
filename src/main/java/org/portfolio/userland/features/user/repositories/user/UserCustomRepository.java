@@ -2,7 +2,6 @@ package org.portfolio.userland.features.user.repositories.user;
 
 import org.portfolio.userland.features.user.dto.admin.user.UserTableReq;
 import org.portfolio.userland.features.user.entities.User;
-import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -10,7 +9,6 @@ import java.util.List;
 /**
  * More complex queries for <code>User</code> entity.
  */
-@Repository
 public interface UserCustomRepository {
   /**
    * Return total count of entries for given filtering. Field tableMeta does not matter here.

@@ -11,7 +11,6 @@ import org.portfolio.userland.features.user.dto.admin.config.UserConfigTableReq;
 import org.portfolio.userland.features.user.entities.User;
 import org.portfolio.userland.features.user.entities.UserConfig;
 import org.portfolio.userland.features.user.exceptions.UserConfigMissingException;
-import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
@@ -20,7 +19,6 @@ import java.util.List;
 /**
  * Implementation of custom repository for user config.
  */
-@Repository
 @RequiredArgsConstructor
 public class UserConfigCustomRepositoryImpl extends EntityTableHandling<UserConfigTableReq, UserConfig> implements UserConfigCustomRepository {
   /** Date & time. */

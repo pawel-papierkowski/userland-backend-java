@@ -7,7 +7,6 @@ import jakarta.persistence.criteria.Root;
 import org.portfolio.userland.common.repositories.EntityTableHandling;
 import org.portfolio.userland.features.user.dto.admin.jwt.UserJwtTableReq;
 import org.portfolio.userland.features.user.entities.UserJwt;
-import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
@@ -18,7 +17,6 @@ import java.util.Set;
 /**
  * Implementation of custom repository for user JWT.
  */
-@Repository
 public class UserJwtCustomRepositoryImpl extends EntityTableHandling<UserJwtTableReq, UserJwt> implements UserJwtCustomRepository {
   @Override
   protected List<Predicate> generatePredicates(UserJwtTableReq req, CriteriaBuilder cb, Root<UserJwt> entity) {
