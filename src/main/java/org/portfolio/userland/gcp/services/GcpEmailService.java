@@ -1,10 +1,13 @@
 package org.portfolio.userland.gcp.services;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.google.api.gax.rpc.ApiException;
 import com.google.cloud.tasks.v2.*;
 import com.google.protobuf.ByteString;
 import lombok.extern.slf4j.Slf4j;
 import org.portfolio.userland.features.email.dto.EmailReq;
 import org.portfolio.userland.features.email.services.EmailService;
+import org.portfolio.userland.gcp.exceptions.GcpTaskEnqueueFailureException;
 import org.springframework.stereotype.Service;
 
 /**
@@ -57,8 +60,8 @@ public class GcpEmailService extends BaseGcpService {
 
       // Send to GCP
       cloudTasksClient.createTask(queuePath, task);
-    } catch (Exception ex) {
-      throw new RuntimeException(ex);
+    } catch (JsonProcessingException | ApiException ex) {
+      throw new GcpTaskEnqueueFailureException("queueEmailTask", ex);
     }
   }
 }
