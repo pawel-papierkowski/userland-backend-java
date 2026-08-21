@@ -37,10 +37,31 @@ public class UserTableApiTest extends BaseUserTest {
     resetDatabase();
   }
 
-  // //////////////////////////////////////////////////////////////////////////
+  //
 
-  /** Create user data for testing. Note: each user is saved immediately, as JPA auditing stamps timestamps at persist time using current clock value. */
+  /** Create small amount of user data for testing. */
+  private List<User> arrangeUserDataSmall() {
+    // Arrange: setup small amount of users.
+    List<User> userList = new ArrayList<>();
+
+    clock.setFixedTime("2026-06-10T10:00:00Z");
+    User u00 = userFactory.genRandUser(EnUserStatus.ACTIVE);
+    u00.setUsername("Jan Kowalski");
+    u00.setEmail("jan.kowalski@test.com");
+    userList.add(userRepository.save(u00));
+
+    clock.setFixedTime("2026-06-09T15:00:00Z");
+    User u01 = userFactory.genRandUser(EnUserStatus.ACTIVE);
+    u01.setUsername("Aleksandra Kota");
+    u01.setEmail("aleksandra.kota@example.com");
+    userList.add(userRepository.save(u01));
+
+    return userList;
+  }
+
+  /** Create user data for testing. */
   private List<User> arrangeUserData() {
+    // Arrange: setup medium amount of users.
     List<User> userList = new ArrayList<>();
 
     clock.setFixedTime("2026-06-10T10:00:00Z");
@@ -85,6 +106,40 @@ public class UserTableApiTest extends BaseUserTest {
     return userList;
   }
 
+  /** Create user data for testing fallback sorting. */
+  private List<User> arrangeSimilarUserData() {
+    // Arrange: setup medium amount of users.
+    List<User> userList = new ArrayList<>();
+
+    clock.setFixedTime("2026-06-12T10:00:00Z");
+    User u00 = userFactory.genRandUser(EnUserStatus.ACTIVE);
+    u00.setUsername("Jan Kowalski");
+    u00.setEmail("jan.kowalski@test.com");
+    userList.add(userRepository.save(u00));
+
+    clock.setFixedTime("2026-06-11T10:00:00Z");
+    User u01 = userFactory.genRandUser(EnUserStatus.ACTIVE);
+    u01.setUsername("Ala Makota");
+    u01.setEmail("ala.makota@test.com");
+    userList.add(userRepository.save(u01));
+
+    clock.setFixedTime("2026-06-10T15:00:00Z");
+    User u02 = userFactory.genRandUser(EnUserStatus.ACTIVE);
+    u02.setUsername("Zbigniew Zbig");
+    u02.setEmail("zbigniew@example.com");
+    userList.add(userRepository.save(u02));
+
+    clock.setFixedTime("2026-06-09T15:00:00Z");
+    User u03 = userFactory.genRandUser(EnUserStatus.ACTIVE);
+    u03.setUsername("Jan Kowalski");
+    u03.setEmail("janusz.kowalski@example.com");
+    userList.add(userRepository.save(u03));
+
+    return userList;
+  }
+
+  //
+
   /**
    * Act and assert table results.
    * @param req Request.
@@ -120,15 +175,98 @@ public class UserTableApiTest extends BaseUserTest {
     userAdminAssert.assertUserPage(actualResp, expectedResp);
   }
 
-  //
+  // //////////////////////////////////////////////////////////////////////////
 
   @Test
   @WithMockCustomUser(authorities = { "ROLE_OPERATOR", "USER_VIEW" })
   public void viewEmptyTable() throws Exception {
+    // View empty table.
+
     // Arrange: all defaults.
     UserTableReq req = UserTableReq.builder().build();
 
     actAssert(req, List.of(), 0L, 0L);
+  }
+
+  @Test
+  @WithMockCustomUser(authorities = { "ROLE_OPERATOR", "USER_VIEW" })
+  public void viewSmallTable() throws Exception {
+    // View table that has same page size as count of results.
+
+    List<User> users = arrangeUserDataSmall();
+    List<UserTableEntry> userResults = userAdminFactory.genUserTableEntries(users);
+    List<UserTableEntry> expectedResults = List.of(userResults.get(0), userResults.get(1));
+
+    // Arrange: request.
+    TableMetaReq tableMeta = TableMetaReq.builder()
+        .pageSize(2) // same amount as count of entries
+        .build();
+    UserTableReq req = UserTableReq.builder()
+        .tableMeta(tableMeta)
+        .build();
+
+    actAssert(req, expectedResults, 1L, 2L);
+  }
+
+  @Test
+  @WithMockCustomUser(authorities = { "ROLE_OPERATOR", "USER_VIEW" })
+  public void viewUnfilteredTable() throws Exception {
+    // View user table as is, without filtering. Page is big enough (default size) to show all entries.
+
+    List<User> users = arrangeUserData();
+    List<UserTableEntry> userResults = userAdminFactory.genUserTableEntries(users);
+
+    UserTableReq req = UserTableReq.builder().build();
+
+    actAssert(req, userResults, 1L, 7L);
+  }
+
+  @Test
+  @WithMockCustomUser(authorities = { "ROLE_OPERATOR", "USER_VIEW" })
+  public void viewFirstPageTable() throws Exception {
+    // Tests pagination: first page.
+
+    List<User> users = arrangeUserData();
+    List<UserTableEntry> userResults = userAdminFactory.genUserTableEntries(users);
+    List<UserTableEntry> expectedResults = List.of(userResults.get(0), userResults.get(1), userResults.get(2));
+
+    UserTableReq req = UserTableReq.builder()
+        .tableMeta(TableMetaReq.builder().page(0).pageSize(3).build())
+        .build();
+
+    actAssert(req, expectedResults, 3L, 7L);
+  }
+
+  @Test
+  @WithMockCustomUser(authorities = { "ROLE_OPERATOR", "USER_VIEW" })
+  public void viewSecondPageTable() throws Exception {
+    // Tests pagination: second page.
+
+    List<User> users = arrangeUserData();
+    List<UserTableEntry> userResults = userAdminFactory.genUserTableEntries(users);
+    List<UserTableEntry> expectedResults = List.of(userResults.get(3), userResults.get(4), userResults.get(5));
+
+    UserTableReq req = UserTableReq.builder()
+        .tableMeta(TableMetaReq.builder().page(1).pageSize(3).build())
+        .build();
+
+    actAssert(req, expectedResults, 3L, 7L);
+  }
+
+  @Test
+  @WithMockCustomUser(authorities = { "ROLE_OPERATOR", "USER_VIEW" })
+  public void viewThirdPageTable() throws Exception {
+    // Tests pagination: third page.
+
+    List<User> users = arrangeUserData();
+    List<UserTableEntry> userResults = userAdminFactory.genUserTableEntries(users);
+    List<UserTableEntry> expectedResults = List.of(userResults.get(6));
+
+    UserTableReq req = UserTableReq.builder()
+        .tableMeta(TableMetaReq.builder().page(2).pageSize(3).build())
+        .build();
+
+    actAssert(req, expectedResults, 3L, 7L);
   }
 
   //
@@ -137,6 +275,7 @@ public class UserTableApiTest extends BaseUserTest {
   @WithMockCustomUser(authorities = { "ROLE_OPERATOR", "USER_VIEW" })
   public void viewUsername() throws Exception {
     // Tests getting only one result and username filtering.
+
     List<User> users = arrangeUserData();
     List<UserTableEntry> userResults = userAdminFactory.genUserTableEntries(users);
     List<UserTableEntry> expectedResults = List.of(userResults.getFirst());
@@ -152,6 +291,7 @@ public class UserTableApiTest extends BaseUserTest {
   @WithMockCustomUser(authorities = { "ROLE_OPERATOR", "USER_VIEW" })
   public void viewEmail() throws Exception {
     // Tests getting multiple results and email filtering.
+
     List<User> users = arrangeUserData();
     List<UserTableEntry> userResults = userAdminFactory.genUserTableEntries(users);
     List<UserTableEntry> expectedResults = List.of(userResults.get(1), userResults.get(4), userResults.get(6));
@@ -167,6 +307,7 @@ public class UserTableApiTest extends BaseUserTest {
   @WithMockCustomUser(authorities = { "ROLE_OPERATOR", "USER_VIEW" })
   public void viewStatus() throws Exception {
     // Tests status filtering.
+
     List<User> users = arrangeUserData();
     List<UserTableEntry> userResults = userAdminFactory.genUserTableEntries(users);
     List<UserTableEntry> expectedResults = List.of(userResults.get(2), userResults.get(4));
@@ -182,6 +323,7 @@ public class UserTableApiTest extends BaseUserTest {
   @WithMockCustomUser(authorities = { "ROLE_OPERATOR", "USER_VIEW" })
   public void viewLocked() throws Exception {
     // Tests locked filtering.
+
     List<User> users = arrangeUserData();
     List<UserTableEntry> userResults = userAdminFactory.genUserTableEntries(users);
     List<UserTableEntry> expectedResults = List.of(userResults.get(5));
@@ -197,6 +339,7 @@ public class UserTableApiTest extends BaseUserTest {
   @WithMockCustomUser(authorities = { "ROLE_OPERATOR", "USER_VIEW" })
   public void viewCreatedFromAt() throws Exception {
     // Tests createdFromAt filtering.
+
     List<User> users = arrangeUserData();
     List<UserTableEntry> userResults = userAdminFactory.genUserTableEntries(users);
     List<UserTableEntry> expectedResults = List.of(userResults.get(0), userResults.get(1), userResults.get(2), userResults.get(3));
@@ -212,6 +355,7 @@ public class UserTableApiTest extends BaseUserTest {
   @WithMockCustomUser(authorities = { "ROLE_OPERATOR", "USER_VIEW" })
   public void viewCreatedToAt() throws Exception {
     // Tests createdToAt filtering.
+
     List<User> users = arrangeUserData();
     List<UserTableEntry> userResults = userAdminFactory.genUserTableEntries(users);
     List<UserTableEntry> expectedResults = List.of(userResults.get(4), userResults.get(5), userResults.get(6));
@@ -227,64 +371,9 @@ public class UserTableApiTest extends BaseUserTest {
 
   @Test
   @WithMockCustomUser(authorities = { "ROLE_OPERATOR", "USER_VIEW" })
-  public void viewUnfilteredTable() throws Exception {
-    List<User> users = arrangeUserData();
-    List<UserTableEntry> userResults = userAdminFactory.genUserTableEntries(users);
-
-    UserTableReq req = UserTableReq.builder().build();
-
-    actAssert(req, userResults, 1L, 7L);
-  }
-
-  @Test
-  @WithMockCustomUser(authorities = { "ROLE_OPERATOR", "USER_VIEW" })
-  public void viewFirstPageTable() throws Exception {
-    // Tests pagination.
-    List<User> users = arrangeUserData();
-    List<UserTableEntry> userResults = userAdminFactory.genUserTableEntries(users);
-    List<UserTableEntry> expectedResults = List.of(userResults.get(0), userResults.get(1), userResults.get(2));
-
-    UserTableReq req = UserTableReq.builder()
-        .tableMeta(TableMetaReq.builder().page(0).pageSize(3).build())
-        .build();
-
-    actAssert(req, expectedResults, 3L, 7L);
-  }
-
-  @Test
-  @WithMockCustomUser(authorities = { "ROLE_OPERATOR", "USER_VIEW" })
-  public void viewSecondPageTable() throws Exception {
-    // Tests pagination.
-    List<User> users = arrangeUserData();
-    List<UserTableEntry> userResults = userAdminFactory.genUserTableEntries(users);
-    List<UserTableEntry> expectedResults = List.of(userResults.get(3), userResults.get(4), userResults.get(5));
-
-    UserTableReq req = UserTableReq.builder()
-        .tableMeta(TableMetaReq.builder().page(1).pageSize(3).build())
-        .build();
-
-    actAssert(req, expectedResults, 3L, 7L);
-  }
-
-  @Test
-  @WithMockCustomUser(authorities = { "ROLE_OPERATOR", "USER_VIEW" })
-  public void viewThirdPageTable() throws Exception {
-    // Tests pagination.
-    List<User> users = arrangeUserData();
-    List<UserTableEntry> userResults = userAdminFactory.genUserTableEntries(users);
-    List<UserTableEntry> expectedResults = List.of(userResults.get(6));
-
-    UserTableReq req = UserTableReq.builder()
-        .tableMeta(TableMetaReq.builder().page(2).pageSize(3).build())
-        .build();
-
-    actAssert(req, expectedResults, 3L, 7L);
-  }
-
-  @Test
-  @WithMockCustomUser(authorities = { "ROLE_OPERATOR", "USER_VIEW" })
   public void viewReverseOrder() throws Exception {
     // Tests ordering by default column (createdAt), but in other direction.
+
     List<User> users = arrangeUserData();
     List<UserTableEntry> userResults = userAdminFactory.genUserTableEntries(users);
     List<UserTableEntry> expectedResults = userResults.reversed();
@@ -300,6 +389,7 @@ public class UserTableApiTest extends BaseUserTest {
   @WithMockCustomUser(authorities = { "ROLE_OPERATOR", "USER_VIEW" })
   public void viewOrderByCustomField() throws Exception {
     // Tests ordering by custom column.
+
     List<User> users = arrangeUserData();
     List<UserTableEntry> userResults = userAdminFactory.genUserTableEntries(users);
     List<UserTableEntry> expectedResults = userResults.stream().sorted(Comparator.comparing(UserTableEntry::email)).collect(Collectors.toList());
@@ -317,6 +407,7 @@ public class UserTableApiTest extends BaseUserTest {
   @WithMockCustomUser(authorities = { "ROLE_OPERATOR", "USER_VIEW" })
   public void viewMultipleFilters() throws Exception {
     // Tests multiple filters at once.
+
     List<User> users = arrangeUserData();
     List<UserTableEntry> userResults = userAdminFactory.genUserTableEntries(users);
     List<UserTableEntry> expectedResults = List.of(userResults.get(3), userResults.get(1));
@@ -333,41 +424,11 @@ public class UserTableApiTest extends BaseUserTest {
 
   // //////////////////////////////////////////////////////////////////////////
 
-  /** Create user data for testing fallback sorting. Note: each user is saved immediately, as JPA auditing stamps timestamps at persist time using current clock value. */
-  private List<User> arrangeSimilarUserData() {
-    List<User> userList = new ArrayList<>();
-
-    clock.setFixedTime("2026-06-12T10:00:00Z");
-    User u00 = userFactory.genRandUser(EnUserStatus.ACTIVE);
-    u00.setUsername("Jan Kowalski");
-    u00.setEmail("jan.kowalski@test.com");
-    userList.add(userRepository.save(u00));
-
-    clock.setFixedTime("2026-06-11T10:00:00Z");
-    User u01 = userFactory.genRandUser(EnUserStatus.ACTIVE);
-    u01.setUsername("Ala Makota");
-    u01.setEmail("ala.makota@test.com");
-    userList.add(userRepository.save(u01));
-
-    clock.setFixedTime("2026-06-10T15:00:00Z");
-    User u02 = userFactory.genRandUser(EnUserStatus.ACTIVE);
-    u02.setUsername("Zbigniew Zbig");
-    u02.setEmail("zbigniew@example.com");
-    userList.add(userRepository.save(u02));
-
-    clock.setFixedTime("2026-06-09T15:00:00Z");
-    User u03 = userFactory.genRandUser(EnUserStatus.ACTIVE);
-    u03.setUsername("Jan Kowalski");
-    u03.setEmail("janusz.kowalski@example.com");
-    userList.add(userRepository.save(u03));
-
-    return userList;
-  }
-
   @Test
   @WithMockCustomUser(authorities = { "ROLE_OPERATOR", "USER_VIEW" })
   public void viewBySortDefault() throws Exception {
     // Baseline: sort by createdAt.
+
     List<User> users = arrangeSimilarUserData();
     List<UserTableEntry> userResults = userAdminFactory.genUserTableEntries(users);
 
@@ -380,6 +441,7 @@ public class UserTableApiTest extends BaseUserTest {
   @WithMockCustomUser(authorities = { "ROLE_OPERATOR", "USER_VIEW" })
   public void viewBySortUsernameAsc() throws Exception {
     // Sort by username ASC, but there are two users with same username.
+
     List<User> users = arrangeSimilarUserData();
     List<UserTableEntry> userResults = userAdminFactory.genUserTableEntries(users);
     List<UserTableEntry> expectedResults = List.of(userResults.get(1), userResults.get(0), userResults.get(3), userResults.get(2));
@@ -395,6 +457,7 @@ public class UserTableApiTest extends BaseUserTest {
   @WithMockCustomUser(authorities = { "ROLE_OPERATOR", "USER_VIEW" })
   public void viewBySortUsernameDesc() throws Exception {
     // Sort by username DESC, but there are two users with same username.
+
     List<User> users = arrangeSimilarUserData();
     List<UserTableEntry> userResults = userAdminFactory.genUserTableEntries(users);
     List<UserTableEntry> expectedResults = List.of(userResults.get(2), userResults.get(3), userResults.get(0), userResults.get(1));
@@ -413,11 +476,11 @@ public class UserTableApiTest extends BaseUserTest {
   @WithMockCustomUser(authorities = { "ROLE_OPERATOR" }) // missing USER_VIEW
   public void viewWithoutPermissions() throws Exception {
     // Tests verification: needs correct permissions.
+
     arrangeUserData();
 
-    UserTableReq req = UserTableReq.builder().build();
-
     // Act: Try to view table page with users.
+    UserTableReq req = UserTableReq.builder().build();
     MvcResult mvcResult = mockMvc.perform(post("/api/admin/users")
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(req)))
@@ -441,6 +504,7 @@ public class UserTableApiTest extends BaseUserTest {
   @WithMockCustomUser(authorities = { "ROLE_OPERATOR", "USER_VIEW" })
   public void viewBadCreated() throws Exception {
     // Tests verification: invalid state of createdFromAt and createdToAt.
+
     arrangeUserData();
 
     UserTableReq req = UserTableReq.builder()

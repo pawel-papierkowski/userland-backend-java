@@ -39,7 +39,8 @@ public class TableHelper {
    * @param defSortOrder Sort order.
    * @return Filled table meta.
    */
-  public static TableMetaReq prepareTableMeta(TableMetaReq tableMetaReq, int defPageSize, int defPage, @NonNull String defSortBy, @NonNull EnSortOrder defSortOrder) {
+  public static TableMetaReq prepareTableMeta(TableMetaReq tableMetaReq, int defPageSize, int defPage,
+                                              @NonNull String defSortBy, @NonNull EnSortOrder defSortOrder) {
     if (tableMetaReq == null) {
       tableMetaReq = TableMetaReq.builder()
           .pageSize(defPageSize)
@@ -49,7 +50,7 @@ public class TableHelper {
           .build();
     } else {
       // Fill in any missing fields in the provided tableMeta with defaults.
-      if (tableMetaReq.pageSize() == null) tableMetaReq = tableMetaReq.toBuilder().pageSize(defPageSize).build();
+      if (tableMetaReq.pageSize() == null || tableMetaReq.pageSize() <= 0) tableMetaReq = tableMetaReq.toBuilder().pageSize(defPageSize).build();
       if (tableMetaReq.page() == null) tableMetaReq = tableMetaReq.toBuilder().page(defPage).build();
       if (tableMetaReq.sortBy() == null || tableMetaReq.sortBy().isBlank()) tableMetaReq = tableMetaReq.toBuilder().sortBy(defSortBy).build();
       if (tableMetaReq.sortOrder() == null) tableMetaReq = tableMetaReq.toBuilder().sortOrder(defSortOrder).build();
@@ -171,9 +172,10 @@ public class TableHelper {
    * @param <E> Entity.
    */
   public static <E> void applyPagination(TypedQuery<E> query, TableMetaReq tableMetaReq) {
+    int pageSize = tableMetaReq.pageSize() <= 0 ? DEFAULT_PAGE_SIZE : tableMetaReq.pageSize();
     // Apply pagination.
-    query.setFirstResult(tableMetaReq.page() * tableMetaReq.pageSize());
-    query.setMaxResults(tableMetaReq.pageSize());
+    query.setFirstResult(tableMetaReq.page() * pageSize);
+    query.setMaxResults(pageSize);
   }
 
   //
@@ -185,12 +187,13 @@ public class TableHelper {
    * @return Metadata for table page response.
    */
   public static TableMetaResp fillTableMetaResp(TableMetaReq tableMetaReq, Long entryCount) {
-    Long pageCount = entryCount == 0 ? 0L : (entryCount/tableMetaReq.pageSize()) + 1;
+    int pageSize = tableMetaReq.pageSize() <= 0 ? DEFAULT_PAGE_SIZE : tableMetaReq.pageSize();
+    long pageCount = entryCount <= 0 ? 0 : (entryCount + pageSize - 1) / pageSize;
     return TableMetaResp.builder()
         .pageCount(pageCount)
         .entryCount(entryCount)
         .page(tableMetaReq.page())
-        .pageSize(tableMetaReq.pageSize())
+        .pageSize(pageSize)
         .sortBy(tableMetaReq.sortBy())
         .sortOrder(tableMetaReq.sortOrder())
         .build();
