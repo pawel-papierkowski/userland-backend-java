@@ -48,18 +48,18 @@ public class User {
   // basic data
 
   /** Name of user (can be also nickname) visible on frontend, shown to other uses, in email etc. */
-  @Column(nullable = false)
+  @Column(nullable = false, length = 100)
   @NotBlank(message = "Username cannot be empty")
   private String username;
 
   /** E-mail. Also acts as login. Unique. */
-  @Column(unique = true, nullable = false)
+  @Column(unique = true, nullable = false, length = 100)
   @NotBlank(message = "Email cannot be empty")
   @Email(regexp = ValidConst.REG_EXPR_EMAIL, message = "Must be a valid email address")
   private String email;
 
   /** Password. Note: this stores BCrypt hash, not the plain text. */
-  @Column(nullable = false)
+  @Column(nullable = false, length = 100)
   @NotBlank(message = "Password cannot be empty")
   private String password;
 
@@ -77,7 +77,7 @@ public class User {
   // options
 
   /** Used language. If empty/unknown, will fall back to English. */
-  @Column(nullable = false)
+  @Column(nullable = false, length = 2)
   @NotBlank(message = "Language cannot be empty")
   private String lang;
 

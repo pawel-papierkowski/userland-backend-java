@@ -17,7 +17,7 @@ import java.util.UUID;
  * so we cannot use @ManyToMany.
  */
 @Entity
-@Table(name = "user_permissions", schema = "iam")
+@Table(name = "user_permissions", schema = "iam", uniqueConstraints = @UniqueConstraint(columnNames = {"id_user", "id_permission", "value"}))
 @Getter
 @Setter
 public class UserPermission {
@@ -31,13 +31,13 @@ public class UserPermission {
   private UUID uuid;
 
   /** User that has this user permission entry. */
-  @ManyToOne
+  @ManyToOne(optional = false, fetch = FetchType.LAZY)
   @JoinColumn(name = "id_user")
   @OnDelete(action = OnDeleteAction.CASCADE)
   private User user;
 
   /** Permission that has this user permission entry. */
-  @ManyToOne
+  @ManyToOne(optional = false)
   @JoinColumn(name = "id_permission")
   private Permission permission;
 
@@ -46,8 +46,6 @@ public class UserPermission {
   /** Date&time of user permission entry creation. */
   @Column(nullable = false, updatable = false)
   private LocalDateTime createdAt;
-
-  //
 
   /** Value of permission entry. */
   @Column(nullable = false)

@@ -16,7 +16,7 @@ import java.util.UUID;
  * User configuration entry.
  */
 @Entity
-@Table(name = "config", schema = "iam")
+@Table(name = "config", schema = "iam", uniqueConstraints = @UniqueConstraint(columnNames = {"id_user", "name"}))
 @Getter
 @Setter
 public class UserConfig {
@@ -30,7 +30,7 @@ public class UserConfig {
   private UUID uuid;
 
   /** User that has this configuration entry. */
-  @ManyToOne
+  @ManyToOne(optional = false, fetch = FetchType.LAZY)
   @JoinColumn(name = "id_user")
   @OnDelete(action = OnDeleteAction.CASCADE)
   private User user;

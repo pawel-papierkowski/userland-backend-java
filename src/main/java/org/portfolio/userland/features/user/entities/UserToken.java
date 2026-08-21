@@ -14,7 +14,7 @@ import java.util.Objects;
  * User token entry.
  */
 @Entity
-@Table(name = "tokens", schema = "iam")
+@Table(name = "tokens", schema = "iam", uniqueConstraints = @UniqueConstraint(columnNames = {"id_user", "type"}))
 @Getter
 @Setter
 public class UserToken {
@@ -24,7 +24,7 @@ public class UserToken {
   private Long id;
 
   /** User that has this token entry. */
-  @ManyToOne
+  @ManyToOne(optional = false, fetch = FetchType.LAZY)
   @JoinColumn(name = "id_user")
   @OnDelete(action = OnDeleteAction.CASCADE)
   private User user;
@@ -47,7 +47,7 @@ public class UserToken {
   private EnUserTokenType type;
 
   /** Value of token. Acts as business key. */
-  @Column(unique = true, nullable = false, updatable = false)
+  @Column(unique = true, nullable = false, updatable = false, length = 128)
   private String token;
 
   /** Payload of token. Only some types of tokens need payload. */

@@ -52,7 +52,7 @@ public class UserMaintenanceService {
     log.info("Cleaned up {} expired pending users. Total time: {} s", deletedUsers, stopWatch.getTotalTimeSeconds());
   }
 
-  /** Deletes all active users that are too old if system is in portfolio mode. */
+  /** Deletes all active users that were idle too long (no recent entries in history) if system is in portfolio mode. */
   @Transactional
   public void cleanActiveUsers() {
     // Only in portfolio mode.

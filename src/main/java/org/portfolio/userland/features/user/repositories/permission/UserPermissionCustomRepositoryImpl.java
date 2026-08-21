@@ -3,6 +3,7 @@ package org.portfolio.userland.features.user.repositories.permission;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
 import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.JoinType;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import lombok.RequiredArgsConstructor;
@@ -36,6 +37,8 @@ public class UserPermissionCustomRepositoryImpl extends EntityTableHandling<User
 
   @Override
   protected List<Predicate> generatePredicates(UserPermissionTableReq req, CriteriaBuilder cb, Root<UserPermission> entity) {
+    entity.fetch("permission", JoinType.LEFT); // prevent n+1
+
     List<Predicate> predicates = new ArrayList<>();
     predicates.add(cb.equal(entity.get("user").get("id"), req.userId())); // obligatory field
 

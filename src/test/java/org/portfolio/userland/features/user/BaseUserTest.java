@@ -89,8 +89,8 @@ public abstract class BaseUserTest extends BaseIntegrationTest {
 
   @Override
   protected void cleanDatabase() {
-    super.cleanDatabase();
     userRepository.deleteAll(); // will remove everything from related tables too, as these have cascading deletes
+    super.cleanDatabase();
   }
 
   //

@@ -26,14 +26,12 @@ CREATE TABLE aux.config (
     -- Identificator.
     id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     -- Configuration variable name.
-    name TEXT NOT NULL,
+    name TEXT NOT NULL UNIQUE,
     -- Configuration variable value.
     value TEXT NOT NULL,
     -- Description of configuration variable for the developer.
     description TEXT NOT NULL
 );
--- Indexes for aux.config.
-CREATE INDEX idx_aux_config_name ON aux.config (name);
 -- Known configuration.
 INSERT INTO aux.config (name, value, description) VALUES ('user.lockdown', '0', 'If 1, no user can log in unless they have admin permissions.');
 INSERT INTO aux.config (name, value, description) VALUES ('general.portfolio', '1', 'If 1, system is in portfolio mode. That means new accounts can get admin permissions and accounts are removed automatically after few days of inactivity.');

@@ -101,19 +101,24 @@ public abstract class BaseIntegrationTest {
   // //////////////////////////////////////////////////////////////////////////
 
   /**
-   * Reset state of database so tests don't interfere with each other.
+   * Reset state of database so tests don't interfere with each other. Works without explicit @Transactional on test.
    */
   protected void resetDatabase() {
-    cleanDatabase();
-    setupDatabase();
+    transactionTemplate.execute(_ -> {
+      cleanDatabase();
+      setupDatabase();
+      return null;
+    });
   }
 
   /**
-   * Clean up the database. Inherited methods need to call <code>super.cleanDatabase()</code> at beginning.
+   * Clean up the database. Inherited methods need to call <code>super.cleanDatabase()</code> at end.
    */
   protected void cleanDatabase() {
     configRepository.deleteAll();
     systemHistoryRepository.deleteAll();
+    entityManager.flush();
+    entityManager.clear();
   }
 
   /**

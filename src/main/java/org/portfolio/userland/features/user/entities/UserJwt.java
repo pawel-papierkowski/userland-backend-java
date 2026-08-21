@@ -24,7 +24,7 @@ public class UserJwt {
   private Long id;
 
   /** User that has this JWT entry. */
-  @ManyToOne
+  @ManyToOne(optional = false, fetch = FetchType.LAZY)
   @JoinColumn(name = "id_user")
   @OnDelete(action = OnDeleteAction.CASCADE)
   private User user;
