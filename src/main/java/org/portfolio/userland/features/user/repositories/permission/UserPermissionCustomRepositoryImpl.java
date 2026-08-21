@@ -37,8 +37,6 @@ public class UserPermissionCustomRepositoryImpl extends EntityTableHandling<User
 
   @Override
   protected List<Predicate> generatePredicates(UserPermissionTableReq req, CriteriaBuilder cb, Root<UserPermission> entity) {
-    entity.fetch("permission", JoinType.LEFT); // prevent n+1
-
     List<Predicate> predicates = new ArrayList<>();
     predicates.add(cb.equal(entity.get("user").get("id"), req.userId())); // obligatory field
 
@@ -49,6 +47,14 @@ public class UserPermissionCustomRepositoryImpl extends EntityTableHandling<User
       predicates.add(cb.lessThanOrEqualTo(entity.get("createdAt"), req.createdToAt()));
     }
     return predicates;
+  }
+
+  /**
+   * Fetch permission association in the same query to prevent n+1 when mapper accesses it.
+   */
+  @Override
+  protected void addFetches(Root<UserPermission> entity) {
+    entity.fetch("permission", JoinType.LEFT);
   }
 
   //

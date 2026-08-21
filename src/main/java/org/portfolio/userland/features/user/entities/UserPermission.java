@@ -37,7 +37,7 @@ public class UserPermission {
   private User user;
 
   /** Permission that has this user permission entry. */
-  @ManyToOne(optional = false)
+  @ManyToOne(optional = false, fetch = FetchType.LAZY)
   @JoinColumn(name = "id_permission")
   private Permission permission;
 

@@ -83,6 +83,10 @@ public abstract class EntityTableHandling<R extends TableReq, E> {
     CriteriaQuery<E> cq = cb.createQuery(entityClass);
     Root<E> entity = cq.from(entityClass);
 
+    // Fetch lazy associations in same query to prevent n+1 problems.
+    // Note this is intentionally NOT done for countEntries() — Hibernate rejects fetch joins in count queries.
+    addFetches(entity);
+
     // Note same predicates are generated for count and page content itself.
     List<Predicate> predicates = generatePredicates(req, cb, entity);
     if (!predicates.isEmpty()) {
@@ -105,4 +109,13 @@ public abstract class EntityTableHandling<R extends TableReq, E> {
    * @return List of predicates that you should assemble using AND.
    */
   protected abstract List<Predicate> generatePredicates(R req, CriteriaBuilder cb, Root<E> entity);
+
+  /**
+   * Hook for fetching lazy associations of the entity via fetch joins, to prevent n+1 problems
+   * when mapping the page results. Called only by {@link #viewPage(R)}, never by {@link #countEntries(R)}.
+   * @param entity Entity as <code>Root</code>, add your fetch joins on it (e.g. <code>entity.fetch("association", JoinType.LEFT)</code>).
+   */
+  protected void addFetches(@SuppressWarnings("unused") Root<E> entity) {
+    // Default: no fetches needed.
+  }
 }

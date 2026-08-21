@@ -8,6 +8,7 @@ spring:
     properties:
       hibernate:
         generate_statistics: true # enables SessionFactory statistics, needed for query-count assertions
+        default_batch_fetch_size: 0 # disable batch fetching of lazy associations, so N+1 problems cannot be masked in performance tests
 
 security:
   jwt:

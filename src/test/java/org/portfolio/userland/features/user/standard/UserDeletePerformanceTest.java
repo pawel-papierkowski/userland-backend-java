@@ -20,14 +20,13 @@ import static org.assertj.core.api.Assertions.assertThat;
  * initializes every lazy collection and issues one DELETE per child row, even though the database already has
  * {@code ON DELETE CASCADE} on all related foreign keys. For a user with large history this becomes N+1.</p>
  */
-public class UserDeleteQueryCountTest extends BaseUserTest {
+public class UserDeletePerformanceTest extends BaseUserTest {
   @Autowired
   private UserDeleteService userDeleteService;
 
   @BeforeEach
   public void tearDown() {
     resetDatabase();
-    entityManager.flush();
   }
 
   // //////////////////////////////////////////////////////////////////////////
