@@ -13,8 +13,6 @@ import org.portfolio.userland.features.user.dto.common.UserDataResp;
 import org.portfolio.userland.features.user.dto.common.UserProfileData;
 import org.portfolio.userland.features.user.dto.standard.register.UserRegisterReq;
 import org.portfolio.userland.features.user.entities.*;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.util.HtmlUtils;
 
 /**
@@ -22,15 +20,14 @@ import org.springframework.web.util.HtmlUtils;
  */
 @Mapper(componentModel = "spring", imports = {HtmlUtils.class})
 public abstract class UserMapper {
-  @Autowired
-  protected PasswordEncoder passwordEncoder;
 
   /**
    * Maps registration request to <code>User</code> entity.
    * <p>Notes:</p>
    * <ul>
    *   <li>Username is sanitized, since it is shown in emails or frontend as is.</li>
-   *   <li>Password is hashed properly.</li>
+   *   <li>Password is NOT mapped. It has to be set separately with already computed hash, so CPU-heavy BCrypt
+   *   hashing can run outside of transaction.</li>
    * </ul>
    * @param req Registration request.
    * @return <code>User</code> entity.
@@ -41,7 +38,7 @@ public abstract class UserMapper {
   @Mapping(target = "modifiedAt", ignore = true)
   @Mapping(target = "username", expression = "java(HtmlUtils.htmlEscape(req.username()))")
   // email as is
-  @Mapping(target = "password", expression = "java(passwordEncoder.encode(req.password()))")
+  @Mapping(target = "password", ignore = true)
   // lang as is
   @Mapping(target = "status", ignore = true)
   @Mapping(target = "locked", ignore = true)

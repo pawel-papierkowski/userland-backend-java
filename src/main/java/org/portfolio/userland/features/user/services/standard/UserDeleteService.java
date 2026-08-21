@@ -3,19 +3,19 @@ package org.portfolio.userland.features.user.services.standard;
 import lombok.RequiredArgsConstructor;
 import org.portfolio.userland.features.user.dto.standard.delete.UserDeleteConfirmReq;
 import org.portfolio.userland.features.user.dto.standard.delete.UserDeleteLinkReq;
-import org.portfolio.userland.features.user.entities.*;
+import org.portfolio.userland.features.user.entities.EnUserTokenType;
+import org.portfolio.userland.features.user.entities.User;
+import org.portfolio.userland.features.user.entities.UserToken;
 import org.portfolio.userland.features.user.events.UserAccountDeleteConfirmEvent;
-import org.portfolio.userland.features.user.events.UserAccountDeleteRequestEvent;
 import org.portfolio.userland.features.user.exceptions.UserWrongPasswordException;
 import org.portfolio.userland.features.user.services.BaseUserService;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 
 /**
- * Business logic for user account deletion.
+ * Business logic for account deletion.
  * <p>User story:</p>
  * <ul>
  *   <li>User on frontend clicks "Delete account" option.</li>
@@ -26,55 +26,26 @@ import java.time.LocalDateTime;
  *   <li>Backend verifies call and in case of success removes user account from database and sends email confirming successful account deletion.</li>
  *   <li>Frontend reacts appropriately to response from account delete endpoint (show success or failure message).</li>
  * </ul>
+ * <p>Note: this class is intentionally NOT transactional (where BCrypt verification is involved). BCrypt is CPU-heavy;
+ * running it outside of transaction prevents holding a database connection for its duration. All database work is done
+ * transactionally by {@link UserDeleteTx}.</p>
  */
 @Service
 @RequiredArgsConstructor
 public class UserDeleteService extends BaseUserService {
-  /** How long before account deletion token expires in minutes. */
-  @Value("${app.user.token.deletion.expires}")
-  private long deletionTokenExpires;
+  private final UserDeleteTx userDeleteTx;
 
   /**
    * Creates account deletion token and (indirectly, via event) sends email with account deletion link to user.
    * @param userDeleteLinkReq User account deletion link request.
    */
-  @Transactional
   public void send(UserDeleteLinkReq userDeleteLinkReq) {
     User user = userHelperService.resolveUser(false);
     if (user == null) throw new UserWrongPasswordException();
+
+    // Verify password (BCrypt) BEFORE entering transaction - it is CPU-heavy and must not hold a database connection.
     userHelperService.verifyPassword(user, userDeleteLinkReq.password());
-
-    LocalDateTime nowAt = clockService.getNowUTC();
-    ensureTokenDoesNotExist(nowAt, EnUserTokenType.DELETE, user, false);
-
-    // Save token directly via repository.
-    UserToken token = createTokenData(nowAt, EnUserTokenType.DELETE);
-    token.setUser(user);
-    userTokenRepository.save(token);
-
-    addHistoryEvent(user, nowAt, EnUserHistoryWho.USER, EnUserHistoryWhat.DELETE_REQ, "");
-
-    triggerDeleteReqEvent(userDeleteLinkReq, user, token);
-  }
-
-  /**
-   * Triggers account deletion link event for anyone interested.
-   * @param userDeleteLinkReq User account deletion link request.
-   * @param user User data.
-   * @param token User token data.
-   */
-  private void triggerDeleteReqEvent(UserDeleteLinkReq userDeleteLinkReq, User user, UserToken token) {
-    UserAccountDeleteRequestEvent userAccountDeleteRequestEvent = new UserAccountDeleteRequestEvent(
-        user.getId(),
-        user.getUsername(),
-        user.getEmail(),
-        user.getLang(),
-        userDeleteLinkReq.frontend(),
-        token.getToken(),
-        deletionTokenExpires
-    );
-    // Will trigger UserSendEmailService.sendAccountDeleteRequest().
-    eventPublisher.publishEvent(userAccountDeleteRequestEvent);
+    userDeleteTx.send(userDeleteLinkReq, user);
   }
 
   // //////////////////////////////////////////////////////////////////////////

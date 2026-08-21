@@ -2,24 +2,15 @@ package org.portfolio.userland.features.user.services.standard;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.portfolio.userland.features.user.dto.common.EnFrontendFramework;
 import org.portfolio.userland.features.user.dto.standard.register.TokenActivateReq;
 import org.portfolio.userland.features.user.dto.standard.register.UserRegisterReq;
-import org.portfolio.userland.features.user.entities.*;
-import org.portfolio.userland.features.user.events.UserActivatedEvent;
-import org.portfolio.userland.features.user.events.UserAlreadyRegisteredEvent;
-import org.portfolio.userland.features.user.events.UserRegisteredEvent;
 import org.portfolio.userland.features.user.services.BaseUserService;
-import org.portfolio.userland.system.auth.perm.PermConst;
 import org.portfolio.userland.system.config.service.ConfigConst;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.time.LocalDateTime;
 
 /**
- * Business logic for user registration and activation.
+ * Entry point for user registration and activation.
  * <p>User story:</p>
  * <ul>
  *   <li>User goes on user registration page and fills form.</li>
@@ -31,62 +22,26 @@ import java.time.LocalDateTime;
  * </ul>
  * <p>Note we do not do anything beyond registration/activation itself here. We trigger events - other services (like
  * user email service sending registration email) will react to it.</p>
+ * <p>Note: this class is intentionally NOT transactional. BCrypt password hashing is CPU-heavy; running it outside of
+ * transaction prevents holding a database connection for its duration. All database work is done transactionally by
+ * {@link UserRegisterTx}.</p>
  */
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class UserRegisterService extends BaseUserService {
-  /** How long before activation token expires in hours. */
-  @Value("${app.user.token.activation.expires}")
-  private long activationTokenExpires;
+  private final PasswordEncoder passwordEncoder;
+  private final UserRegisterTx userRegisterTx;
 
   /**
    * Registers user in system.
    * @param userRegisterReq User registration request.
    */
-  @Transactional
   public void register(UserRegisterReq userRegisterReq) {
-    // We need to react properly in case there is already user with given email in system.
-    // On production, we cannot return error as it would allow email enumeration attack.
-    boolean alreadyRegistered = userRepository.existsByEmail(userRegisterReq.email());
-    if (alreadyRegistered) alreadyRegistered(userRegisterReq);
-    else actuallyRegister(userRegisterReq);
-  }
-
-  /**
-   * Act in case user is already registered.
-   * @param userRegisterReq User registration request.
-   */
-  private void alreadyRegistered(UserRegisterReq userRegisterReq) {
-    log.trace("User '{}' is already registered.", userRegisterReq.email());
-
-    User user = userHelperService.resolveUser(userRegisterReq.email(), true);
-    if (user == null) return; // should not happen
-    triggerAlreadyRegisteredEvent(user, userRegisterReq.frontend());
-
-    // On production, we will pretend everything is fine and dandy.
-  }
-
-  /**
-   * Register new user.
-   * @param userRegisterReq User registration request.
-   */
-  private void actuallyRegister(UserRegisterReq userRegisterReq) {
-    LocalDateTime nowAt = clockService.getNowUTC();
+    // Hash password BEFORE entering transaction. BCrypt is CPU-heavy and must not hold a database connection open.
+    String passwordHash = passwordEncoder.encode(userRegisterReq.password());
     userRegisterReq = modifyRegistrationReq(userRegisterReq);
-
-    User user = createUserData(userRegisterReq, nowAt);
-    user = userRepository.save(user);
-    UserProfile userProfile = createUserProfileData(userRegisterReq, user);
-    userProfileRepository.save(userProfile);
-
-    if (userRegisterReq.activate()) {
-      log.trace("User '{}' registered and activated successfully.", userRegisterReq.email());
-      triggerActivationEvent(user, userRegisterReq.frontend());
-    } else {
-      log.trace("User '{}' registered successfully.", userRegisterReq.email());
-      triggerRegisterEvent(user, userRegisterReq);
-    }
+    userRegisterTx.register(userRegisterReq, passwordHash);
   }
 
   /**
@@ -112,115 +67,10 @@ public class UserRegisterService extends BaseUserService {
   }
 
   /**
-   * Create and fill user data.
-   * @param userRegisterReq User registration request.
-   * @return User data.
-   */
-  private User createUserData(UserRegisterReq userRegisterReq, LocalDateTime nowAt) {
-    User user = userMapper.registerReqToUser(userRegisterReq);
-    // Simple fields like status or blocked are pre-filled already.
-    user.setUuid(securityGeneratorService.uuid());
-    user.setCreatedAt(nowAt);
-    user.setModifiedAt(nowAt);
-    user.addHistory(createHistoryEvent(nowAt, EnUserHistoryWho.USER, EnUserHistoryWhat.CREATE, ""));
-    if (userRegisterReq.activate()) { // already activate user?
-      user.setStatus(EnUserStatus.ACTIVE);
-      user.addHistory(createHistoryEvent(nowAt, EnUserHistoryWho.USER, EnUserHistoryWhat.ACTIVATE, ""));
-    } else user.addToken(createTokenData(nowAt, EnUserTokenType.ACTIVATE));
-
-    if (userRegisterReq.isAdmin()) user.addPermission(createPermission(nowAt, PermConst.ROLE, PermConst.ROLE_ADMIN));
-    return user;
-  }
-
-  /**
-   * Create and fill user profile data.
-   * @param userRegisterReq User registration request.
-   * @return User profile data.
-   */
-  private UserProfile createUserProfileData(UserRegisterReq userRegisterReq, User user) {
-    UserProfile userProfile = new UserProfile();
-    userProfile.setUser(user);
-    userProfile.setName(userRegisterReq.name());
-    userProfile.setSurname(userRegisterReq.surname());
-    return userProfile;
-  }
-
-  // //////////////////////////////////////////////////////////////////////////
-
-  /**
    * Activate user that has token with given token string.
    * @param tokenActivateReq Token activation request.
    */
-  @Transactional
   public void activate(TokenActivateReq tokenActivateReq) {
-    LocalDateTime nowAt = clockService.getNowUTC();
-
-    UserToken userToken = resolveToken(nowAt, EnUserTokenType.ACTIVATE, tokenActivateReq.token());
-    User user = userToken.getUser();
-    user.setModifiedAt(nowAt);
-    user.setStatus(EnUserStatus.ACTIVE);
-    userRepository.save(user);
-
-    userTokenRepository.deleteToken(userToken.getToken());
-    addHistoryEvent(user, nowAt, EnUserHistoryWho.USER, EnUserHistoryWhat.ACTIVATE, "");
-
-    log.trace("User '{}' activated successfully.", user.getEmail());
-
-    triggerActivationEvent(user, tokenActivateReq.frontend());
-  }
-
-  // //////////////////////////////////////////////////////////////////////////
-
-  /**
-   * Triggers user registered event for anyone interested.
-   * @param user User data.
-   * @param userRegisterReq User registration request.
-   */
-  private void triggerRegisterEvent(User user, UserRegisterReq userRegisterReq) {
-    UserRegisteredEvent userRegisteredEvent = new UserRegisteredEvent(
-        user.getId(),
-        user.getUsername(),
-        user.getEmail(),
-        user.getLang(),
-        userRegisterReq.frontend(),
-        user.getTokens().getFirst().getToken(),
-        activationTokenExpires
-    );
-    // Will trigger UserSendEmailService.sendRegistrationEmail().
-    eventPublisher.publishEvent(userRegisteredEvent);
-  }
-
-  /**
-   * Triggers user activated event for anyone interested.
-   * @param user User data.
-   * @param frontend Frontend.
-   */
-  private void triggerActivationEvent(User user, EnFrontendFramework frontend) {
-    UserActivatedEvent userActivatedEvent = new UserActivatedEvent(
-        user.getId(),
-        user.getUsername(),
-        user.getEmail(),
-        user.getLang(),
-        frontend
-    );
-    // Will trigger UserSendEmailService.sendActivatedEmail().
-    eventPublisher.publishEvent(userActivatedEvent);
-  }
-
-  /**
-   * Triggers user already registered event for anyone interested.
-   * @param user User data.
-   * @param frontend Frontend.
-   */
-  private void triggerAlreadyRegisteredEvent(User user, EnFrontendFramework frontend) {
-    UserAlreadyRegisteredEvent userAlreadyRegisteredEvent = new UserAlreadyRegisteredEvent(
-        user.getId(),
-        user.getUsername(),
-        user.getEmail(),
-        user.getLang(),
-        frontend
-    );
-    // Will trigger UserSendEmailService.sendAlreadyRegisteredEmail().
-    eventPublisher.publishEvent(userAlreadyRegisteredEvent);
+    userRegisterTx.activate(tokenActivateReq);
   }
 }

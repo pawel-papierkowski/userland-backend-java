@@ -38,28 +38,33 @@ public class UserLoginService extends BaseUserService {
   private final PermissionService permissionService;
   private final JwtService jwtService;
   private final HttpHelperService httpHelperService;
+  private final UserLoginTx userLoginTx;
 
   /**
    * Perform user login.
+   * <p>Note: this method is intentionally NOT transactional. BCrypt password verification and JWT generation are
+   * CPU-heavy operations; running them outside of transaction prevents holding a database connection for their
+   * duration. Only the resulting writes are done transactionally by {@link UserLoginTx#saveLogin}.</p>
    * @param userLoginReq User login request.
    * @return User login response.
    */
-  @Transactional
   public UserLoginResp login(UserLoginReq userLoginReq) {
     // We want to make sure attacker cannot distinguish case when email does not exist and case when wrong password was
     // given. We just say that was wrong password in both cases.
     User user = userHelperService.resolveAuthUser(userLoginReq.email(), true);
     if (user == null) throw new UserWrongPasswordException(); // prevent email enumeration attack
 
+    // Verify password (BCrypt) BEFORE entering transaction - it is CPU-heavy and must not hold a database connection.
     userHelperService.verifyPassword(user, userLoginReq.password());
     verifyLockdown(user);
 
+    // Login is successful. Generate JWT token (outside of transaction) and then persist it with history event.
     LocalDateTime nowAt = clockService.getNowUTC();
+    Long jwtExpire = userConfigService.getLong(user, UserConfigConst.JWT_EXPIRE, null);
+    String jwtToken = jwtService.generateToken(user, jwtExpire);
+    String httpParams = httpHelperService.resolveHttpParams();
 
-    // Login is successful. Generate JWT token now and save it in database.
-    String jwtToken = generateJwt(user, nowAt);
-    // Add login event to user history.
-    addHistoryEvent(user, nowAt, EnUserHistoryWho.USER, EnUserHistoryWhat.LOGIN, httpHelperService.resolveHttpParams());
+    userLoginTx.saveLogin(user.getId(), nowAt, jwtToken, jwtExpire, httpParams);
 
     log.trace("User '{}' has been logged in.", user.getEmail());
     return new UserLoginResp(jwtToken);
@@ -116,29 +121,14 @@ public class UserLoginService extends BaseUserService {
     User user = userHelperService.resolveAuthUser(false);
     userJwtRepository.deleteAllByUser(user.getId()); // Revoke all JWTs related to this user.
 
-    String jwtToken = generateJwt(user, nowAt);
+    Long jwtExpire = userConfigService.getLong(user, UserConfigConst.JWT_EXPIRE, null);
+    String jwtToken = jwtService.generateToken(user, jwtExpire);
+    addJwtEntry(user, nowAt, jwtToken, jwtExpire);
     addHistoryEvent(user, nowAt, EnUserHistoryWho.USER, EnUserHistoryWhat.PROLONG, "");
 
     log.trace("Session of user '{}' has been prolonged.", user.getEmail());
     return UserProlongResp.builder()
         .jwtToken(jwtToken)
         .build();
-  }
-
-  // //////////////////////////////////////////////////////////////////////////
-
-  /**
-   * Generate JWT token and save it.
-   * @param user User.
-   * @param nowAt Current date and time.
-   * @return JWT token.
-   */
-  private String generateJwt(User user, LocalDateTime nowAt) {
-    Long jwtExpire = userConfigService.getLong(user, UserConfigConst.JWT_EXPIRE, null);
-    String jwtToken = jwtService.generateToken(user, jwtExpire);
-
-    // Add JWT in database. This will allow us to effectively revoke tokens later (logout etc).
-    addJwtEntry(user, nowAt, jwtToken, jwtExpire);
-    return jwtToken;
   }
 }

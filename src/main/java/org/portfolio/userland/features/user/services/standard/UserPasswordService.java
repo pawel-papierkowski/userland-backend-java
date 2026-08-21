@@ -3,18 +3,13 @@ package org.portfolio.userland.features.user.services.standard;
 import lombok.RequiredArgsConstructor;
 import org.portfolio.userland.features.user.dto.standard.password.UserPassResetConfirmReq;
 import org.portfolio.userland.features.user.dto.standard.password.UserPassResetLinkReq;
-import org.portfolio.userland.features.user.entities.*;
-import org.portfolio.userland.features.user.events.UserPasswordResetConfirmEvent;
-import org.portfolio.userland.features.user.events.UserPasswordResetRequestEvent;
+import org.portfolio.userland.features.user.entities.User;
 import org.portfolio.userland.features.user.services.BaseUserService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.time.LocalDateTime;
 
 /**
- * Business logic for user password reset.
+ * Entry point for user password reset.
  * <p>User story:</p>
  * <ul>
  *   <li>User on frontend clicks "I forgot password" option and is redirected to password reset form.</li>
@@ -25,92 +20,35 @@ import java.time.LocalDateTime;
  *   <li>Backend verifies call and in case of success changes password to new one and sends email confirming successful password reset.</li>
  *   <li>Frontend reacts appropriately to response from password reset endpoint (show success or failure message).</li>
  * </ul>
+ * <p>Note: this class is intentionally NOT transactional. BCrypt hashing/verification is CPU-heavy; running it outside
+ * of transaction prevents holding a database connection for its duration. All database work is done transactionally by
+ * {@link UserPasswordTx}.</p>
  */
 @Service
 @RequiredArgsConstructor
 public class UserPasswordService extends BaseUserService {
   private final PasswordEncoder passwordEncoder;
+  private final UserPasswordTx userPasswordTx;
 
   /**
    * Creates password reset token and (indirectly, via event) sends email with password reset link to user with given
    * email.
    * @param userPassResetLinkReq User password reset request.
    */
-  @Transactional
   public void send(UserPassResetLinkReq userPassResetLinkReq) {
     User user = userHelperService.resolveUser(userPassResetLinkReq.email(), !build.getTest());
     if (user == null) return; // fail silently to prevent email enumeration attack on production
 
-    LocalDateTime nowAt = clockService.getNowUTC();
-    boolean result = ensureTokenDoesNotExist(nowAt, EnUserTokenType.PASSWORD, user, !build.getTest());
-    if (!result) return; // fail silently to prevent email enumeration attack
-
-    // Save token directly via repository.
-    UserToken token = createTokenData(nowAt, EnUserTokenType.PASSWORD);
-    token.setUser(user);
-    userTokenRepository.save(token);
-
-    addHistoryEvent(user, nowAt, EnUserHistoryWho.USER, EnUserHistoryWhat.PASS_RESET_REQ, "");
-
-    triggerPassResetReqEvent(userPassResetLinkReq, user, token);
+    userPasswordTx.send(userPassResetLinkReq, user);
   }
-
-  /**
-   * Triggers password reset link event for anyone interested.
-   * @param userPassResetLinkReq User password reset request.
-   * @param user User data.
-   * @param token User token data.
-   */
-  private void triggerPassResetReqEvent(UserPassResetLinkReq userPassResetLinkReq, User user, UserToken token) {
-    UserPasswordResetRequestEvent userPasswordResetRequestEvent = new UserPasswordResetRequestEvent(
-        user.getId(),
-        user.getUsername(),
-        user.getEmail(),
-        user.getLang(),
-        userPassResetLinkReq.frontend(),
-        token.getToken(),
-        userHelperService.resolveExpirationTime(EnUserTokenType.PASSWORD)
-    );
-    // Will trigger UserSendEmailService.sendPasswordResetRequest().
-    eventPublisher.publishEvent(userPasswordResetRequestEvent);
-  }
-
-  // //////////////////////////////////////////////////////////////////////////
 
   /**
    * Actually resets password. It is verified by presence of appropriate token.
    * @param userPassResetConfirmReq User password reset confirmation request.
    */
-  @Transactional
   public void reset(UserPassResetConfirmReq userPassResetConfirmReq) {
-    LocalDateTime nowAt = clockService.getNowUTC();
-
-    UserToken userToken = resolveToken(nowAt, EnUserTokenType.PASSWORD, userPassResetConfirmReq.token());
-    User user = userToken.getUser();
-    userHelperService.verifyUser(user, false); // must have valid state
-
-    user.setModifiedAt(nowAt);
-    user.setPassword(passwordEncoder.encode(userPassResetConfirmReq.password()));
-    userRepository.save(user);
-
-    userTokenRepository.deleteToken(userToken.getToken());
-    addHistoryEvent(user, nowAt, EnUserHistoryWho.USER, EnUserHistoryWhat.PASS_RESET, "");
-
-    triggerPassResetConfirmEvent(user);
-  }
-
-  /**
-   * Triggers password reset confirmation event for anyone interested.
-   * @param user User data.
-   */
-  private void triggerPassResetConfirmEvent(User user) {
-    UserPasswordResetConfirmEvent userPasswordResetConfirmEvent = new UserPasswordResetConfirmEvent(
-        user.getId(),
-        user.getUsername(),
-        user.getEmail(),
-        user.getLang()
-    );
-    // Will trigger UserSendEmailService.sendPasswordResetConfirm().
-    eventPublisher.publishEvent(userPasswordResetConfirmEvent);
+    // Hash new password (BCrypt) BEFORE entering transaction - it is CPU-heavy and must not hold a database connection.
+    String passwordHash = passwordEncoder.encode(userPassResetConfirmReq.password());
+    userPasswordTx.reset(userPassResetConfirmReq.token(), passwordHash);
   }
 }
