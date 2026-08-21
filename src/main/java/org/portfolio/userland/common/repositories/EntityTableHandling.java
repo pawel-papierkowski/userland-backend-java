@@ -93,7 +93,7 @@ public abstract class EntityTableHandling<R extends TableReq, E> {
       cq.where(cb.and(predicates.toArray(new Predicate[0])));
     }
 
-    TableHelper.applySorting(cb, cq, entity, req.tableMeta());
+    TableHelper.applySorting(cb, cq, entity, entityManager.getMetamodel(), req.tableMeta());
     TypedQuery<E> query = entityManager.createQuery(cq);
     TableHelper.applyPagination(query, req.tableMeta());
     return query.getResultList();

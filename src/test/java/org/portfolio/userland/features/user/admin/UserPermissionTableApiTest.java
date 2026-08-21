@@ -208,6 +208,38 @@ public class UserPermissionTableApiTest extends BaseUserTest {
     actAssert(req, expectedResults, 1L, 4L);
   }
 
+  @Test
+  @WithMockCustomUser(authorities = { "ROLE_OPERATOR", "USER_VIEW" })
+  public void viewUserSortByNonexistentField() throws Exception {
+    // Sorting by unknown field must fail gracefully (400), not with internal server error (500).
+    List<User> users = arrangeUserData();
+    User userToCheck = users.getFirst();
+
+    // Act: get user sorted by field that does not exist.
+    UserPermissionTableReq req = UserPermissionTableReq.builder()
+        .userId(userToCheck.getId())
+        .tableMeta(TableMetaReq.builder().sortBy("nonexistent").sortOrder(EnSortOrder.ASC).build())
+        .build();
+
+    MvcResult mvcResult = mockMvc.perform(post("/api/admin/user/permissions")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(req)))
+        .andReturn();
+
+    // Assert: API Response.
+    assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.BAD_REQUEST.value());
+    // Assert: Content has correct error.
+    ProblemDetailBox expectedPdb = new ProblemDetailBox(
+        HttpStatus.BAD_REQUEST.value(),
+        "Bad request.",
+        "Cannot sort by 'nonexistent'.",
+        "/api/admin/user/permissions",
+        "https://api.general.org/errors/general/badParams",
+        Map.of()
+    );
+    problemDetailService.assertPd(mvcResult, expectedPdb);
+  }
+
   //
 
   @Test
