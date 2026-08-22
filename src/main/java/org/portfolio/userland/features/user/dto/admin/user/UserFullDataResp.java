@@ -17,6 +17,7 @@ import java.time.LocalDateTime;
  * @param id User identificator.
  * @param createdAt Creation date&time.
  * @param modifiedAt Date&time of last modification.
+ * @param version Optimistic locking version of user account.
  * @param username Username.
  * @param email Email.
  * @param status Status.
@@ -35,6 +36,9 @@ public record UserFullDataResp(
 
     @Schema(description = "When user was last modified.")
     LocalDateTime modifiedAt,
+
+    @Schema(description = "Optimistic locking version of user account. Must be sent back unchanged when editing user.", example = "3")
+    Long version,
 
     @Schema(description = "Name shown on frontend.", example = "John Doe")
     String username,

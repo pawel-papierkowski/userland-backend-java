@@ -41,6 +41,13 @@ public class User {
   @Column(unique = true, nullable = false, updatable = false)
   private UUID uuid;
 
+  /** Optimistic locking version. Maintained automatically by Hibernate (<code>@Version</code>), do not set it manually.
+   * <p>Note: acts as umbrella version for whole user account. Since every change of <code>UserProfile</code> is
+   * (by business rules) accompanied by update of user row, this version also guards profile edits.</p> */
+  @Version
+  @Column(nullable = false)
+  private Long version;
+
   /** Date&time of account creation.
    * <p>Maintained automatically by JPA auditing (see <code>org.portfolio.userland.config.JpaAuditingConfig</code>), do not set it manually.</p> */
   @Column(nullable = false, updatable = false)

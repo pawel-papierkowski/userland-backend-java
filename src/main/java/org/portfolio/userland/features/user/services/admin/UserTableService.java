@@ -12,6 +12,7 @@ import org.portfolio.userland.features.user.entities.EnUserHistoryWho;
 import org.portfolio.userland.features.user.entities.User;
 import org.portfolio.userland.features.user.entities.UserProfile;
 import org.portfolio.userland.features.user.exceptions.UserCannotEditException;
+import org.portfolio.userland.features.user.exceptions.UserDataStaleException;
 import org.portfolio.userland.features.user.exceptions.UserEmailAlreadyExistsException;
 import org.portfolio.userland.features.user.services.BaseUserService;
 import org.portfolio.userland.system.auth.AuthHelper;
@@ -110,6 +111,9 @@ public class UserTableService extends BaseUserService {
   public UserFullDataResp editUserData(UserFullDataReq userFullDataReq) {
     User user = userHelperService.resolveUser(userFullDataReq.id(), false, false);
 
+    // Optimistic locking check: fail early if client based its edit on stale data.
+    verifyVersion(userFullDataReq.version(), user);
+
     verifyRequest(userFullDataReq, user);
     CustomUserDetails userDetails = AuthHelper.resolveUserDetails();
     if (userDetails == null) return null; // Should not happen.
@@ -138,6 +142,16 @@ public class UserTableService extends BaseUserService {
       throw new UserEmailAlreadyExistsException(userFullDataReq.email());
   }
 
+  /**
+   * Verify optimistic locking version. Throws exception if version sent by client does not match current version of
+   * the user entity.
+   * @param reqVersion Version as sent by client (never null, enforced by <code>@NotNull</code> on DTO).
+   * @param user User entity.
+   */
+  private void verifyVersion(Long reqVersion, User user) {
+    if (!reqVersion.equals(user.getVersion())) throw new UserDataStaleException(user.getId(), reqVersion, user.getVersion());
+  }
+
   private User updateUserData(UserFullDataReq userFullDataReq, User user, UserProfile userProfile) {
     boolean userPresent = userFullDataReq.userPresent();
     boolean userProfilePresent = userFullDataReq.userProfilePresent();
@@ -159,6 +173,9 @@ public class UserTableService extends BaseUserService {
         user.setModifiedAt(nowAt);
         user = userRepository.save(user);
         if (userProfilePresent) userProfileRepository.save(userProfile);
+        // Version is incremented by Hibernate only at flush time (like auditing timestamps), which would be too late -
+        // response below is built from the in-memory entities and must already carry the new versions.
+        userRepository.flush();
         addHistoryEvent(user, nowAt, EnUserHistoryWho.OPERATOR, EnUserHistoryWhat.EDIT, params);
       }
     }

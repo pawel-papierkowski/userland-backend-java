@@ -8,6 +8,7 @@ import org.portfolio.userland.features.user.entities.EnUserHistoryWhat;
 import org.portfolio.userland.features.user.entities.EnUserHistoryWho;
 import org.portfolio.userland.features.user.entities.User;
 import org.portfolio.userland.features.user.entities.UserProfile;
+import org.portfolio.userland.features.user.exceptions.UserDataStaleException;
 import org.portfolio.userland.features.user.services.BaseUserService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,7 +22,10 @@ import java.time.LocalDateTime;
  * <ul>
  *   <li>Email change is not handled here, as it requires more complex flow for security reasons (sending email with
  *   confirmation link to new address).</li>
- *   <li>We do not expect frequent/concurrent updates for UserProfile. Locking should not be needed.</li>
+ *   <li>Optimistic locking: client must send version of user data as read last. If it does not match, request fails
+ *   with 409 Conflict. Note version of <code>User</code> acts as umbrella version for whole account - any profile
+ *   edit is accompanied by update of user row (see below), so its version changes too. Concurrent modification of
+ *   profile row itself is still caught by <code>@Version</code> on <code>UserProfile</code> at flush time.</li>
  * </ul>
  */
 @Service
@@ -36,6 +40,9 @@ public class UserEditService extends BaseUserService {
   public UserDataResp edit(UserEditReq userEditReq) {
     User user = userHelperService.resolveUser(false);
     UserProfile userProfile = userProfileRepository.findById(user.getId()).orElseThrow(); // profile should always exist
+
+    // Optimistic locking check: fail early if client based its edit on stale data.
+    verifyVersion(userEditReq.version(), user);
 
     boolean userPresent = userEditReq.userPresent();
     boolean userProfilePresent = userEditReq.userProfilePresent();
@@ -56,11 +63,24 @@ public class UserEditService extends BaseUserService {
         user.setModifiedAt(nowAt);
         user = userRepository.save(user);
         if (userProfilePresent) userProfileRepository.save(userProfile);
+        // Version is incremented by Hibernate only at flush time (like auditing timestamps), which would be too late -
+        // response below is built from the in-memory entities and must already carry the new versions.
+        userRepository.flush();
         addHistoryEvent(user, nowAt, EnUserHistoryWho.USER, EnUserHistoryWhat.EDIT, params);
       }
     }
 
     return resolveResponse(user, userProfile);
+  }
+
+  /**
+   * Verify optimistic locking version. Throws exception if version sent by client does not match current version of
+   * the user entity.
+   * @param reqVersion Version as sent by client (never null, enforced by <code>@NotNull</code> on DTO).
+   * @param user User entity.
+   */
+  private void verifyVersion(Long reqVersion, User user) {
+    if (!reqVersion.equals(user.getVersion())) throw new UserDataStaleException(user.getId(), reqVersion, user.getVersion());
   }
 
   /**

@@ -38,6 +38,8 @@ public class UserErrCode {
   public final static String INVALID_STATUS = "user_0121";
   /** User is locked. */
   public final static String LOCKED = "user_0122";
+  /** Data is stale - optimistic locking version mismatch. */
+  public final static String DATA_STALE = "user_0130";
 
   // ADMIN PANEL SPECIFIC
 

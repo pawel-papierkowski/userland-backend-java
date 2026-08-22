@@ -9,10 +9,11 @@ import org.portfolio.userland.common.constants.ValidConst;
 import org.portfolio.userland.features.user.dto.common.UserProfileData;
 
 /**
- * Provides user and user profile data to change. Any field except <code>id</code> is optional - null simply means given
- * field is skipped.
+ * Provides user and user profile data to change. Any field except <code>id</code> and <code>version</code> is optional -
+ * null simply means given field is skipped.
  *
  * @param id Identificator of user.
+ * @param version Optimistic locking version of user account.
  * @param username New username.
  * @param email New email.
  * @param locked New locked.
@@ -20,11 +21,15 @@ import org.portfolio.userland.features.user.dto.common.UserProfileData;
  * @param profile New user profile data.
  */
 @Builder(toBuilder = true)
-@Schema(description = "Request for user and user profile data. All fields except id are optional.")
+@Schema(description = "Request for user and user profile data. All fields except id and version are optional.")
 public record UserFullDataReq(
     @NotNull(message = "User identificator must be provided")
     @Schema(description = "Identificator of user.")
     Long id,
+
+    @NotNull(message = "Version must be provided")
+    @Schema(description = "Optimistic locking version of user account. Must be equal to version returned by last read of user data.", example = "3")
+    Long version,
 
     @Schema(description = "Name shown on frontend.", example = "John Doe")
     String username,

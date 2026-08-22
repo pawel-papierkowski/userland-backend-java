@@ -31,6 +31,13 @@ public class UserProfile {
   @OnDelete(action = OnDeleteAction.CASCADE)
   private User user;
 
+  /** Optimistic locking version. Maintained automatically by Hibernate (<code>@Version</code>), do not set it manually.
+   * <p>Note: guards concurrent modification of profile row itself. For end-to-end (client-side) checks the version of
+   * <code>User</code> is used, since every profile edit is accompanied by update of user row.</p> */
+  @Version
+  @Column(nullable = false)
+  private Long version;
+
   //
 
   /** Name of user. */

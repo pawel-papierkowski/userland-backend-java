@@ -47,7 +47,7 @@ public class UserViewApiTest extends BaseUserTest {
     // Assert: Endpoint response.
     UserDataResp actualResp = objectMapper.readValue(mvcResult.getResponse().getContentAsString(), UserDataResp.class);
     UserProfileData expectedProfile = UserProfileData.builder().build(); // empty profile
-    UserDataResp expectedResp = UserDataResp.builder().username("Jane").email("test@example.com").lang("en").profile(expectedProfile).build();
+    UserDataResp expectedResp = UserDataResp.builder().version(0L).username("Jane").email("test@example.com").lang("en").profile(expectedProfile).build();
     assertThat(actualResp).as("User data is invalid").usingRecursiveComparison().isEqualTo(expectedResp);
   }
 
@@ -72,7 +72,7 @@ public class UserViewApiTest extends BaseUserTest {
     // Assert: Endpoint response.
     UserDataResp actualResp = objectMapper.readValue(mvcResult.getResponse().getContentAsString(), UserDataResp.class);
     UserProfileData expectedProfile = UserProfileData.builder().name("Jennifer").surname("Doe").build();
-    UserDataResp expectedResp = UserDataResp.builder().username("Jane").email("test@example.com").lang("en").profile(expectedProfile).build();
+    UserDataResp expectedResp = UserDataResp.builder().version(0L).username("Jane").email("test@example.com").lang("en").profile(expectedProfile).build();
     assertThat(actualResp).as("User data is invalid").usingRecursiveComparison().isEqualTo(expectedResp);
   }
 }

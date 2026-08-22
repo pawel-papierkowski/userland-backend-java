@@ -67,6 +67,8 @@ CREATE TABLE iam.users (
     id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     -- UUID v4. Business key.
     uuid UUID NOT NULL DEFAULT gen_random_uuid() UNIQUE,
+    -- Optimistic locking version. Maintained by Hibernate (@Version), never set manually.
+    version BIGINT NOT NULL DEFAULT 0,
     -- When user account was created.
     created_at TIMESTAMP NOT NULL DEFAULT(now() AT TIME ZONE 'UTC'),
     -- When user account was last modified.
@@ -104,6 +106,8 @@ CREATE TABLE iam.profiles (
     -- Identificator AND Foreign Key.
     -- It is not GENERATED ALWAYS AS IDENTITY because it inherits the ID from iam.users.
     id BIGINT PRIMARY KEY,
+    -- Optimistic locking version. Maintained by Hibernate (@Version), never set manually.
+    version BIGINT NOT NULL DEFAULT 0,
 
     -- Name of user.
     name VARCHAR(100),

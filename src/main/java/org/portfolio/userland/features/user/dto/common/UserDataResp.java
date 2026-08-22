@@ -9,6 +9,7 @@ import lombok.Builder;
  * <code><pre>
  * UserDataResp userData = userMapper.userToDataResp(user);
  * UserProfileDataResp userProfileData = userProfileMapper.profileToDataResp(user.getProfile());</pre></code>
+ * @param version Optimistic locking version of user account.
  * @param username Username.
  * @param email User email.
  * @param lang User language as simple language code. Example: 'pl'.
@@ -17,6 +18,9 @@ import lombok.Builder;
 @Builder(toBuilder = true)
 @Schema(description = "Response that returns current data of user.")
 public record UserDataResp(
+    @Schema(description = "Optimistic locking version of user account. Must be sent back unchanged when editing user.", example = "3")
+    Long version,
+
     @Schema(description = "Name shown on frontend.", example = "John Doe")
     String username,
 

@@ -29,6 +29,7 @@ import org.portfolio.userland.swagger.annotations.ApiResponsesAuthPerm;
 import org.portfolio.userland.swagger.detail.common.ValidationProblemDetail;
 import org.portfolio.userland.swagger.detail.user.BadParamsProblemDetail;
 import org.portfolio.userland.swagger.detail.user.CannotEditUserProblemDetail;
+import org.portfolio.userland.swagger.detail.user.UserDataStaleProblemDetail;
 import org.portfolio.userland.system.auth.annotations.HasAdminPermission;
 import org.portfolio.userland.system.auth.annotations.HasUserEditPermission;
 import org.portfolio.userland.system.auth.annotations.HasUserViewPermission;
@@ -128,9 +129,9 @@ public class UserAdminController {
       @ApiResponse(responseCode = "400", description = "Invalid input (e.g., id of user is null).",
           content = @Content(mediaType = "application/problem+json",
               schema = @Schema(implementation = BadParamsProblemDetail.class))),
-      @ApiResponse(responseCode = "409", description = "Cannot edit this user.",
+      @ApiResponse(responseCode = "409", description = "Cannot edit this user, or data is stale (optimistic locking version mismatch).",
           content = @Content(mediaType = "application/problem+json",
-              schema = @Schema(implementation = CannotEditUserProblemDetail.class)))
+              schema = @Schema(oneOf = { CannotEditUserProblemDetail.class, UserDataStaleProblemDetail.class })))
   })
   public ResponseEntity<UserFullDataResp> editUserData(@Valid @RequestBody UserFullDataReq userFullDataReq) {
     UserFullDataResp userFullDataResp = userTableService.editUserData(userFullDataReq);

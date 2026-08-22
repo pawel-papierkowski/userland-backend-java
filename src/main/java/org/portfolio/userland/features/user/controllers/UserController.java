@@ -24,6 +24,7 @@ import org.portfolio.userland.swagger.annotations.ApiResponsesToken;
 import org.portfolio.userland.swagger.detail.common.ValidationProblemDetail;
 import org.portfolio.userland.swagger.detail.user.TokenAlreadyExistsProblemDetail;
 import org.portfolio.userland.swagger.detail.user.TokenMissingProblemDetail;
+import org.portfolio.userland.swagger.detail.user.UserDataStaleProblemDetail;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -120,7 +121,10 @@ public class UserController {
       @ApiResponse(responseCode = "200", description = "User successfully edited."),
       @ApiResponse(responseCode = "400", description = "Invalid input (like weak password).",
           content = @Content(mediaType = "application/problem+json",
-              schema = @Schema(implementation = ValidationProblemDetail.class)))
+              schema = @Schema(implementation = ValidationProblemDetail.class))),
+      @ApiResponse(responseCode = "409", description = "Data is stale (optimistic locking version mismatch).",
+          content = @Content(mediaType = "application/problem+json",
+              schema = @Schema(implementation = UserDataStaleProblemDetail.class)))
   })
   public ResponseEntity<UserDataResp> editUser(@Valid @RequestBody UserEditReq userEditReq) {
     UserDataResp resp = userEditService.edit(userEditReq);

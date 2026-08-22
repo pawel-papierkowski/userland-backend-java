@@ -26,7 +26,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @Service
 @RequiredArgsConstructor
 public class UserAssert {
-  private static final String[] USER_FIELDS_IGNORE = { "id", "uuid", "password", "configs", "history", "tokens", "jwts", "permissions" };
+  private static final String[] USER_FIELDS_IGNORE = { "id", "uuid", "password", "version", "configs", "history", "tokens", "jwts", "permissions" };
   private static final String[] USER_CONFIG_FIELDS_IGNORE = { "id", "uuid", "user" };
   private static final String[] USER_HISTORY_FIELDS_IGNORE = { "id", "uuid", "user" };
   private static final String[] USER_TOKEN_FIELDS_IGNORE = { "id", "user", "token" };
@@ -68,6 +68,8 @@ public class UserAssert {
     assertThat(actualUser.getId()).as(comment + ": id is wrong").isGreaterThan(0L);
     assertThat(actualUser.getUuid()).as(comment + ": UUID is invalid").isNotNull();
     assertThat(actualUser.getPassword()).as(comment + ": password must be hashed with BCrypt").startsWith("$2a$"); // Ensure password is hashed using BCrypt.
+    // Version is not compared exactly (it depends on number of updates done in given flow), but it must be sane.
+    assertThat(actualUser.getVersion()).as(comment + ": version is invalid").isNotNull().isGreaterThanOrEqualTo(0L);
 
     // Assert collections.
     assertConfig(comment, actualUser.getConfigs(), expectedUser.getConfigs());

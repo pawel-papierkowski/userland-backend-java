@@ -53,8 +53,9 @@ public class UserProfileFactory {
     UserProfile userProfile = Instancio.of(UserProfile.class)
         .set(field(UserProfile::getId), user.getId())
         .set(field(UserProfile::getUser), user)
+        .ignore(field(UserProfile::getVersion)) // let Hibernate take care of that
         .create();
-    // all other fields are filled randomly
+    // all other fields are filled randomly by Instancio
     return userProfile;
   }
 }

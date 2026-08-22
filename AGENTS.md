@@ -79,7 +79,8 @@ This is a modern **Java 25**, **Spring Boot 4.1.0** application. The backend ser
   - We run on PostgreSQL.
   - We use Flyway. See `src/main/resources/db/migration/` files for structure of database.
 - **Entities:**
-  - Entity definition and annotations must be consistent with database structure. 
+  - Entity definition and annotations must be consistent with database structure.
+  - When adding new fields, be careful with Instancio. In some cases you might want to ignore fields (especially if filled automatically by Hibernate).
   - Do not use Lombok's `@Data` for Hibernate entities. Use `@Getter` and `@Setter`.
   - Map tables using `@Table(name = "...", schema = "...")`.
   - Association annotations like `@ManyToOne` must always specify fetch type explicitly.
@@ -130,5 +131,5 @@ When I ask for review, in order of importance:
 
 ## 🛑 What NOT to do
 - Do not use generic `Exception` or `RuntimeException`. Always throw domain-specific exceptions that extend our `GeneralException`.
-- Do not remove the `@Generated` or `@NoCoverageGenerated` annotations from exception classes or DTOs.
+- Do not remove or add the `@Generated` or `@NoCoverageGenerated` annotations from exception classes or DTOs.
 - Do not modify `.github/workflows/deploy.yml` without explicit permission.

@@ -38,10 +38,11 @@ public abstract class UserMapper {
   @Mapping(target = "modifiedAt", ignore = true)
   @Mapping(target = "username", expression = "java(HtmlUtils.htmlEscape(req.username()))")
   // email as is
-  @Mapping(target = "password", ignore = true)
+  @Mapping(target = "password", ignore = true) // computed separately
   // lang as is
   @Mapping(target = "status", ignore = true)
   @Mapping(target = "locked", ignore = true)
+  @Mapping(target = "version", ignore = true)
   @Mapping(target = "configs", ignore = true)
   @Mapping(target = "history", ignore = true)
   @Mapping(target = "tokens", ignore = true)

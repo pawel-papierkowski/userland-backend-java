@@ -12,7 +12,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @Service
 @RequiredArgsConstructor
 public class UserProfileAssert {
-  private static final String[] USERPROFILE_FIELDS_IGNORE = { "id", "user" };
+  private static final String[] USERPROFILE_FIELDS_IGNORE = { "id", "user", "version" };
 
   /**
    * Assert that two user profiles are same.
@@ -42,5 +42,7 @@ public class UserProfileAssert {
     // Assert certain fields manually.
     assertThat(actualUserProfile.getId()).as(comment + ": id is wrong").isGreaterThan(0L);
     assertThat(actualUserProfile.getId()).as(comment + ": mismatch of id").isEqualTo(actualUserProfile.getUser().getId());
+    // Version is not compared exactly (it depends on number of updates done in given flow), but it must be sane.
+    assertThat(actualUserProfile.getVersion()).as(comment + ": version is invalid").isNotNull().isGreaterThanOrEqualTo(0L);
   }
 }

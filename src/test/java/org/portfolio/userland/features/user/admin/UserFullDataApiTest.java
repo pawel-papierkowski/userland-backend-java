@@ -76,6 +76,7 @@ public class UserFullDataApiTest extends BaseUserTest {
 
     // Arrange: Create request to change user and user profile data.
     UserFullDataReq req = UserFullDataReq.builder()
+        .version(0L)
         .id(user.getId())
         .username("Jane") // same username
         .email("test@example.com") // same email as previous for this account, code checks for that
@@ -122,6 +123,7 @@ public class UserFullDataApiTest extends BaseUserTest {
         .surname("Novak")
         .build();
     UserFullDataReq req = UserFullDataReq.builder()
+        .version(0L)
         .id(user.getId())
         .username("Monke")
         .email("different.email@example.com")
@@ -142,12 +144,14 @@ public class UserFullDataApiTest extends BaseUserTest {
 
     // Prepare expected entities manually.
     expectedUser.setModifiedAt(clockService.getNowUTC());
+    expectedUser.setVersion(1L);
     expectedUser.setUsername("Monke");
     expectedUser.setEmail("different.email@example.com");
     expectedUser.setLocked(true);
     expectedUser.setLang("fr");
     expectedUserProfile.setName("Robert");
     expectedUserProfile.setSurname("Novak");
+    expectedUserProfile.setVersion(1L);
     userHistoryFactory.genHistoryEvent(expectedUser, EnUserHistoryWho.OPERATOR, EnUserHistoryWhat.EDIT, "username, email, locked, lang, name, surname");
 
     // Assert: Verify that endpoint response is correct.
@@ -178,6 +182,7 @@ public class UserFullDataApiTest extends BaseUserTest {
 
     // Arrange: Create request to change user and user profile data.
     UserFullDataReq req = UserFullDataReq.builder()
+        .version(0L)
         .id(user.getId())
         .username("Monke")
         .locked(false) // note user has it false already, so field will be ignored
@@ -195,6 +200,7 @@ public class UserFullDataApiTest extends BaseUserTest {
 
     // Prepare expected entities manually.
     expectedUser.setModifiedAt(clockService.getNowUTC());
+    expectedUser.setVersion(1L);
     expectedUser.setUsername("Monke");
     // note there is only one field in params (locked is same)
     userHistoryFactory.genHistoryEvent(expectedUser, EnUserHistoryWho.OPERATOR, EnUserHistoryWhat.EDIT, "username");
@@ -230,6 +236,7 @@ public class UserFullDataApiTest extends BaseUserTest {
         .surname("Novak")
         .build();
     UserFullDataReq req = UserFullDataReq.builder()
+        .version(0L)
         .id(user.getId())
         .profile(profileData)
         .build();
@@ -246,8 +253,10 @@ public class UserFullDataApiTest extends BaseUserTest {
 
     // Prepare expected entities manually.
     expectedUser.setModifiedAt(clockService.getNowUTC());
+    expectedUser.setVersion(1L);
     expectedUserProfile.setName("Robert");
     expectedUserProfile.setSurname("Novak");
+    expectedUserProfile.setVersion(1L);
     userHistoryFactory.genHistoryEvent(expectedUser, EnUserHistoryWho.OPERATOR, EnUserHistoryWhat.EDIT, "name, surname");
 
     // Assert: Verify that endpoint response is correct.
@@ -277,6 +286,7 @@ public class UserFullDataApiTest extends BaseUserTest {
 
     // Arrange: Create request to lock user.
     UserFullDataReq req = UserFullDataReq.builder()
+        .version(0L)
         .id(user.getId())
         .locked(true)
         .profile(null)
@@ -294,6 +304,7 @@ public class UserFullDataApiTest extends BaseUserTest {
 
     // Prepare expected entities manually.
     expectedUser.setModifiedAt(clockService.getNowUTC());
+    expectedUser.setVersion(1L);
     expectedUser.setLocked(true);
     userHistoryFactory.genHistoryEvent(expectedUser, EnUserHistoryWho.OPERATOR, EnUserHistoryWhat.EDIT, "locked");
 
@@ -325,6 +336,7 @@ public class UserFullDataApiTest extends BaseUserTest {
 
     // Arrange: Create request that changes email of user.
     UserFullDataReq req = UserFullDataReq.builder()
+        .version(0L)
         .id(user.getId())
         .email("different.email@fictional.domain.com")
         .profile(null)
@@ -342,6 +354,7 @@ public class UserFullDataApiTest extends BaseUserTest {
 
     // Prepare expected entities manually.
     expectedUser.setModifiedAt(clockService.getNowUTC());
+    expectedUser.setVersion(1L);
     expectedUser.setEmail("different.email@fictional.domain.com");
     userHistoryFactory.genHistoryEvent(expectedUser, EnUserHistoryWho.OPERATOR, EnUserHistoryWhat.EDIT, "email");
 
@@ -372,7 +385,8 @@ public class UserFullDataApiTest extends BaseUserTest {
     User user = userProfile.getUser();
 
     // Arrange: Create request to change... nothing.
-    UserFullDataReq req = UserFullDataReq.builder().id(user.getId()).build();
+    UserFullDataReq req = UserFullDataReq.builder()
+        .version(0L).id(user.getId()).build();
 
     // Act: Try to change data of existing user.
     clock.setFixedTime("2026-04-12T10:00:00Z");
@@ -469,6 +483,7 @@ public class UserFullDataApiTest extends BaseUserTest {
 
     // Arrange: Create request to change user data.
     UserFullDataReq req = UserFullDataReq.builder()
+        .version(0L)
         .id(user.getId())
         .username("Monke")
         .build();
@@ -498,7 +513,8 @@ public class UserFullDataApiTest extends BaseUserTest {
   @WithMockCustomUser(authorities = { "ROLE_OPERATOR", "USER_EDIT" })
   public void editUserWithWrongId() throws Exception {
     // Arrange: request that uses id of non-existent user.
-    UserFullDataReq req = UserFullDataReq.builder().id(1L).build();
+    UserFullDataReq req = UserFullDataReq.builder()
+        .version(0L).id(1L).build();
 
     // Act: Try to change data of non-existent user.
     MvcResult mvcResult = mockMvc.perform(patch("/api/admin/user")
@@ -539,6 +555,7 @@ public class UserFullDataApiTest extends BaseUserTest {
 
     // Arrange: Create request to change user and user profile data.
     UserFullDataReq req = UserFullDataReq.builder()
+        .version(0L)
         .id(user.getId())
         .username("Monke")
         .build();
@@ -581,7 +598,8 @@ public class UserFullDataApiTest extends BaseUserTest {
     userProfileRepository.save(userProfile2);
 
     // Arrange: request that change email of first user with email of second user (existing email).
-    UserFullDataReq req = UserFullDataReq.builder().id(user1.getId()).email(user2.getEmail()).build();
+    UserFullDataReq req = UserFullDataReq.builder()
+        .version(0L).id(user1.getId()).email(user2.getEmail()).build();
 
     // Act: Try to change email to existing email.
     MvcResult mvcResult = mockMvc.perform(patch("/api/admin/user")
@@ -601,5 +619,61 @@ public class UserFullDataApiTest extends BaseUserTest {
         Map.of("errCode", UserErrCode.EMAIL_IN_USE)
     );
     problemDetailService.assertPd(mvcResult, expectedPdb);
+  }
+
+  @Test
+  @WithMockCustomUser(authorities = { "ROLE_OPERATOR", "USER_EDIT" })
+  public void editUserStaleVersion() throws Exception {
+    // Edit user: version sent by client does not match, as someone else modified data in the meantime.
+    // Arrange: Create user and user profile.
+    clock.setFixedTime("2026-04-10T10:00:00Z");
+    User expectedUser = userFactory.genUser(EnUserStatus.ACTIVE);
+    UserProfile expectedUserProfile = userProfileFactory.genProfile(expectedUser);
+
+    UserProfile userProfile = userProfileRepository.save(expectedUserProfile);
+    User user = userProfile.getUser();
+
+    // Arrange: Simulate concurrent modification done by someone else after client read the data (version bumped to 1).
+    transactionTemplate.execute(_ -> {
+      User concurrentUser = userRepository.findById(user.getId()).orElseThrow();
+      concurrentUser.setUsername("SomeoneElse");
+      userRepository.save(concurrentUser);
+      return null;
+    });
+
+    // Arrange: Create request with stale version.
+    UserFullDataReq req = UserFullDataReq.builder()
+        .id(user.getId())
+        .version(0L) // stale, actual version is 1
+        .username("Monke")
+        .build();
+
+    // Act: Try to change data of existing user.
+    clock.setFixedTime("2026-04-12T10:00:00Z");
+    MvcResult mvcResult = mockMvc.perform(patch("/api/admin/user")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(req)))
+        .andReturn();
+
+    // Assert: API Response.
+    assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.CONFLICT.value());
+    // Assert: Content has correct error.
+    ProblemDetailBox expectedPdb = new ProblemDetailBox(
+        HttpStatus.CONFLICT.value(),
+        "Data was modified in the meantime.",
+        "User with id '" + user.getId() + "' was modified by someone else. Please reload data and try again.",
+        "/api/admin/user",
+        "https://api.userland.org/errors/user/dataStale",
+        Map.of("errCode", UserErrCode.DATA_STALE)
+    );
+    problemDetailService.assertPd(mvcResult, expectedPdb);
+
+    // Assert: Database state - username of concurrent modification must be kept, our change must be rejected.
+    transactionTemplate.execute(_ -> {
+      User actualUser = userRepository.findById(user.getId()).orElseThrow();
+      assertThat(actualUser.getUsername()).as("Username should not be changed").isEqualTo("SomeoneElse");
+      assertThat(actualUser.getVersion()).as("Version should stay on value from concurrent modification").isEqualTo(1L);
+      return null;
+    });
   }
 }

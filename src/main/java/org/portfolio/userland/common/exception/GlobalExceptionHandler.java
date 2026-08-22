@@ -3,6 +3,7 @@ package org.portfolio.userland.common.exception;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.MessageSourceResolvable;
+import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.http.*;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authorization.AuthorizationDeniedException;
@@ -86,6 +87,27 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     problemDetail.setTitle("Forbidden");
     problemDetail.setDetail("You do not have permission to access this resource.");
     problemDetail.setType(URI.create("https://api.general.org/errors/forbidden"));
+    // instance is added automatically
+    return problemDetail;
+  }
+
+  /**
+   * Handle optimistic locking failures that happen at flush time. This covers concurrent modification of entities
+   * protected by <code>@Version</code> that was not caught by an explicit version check in service layer (for example
+   * modification of user profile row by another transaction).
+   * @param ex Exception.
+   * @param request Web request.
+   * @return Problem detail with 409 Conflict status.
+   */
+  @ExceptionHandler(OptimisticLockingFailureException.class)
+  public ProblemDetail handleOptimisticLockingFailure(OptimisticLockingFailureException ex, WebRequest request) {
+    // Log at warning level - it is not a server error, but we still want to see contention in logs.
+    log.warn("Optimistic locking failure occurred:", ex);
+
+    ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.CONFLICT);
+    problemDetail.setTitle("Data was modified in the meantime.");
+    problemDetail.setDetail("Data was modified by someone else. Please reload data and try again.");
+    problemDetail.setType(URI.create("https://api.general.org/errors/data-stale"));
     // instance is added automatically
     return problemDetail;
   }

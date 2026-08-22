@@ -72,6 +72,7 @@ public class UserAdminFactory extends BaseFactory {
         .id(user.getId())
         .createdAt(user.getCreatedAt())
         .modifiedAt(user.getModifiedAt())
+        .version(user.getVersion())
         .username(user.getUsername())
         .email(user.getEmail())
         .status(user.getStatus())

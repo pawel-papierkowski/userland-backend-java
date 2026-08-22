@@ -145,6 +145,7 @@ public class UserFactory extends BaseFactory {
   private User genBaseRandUser(EnUserStatus status) {
     User user = Instancio.of(User.class)
         .ignore(field(User::getId)) // let Hibernate take care of that
+        .ignore(field(User::getVersion)) // ditto
         .set(field(User::getUuid), securityGeneratorService.uuid())
         .set(field(User::getCreatedAt), clockService.getNowUTC())
         .set(field(User::getModifiedAt), clockService.getNowUTC())
@@ -159,7 +160,7 @@ public class UserFactory extends BaseFactory {
         .ignore(field(User::getJwts)) // ditto
         .ignore(field(User::getPermissions)) // ditto
         .create();
-    // all other fields are filled randomly
+    // all other fields are filled randomly by Instancio
     userHistoryFactory.genHistoryEvent(user, EnUserHistoryWho.USER, EnUserHistoryWhat.CREATE, "");
     return user;
   }
