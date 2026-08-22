@@ -40,4 +40,24 @@ public class ConfigService {
     int updated = configRepository.updateValueByName(name, newValue);
     if (updated == 0) throw new ConfigUnknownException(name);
   }
+
+  /**
+   * Set configuration variable only if its value differs from the new one.
+   * <p>The decision "did anything change?" is made atomically together with write itself (single conditional
+   * UPDATE), so concurrent callers cannot both observe stale value and act on it - exactly one of them will see
+   * the change as performed.</p>
+   * @param name Name of configuration variable.
+   * @param newValue New value of configuration variable.
+   * @return 1 if value was changed, 0 if it was already equal.
+   * @throws ConfigUnknownException If configuration variable does not exist.
+   */
+  @Transactional
+  public int setIfChanged(String name, String newValue) {
+    int updated = configRepository.updateValueByNameIfChanged(name, newValue);
+    if (updated > 0) return updated;
+    // Zero rows affected means either 'value was already equal' or 'variable is missing'. Preserve strict behavior
+    // for the missing variable case.
+    if (!configRepository.existsByName(name)) throw new ConfigUnknownException(name);
+    return 0;
+  }
 }

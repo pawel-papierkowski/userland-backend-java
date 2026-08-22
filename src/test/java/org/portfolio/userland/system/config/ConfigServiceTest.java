@@ -118,4 +118,54 @@ public class ConfigServiceTest extends BaseIntegrationTest {
         () -> configService.set("test.nonExistentVar", "test.newVal")
     );
   }
+
+  //
+
+  @Test
+  public void setIfChangedUpdatesExistingConfigVariable() {
+    // Arrange: insert config variable.
+    Config config = new Config();
+    config.setName("test.var");
+    config.setValue("test.val");
+    config.setDescription("-");
+    Config expectedConfig = configRepository.save(config);
+
+    // Act: Set config variable to different value.
+    int updated = configService.setIfChanged("test.var", "test.newVal");
+
+    // Assert: Change was performed.
+    assertThat(updated).as("Change must be reported as performed").isEqualTo(1);
+    expectedConfig.setValue("test.newVal");
+    Config actualConfig = configRepository.findByName("test.var").orElseThrow();
+    assertThat(actualConfig).as("Config variable should be updated").isEqualTo(expectedConfig);
+  }
+
+  @Test
+  public void setIfChangedSkipsWhenValueAlreadyEqual() {
+    // Arrange: insert config variable.
+    Config config = new Config();
+    config.setName("test.var");
+    config.setValue("test.val");
+    config.setDescription("-");
+    Config expectedConfig = configRepository.save(config);
+
+    // Act: Set config variable to the same value it already has.
+    int updated = configService.setIfChanged("test.var", "test.val");
+
+    // Assert: No change was performed, but no exception was thrown either.
+    assertThat(updated).as("No-op must be reported as not performed").isZero();
+    Config actualConfig = configRepository.findByName("test.var").orElseThrow();
+    assertThat(actualConfig).as("Config variable should stay same").isEqualTo(expectedConfig);
+  }
+
+  @Test
+  public void errSetIfChangedMissingConfigVariable() {
+    // Arrange: Nothing to arrange. We are trying to update non-existent config variable.
+
+    // Act & Assert: Missing variable must throw exception (not be silently reported as no-op).
+    assertThrows(
+        ConfigUnknownException.class,
+        () -> configService.setIfChanged("test.nonExistentVar", "test.newVal")
+    );
+  }
 }

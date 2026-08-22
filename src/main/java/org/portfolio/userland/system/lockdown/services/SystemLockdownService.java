@@ -41,17 +41,26 @@ public class SystemLockdownService extends BaseService {
 
   /**
    * Set new state of system lockdown.
+   * <p>Note: the decision whether the state changes at all is made atomically together with write itself
+   * (single conditional UPDATE on the config row), so concurrent toggles cannot both observe stale state and
+   * perform side effects twice - exactly one of them will perform the change.</p>
    * @param systemLockdownReq New state of system lockdown.
    * @return True if lockdown state was changed, otherwise false.
    */
   @Transactional
   public boolean set(SystemLockdownReq systemLockdownReq) {
-    String lockdownValue = configService.get(ConfigConst.USER_LOCKDOWN, ConfigConst.USER_LOCKDOWN_DEF);
-    EnSystemLockdownState currLockDownState = EnSystemLockdownState.fromStr(lockdownValue);
     EnSystemLockdownState newLockDownState = systemLockdownReq.state();
+    if (newLockDownState == null) return false;
 
-    // nothing changes
-    if (currLockDownState == null || newLockDownState == null || currLockDownState.equals(newLockDownState)) return false;
+    String newValue = switch (newLockDownState) {
+      case ON -> ConfigConst.TRUE;
+      case OFF -> ConfigConst.FALSE;
+    };
+
+    // Atomically decide whether anything changes at all. Zero rows means the state was already equal (or the config
+    // variable is missing, in which case ConfigUnknownException is thrown by setIfChanged).
+    int updated = configService.setIfChanged(ConfigConst.USER_LOCKDOWN, newValue);
+    if (updated == 0) return false;
 
     switch (newLockDownState) {
       case ON -> lockSystem();
@@ -60,9 +69,10 @@ public class SystemLockdownService extends BaseService {
     return true;
   }
 
-  /** Activate system lockdown. */
+  /**
+   * Activate system lockdown. Note the lockdown config variable was already set to ON by {@link #set}.
+   */
   private void lockSystem() {
-    configService.set(ConfigConst.USER_LOCKDOWN, ConfigConst.TRUE);
     // Revoke all JWTs except ones belonging to admin users. Result is that all users (except admin) have their sessions
     // invalidated, effectively kicking them out of system. They also cannot call any endpoint, even those that normally
     // work without user logged in.
@@ -73,10 +83,10 @@ public class SystemLockdownService extends BaseService {
     log.warn("SYSTEM LOCKDOWN ACTIVATED.");
   }
 
-  /** Deactivate system lockdown. */
+  /**
+   * Deactivate system lockdown. Note the lockdown config variable was already set to OFF by {@link #set}.
+   */
   private void unlockSystem() {
-    configService.set(ConfigConst.USER_LOCKDOWN, ConfigConst.FALSE);
-
     systemHistoryService.addEvent(EnHistoryWho.ADMIN, EnHistoryWhat.LOCKDOWN, "OFF");
     log.info("SYSTEM LOCKDOWN DEACTIVATED.");
   }
