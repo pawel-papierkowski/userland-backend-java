@@ -25,7 +25,6 @@ public class PermissionHelper {
    */
   public static Collection<? extends GrantedAuthority> resolveAuthorities(Set<UserPermission> userPermissions) {
     return userPermissions.stream()
-        .filter(userPermission -> userPermission.getPermission().getInAuthorities())
         .map(userPermission -> {
           String authorityStr = userPermission.getPermission().getName().toUpperCase()
               + "_" + userPermission.getValue().toUpperCase();
@@ -53,7 +52,6 @@ public class PermissionHelper {
 
     for (UserPermission permissionEntry : permissions) {
       Permission permission = permissionEntry.getPermission();
-      if (!permission.getInJwt()) continue;
       String permValue = "";
       if (claimMap.containsKey(permission.getName())) permValue = claimMap.get(permission.getName());
       if (StringUtils.isNotEmpty(permValue)) permValue += ",";

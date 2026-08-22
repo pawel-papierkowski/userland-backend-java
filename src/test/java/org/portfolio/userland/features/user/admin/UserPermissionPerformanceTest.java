@@ -52,8 +52,7 @@ public class UserPermissionPerformanceTest extends BaseUserTest {
     for (int i = 0; i < entryCount; i++) {
       Permission permission = new Permission();
       permission.setName("perm_" + i);
-      permission.setInJwt(false);
-      permission.setInAuthorities(false);
+      permission.setDescr("-");
       permission = permissionRepository.save(permission);
       userPermissionFactory.genPermissionEntry(user, permission, "value_" + i);
     }

@@ -21,16 +21,12 @@ public class Permission {
   private Long id;
 
   /** Name of permission. Acts as business key. */
-  @Column(unique = true, nullable = false)
+  @Column(unique = true, nullable = false, length = 100)
   private String name;
 
-  /** Indicates if that permission should be embedded in JWT token. */
+  /** Description of permission. */
   @Column(nullable = false)
-  private Boolean inJwt;
-
-  /** Indicates if that permission should be included in Spring authorities. */
-  @Column(nullable = false)
-  private Boolean inAuthorities;
+  private String descr;
 
   // //////////////////////////////////////////////////////////////////////////
 

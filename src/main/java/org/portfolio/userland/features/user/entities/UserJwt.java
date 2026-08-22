@@ -47,7 +47,7 @@ public class UserJwt {
   //
 
   /** Value of token. Acts as business key. */
-  @Column(unique = true, nullable = false, updatable = false, length = 255)
+  @Column(unique = true, nullable = false, updatable = false)
   private String token;
 
   // //////////////////////////////////////////////////////////////////////////

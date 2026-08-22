@@ -51,15 +51,13 @@ CREATE TABLE iam.permissions (
     -- Identificator.
     id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     -- Name of permission entry. Must be unique.
-    name VARCHAR(255) NOT NULL UNIQUE,
-    -- If true, this permission should be embedded in JWT key.
-    in_jwt bool NOT NULL,
-    -- If true, this permission should be embedded in Spring authorities.
-    in_authorities bool NOT NULL
+    name VARCHAR(100) NOT NULL UNIQUE,
+    -- Description of permission entry.
+    descr TEXT NOT NULL
 );
 -- Known permissions.
-INSERT INTO iam.permissions (name, in_jwt, in_authorities) VALUES ('role', true, true); -- general role
-INSERT INTO iam.permissions (name, in_jwt, in_authorities) VALUES ('user', true, true); -- what you can do in user domain
+INSERT INTO iam.permissions (name, descr) VALUES ('role', 'User roles.'); -- general role
+INSERT INTO iam.permissions (name, descr) VALUES ('user', 'Perms related to user domain.'); -- what you can do in user domain
 
 -- Main users table. Contains data about user accounts.
 CREATE TABLE iam.users (
@@ -131,7 +129,7 @@ CREATE TABLE iam.config (
     created_at TIMESTAMP NOT NULL DEFAULT (now() AT TIME ZONE 'UTC'),
 
     -- Name of user configuration entry.
-    name VARCHAR(255) NOT NULL,
+    name VARCHAR(250) NOT NULL,
     -- Value of user configuration entry.
     value TEXT NOT NULL,
 
