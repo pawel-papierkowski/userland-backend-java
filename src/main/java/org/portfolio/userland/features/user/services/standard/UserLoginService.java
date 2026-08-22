@@ -78,7 +78,7 @@ public class UserLoginService extends BaseUserService {
    */
   private void verifyLockdown(User user) {
     // Do we have lockdown?
-    if (ConfigConst.FALSE.equals(configService.get(ConfigConst.USER_LOCKDOWN, ConfigConst.USER_LOCKDOWN_DEF))) return;
+    if (ConfigConst.FALSE.equals(configService.get(ConfigConst.USER_LOCKDOWN))) return;
     // So we have lockdown. If user has correct permissions, they are still allowed to log in.
     if (permissionService.has(EnPermKind.ACCESS_TO_ADMIN_PANEL, user.getPermissions())) return;
     // Standard user is trying to log in during lockdown, reject them.

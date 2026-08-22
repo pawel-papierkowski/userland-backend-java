@@ -76,7 +76,7 @@ This is a modern **Java 25**, **Spring Boot 4.1.0** application. The backend ser
     - All response classes have `Resp` suffix.
     - Document all endpoints using Swagger/OpenAPI `@Operation`, `@Schema`, and custom meta-annotations like `@ApiAuthResponses`. `ProblemDetail` and derived classes are used for errors.
 - **Database:**
-  - We run on PostgreSQL.
+  - We run on PostgreSQL via Hibernate.
   - We use Flyway. See `src/main/resources/db/migration/` files for structure of database.
 - **Entities:**
   - Entity definition and annotations must be consistent with database structure.
@@ -125,7 +125,7 @@ When I ask for review, in order of importance:
 - Verify algorithm and logic. Is this correct way to do it? Can it be done better?
 - Make sure common programming principles (like DRY) are followed.
 - Find tests for reviewed code and review them too. If tests are missing, note their absence and plan what tests should be added. Do not add them automatically unless explicitly asked.
-- I might ask to review same code multiple times (to re-check code after changes implemented from previous review). Re-read files as neccessary.
+- I might ask to review same code multiple times (to re-check code after changes implemented from previous review). Re-read files as necessary.
   - You can skip some steps if appropriate (for example, skip purpose/functionality analysis if purpose and functionality is already known).
   - If previously reported issues still exist, inform about them again unless they were explained or rejected.
 

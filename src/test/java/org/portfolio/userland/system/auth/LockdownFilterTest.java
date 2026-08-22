@@ -51,7 +51,7 @@ public class LockdownFilterTest {
     MockFilterChain filterChain = new MockFilterChain();
 
     // Arrange: Mock services.
-    when(configService.get(ConfigConst.USER_LOCKDOWN, ConfigConst.USER_LOCKDOWN_DEF)).thenReturn(ConfigConst.FALSE);
+    when(configService.get(ConfigConst.USER_LOCKDOWN)).thenReturn(ConfigConst.FALSE);
 
     // Act: Execute the filter.
     lockdownFilter.doFilterInternal(request, response, filterChain);
@@ -68,7 +68,7 @@ public class LockdownFilterTest {
     MockFilterChain filterChain = new MockFilterChain();
 
     // Arrange: Mock services.
-    when(configService.get(ConfigConst.USER_LOCKDOWN, ConfigConst.USER_LOCKDOWN_DEF)).thenReturn(ConfigConst.TRUE);
+    when(configService.get(ConfigConst.USER_LOCKDOWN)).thenReturn(ConfigConst.TRUE);
 
     // Act: Execute the filter.
     lockdownFilter.doFilterInternal(request, response, filterChain);
@@ -95,7 +95,7 @@ public class LockdownFilterTest {
     SpringMocker.mockAuth(customUserDetails);
 
     // Arrange: Mock services.
-    when(configService.get(ConfigConst.USER_LOCKDOWN, ConfigConst.USER_LOCKDOWN_DEF)).thenReturn(ConfigConst.TRUE);
+    when(configService.get(ConfigConst.USER_LOCKDOWN)).thenReturn(ConfigConst.TRUE);
 
     // Act: Execute the filter.
     lockdownFilter.doFilterInternal(request, response, filterChain);
@@ -122,7 +122,7 @@ public class LockdownFilterTest {
     SpringMocker.mockAuth(customUserDetails);
 
     // Arrange: Mock services.
-    when(configService.get(ConfigConst.USER_LOCKDOWN, ConfigConst.USER_LOCKDOWN_DEF)).thenReturn(ConfigConst.TRUE);
+    when(configService.get(ConfigConst.USER_LOCKDOWN)).thenReturn(ConfigConst.TRUE);
 
     // Act: Execute the filter.
     lockdownFilter.doFilterInternal(request, response, filterChain);

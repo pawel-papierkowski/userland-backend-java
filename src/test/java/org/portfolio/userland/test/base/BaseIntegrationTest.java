@@ -14,6 +14,7 @@ import org.portfolio.userland.test.helpers.factories.system.ConfigFactory;
 import org.portfolio.userland.test.helpers.problemDetail.ProblemDetailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
+import org.springframework.cache.CacheManager;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
@@ -63,6 +64,9 @@ public abstract class BaseIntegrationTest {
   protected EntityManager entityManager;
   @Autowired
   protected TransactionTemplate transactionTemplate;
+  /** Used to clear in-memory caches so tests don't observe stale cached values. */
+  @Autowired
+  protected CacheManager cacheManager;
 
   /** Used to convert Java objects to JSON. Note: for some reason autowiring ObjectMapper fails. */
   protected final ObjectMapper objectMapper = new ObjectMapper().findAndRegisterModules();
@@ -113,10 +117,13 @@ public abstract class BaseIntegrationTest {
 
   /**
    * Clean up the database. Inherited methods need to call <code>super.cleanDatabase()</code> at end.
+   * Also clears in-memory caches - they survive database resets and would otherwise leak stale values
+   * between tests.
    */
   protected void cleanDatabase() {
     configRepository.deleteAll();
     systemHistoryRepository.deleteAll();
+    cacheManager.getCache(ConfigService.CONFIG_CACHE).clear();
     entityManager.flush();
     entityManager.clear();
   }

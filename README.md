@@ -50,6 +50,12 @@ You can think of it as baseline for other projects, as almost any project, syste
   - **Debug endpoints** `/api/checks/*` that allow testing various scenarios (access without/with authentication, error handling etc.) for frontend development. 
   - Sending **emails** (JavaMailSender or Resend).
 
+### Notes
+
+- While this portfolio project exists as single-instance on throttled GCP (or locally), it is written with multiple instances in mind:
+  - We use `ShedLock` to ensure no issues with many identical shedulers running at once.
+  - Cache life is short, so cache eviction on instance A will not cause stale results on instance B for too long.
+
 ## GitHub config
 
 System uses variables and secrets defined in GitHub.
@@ -185,6 +191,7 @@ UserLand has endpoints available publicly to use by frontend, PostMan etc.
   - **Actuator**: provides endpoints to check on system state
   - **DevTools**: additional dev tools like hot restart
   - **Docker Compose Support**: use containers for stuff like database when project is executed locally
+  - **Cache**: with Caffeine under the hood to handle caching in project.
 - Database:
   - **PostgreSQL**: popular relational database
   - **Flyway**: versioning of database

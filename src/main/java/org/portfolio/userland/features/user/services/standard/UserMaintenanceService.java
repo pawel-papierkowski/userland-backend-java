@@ -56,7 +56,7 @@ public class UserMaintenanceService {
   @Transactional
   public void cleanActiveUsers() {
     // Only in portfolio mode.
-    String generalPortfolio = configService.get(ConfigConst.GENERAL_PORTFOLIO, "0");
+    String generalPortfolio = configService.get(ConfigConst.GENERAL_PORTFOLIO);
     if (!ConfigConst.TRUE.equals(generalPortfolio)) return;
 
     log.info("Starting scheduled cleanup of expired active users...");

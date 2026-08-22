@@ -67,7 +67,7 @@ public class UserRegisterService extends BaseUserService {
     // Never allow admin permissions outside of portfolio mode.
     boolean isAdmin = userRegisterReq.isAdmin() != null && userRegisterReq.isAdmin();
     if (isAdmin) {
-      String generalPortfolio = configService.get(ConfigConst.GENERAL_PORTFOLIO, "0");
+      String generalPortfolio = configService.get(ConfigConst.GENERAL_PORTFOLIO);
       if (!ConfigConst.TRUE.equals(generalPortfolio)) isAdmin = false;
     }
     return userRegisterReq.toBuilder()
