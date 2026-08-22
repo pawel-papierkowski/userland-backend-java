@@ -9,6 +9,7 @@ import org.portfolio.userland.features.user.events.UserEmailChangeConfirmEvent;
 import org.portfolio.userland.features.user.exceptions.UserEmailAlreadyExistsException;
 import org.portfolio.userland.features.user.exceptions.UserWrongPasswordException;
 import org.portfolio.userland.features.user.services.BaseUserService;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -53,6 +54,10 @@ public class UserEmailService extends BaseUserService {
 
   /**
    * Actually changes email. It is verified by presence of appropriate token.
+   * <p>Note: the real guard against duplicate emails is the unique constraint on <code>users.email</code>; the
+   * {@code existsByEmail} check above is only a fast path. If we lose a race against a concurrent email change (or
+   * registration) for the same address, the constraint violation is translated into a clean
+   * {@link UserEmailAlreadyExistsException}. The consumed token stays consumed, same as in the sequential case.</p>
    * @param userEmailChangeConfirmReq User email change confirmation request.
    */
   @Transactional
@@ -67,7 +72,16 @@ public class UserEmailService extends BaseUserService {
     String params = "old: '"+user.getEmail()+"', new: '"+userToken.getPayload()+"'";
 
     user.setEmail(userToken.getPayload());
-    userRepository.save(user); // modifiedAt is maintained automatically by JPA auditing
+    try {
+      userRepository.save(user);
+      // Flush explicitly - otherwise violation of the unique email constraint would surface at commit time,
+      // after this method returned, and could not be translated into a meaningful exception anymore.
+      userRepository.flush();
+    } catch (DataIntegrityViolationException ex) {
+      // We lost the race: another transaction took this email in the meantime. Abort transaction immediately
+      // (persistence context is inconsistent) - rollback also discards JWT deletion, history and confirm email.
+      throw new UserEmailAlreadyExistsException(userToken.getPayload());
+    }
 
     userJwtRepository.deleteAllByUser(user.getId());
     addHistoryEvent(user, nowAt, EnUserHistoryWho.USER, EnUserHistoryWhat.EMAIL_CHANGE, params);

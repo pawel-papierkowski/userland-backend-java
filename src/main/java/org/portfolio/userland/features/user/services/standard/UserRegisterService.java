@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.portfolio.userland.features.user.dto.standard.register.TokenActivateReq;
 import org.portfolio.userland.features.user.dto.standard.register.UserRegisterReq;
+import org.portfolio.userland.features.user.exceptions.UserAlreadyRegisteredException;
 import org.portfolio.userland.features.user.services.BaseUserService;
 import org.portfolio.userland.system.config.service.ConfigConst;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -35,13 +36,22 @@ public class UserRegisterService extends BaseUserService {
 
   /**
    * Registers user in system.
+   * <p>Note: if registration loses a race against a concurrent registration with the same email (unique constraint
+   * violation on <code>users.email</code>), the graceful "already registered" flow is run instead - in a fresh
+   * transaction, since the losing transaction must be discarded.</p>
    * @param userRegisterReq User registration request.
    */
   public void register(UserRegisterReq userRegisterReq) {
     // Hash password BEFORE entering transaction. BCrypt is CPU-heavy and must not hold a database connection open.
     String passwordHash = passwordEncoder.encode(userRegisterReq.password());
     userRegisterReq = modifyRegistrationReq(userRegisterReq);
-    userRegisterTx.register(userRegisterReq, passwordHash);
+    try {
+      userRegisterTx.register(userRegisterReq, passwordHash);
+    } catch (UserAlreadyRegisteredException ex) {
+      // We lost a race against a concurrent registration with same email. The failed transaction was rolled back,
+      // so run the graceful "already registered" flow here in a fresh transaction (this class is not transactional).
+      userRegisterTx.alreadyRegistered(userRegisterReq);
+    }
   }
 
   /**

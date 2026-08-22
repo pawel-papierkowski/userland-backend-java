@@ -17,6 +17,7 @@ import org.portfolio.userland.features.user.exceptions.UserEmailAlreadyExistsExc
 import org.portfolio.userland.features.user.services.BaseUserService;
 import org.portfolio.userland.system.auth.AuthHelper;
 import org.portfolio.userland.system.auth.details.CustomUserDetails;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -171,11 +172,18 @@ public class UserTableService extends BaseUserService {
         // (b) auditing cannot see changes to UserProfile (separate entity), yet business rules require bumping
         //     modifiedAt when profile changes. Setting the field explicitly also guarantees an UPDATE is issued.
         user.setModifiedAt(nowAt);
-        user = userRepository.save(user);
-        if (userProfilePresent) userProfileRepository.save(userProfile);
-        // Version is incremented by Hibernate only at flush time (like auditing timestamps), which would be too late -
-        // response below is built from the in-memory entities and must already carry the new versions.
-        userRepository.flush();
+        try {
+          user = userRepository.save(user);
+          if (userProfilePresent) userProfileRepository.save(userProfile);
+          // Version is incremented by Hibernate only at flush time (like auditing timestamps), which would be too late -
+          // response below is built from the in-memory entities and must already carry the new versions.
+          userRepository.flush();
+        } catch (DataIntegrityViolationException ex) {
+          // The existsByEmail check in verifyRequest() was only a fast path - the real guard is the unique constraint
+          // on users.email. We lost a race against a concurrent change that took this email first. Abort transaction
+          // immediately (persistence context is inconsistent).
+          throw new UserEmailAlreadyExistsException(userFullDataReq.email());
+        }
         addHistoryEvent(user, nowAt, EnUserHistoryWho.OPERATOR, EnUserHistoryWhat.EDIT, params);
       }
     }

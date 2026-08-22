@@ -33,6 +33,8 @@ public class UserErrCode {
   public final static String EMAIL_IN_USE = "user_0111";
   /** Wrong password or account. */
   public final static String WRONG_PASSWORD = "user_0112";
+  /** User with given email is already registered (internal signal for lost registration race). */
+  public final static String ALREADY_REGISTERED = "user_0113";
 
   /** User has invalid status. */
   public final static String INVALID_STATUS = "user_0121";

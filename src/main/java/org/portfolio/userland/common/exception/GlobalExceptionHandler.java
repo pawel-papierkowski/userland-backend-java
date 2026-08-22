@@ -3,6 +3,7 @@ package org.portfolio.userland.common.exception;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.MessageSourceResolvable;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.http.*;
 import org.springframework.security.access.AccessDeniedException;
@@ -108,6 +109,28 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     problemDetail.setTitle("Data was modified in the meantime.");
     problemDetail.setDetail("Data was modified by someone else. Please reload data and try again.");
     problemDetail.setType(URI.create("https://api.general.org/errors/data-stale"));
+    // instance is added automatically
+    return problemDetail;
+  }
+
+  /**
+   * Fallback handler for database constraint violations that were not translated by a service layer. Services are
+   * expected to catch {@link DataIntegrityViolationException} around risky writes and translate it into a meaningful
+   * domain exception (like unique email races); this handler only ensures that any race we missed in the future
+   * degrades into a clean <b>409 Conflict</b> instead of an internal server error.
+   * @param ex Exception.
+   * @param request Web request.
+   * @return Problem detail with 409 Conflict status.
+   */
+  @ExceptionHandler(DataIntegrityViolationException.class)
+  public ProblemDetail handleDataIntegrityViolation(DataIntegrityViolationException ex, WebRequest request) {
+    // Log at warning level - it is not a server error, but we still want to see unhandled races/constraints in logs.
+    log.warn("Unhandled data integrity violation occurred:", ex);
+
+    ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.CONFLICT);
+    problemDetail.setTitle("Data conflict.");
+    problemDetail.setDetail("The request conflicts with the current state of data. Please reload and try again.");
+    problemDetail.setType(URI.create("https://api.general.org/errors/data-conflict"));
     // instance is added automatically
     return problemDetail;
   }
