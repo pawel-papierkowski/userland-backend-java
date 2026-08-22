@@ -3,9 +3,11 @@ package org.portfolio.userland.system.auth.jwt;
 import com.google.common.collect.Maps;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
+import io.jsonwebtoken.JwtParser;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.portfolio.userland.features.user.entities.EnUserStatus;
 import org.portfolio.userland.features.user.entities.User;
@@ -36,6 +38,26 @@ public class JwtService extends BaseService {
   @Value("${security.jwt.secret}")
   private String secretKey;
 
+  /** Precomputed signing key, built once from the secret in {@link #initSigningAssets()} since it never changes. */
+  private SecretKey signingKey;
+
+  /** Precomputed JWT parser, built once from the signing key and clock in {@link #initSigningAssets()}. Thread-safe and reusable. */
+  private JwtParser jwtParser;
+
+  /**
+   * Builds the signing key and parser once at startup. The secret is static config,
+   * so both are immutable for the lifetime of the application; rebuilding them per operation
+   * would only waste CPU on every token generation and parse.
+   */
+  @PostConstruct
+  private void initSigningAssets() {
+    signingKey = resolveSigningKey();
+    jwtParser = Jwts.parser()
+        .verifyWith(signingKey)
+        .clock(jwtClock) // ensures we use clockService so tests work correctly when setting arbitrary time
+        .build();
+  }
+
   /**
    * Generate JWT token based on user data.
    * @param user User data.
@@ -64,7 +86,7 @@ public class JwtService extends BaseService {
         .subject(user.getEmail())
         .issuedAt(issueDate)
         .expiration(expirationDate)
-        .signWith(resolveSigningKey())
+        .signWith(signingKey)
         .compact();
   }
 
@@ -144,10 +166,7 @@ public class JwtService extends BaseService {
    * @return All claims.
    */
   public Claims extractAllClaims(String token) {
-    return Jwts.parser()
-        .verifyWith(resolveSigningKey())
-        .clock(jwtClock) // ensures we use clockService so tests work correctly when setting arbitrary time
-        .build()
+    return jwtParser
         .parseSignedClaims(token)
         .getPayload();
   }

@@ -54,5 +54,4 @@ public class ConfigConst {
   public final static String TEST_VAR_DEF = "test.val"; // Default for above.
   public final static String TEST_CACHE = "test.cache";
   public final static String TEST_CACHE_DEF = "original"; // Default for above.
-
 }
