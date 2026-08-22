@@ -32,12 +32,10 @@ public class UserDeleteTx extends BaseUserService {
    */
   public void send(UserDeleteLinkReq userDeleteLinkReq, User user) {
     LocalDateTime nowAt = clockService.getNowUTC();
-    ensureTokenDoesNotExist(nowAt, EnUserTokenType.DELETE, user, false);
+    ensureTokenDoesNotExist(nowAt, EnUserTokenType.DELETE, user);
 
-    // Save token directly via repository.
-    UserToken token = createTokenData(nowAt, EnUserTokenType.DELETE);
-    token.setUser(user);
-    userTokenRepository.save(token);
+    // Save token atomically - guards also against concurrent creation of same token type.
+    UserToken token = persistNewToken(user, nowAt, EnUserTokenType.DELETE);
 
     addHistoryEvent(user, nowAt, EnUserHistoryWho.USER, EnUserHistoryWhat.DELETE_REQ, "");
 

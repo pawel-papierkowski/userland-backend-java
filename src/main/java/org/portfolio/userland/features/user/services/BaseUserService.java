@@ -16,6 +16,7 @@ import org.portfolio.userland.features.user.repositories.user.UserProfileReposit
 import org.portfolio.userland.features.user.repositories.user.UserRepository;
 import org.portfolio.userland.system.base.BaseService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -47,15 +48,47 @@ public abstract class BaseUserService extends BaseService {
   //
 
   /**
-   * Add token entry to user.
+   * Create token entry and persist it atomically, guarding against concurrent creation of same token type for same
+   * user. If another transaction created such token in the meantime, throws {@link UserTokenAlreadyExistsException}.
+   * <p>Note: the real guard is the unique constraint <code>uq_user_token_type</code>, so this method is race-safe even
+   * though {@link #ensureTokenDoesNotExist} (fast-path pre-check) alone is not.</p>
+   * <p>Warning: on constraint violation the current transaction must be aborted immediately (persistence context is
+   * inconsistent), which this method does by throwing - rollback also discards history events and any AFTER_COMMIT
+   * email events of the losing transaction. Callers that must react gracefully (e.g. fail silently) have to catch
+   * this exception <em>outside</em> of the transactional method.</p>
    * @param user User.
    * @param nowAt Current date&time.
    * @param type Type of token.
+   * @return Persisted token entry.
    */
-  protected void addTokenEntry(User user, LocalDateTime nowAt, EnUserTokenType type) {
-    UserToken userToken = createTokenData(nowAt, type);
-    userToken.setUser(user);
-    userTokenRepository.save(userToken);
+  protected UserToken persistNewToken(User user, LocalDateTime nowAt, EnUserTokenType type) {
+    return persistNewToken(user, nowAt, type, null);
+  }
+
+  /**
+   * Same as {@link #persistNewToken(User, LocalDateTime, EnUserTokenType)}, but with payload.
+   * @param user User.
+   * @param nowAt Current date&time.
+   * @param type Type of token.
+   * @param payload Payload of token.
+   * @return Persisted token entry.
+   */
+  protected UserToken persistNewToken(User user, LocalDateTime nowAt, EnUserTokenType type, String payload) {
+    UserToken token = createTokenData(nowAt, type, payload);
+    token.setUser(user);
+    try {
+      userTokenRepository.save(token);
+      // Flush immediately as well - save() alone does not guarantee the INSERT was validated yet.
+      userTokenRepository.flush();
+    } catch (DataIntegrityViolationException ex) {
+      // We lost the race: another concurrent transaction created a token of this type for this user first.
+      // Note: since UserToken uses IDENTITY id, the INSERT typically already executes during save(), so the
+      // violation surfaces there; flush() covers the deferred case. Transaction must be aborted now
+      // (persistence context is inconsistent), which throwing accomplishes - rollback also discards history
+      // events and any AFTER_COMMIT email events of the losing transaction.
+      throw new UserTokenAlreadyExistsException(type);
+    }
+    return token;
   }
 
   /**
@@ -87,19 +120,20 @@ public abstract class BaseUserService extends BaseService {
 
   /**
    * Ensures token of given type for given user does not exist. If token exists, but is expired, it will be removed.
-   * If token exists and is still valid, throws exception or returns false.
+   * If token exists and is still valid, throws exception.
    * <p>Reminder: one user can have only one token of given type at once.</p>
    * <p>Note: token is fetched directly from database instead of traversing user's lazy 'tokens' collection,
    * so no unnecessary data is loaded.</p>
+   * <p>Note: this is just a fast-path check to fail early with a nice error message - it does not guarantee
+   * uniqueness under concurrency (two transactions can both pass it). The real guard is the unique constraint
+   * <code>uq_user_token_type</code>, enforced atomically by {@link #persistNewToken}.</p>
    * @param nowAt Current date&time.
    * @param type  Type of token.
    * @param user  User.
-   * @param failSilently If true, will return false instead of throwing exception.
-   * @return True if operation succeeded, otherwise false. Applicable only if <code>failSilently == true</code>.
    */
-  protected boolean ensureTokenDoesNotExist(LocalDateTime nowAt, EnUserTokenType type, User user, boolean failSilently) {
+  protected void ensureTokenDoesNotExist(LocalDateTime nowAt, EnUserTokenType type, User user) {
     Optional<UserToken> found = userTokenRepository.findByUserAndType(user.getId(), type);
-    if (found.isEmpty()) return true; // no token of this type present at all, everything is fine
+    if (found.isEmpty()) return; // no token of this type present at all, everything is fine
     UserToken token = found.get();
 
     // Expired token will be removed to make place for new token. Note orphan removal is not used, so we delete it explicitly.
@@ -109,11 +143,9 @@ public abstract class BaseUserService extends BaseService {
       // would violate unique constraint uq_user_token_type). It is fine if it is saved in rollback scenario, as
       // expired tokens cannot be used anyway.
       userTokenRepository.flush();
-      return true;
+      return;
     }
 
-    // Token still valid, throw exception or return false.
-    if (failSilently) return false;
     throw new UserTokenAlreadyExistsException(type);
   }
 

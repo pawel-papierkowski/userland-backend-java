@@ -42,12 +42,10 @@ public class UserEmailTx extends BaseUserService {
 
     LocalDateTime nowAt = clockService.getNowUTC();
     String params = "old: '"+user.getEmail()+"', new: '"+userEmailChangeLinkReq.newEmail()+"'";
-    ensureTokenDoesNotExist(nowAt, EnUserTokenType.EMAIL, user, false);
+    ensureTokenDoesNotExist(nowAt, EnUserTokenType.EMAIL, user);
 
-    // Save token directly via repository.
-    UserToken token = createTokenData(nowAt, EnUserTokenType.EMAIL, userEmailChangeLinkReq.newEmail());
-    token.setUser(user);
-    userTokenRepository.save(token);
+    // Save token atomically - guards also against concurrent creation of same token type.
+    UserToken token = persistNewToken(user, nowAt, EnUserTokenType.EMAIL, userEmailChangeLinkReq.newEmail());
 
     addHistoryEvent(user, nowAt, EnUserHistoryWho.USER, EnUserHistoryWhat.EMAIL_CHANGE_REQ, params);
 

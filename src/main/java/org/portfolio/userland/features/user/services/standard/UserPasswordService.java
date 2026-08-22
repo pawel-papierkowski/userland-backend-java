@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.portfolio.userland.features.user.dto.standard.password.UserPassResetConfirmReq;
 import org.portfolio.userland.features.user.dto.standard.password.UserPassResetLinkReq;
 import org.portfolio.userland.features.user.entities.User;
+import org.portfolio.userland.features.user.exceptions.UserTokenAlreadyExistsException;
 import org.portfolio.userland.features.user.services.BaseUserService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -33,13 +34,22 @@ public class UserPasswordService extends BaseUserService {
   /**
    * Creates password reset token and (indirectly, via event) sends email with password reset link to user with given
    * email.
+   * <p>Note: if a valid password reset token already exists (also when the request lost against a concurrent one), it
+   * fails silently on production to prevent email enumeration attack; in test build the error is rethrown so tests
+   * can assert it.</p>
    * @param userPassResetLinkReq User password reset request.
    */
   public void send(UserPassResetLinkReq userPassResetLinkReq) {
     User user = userHelperService.resolveUser(userPassResetLinkReq.email(), !build.getTest());
     if (user == null) return; // fail silently to prevent email enumeration attack on production
 
-    userPasswordTx.send(userPassResetLinkReq, user);
+    try {
+      userPasswordTx.send(userPassResetLinkReq, user);
+    } catch (UserTokenAlreadyExistsException ex) {
+      if (build.getTest()) throw ex; // in test build surface the problem so tests can assert it
+      // On production fail silently to prevent email enumeration attack. Transaction was already rolled back,
+      // so no history event was stored and no email will be sent (email events fire only AFTER_COMMIT).
+    }
   }
 
   /**

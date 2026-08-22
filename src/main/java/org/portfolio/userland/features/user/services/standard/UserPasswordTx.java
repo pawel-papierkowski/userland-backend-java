@@ -23,18 +23,18 @@ public class UserPasswordTx extends BaseUserService {
   /**
    * Creates password reset token and (indirectly, via event) sends email with password reset link. User must be
    * already resolved (see {@link UserPasswordService#send}).
+   * <p>Note: if a valid password reset token already exists (also when lost against concurrent request), throws
+   * {@link org.portfolio.userland.features.user.exceptions.UserTokenAlreadyExistsException}. Whether this error is
+   * shown or silenced is decided by the caller, outside of transaction.</p>
    * @param userPassResetLinkReq User password reset request.
    * @param user Resolved user.
    */
   public void send(UserPassResetLinkReq userPassResetLinkReq, User user) {
     LocalDateTime nowAt = clockService.getNowUTC();
-    boolean result = ensureTokenDoesNotExist(nowAt, EnUserTokenType.PASSWORD, user, !build.getTest());
-    if (!result) return; // fail silently to prevent email enumeration attack
+    ensureTokenDoesNotExist(nowAt, EnUserTokenType.PASSWORD, user);
 
-    // Save token directly via repository.
-    UserToken token = createTokenData(nowAt, EnUserTokenType.PASSWORD);
-    token.setUser(user);
-    userTokenRepository.save(token);
+    // Save token atomically - guards also against concurrent creation of same token type.
+    UserToken token = persistNewToken(user, nowAt, EnUserTokenType.PASSWORD);
 
     addHistoryEvent(user, nowAt, EnUserHistoryWho.USER, EnUserHistoryWhat.PASS_RESET_REQ, "");
 
