@@ -5,6 +5,7 @@ import org.portfolio.userland.system.config.entities.Config;
 import org.portfolio.userland.system.config.exceptions.ConfigUnknownException;
 import org.portfolio.userland.system.config.repositories.ConfigRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
@@ -29,13 +30,14 @@ public class ConfigService {
   }
 
   /**
-   * Set configuration variable. Note: it must already exist.
+   * Set configuration variable. Note: it must already exist. The update itself is performed as a single atomic
+   * UPDATE statement, so concurrent writers cannot cause a lost update and no locking is needed.
    * @param name Name of configuration variable.
    * @param newValue New value of configuration variable.
    */
+  @Transactional
   public void set(String name, String newValue) {
-    Config configEntry = configRepository.findByName(name).orElseThrow(() -> new ConfigUnknownException(name));
-    configEntry.setValue(newValue);
-    configRepository.saveAndFlush(configEntry);
+    int updated = configRepository.updateValueByName(name, newValue);
+    if (updated == 0) throw new ConfigUnknownException(name);
   }
 }

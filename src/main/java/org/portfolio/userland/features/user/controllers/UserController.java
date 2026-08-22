@@ -95,7 +95,7 @@ public class UserController {
   }
 
   /**
-   * View user account.
+   * View user account for currently logged user.
    * @return Response with user and user profile data.
    */
   @GetMapping(value = "/view", produces = "application/json")
