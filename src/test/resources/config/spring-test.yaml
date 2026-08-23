@@ -4,6 +4,11 @@
 spring:
   main:
     lazy-initialization: false # enforce initializing all beans on startup, so any issue will show at start
+  datasource:
+    hikari:
+      # Tests inherit the small production pool (see /src/main/resources/config/spring.yaml), but race tests run
+      # multiple concurrent transactions, so give them a bigger pool to stay fast and deterministic.
+      maximum-pool-size: 10
   jpa:
     properties:
       hibernate:

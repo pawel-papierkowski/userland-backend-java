@@ -12,6 +12,16 @@ spring:
   mvc:
     problemdetails:
       enabled: true
+  datasource:
+    hikari:
+      # Pool is tuned for a portfolio deployment: near-zero traffic on a memory-constrained Cloud Run instance.
+      # HikariCP defaults (10 connections, minimum-idle = maximum) would eagerly hold 10 open connections:
+      # wasted container memory, slower cold starts (each DB handshake adds latency at boot), and idle load
+      # on the database itself. Per-request auth needs only 2 sequential indexed SELECTs, so even a single
+      # connection can serve a visitor; 4 leaves headroom for overlapping requests and scheduler ticks.
+      maximum-pool-size: 4
+      minimum-idle: 1 # keep exactly one warm connection so the first request is instant; rest created on demand
+      leak-detection-threshold: 60000 # log warning if a connection is held for more than 60s; dev-safety net only
   jpa:
     hibernate:
       ddl-auto: validate # never use 'update' or 'create', Flyway takes care of it
