@@ -45,6 +45,7 @@ This is a modern **Java 25**, **Spring Boot 4.1.0** application. The backend ser
     - `repositories/` - Spring Data JPA interfaces.
     - `schedulers/` - Any schedulers used in this domain.
     - `services/` - Core business logic. Classes here must be annotated with `@Service`. Services that need it may inherit directly or indirectly from `BaseService`.
+- `gcp/` - GCP-related code.
 - `swagger/` - Classes used for Swagger/OpenAPI documentation.
 - `system/` - System and supporting code. Unlike features above, these are used in any kind of project.
   - `auth/` - Handles authorization, JWT-related code and permissions.
@@ -107,7 +108,8 @@ This is a modern **Java 25**, **Spring Boot 4.1.0** application. The backend ser
 - Do not use Mockito `verify()` unless absolutely necessary; prefer testing actual state changes or return values.
 - Package structure: 
   - `test/` subpackage contains all classes that support testing:
-    - `base/` - All base test classes. Test classes inherit appropriate base test class.
+    - `base/` - All main base test classes. Inherited intermediate classes (still called `Base`, but specific to given feature) live in relevant features.
+      Actual test classes inherit appropriate intermediate test class.
     - `config/` - Configuration classes that are specific to tests only.
     - `helpers/`:
       - `asserts/` - Assert complex entities that cannot be simply asserted recursively all at once for technical reasons.

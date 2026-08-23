@@ -53,4 +53,12 @@ public class CheckService extends BaseService {
       throw new CheckInterruptedException(ex);
     }
   }
+
+  /**
+   * Throws exception.
+   */
+  public void throwException() {
+    // Deliberate generic exception instead of GeneralException subclass.
+    throw new IllegalArgumentException("This error message was caused deliberately (/api/checks/exception) and should not be visible externally.");
+  }
 }

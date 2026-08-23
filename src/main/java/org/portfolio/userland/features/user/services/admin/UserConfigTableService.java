@@ -6,6 +6,7 @@ import org.portfolio.userland.common.dto.EntryMetaResp;
 import org.portfolio.userland.common.dto.EntryOption;
 import org.portfolio.userland.common.dto.TableMetaReq;
 import org.portfolio.userland.common.exception.BadParamsException;
+import org.portfolio.userland.common.exception.ShouldNeverHappenException;
 import org.portfolio.userland.common.services.table.TableHelper;
 import org.portfolio.userland.features.user.dto.admin.config.UserConfigEditReq;
 import org.portfolio.userland.features.user.dto.admin.config.UserConfigTableEntry;
@@ -215,7 +216,7 @@ public class UserConfigTableService extends BaseUserService {
 
     if (userId == null) userId = configEntry.getUser().getId();
     CustomUserDetails userDetails = AuthHelper.resolveUserDetails();
-    if (userDetails == null) throw new IllegalStateException(); // Should not happen.
+    if (userDetails == null) throw new ShouldNeverHappenException("User details should exist!");
     if (userDetails.getId().equals(userId)) // We are not allowed to edit our own account.
       throw new UserCannotEditException(userId);
     return configEntry;

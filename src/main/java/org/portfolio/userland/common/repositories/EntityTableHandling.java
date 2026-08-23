@@ -7,6 +7,7 @@ import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
+import org.portfolio.userland.common.exception.ShouldNeverHappenException;
 import org.portfolio.userland.common.services.table.TableHelper;
 
 import java.lang.reflect.ParameterizedType;
@@ -47,7 +48,7 @@ public abstract class EntityTableHandling<R extends TableReq, E> {
 
       this.entityClass = resolvedClass;
     } else {
-      throw new IllegalStateException("Class must be parameterized");
+      throw new ShouldNeverHappenException("Class must be parameterized");
     }
   }
 

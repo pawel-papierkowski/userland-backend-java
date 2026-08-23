@@ -1,6 +1,7 @@
 package org.portfolio.userland.features.user.services.standard;
 
 import lombok.RequiredArgsConstructor;
+import org.portfolio.userland.common.exception.ShouldNeverHappenException;
 import org.portfolio.userland.features.user.entities.EnUserStatus;
 import org.portfolio.userland.features.user.entities.EnUserTokenType;
 import org.portfolio.userland.features.user.entities.User;
@@ -11,7 +12,6 @@ import org.portfolio.userland.features.user.exceptions.UserWrongPasswordExceptio
 import org.portfolio.userland.features.user.repositories.user.UserRepository;
 import org.portfolio.userland.system.auth.AuthHelper;
 import org.portfolio.userland.system.auth.details.CustomUserDetails;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -24,8 +24,8 @@ import java.time.LocalDateTime;
 @Service
 @RequiredArgsConstructor
 public class UserHelperService {
-  @Autowired
-  protected PasswordEncoder passwordEncoder;
+  private final PasswordEncoder passwordEncoder;
+  private final UserRepository userRepository;
 
   /** How long before activation token expires in hours. */
   @Value("${app.user.token.activation.expires}")
@@ -43,8 +43,6 @@ public class UserHelperService {
   /** How long before JWT token expires in minutes. It is default value, config specific to user can change it. */
   @Value("${security.jwt.expiration}")
   private long jwtExpiration;
-
-  private final UserRepository userRepository;
 
   //
 
@@ -145,7 +143,7 @@ public class UserHelperService {
     CustomUserDetails userDetails = AuthHelper.resolveUserDetails();
     if (userDetails == null) {
       if (failSilently) return null;
-      throw new IllegalStateException("User details should exist!");
+      throw new ShouldNeverHappenException("User details should exist!");
     }
     return userDetails;
   }
@@ -212,15 +210,6 @@ public class UserHelperService {
       case PASSWORD -> nowAt.plusMinutes(passwordResetTokenExpires);
       case DELETE -> nowAt.plusMinutes(deletionTokenExpires);
     };
-  }
-
-  /**
-   * Finds out when JWT expires.
-   * @param issuedAt Issue date&time of JWT.
-   * @return Expiration date&time.
-   */
-  public LocalDateTime resolveJwtExpiration(LocalDateTime issuedAt) {
-    return resolveJwtExpiration(issuedAt, null);
   }
 
   /**

@@ -6,7 +6,11 @@ import com.google.auth.oauth2.ServiceAccountCredentials;
 import com.google.auth.oauth2.UserCredentials;
 import com.google.cloud.tasks.v2.QueueName;
 import jakarta.annotation.PostConstruct;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.portfolio.userland.common.exception.GeneralException;
+import org.portfolio.userland.features.email.dto.EmailReq;
+import org.portfolio.userland.features.email.services.EmailService;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
@@ -16,14 +20,19 @@ import java.io.IOException;
  * General GCP service.
  */
 @Service
-@Lazy(false) // Overrides global lazy-initialization: true
+@RequiredArgsConstructor
+@Lazy(false) // Overrides global lazy-initialization: true, so init() is called as soon as possible.
 @Slf4j
 public class GcpService extends BaseGcpService {
+  private final EmailService emailService;
+
+  /**
+   * Make a dummy, lightweight network call to force DNS resolution and TCP/TLS handshakes BEFORE any user traffic hits
+   * the server.
+   */
   @PostConstruct
   public void init() {
     if (cloudTasksClient == null) return;
-    // Make a dummy, lightweight network call to force DNS resolution and TCP/TLS handshakes
-    // BEFORE any user traffic hits the server.
     try {
       debugGetCurrentAccount();
       String queuePath = QueueName.of(projectId, locationId, queueId).toString();
@@ -54,6 +63,31 @@ public class GcpService extends BaseGcpService {
     } else {
       log.debug("GCP currently running as an unknown credential type. Type of credential: {}.",
           credentials.getClass().getName());
+    }
+  }
+
+  //
+
+  /**
+   *
+   * Actually sends email. Available only to GCP Tasks.
+   * @param emailReq Email request.
+   * @return True if task succeeded, otherwise false.
+   */
+  public boolean processTaskEmailSend(EmailReq emailReq) {
+    log.trace("processTaskEmailSend(): Will try to send email to '{}'. Template: '{}'.",
+        emailReq.getRecipients(), emailReq.template());
+
+    try {
+      emailService.sendEmail(emailReq);
+      return true;
+    } catch (GeneralException ex) {
+      // Note: we must catch ALL domain exceptions here (even ones with 4xx status) - any non-5xx response would make
+      // Cloud Tasks delete the task and the email would be silently lost.
+      // Truly unexpected exceptions are not caught on purpose:
+      // GlobalExceptionHandler converts them into 500 anyway, which preserves retry semantics too.
+      log.error("Exception thrown!", ex);
+      return false;
     }
   }
 }

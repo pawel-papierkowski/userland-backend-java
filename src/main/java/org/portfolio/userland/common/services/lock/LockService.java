@@ -61,7 +61,7 @@ public class LockService {
   public ResponseEntity<Void> endpointWithLock(String lockName, Runnable task) {
     boolean result = runWithLock(lockName, task);
 
-    if (result) return new ResponseEntity<>(HttpStatus.OK);
+    if (result) return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     // The lock is currently held by something else (the scheduler, another manual call).
     return new ResponseEntity<>(HttpStatus.LOCKED); // HTTP 423
   }

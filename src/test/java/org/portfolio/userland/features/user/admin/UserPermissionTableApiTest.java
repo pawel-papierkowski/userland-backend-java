@@ -265,7 +265,7 @@ public class UserPermissionTableApiTest extends BaseUserTest {
         .andReturn();
 
     // Assert: API Response.
-    assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.OK.value());
+    assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.NO_CONTENT.value());
 
     // Assert: Database state.
     transactionTemplate.execute(_ -> {
@@ -305,7 +305,7 @@ public class UserPermissionTableApiTest extends BaseUserTest {
         .andReturn();
 
     // Assert: API Response.
-    assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.OK.value());
+    assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.NO_CONTENT.value());
 
     // Assert: Database state.
     transactionTemplate.execute(_ -> {
@@ -348,7 +348,7 @@ public class UserPermissionTableApiTest extends BaseUserTest {
         .andReturn();
 
     // Assert: API Response.
-    assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.OK.value());
+    assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.NO_CONTENT.value());
 
     // Assert: Database state.
     transactionTemplate.execute(_ -> {
@@ -377,7 +377,7 @@ public class UserPermissionTableApiTest extends BaseUserTest {
         .andReturn();
 
     // Assert: API Response.
-    assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.OK.value());
+    assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.NO_CONTENT.value());
 
     // Assert: Database state.
     transactionTemplate.execute(_ -> {

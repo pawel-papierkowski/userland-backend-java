@@ -25,7 +25,7 @@ public abstract class BaseCheckTest extends BaseIntegrationTest {
 
   @Override
   protected void cleanDatabase() {
-    super.cleanDatabase();
     userRepository.deleteAll(); // will remove everything from related tables too
+    super.cleanDatabase();
   }
 }

@@ -138,7 +138,7 @@ public class CheckController {
               schema = @Schema(implementation = InternalServerErrorProblemDetail.class)))
   })
   public ResponseEntity<Void> error() {
-    // Yes, this endpoint does nothing by itself.
-    throw new IllegalArgumentException("This error message was caused deliberately (/api/checks/exception) and should not be visible externally.");
+    checkService.throwException();
+    return new ResponseEntity<>(HttpStatus.OK);
   }
 }

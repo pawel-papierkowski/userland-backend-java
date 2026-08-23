@@ -2,6 +2,7 @@ package org.portfolio.userland.features.user.services.standard;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.portfolio.userland.common.exception.ShouldNeverHappenException;
 import org.portfolio.userland.features.user.constants.UserConfigConst;
 import org.portfolio.userland.features.user.dto.standard.login.UserProlongResp;
 import org.portfolio.userland.features.user.entities.User;
@@ -38,7 +39,7 @@ public class UserProlongService extends BaseUserService {
     CustomUserDetails customUserDetails = AuthHelper.resolveUserDetails();
     if (customUserDetails == null) {
       log.trace("Cannot prolong session, user not found.");
-      throw new IllegalStateException("User details should exist!");
+      throw new ShouldNeverHappenException("User details should exist!");
     }
 
     // Load user with fresh permissions (needed to rebuild perms claim in new token) and resolve config.

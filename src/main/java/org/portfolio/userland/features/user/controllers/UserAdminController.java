@@ -171,7 +171,7 @@ public class UserAdminController {
   @Operation(summary = "Add/update user config entry", description = "Add or update user config entry.")
   @ApiResponsesAuthPerm
   @ApiResponses(value = {
-      @ApiResponse(responseCode = "200", description = "Successfully updated user config entry.",
+      @ApiResponse(responseCode = "204", description = "Successfully updated user config entry.",
           content = @Content(schema = @Schema(hidden = true))),
       @ApiResponse(responseCode = "404", description = "User config entry with given id does not exist.",
           content = @Content(mediaType = "application/problem+json",
@@ -179,7 +179,7 @@ public class UserAdminController {
   })
   public ResponseEntity<Void> editUserConfigEntry(@Valid @RequestBody UserConfigEditReq editReq) {
     userConfigTableService.edit(editReq);
-    return new ResponseEntity<>(HttpStatus.OK);
+    return new ResponseEntity<>(HttpStatus.NO_CONTENT);
   }
 
   /**
@@ -192,7 +192,7 @@ public class UserAdminController {
   @Operation(summary = "Delete user config entry", description = "Delete user config entry.")
   @ApiResponsesAuthPerm
   @ApiResponses(value = {
-      @ApiResponse(responseCode = "200", description = "Successfully deleted user config entry.",
+      @ApiResponse(responseCode = "204", description = "Successfully deleted user config entry.",
           content = @Content(schema = @Schema(hidden = true))),
       @ApiResponse(responseCode = "404", description = "User config entry with given id does not exist.",
           content = @Content(mediaType = "application/problem+json",
@@ -200,7 +200,7 @@ public class UserAdminController {
   })
   public ResponseEntity<Void> deleteUserConfigEntry(@PathVariable Long id) {
     userConfigTableService.delete(id);
-    return new ResponseEntity<>(HttpStatus.OK);
+    return new ResponseEntity<>(HttpStatus.NO_CONTENT);
   }
 
   //
@@ -259,7 +259,7 @@ public class UserAdminController {
   @Operation(summary = "Add/update user permission entry", description = "Add or update user permission entry.")
   @ApiResponsesAuthPerm
   @ApiResponses(value = {
-      @ApiResponse(responseCode = "200", description = "Successfully updated user permission entry.",
+      @ApiResponse(responseCode = "204", description = "Successfully updated user permission entry.",
           content = @Content(schema = @Schema(hidden = true))),
       @ApiResponse(responseCode = "404", description = "User permission entry with given id does not exist.",
           content = @Content(mediaType = "application/problem+json",
@@ -270,7 +270,7 @@ public class UserAdminController {
   })
   public ResponseEntity<Void> editUserPermissionEntry(@Valid @RequestBody UserPermissionEditReq editReq) {
     userPermissionTableService.edit(editReq);
-    return new ResponseEntity<>(HttpStatus.OK);
+    return new ResponseEntity<>(HttpStatus.NO_CONTENT);
   }
 
   /**
@@ -283,7 +283,7 @@ public class UserAdminController {
   @Operation(summary = "Delete user permission entry", description = "Delete user permission entry.")
   @ApiResponsesAuthPerm
   @ApiResponses(value = {
-      @ApiResponse(responseCode = "200", description = "Successfully deleted user permission entry.",
+      @ApiResponse(responseCode = "204", description = "Successfully deleted user permission entry.",
           content = @Content(schema = @Schema(hidden = true))),
       @ApiResponse(responseCode = "404", description = "User permission entry with given id does not exist.",
           content = @Content(mediaType = "application/problem+json",
@@ -291,7 +291,7 @@ public class UserAdminController {
   })
   public ResponseEntity<Void> deleteUserPermissionEntry(@PathVariable Long id) {
     userPermissionTableService.delete(id);
-    return new ResponseEntity<>(HttpStatus.OK);
+    return new ResponseEntity<>(HttpStatus.NO_CONTENT);
   }
 
   //
