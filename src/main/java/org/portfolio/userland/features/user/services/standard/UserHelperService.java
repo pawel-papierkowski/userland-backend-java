@@ -99,22 +99,28 @@ public class UserHelperService {
   //
 
   /**
-   * Resolves user by user detail. In other words, user must be logged in. This version of call should be used for auth
-   * purposes.
+   * Resolves user by id and verifies user state. This version of call should be used for auth purposes when user
+   * is already authenticated (id comes from <code>CustomUserDetails</code>), as it avoids non-PK lookups.
+   * @param id User identificator.
    * @param failSilently If true, method will return null instead of throwing exception if user does not exist.
    * @return User or null if user could not be found.
    */
-  public User resolveAuthUser(boolean failSilently) {
-    CustomUserDetails userDetails = resolveUserDetails(failSilently);
-    if (userDetails == null) return null;
-    return resolveAuthUser(userDetails.getEmail(), failSilently);
+  public User resolveAuthUser(Long id, boolean failSilently) {
+    User user;
+
+    if (failSilently) user = userRepository.findAuthById(id).orElse(null);
+    else user = userRepository.findAuthById(id).orElseThrow(() -> new UserNotFoundException(id));
+    if (user == null) return null; // failed to find user
+
+    if (!verifyUser(user, failSilently)) return null;
+    return user;
   }
 
   /**
    * Resolves user by email and verifies user state. This version of call should be used for auth purposes.
    * @param email User email.
    * @param failSilently If true, method will return null instead of throwing exception if user with given email does
-   *                    not exist.
+   *                     not exist.
    * @return User or null if user could not be found.
    */
   public User resolveAuthUser(String email, boolean failSilently) {

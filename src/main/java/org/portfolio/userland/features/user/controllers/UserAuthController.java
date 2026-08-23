@@ -12,6 +12,7 @@ import org.portfolio.userland.features.user.dto.standard.login.UserLoginReq;
 import org.portfolio.userland.features.user.dto.standard.login.UserLoginResp;
 import org.portfolio.userland.features.user.dto.standard.login.UserProlongResp;
 import org.portfolio.userland.features.user.services.standard.UserLoginService;
+import org.portfolio.userland.features.user.services.standard.UserProlongService;
 import org.portfolio.userland.swagger.annotations.ApiResponsesAuth;
 import org.portfolio.userland.swagger.detail.common.ValidationProblemDetail;
 import org.portfolio.userland.swagger.detail.user.UserWrongPasswordProblemDetail;
@@ -37,6 +38,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "User Authentication", description = "Endpoints for login/logout.")
 public class UserAuthController {
   private final UserLoginService userLoginService;
+  private final UserProlongService userProlongService;
 
   /**
    * Log in user.
@@ -89,7 +91,7 @@ public class UserAuthController {
           content = @Content(schema = @Schema(hidden = true)))
   })
   public ResponseEntity<UserProlongResp> prolong() {
-    UserProlongResp resp = userLoginService.prolong();
+    UserProlongResp resp = userProlongService.prolong();
     return new ResponseEntity<>(resp, HttpStatus.OK);
   }
 }

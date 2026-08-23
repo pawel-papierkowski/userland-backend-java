@@ -46,6 +46,20 @@ public interface UserRepository extends JpaRepository<User, Long>, UserCustomRep
   //
 
   /**
+   * Find user by id for authorization purposes. Eagerly loads permissions, as these are always needed during
+   * authorization (e.g. rebuilding <code>perms</code> claim on session prolongation).
+   * @param id User identificator.
+   * @return User or empty optional.
+   */
+  @EntityGraph(attributePaths = {
+      "permissions",
+      "permissions.permission"
+  })
+  Optional<User> findAuthById(Long id);
+
+  //
+
+  /**
    * Find only authorization state of user by email (id, status, locked). Deliberately avoids loading permissions
    * and other data, as <code>JwtAuthFilter</code> needs just the state on every request - permissions are taken
    * from signed JWT claims.
