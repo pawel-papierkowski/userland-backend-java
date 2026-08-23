@@ -70,8 +70,8 @@ public class UserFactory extends BaseFactory {
   public User genUserLogged(Map<String, String> permissions) {
     User user = genBaseUser(EnUserStatus.ACTIVE);
     modifyStatus(user);
-    modifyLogged(user);
     addPermissions(user, permissions);
+    modifyLogged(user); // Must be last.
     return user;
   }
 
@@ -132,8 +132,8 @@ public class UserFactory extends BaseFactory {
   public User genRandUserLogged(Map<String, String> permissions) {
     User randomUser = genBaseRandUser(EnUserStatus.ACTIVE);
     modifyStatus(randomUser);
-    modifyLogged(randomUser);
     addPermissions(randomUser, permissions);
+    modifyLogged(randomUser); // Must be last.
     return randomUser;
   }
 
@@ -178,16 +178,6 @@ public class UserFactory extends BaseFactory {
   }
 
   /**
-   * Modify user to be logged in.
-   * @param user User to modify.
-   */
-  private void modifyLogged(User user) {
-    userHistoryFactory.genHistoryEvent(user, EnUserHistoryWho.USER, EnUserHistoryWhat.LOGIN, "");
-    String token = jwtService.generateToken(user);
-    userJwtFactory.genJwtEntry(user, token);
-  }
-
-  /**
    * Add given permissions to user.
    * @param user User to modify.
    */
@@ -206,5 +196,15 @@ public class UserFactory extends BaseFactory {
   private void addPermission(User user, String permName, String permValue) {
     Permission permissionRole = permissionRepository.findByName(permName).orElseThrow();
     userPermissionFactory.genPermissionEntry(user, permissionRole, permValue);
+  }
+
+  /**
+   * Modify user to be logged in. Requires permissions to be already in, as they are used in generation of JWT.
+   * @param user User to modify.
+   */
+  private void modifyLogged(User user) {
+    userHistoryFactory.genHistoryEvent(user, EnUserHistoryWho.USER, EnUserHistoryWhat.LOGIN, "");
+    String token = jwtService.generateToken(user);
+    userJwtFactory.genJwtEntry(user, token);
   }
 }

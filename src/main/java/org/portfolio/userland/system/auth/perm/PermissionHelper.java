@@ -35,6 +35,35 @@ public class PermissionHelper {
   }
 
   /**
+   * Map permissions from JWT <code>perms</code> claim back to authorities. This is reverse of
+   * {@link #resolvePermissions(User)} followed by {@link #resolveAuthorities(Set)}.
+   * <p>Example: claim entry <code>"role" -> "admin,operator"</code> will result in <code>ROLE_ADMIN</code> and
+   * <code>ROLE_OPERATOR</code>.</p>
+   * <p>Note: it is safe to use claims as source of authorities because the JWT is signed - the client cannot modify
+   * claims without invalidating the signature.</p>
+   * @param permsClaim Permissions as stored in <code>perms</code> claim.
+   * @return Spring Authorities.
+   */
+  public static Collection<? extends GrantedAuthority> resolveAuthoritiesFromClaim(Map<?, ?> permsClaim) {
+    if (permsClaim == null) return List.of();
+
+    List<SimpleGrantedAuthority> authorities = new ArrayList<>();
+    for (Map.Entry<?, ?> entry : permsClaim.entrySet()) {
+      String permissionName = String.valueOf(entry.getKey());
+      String permValues = entry.getValue() == null ? "" : entry.getValue().toString();
+      for (String permValue : permValues.split(",")) {
+        if (StringUtils.isBlank(permValue)) continue;
+        authorities.add(new SimpleGrantedAuthority(permissionName.toUpperCase()
+            + "_" + permValue.trim().toUpperCase()));
+      }
+    }
+
+    return authorities.stream()
+        .sorted(Comparator.comparing(GrantedAuthority::getAuthority)) // sorted by natural key required by UserDetail
+        .toList();
+  }
+
+  /**
    * Map user permissions. Key is name of permission, value is permission values separated by comma. Values are sorted.
    * <p>Example: name <code>role</code> and permissions <code>operator</code>, <code>admin</code> will be saved as
    * <code>"role" -> "admin,operator"</code>.</p>

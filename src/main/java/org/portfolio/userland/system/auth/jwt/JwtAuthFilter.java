@@ -1,5 +1,6 @@
 package org.portfolio.userland.system.auth.jwt;
 
+import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -7,6 +8,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.portfolio.userland.config.security.SecurityConfig;
 import org.portfolio.userland.config.security.constants.EndpointConst;
 import org.portfolio.userland.features.user.repositories.jwt.UserJwtRepository;
@@ -106,13 +108,13 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
     // Extract the token (everything after HEADER_TOKEN_PREFIX).
     final String token = authHeader.substring(HEADER_TOKEN_PREFIX_LENGTH);
-    log.trace("Token found: {}", token);
 
-    final String email;
+    // Parse the token once. This verifies signature and expiration at the same time.
+    final Claims claims;
     try {
-      email = jwtService.extractEmail(token);
+      claims = jwtService.extractAllClaims(token);
     } catch (Exception ex) { // Important to catch exception here!
-      // If it's a public endpoint, ignore the JWT failure and proceed without authentication.
+      // If it's a public endpoint, ignore the JWT failure and proceed without authentication (as if JWT was never supplied).
       if (publicEndpointsMatcher.matches(request)) {
         log.trace("Token is malformed or expired, but endpoint is public.");
         filterChain.doFilter(request, response);
@@ -124,26 +126,16 @@ public class JwtAuthFilter extends OncePerRequestFilter {
       return;
     }
 
-    // No email, something went wrong.
-    if (email == null) {
-      log.trace("Something went wrong when trying to use token.");
-      filterChain.doFilter(request, response); // Continue the filter chain.
-      return;
-    }
-
-    // Load user details from database based on email, as email uniquely identifies user.
-    CustomUserDetails customUserDetails = customUserDetailsService.loadUserByUsername(email);
+    // Build user details from signed token claims (permissions) and slim user state from database.
+    CustomUserDetails customUserDetails = customUserDetailsService.loadFromToken(claims);
     if (!verifyCustomUser(customUserDetails, token)) {
       log.trace("Failed to verify custom user details.");
       filterChain.doFilter(request, response); // Continue the filter chain.
       return;
     }
 
-    // Validate the token against the loaded user.
-    if (jwtService.isTokenValid(token, customUserDetails.getEmail())) {
-      setupAuth(request, customUserDetails);
-      log.trace("Successfully authenticated user: {}.", customUserDetails.getEmail());
-    }
+    setupAuth(request, customUserDetails);
+    log.trace("Successfully authenticated user: {}.", customUserDetails.getEmail());
     filterChain.doFilter(request, response); // Continue the filter chain.
   }
 
@@ -170,7 +162,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
   /**
    * Actually set up authentification. Finally.
    * @param request Request.
-   * @param customUserDetails Custom user details resolved from token string and database user.
+   * @param customUserDetails Custom user details resolved from token claims and database user state.
    */
   private void setupAuth(HttpServletRequest request, CustomUserDetails customUserDetails) {
     // Create the authentication token containing the user, no credentials (already validated), and their roles.
@@ -190,13 +182,15 @@ public class JwtAuthFilter extends OncePerRequestFilter {
   // //////////////////////////////////////////////////////////////////////////
 
   /**
-   * Verify if user can be logged in.
-   * @param customUserDetails Custom user details.
+   * Verify if user can be authenticated. Note: token signature and expiration were already verified during parsing.
+   * @param customUserDetails Custom user details resolved from token claims. Can be null if user was not found.
    * @param jwtStr Token string for JWT.
-   * @return True if user can be logged in, otherwise false.
+   * @return True if user can be authenticated, otherwise false.
    */
-  private boolean verifyCustomUser(CustomUserDetails customUserDetails, String jwtStr) {
-    // Check if JWT is present in database (not revoked).
+  private boolean verifyCustomUser(@Nullable CustomUserDetails customUserDetails, String jwtStr) {
+    // Details could not be built (user does not exist).
+    if (customUserDetails == null) return false;
+    // Check if JWT is present in database (not revoked). This is what makes logout/revocation instant.
     if (!userJwtRepository.existsByToken(jwtStr)) return false;
     // Other checks.
     return customUserDetails.getActive() && !customUserDetails.getLocked();

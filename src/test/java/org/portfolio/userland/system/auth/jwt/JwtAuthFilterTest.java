@@ -1,5 +1,6 @@
 package org.portfolio.userland.system.auth.jwt;
 
+import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -11,6 +12,7 @@ import org.portfolio.userland.system.auth.jwt.exceptions.InvalidBearerTokenExcep
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
 import org.springframework.security.web.util.matcher.OrRequestMatcher;
@@ -71,14 +73,18 @@ public class JwtAuthFilterTest {
     MockHttpServletResponse response = new MockHttpServletResponse();
     FilterChain filterChain = mock(FilterChain.class);
 
-    // Arrange: Mock services.
+    // Arrange: Mock services. Note claims are verified during parsing (signature & expiration),
+    // authorities come from signed token claims.
     String email = "testuser@example.com";
-    CustomUserDetails customUserDetails = new CustomUserDetails(1L, true, false, "Jan Kowalski", email, null);
+    Claims claims = mock(Claims.class);
+    when(claims.getSubject()).thenReturn(email);
+    CustomUserDetails customUserDetails = new CustomUserDetails(
+        1L, true, false, "Jan Kowalski", email,
+        List.of(new SimpleGrantedAuthority("ROLE_ADMIN"), new SimpleGrantedAuthority("USER_VIEW")));
 
     when(userJwtRepository.existsByToken(TOKEN_VALID)).thenReturn(true);
-    when(jwtService.extractEmail(TOKEN_VALID)).thenReturn(email);
-    when(jwtService.isTokenValid(TOKEN_VALID, customUserDetails.getEmail())).thenReturn(true);
-    when(customUserDetailsService.loadUserByUsername(email)).thenReturn(customUserDetails);
+    when(jwtService.extractAllClaims(TOKEN_VALID)).thenReturn(claims);
+    when(customUserDetailsService.loadFromToken(claims)).thenReturn(customUserDetails);
 
     // Act: Execute the filter.
     jwtAuthFilter.doFilterInternal(request, response, filterChain);
@@ -89,7 +95,7 @@ public class JwtAuthFilterTest {
     assertThat(authentication.isAuthenticated()).as("User should be authenticated").isTrue();
     assertThat(authentication.getPrincipal()).as("Principal should be instance of CustomUserDetails").isInstanceOf(CustomUserDetails.class);
 
-    // Assert the principal is our CustomUserDetails.
+    // Assert the principal is our CustomUserDetails with authorities resolved from token claims.
     CustomUserDetails principal = (CustomUserDetails) authentication.getPrincipal();
     assertThat(principal).isNotNull();
     assertThat(principal.getId()).isEqualTo(1L);
@@ -97,12 +103,11 @@ public class JwtAuthFilterTest {
     assertThat(principal.getLocked()).isFalse();
     assertThat(principal.getUsername()).isEqualTo("Jan Kowalski");
     assertThat(principal.getEmail()).isEqualTo(email);
-    assertThat(principal.getAuthorities()).isEqualTo(List.of());
+    assertThat(principal.getAuthorities()).isEqualTo(customUserDetails.getAuthorities());
 
     verify(userJwtRepository).existsByToken(TOKEN_VALID);
-    verify(jwtService).extractEmail(TOKEN_VALID);
-    verify(customUserDetailsService).loadUserByUsername(email);
-    verify(jwtService).isTokenValid(TOKEN_VALID, email);
+    verify(jwtService).extractAllClaims(TOKEN_VALID);
+    verify(customUserDetailsService).loadFromToken(claims);
     verifyNoInteractions(handlerExceptionResolver);
   }
 
@@ -128,6 +133,8 @@ public class JwtAuthFilterTest {
 
   @Test
   void malformedTokenOnProtectedEndpoint() throws Exception {
+    // Check behavior when we supply bad token.
+
     // Arrange: setup everything needed for filter execution.
     MockHttpServletRequest request = new MockHttpServletRequest();
     request.setRequestURI("/api/protected/resource"); // Use a protected endpoint.
@@ -135,7 +142,7 @@ public class JwtAuthFilterTest {
     MockHttpServletResponse response = new MockHttpServletResponse();
     FilterChain filterChain = mock(FilterChain.class);
 
-    when(jwtService.extractEmail(TOKEN_BAD)).thenThrow(new RuntimeException("Malformed JWT"));
+    when(jwtService.extractAllClaims(TOKEN_BAD)).thenThrow(new RuntimeException("Malformed JWT"));
 
     // Act: Execute the filter.
     jwtAuthFilter.doFilterInternal(request, response, filterChain);
@@ -146,8 +153,8 @@ public class JwtAuthFilterTest {
         .isNull();
 
     // Assert: Exception happened.
-    verify(jwtService).extractEmail(TOKEN_BAD);
-    verify(customUserDetailsService, never()).loadUserByUsername(any());
+    verify(jwtService).extractAllClaims(TOKEN_BAD);
+    verify(customUserDetailsService, never()).loadFromToken(any());
     verify(handlerExceptionResolver).resolveException(
         eq(request),
         eq(response),
@@ -160,6 +167,8 @@ public class JwtAuthFilterTest {
 
   @Test
   void malformedTokenOnPublicEndpoint() throws Exception {
+    // Public endpoint should work with malformed token - token is just ignored, as if you are not logged.
+
     // Arrange: setup everything needed for filter execution.
     MockHttpServletRequest request = new MockHttpServletRequest();
     request.setRequestURI(EndpointConst.PUBLIC[0]); // Use a public endpoint.
@@ -167,7 +176,7 @@ public class JwtAuthFilterTest {
     MockHttpServletResponse response = new MockHttpServletResponse();
     FilterChain filterChain = mock(FilterChain.class);
 
-    when(jwtService.extractEmail(TOKEN_BAD)).thenThrow(new RuntimeException("Malformed JWT"));
+    when(jwtService.extractAllClaims(TOKEN_BAD)).thenThrow(new RuntimeException("Malformed JWT"));
 
     // Act: Execute the filter.
     jwtAuthFilter.doFilterInternal(request, response, filterChain);
@@ -177,11 +186,69 @@ public class JwtAuthFilterTest {
         .as("Authentication should not be created for malformed token on public endpoint")
         .isNull();
 
-    verify(jwtService).extractEmail(TOKEN_BAD);
-    verify(customUserDetailsService, never()).loadUserByUsername(any());
+    verify(jwtService).extractAllClaims(TOKEN_BAD);
+    verify(customUserDetailsService, never()).loadFromToken(any());
     // Assert: The handlerExceptionResolver should NOT be called for public endpoints with malformed tokens
     verifyNoInteractions(handlerExceptionResolver);
     // Assert: The filter chain should continue.
+    verify(filterChain, times(1)).doFilter(request, response);
+  }
+
+  //
+
+  @Test
+  void revokedTokenIsRejected() throws Exception {
+    // Arrange: Token parses fine, but its entry was deleted from database (logout/revocation).
+
+    // Arrange: Setup state where token is good, but was revoked.
+    MockHttpServletRequest request = new MockHttpServletRequest();
+    request.setRequestURI("/api/protected/resource");
+    request.addHeader("Authorization", "Bearer " + TOKEN_VALID);
+    MockHttpServletResponse response = new MockHttpServletResponse();
+    FilterChain filterChain = mock(FilterChain.class);
+
+    String email = "testuser@example.com";
+    Claims claims = mock(Claims.class);
+    when(claims.getSubject()).thenReturn(email);
+    CustomUserDetails customUserDetails = new CustomUserDetails(1L, true, false, "Jan Kowalski", email, null);
+
+    when(userJwtRepository.existsByToken(TOKEN_VALID)).thenReturn(false);
+    when(jwtService.extractAllClaims(TOKEN_VALID)).thenReturn(claims);
+    when(customUserDetailsService.loadFromToken(claims)).thenReturn(customUserDetails);
+
+    // Act: Execute the filter.
+    jwtAuthFilter.doFilterInternal(request, response, filterChain);
+
+    // Assert: No authentication created - revocation check must win over valid signature.
+    assertThat(SecurityContextHolder.getContext().getAuthentication())
+        .as("Authentication should not be created for revoked token")
+        .isNull();
+    verify(filterChain, times(1)).doFilter(request, response);
+  }
+
+  @Test
+  void unknownUserIsRejected() throws Exception {
+    // Token parses fine, but user does not exist anymore.
+
+    // Arrange: Setup state where token is good, but user is gone.
+    MockHttpServletRequest request = new MockHttpServletRequest();
+    request.setRequestURI("/api/protected/resource");
+    request.addHeader("Authorization", "Bearer " + TOKEN_VALID);
+    MockHttpServletResponse response = new MockHttpServletResponse();
+    FilterChain filterChain = mock(FilterChain.class);
+
+    Claims claims = mock(Claims.class);
+    when(jwtService.extractAllClaims(TOKEN_VALID)).thenReturn(claims);
+    when(customUserDetailsService.loadFromToken(claims)).thenReturn(null);
+
+    // Act: Execute the filter.
+    jwtAuthFilter.doFilterInternal(request, response, filterChain);
+
+    // Assert: No authentication created.
+    assertThat(SecurityContextHolder.getContext().getAuthentication())
+        .as("Authentication should not be created for non-existing user")
+        .isNull();
+    verify(userJwtRepository, never()).existsByToken(any());
     verify(filterChain, times(1)).doFilter(request, response);
   }
 }

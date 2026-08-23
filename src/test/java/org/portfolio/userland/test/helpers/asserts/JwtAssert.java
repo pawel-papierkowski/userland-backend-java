@@ -23,7 +23,6 @@ public class JwtAssert {
    * @param expectedClaimMap Expected claims.
    */
   public void assertIt(String jwt, String email, Map<String, Object> expectedClaimMap) {
-    assertThat(jwtService.isTokenValid(jwt, email)).as("Token must be valid").isTrue();
     Map<String, Object> actualClaimMap = jwtService.extractAllClaims(jwt);
     assertThat(actualClaimMap).as("Claim map is invalid").isEqualTo(expectedClaimMap);
   }

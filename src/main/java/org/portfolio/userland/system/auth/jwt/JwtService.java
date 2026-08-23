@@ -2,7 +2,6 @@ package org.portfolio.userland.system.auth.jwt;
 
 import com.google.common.collect.Maps;
 import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.JwtParser;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
@@ -21,10 +20,8 @@ import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.Date;
 import java.util.Map;
-import java.util.function.Function;
 
 /**
  * Handles JWT tokens.
@@ -130,36 +127,6 @@ public class JwtService extends BaseService {
   //
 
   /**
-   * Checks if the token is valid by verifying the email matches, and it's not expired.
-   * @param token JWT token.
-   * @param email Email.
-   * @return True if token is valid, otherwise false.
-   */
-  public boolean isTokenValid(String token, String email) {
-    try {
-      final String emailInToken = extractEmail(token);
-      return (emailInToken.equals(email)) && !isTokenExpired(token);
-    } catch (JwtException | IllegalArgumentException ex) {
-      // Token is malformed, expired, or signature is invalid.
-      return false;
-    }
-  }
-
-  /**
-   * Checks if JWT token is expired.
-   * @param token JWT token.
-   * @return True if token is expired, otherwise false.
-   */
-  private boolean isTokenExpired(String token) {
-    LocalDateTime nowAt = clockService.getNowUTC();
-    Date nowDate = Date.from(nowAt.atZone(ZoneId.systemDefault()).toInstant());
-    Date extractedDate = extractClaim(token, Claims::getExpiration);
-    return extractedDate.before(nowDate);
-  }
-
-  //
-
-  /**
    * Parses the token and returns all claims.
    * If the token is invalid or expired, this will throw a JwtException.
    * @param token JWT token.
@@ -169,25 +136,5 @@ public class JwtService extends BaseService {
     return jwtParser
         .parseSignedClaims(token)
         .getPayload();
-  }
-
-  /**
-   * Generic method to extract a specific claim from the token payload.
-   * @param token JWT token.
-   * @param claimsResolver Claim to get.
-   * @return Value from claimsResolver.
-   */
-  private <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
-    final Claims claims = extractAllClaims(token);
-    return claimsResolver.apply(claims);
-  }
-
-  /**
-   * Extract email claim from the token payload.
-   * @param token JWT token.
-   * @return Email.
-   */
-  public String extractEmail(String token) {
-    return extractClaim(token, Claims::getSubject);
   }
 }

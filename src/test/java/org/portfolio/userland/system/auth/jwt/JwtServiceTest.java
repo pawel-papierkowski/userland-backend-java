@@ -43,17 +43,15 @@ public class JwtServiceTest extends BaseUserTest {
 
     // Arrange: Create a real user and token for that user.
     User user = userRepository.save(userFactory.genRandUser(EnUserStatus.ACTIVE));
-    String token = jwtService.generateToken(user); // default expiration
 
-    // Act: Check if token is valid.
-    boolean isValid = jwtService.isTokenValid(token, user.getEmail());
+    // Act: Generate token.
+    String token = jwtService.generateToken(user); // default expiration
 
     // prepare data
     long iat = 1775815500L; // fixed time
     long exp = iat + jwtExpiration*60L; // default expiration period
 
     // Assert: Validity and claims of token.
-    assertThat(isValid).as("Token must be valid").isTrue();
     Map<String, Object> actualClaimMap = jwtService.extractAllClaims(token);
     Map<String, Object> expectedClaimMap = Maps.newHashMap();
     expectedClaimMap.put(JwtClaims.ISSUED, iat); // issued
@@ -70,17 +68,15 @@ public class JwtServiceTest extends BaseUserTest {
 
     // Arrange: Create a real user and token for that user.
     User user = userRepository.save(userFactory.genRandUser(EnUserStatus.ACTIVE));
-    String token = jwtService.generateToken(user, 60L); // only one hour
 
-    // Act: Check if token is valid.
-    boolean isValid = jwtService.isTokenValid(token, user.getEmail());
+    // Act: Generate token.
+    String token = jwtService.generateToken(user, 60L); // only one hour
 
     // prepare data
     long iat = 1775815500L; // fixed time
     long exp = iat + 3600L; // 60 minutes later as specified in custom expiration
 
     // Assert: Validity and claims of token.
-    assertThat(isValid).as("Token must be valid").isTrue();
     Map<String, Object> actualClaimMap = jwtService.extractAllClaims(token);
     Map<String, Object> expectedClaimMap = Maps.newHashMap();
     expectedClaimMap.put(JwtClaims.ISSUED, iat); // issued
@@ -102,17 +98,15 @@ public class JwtServiceTest extends BaseUserTest {
     userPermissionFactory.genPermissionEntry(user, permUser, "edit");
     userPermissionFactory.genPermissionEntry(user, permRole, "admin"); // note two perms for same role
     userPermissionFactory.genPermissionEntry(user, permRole, "operator");
-    String token = jwtService.generateToken(user); // default expiration
 
-    // Act: Check if token is valid.
-    boolean isValid = jwtService.isTokenValid(token, user.getEmail());
+    // Act: Generate token.
+    String token = jwtService.generateToken(user); // default expiration
 
     // prepare data
     long iat = 1775815500L; // fixed time
     long exp = iat + jwtExpiration*60L; // default expiration period
 
     // Assert: Validity and claims of token.
-    assertThat(isValid).as("Token must be valid").isTrue();
     Map<String, Object> actualClaimMap = jwtService.extractAllClaims(token);
     Map<String, Object> expectedClaimMap = Maps.newHashMap();
     expectedClaimMap.put(JwtClaims.ISSUED, iat); // issued

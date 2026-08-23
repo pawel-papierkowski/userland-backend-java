@@ -18,6 +18,19 @@ Used IDE: **IntelliJ IDEA**
 - Locally run server: http://localhost:8080/
 - Link to source code: https://github.com/pawel-papierkowski/userland-backend-java
 
+### Deployment
+
+This app uses (free tier for all of these):
+- **Google Cloud**:
+  - **Run** for backend hosting.
+  - **Tasks** for email send requests hosting. Note: in local development emails are sent as is without using Cloud Tasks.
+- **Aiven** for PostgreSQL database hosting.
+- **Resend** (or `JavaMailSender`) for email services.
+
+**UserLand** app is deployed via **GitHub Actions**.
+
+UserLand uses *support@pawelpapierkowski.net.pl* address as sender in emails sent by system.
+
 ### Functionality
 
 This project fully manages user. This is where name **UserLand** comes from.
@@ -50,11 +63,20 @@ You can think of it as baseline for other projects, as almost any project, syste
   - **Debug endpoints** `/api/checks/*` that allow testing various scenarios (access without/with authentication, error handling etc.) for frontend development. 
   - Sending **emails** (JavaMailSender or Resend).
 
-### Notes
+### Design notes
 
+- All date/time fields are **without timezone**. Frontend should convert it properly to show date/time on screen in local timezone.
+- **Kafka** was considered for demonstration purposes (email retries), but not used since it won't work well with restrictions typical of Google Cloud free tier, where this project lives. GCP is serverless, but Kafka would require system to be up at all times. So I decided on **GCP Cloud Tasks**.
 - While this portfolio project exists as single-instance on throttled GCP (or locally), it is written with multiple instances in mind:
   - We use `ShedLock` to ensure no issues with many identical shedulers running at once.
   - Cache life is short, so cache eviction on instance A will not cause stale results on instance B for too long.
+
+### Security
+- System uses JWT for all API requests that require security (for example, some endpoints require admin panel access permissions).
+- Every user has `iam.user_permissions` and `iam.jwt` subtables.
+  - System generates JWT tokens with embedded permissions on login/prolong. JWT is persisted in database.
+  - Backend verifies JWT in request against JWT in database, so token revocation with immediate effect is possible.
+  - Permission changes via admin panel revoke all JWTs for given user, forcing them to re-log.
 
 ## GitHub config
 
@@ -117,7 +139,7 @@ You need to configure environment variables for your run configuration. Most var
   - If you want to use real database (like local PostgreSQL) instead of database in container, add in run config:
     - `SPRING_DATASOURCE_URL`=jdbc:postgresql://[URL]
     - `SPRING_DATASOURCE_USERNAME`=[NAME OF POSTGRESQL ACCOUNT]
-    - `SPRING_DATASOURCE_PASSWORD`=[YOUR PASSWORD]
+    - `SPRING_DATASOURCE_PASSWORD`=[YOUR PASSWORD FOR ACCOUNT ABOVE]
     - `SPRING_DOCKER_COMPOSE_ENABLED`=false
 
 ## Testing
@@ -140,24 +162,6 @@ For informative coverage you need to configure your coverage tool. In particular
 - All classes that have names ending in `Exception`.
 
 This project uses **JaCoCo**. It is already configured in `pom.xml`.
-
-## Deployment
-
-This app uses (free tier for all of these):
-- **Google Cloud**:
-  - **Run** for backend hosting.
-  - **Tasks** for email send requests hosting. Note: in local development emails are sent as is without using Cloud Tasks.
-- **Aiven** for PostgreSQL database hosting.
-- **Resend** (or `JavaMailSender`) for email services.
-
-**UserLand** app is deployed via **GitHub Actions**.
-
-UserLand uses *support@pawelpapierkowski.net.pl* address as sender in emails sent by system.
-
-## Design notes
-
-- All date/time fields are **without timezone**. Frontend should convert it properly to show date/time on screen in local timezone.
-- **Kafka** was considered for demonstration purposes (email retries), but not used since it won't work well with restrictions typical of Google Cloud free tier, where this project lives. GCP is serverless, but Kafka would require system to be up at all times. So I decided on **GCP Cloud Tasks**. 
 
 ## Endpoints
 

@@ -46,6 +46,19 @@ public interface UserRepository extends JpaRepository<User, Long>, UserCustomRep
   //
 
   /**
+   * Find only authorization state of user by email (id, status, locked). Deliberately avoids loading permissions
+   * and other data, as <code>JwtAuthFilter</code> needs just the state on every request - permissions are taken
+   * from signed JWT claims.
+   * @param email Email.
+   * @return Authorization state or empty optional.
+   */
+  @Query("SELECT new org.portfolio.userland.features.user.repositories.user.UserAuthState(u.id, u.status, u.locked) "
+      + "FROM User u WHERE u.email = :email")
+  Optional<UserAuthState> findAuthStateByEmail(@Param("email") String email);
+
+  //
+
+  /**
    * Delete all pending users that are too old.
    * @param cutoffDateAt Cutoff date.
    * @return Count of removed users.

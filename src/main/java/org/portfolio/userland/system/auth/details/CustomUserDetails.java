@@ -69,7 +69,9 @@ public class CustomUserDetails implements UserDetails {
   }
 
   /**
-   * Constructor used only by tests for mock purposes.
+   * Constructor used by <code>JwtAuthFilter</code> to build details from signed JWT claims combined with user state
+   * loaded from database. Permissions are intentionally taken from token claims, not database.
+   * Also used by tests for mock purposes.
    * @param id User identificator.
    * @param active Is this user active?
    * @param locked Is this user locked?
