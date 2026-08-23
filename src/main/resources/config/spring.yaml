@@ -4,6 +4,11 @@ spring:
   main:
     banner-mode: off # banner will screw with gcp logging
     lazy-initialization: true # will create beans only when actually needed, shortening boot time
+  autoconfigure:
+    exclude:
+      # By default, Spring registers ServerHttpObservationFilter which records per-request observations.
+      # Observations are disabled (see config.ObservationConfig), so this filter would be pure overhead on every request.
+      - org.springframework.boot.webmvc.autoconfigure.WebMvcObservationAutoConfiguration
   mvc:
     problemdetails:
       enabled: true
@@ -39,7 +44,7 @@ management:
   endpoints:
     web:
       exposure: # ONLY expose these specific, safe endpoints
-        include: "health,info,metrics,prometheus,mappings"
+        include: "health,info,metrics"
   info:
     env:
       enabled: true # Allows the /actuator/info endpoint to show environment details
