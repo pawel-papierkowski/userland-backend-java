@@ -1,6 +1,7 @@
 package org.portfolio.userland.system.lockdown.dto;
 
 import lombok.Getter;
+import org.portfolio.userland.common.exception.ShouldNeverHappenException;
 
 /**
  * State of system lockdown.
@@ -32,7 +33,7 @@ public enum EnSystemLockdownState {
     return switch (stateStr) {
       case "0" -> EnSystemLockdownState.OFF;
       case "1" -> EnSystemLockdownState.ON;
-      default -> throw new IllegalArgumentException("'"+stateStr+"' is not known value for EnSystemLockdownState.");
+      default -> throw new ShouldNeverHappenException("'"+stateStr+"' is not known value for EnSystemLockdownState.");
     };
   }
 }

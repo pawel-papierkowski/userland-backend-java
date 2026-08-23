@@ -22,7 +22,7 @@ public abstract class GeneralException extends RuntimeException {
 
   /**
    * Title of problem. It should be short summary that is same for all occurrences of same error.
-   * Note it will be visible to user and thus should be inter18zed.
+   * Note it might be visible to user.
    * @return Title.
    */
   public String getTitle() {
@@ -31,7 +31,7 @@ public abstract class GeneralException extends RuntimeException {
 
   /**
    * Description of problem specific to that occurrence of the error. By default, returns exception message.
-   * Note it will be visible to user and thus should be inter18zed.
+   * Note it might be visible to user.
    * @return Detail.
    */
   public String getDetail() {

@@ -1,7 +1,7 @@
 package org.portfolio.userland.system.auth.jwt;
 
 import com.google.common.collect.Maps;
-import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.portfolio.userland.features.user.BaseUserTest;
 import org.portfolio.userland.features.user.entities.EnUserStatus;
@@ -30,7 +30,7 @@ public class JwtServiceTest extends BaseUserTest {
   @Value("${security.jwt.expiration}")
   private long jwtExpiration;
 
-  @AfterEach
+  @BeforeEach
   public void tearDown() {
     resetDatabase();
   }

@@ -105,7 +105,7 @@ public class UserMaintenanceController {
   @ApiResponsesAuthPerm
   @Operation(summary = "Cleanup of expired JWTs", description = "Remove all JWTs that are too old.")
   @ApiResponses(value = {
-      @ApiResponse(responseCode = "200", description = "Successfully started cleanup.",
+      @ApiResponse(responseCode = "204", description = "Successfully started cleanup.",
           content = @Content(schema = @Schema(hidden = true))),
       @ApiResponse(responseCode = "423", description = "Locked: same code is still running.",
           content = @Content(mediaType = "application/problem+json",

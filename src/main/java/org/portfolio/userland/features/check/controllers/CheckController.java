@@ -113,6 +113,7 @@ public class CheckController {
    * Does pretend work.
    * @return Response.
    */
+  @HasAdminPermission
   @GetMapping(value = "/pretendWork", produces = "application/json")
   @Operation(summary = "Pretend work", description = "Will do pretend work for 30 seconds. If you call it too soon, will return 423 Locked.")
   @ApiResponses(value = {

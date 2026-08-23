@@ -4,6 +4,7 @@ import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.portfolio.userland.system.config.entities.Config;
+import org.portfolio.userland.system.config.service.ConfigService;
 import org.portfolio.userland.test.base.BaseIntegrationTest;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -23,6 +24,7 @@ public class ConfigRepositoryTest extends BaseIntegrationTest {
   @BeforeEach
   public void tearDown() {
     configRepository.deleteAll();
+    cacheManager.getCache(ConfigService.CONFIG_CACHE).clear();
   }
 
   //

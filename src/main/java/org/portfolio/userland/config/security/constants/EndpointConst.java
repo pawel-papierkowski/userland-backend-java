@@ -10,7 +10,6 @@ public class EndpointConst {
   /** Endpoints that do not require any log in. */
   public static final String[] PUBLIC = new String[] {
       "/api/checks/alive", // alive check
-      "/api/checks/pretendWork", // pretend work check
       "/api/checks/exception", // exception check
       "/api/users/register", // user registration
       "/api/users/activate", // activate user account

@@ -1,6 +1,6 @@
 package org.portfolio.userland.system.auth.perm;
 
-import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.portfolio.userland.features.user.BaseUserTest;
 import org.portfolio.userland.features.user.entities.Permission;
@@ -19,7 +19,7 @@ public class PermissionTest extends BaseUserTest {
   @Autowired
   private PermissionService permissionService;
 
-  @AfterEach
+  @BeforeEach
   public void tearDown() {
     resetDatabase();
   }

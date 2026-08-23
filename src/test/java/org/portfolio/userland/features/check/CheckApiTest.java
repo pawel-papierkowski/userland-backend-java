@@ -58,7 +58,7 @@ public class CheckApiTest extends BaseCheckTest {
     MvcResult mvcResult = mockMvc.perform(get("/api/checks/alive"))
         .andReturn();
 
-    // Assert: API Response.
+    // Assert: API response should indicate success.
     assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.NO_CONTENT.value());
     assertThat(mvcResult.getResponse().getContentAsString()).as("Response body should be empty").isEqualTo("");
   }
@@ -77,7 +77,7 @@ public class CheckApiTest extends BaseCheckTest {
             .header("Authorization", "Bearer " + token))
         .andReturn();
 
-    // Assert: API Response.
+    // Assert: API response should indicate success.
     assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.NO_CONTENT.value());
     assertThat(mvcResult.getResponse().getContentAsString()).as("Response body should be empty").isEqualTo("");
   }
@@ -96,7 +96,7 @@ public class CheckApiTest extends BaseCheckTest {
             .header("Authorization", "Bearer " + token))
         .andReturn();
 
-    // Assert: API Response.
+    // Assert: API response should indicate success.
     assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.NO_CONTENT.value());
     assertThat(mvcResult.getResponse().getContentAsString()).as("Response body should be empty").isEqualTo("");
   }
@@ -117,11 +117,12 @@ public class CheckApiTest extends BaseCheckTest {
     configRepository.updateValueByName(ConfigConst.USER_LOCKDOWN, ConfigConst.TRUE);
 
     // Act: Perform the request using MockMvc.
+    // Normally you do not need any permission, just being logged in. But during lockdown only admins can call ANY endpoint.
     MvcResult mvcResult = mockMvc.perform(get("/api/checks/must-be-logged")
             .header("Authorization", "Bearer " + token))
         .andReturn();
 
-    // Assert: API Response.
+    // Assert: API response should indicate success.
     assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.NO_CONTENT.value());
     assertThat(mvcResult.getResponse().getContentAsString()).as("Response body should be empty").isEqualTo("");
   }
@@ -132,6 +133,11 @@ public class CheckApiTest extends BaseCheckTest {
   void lockPretendWorkEndpoint() throws Exception {
     // Test that locking works. We want to call endpoint twice: first time should succeed, second time should be refused
     // since pretend work endpoint is still busy.
+
+    // Arrange: Create an admin user, token and JWT entry in database, emulating user login.
+    User user = userFactory.genRandUserLogged(Map.of("role", "admin"));
+    userRepository.save(user);
+    String token = userJwtRepository.findAll().getFirst().getToken();
 
     // We use a CountDownLatch to ensure the second request only fires AFTER the first request has successfully entered
     // the controller.
@@ -144,7 +150,9 @@ public class CheckApiTest extends BaseCheckTest {
         startSecondRequestLatch.countDown();
 
         // This call will block this thread for 30 seconds.
-        return mockMvc.perform(get("/api/checks/pretendWork")).andReturn();
+        return mockMvc.perform(get("/api/checks/pretendWork")
+                .header("Authorization", "Bearer " + token))
+            .andReturn();
       } catch (Exception ex) {
         throw new RuntimeException(ex);
       }
@@ -155,7 +163,9 @@ public class CheckApiTest extends BaseCheckTest {
     Thread.sleep(500); // 500ms is usually enough for the controller to acquire the lock
 
     // Fire the second request on the main test thread.
-    MvcResult secondResult = mockMvc.perform(get("/api/checks/pretendWork")).andReturn();
+    MvcResult secondResult = mockMvc.perform(get("/api/checks/pretendWork")
+            .header("Authorization", "Bearer " + token))
+        .andReturn();
 
     // Assert the second request was rejected with 423 LOCKED.
     assertThat(secondResult.getResponse().getStatus()).as("Second request should be blocked by ShedLock").isEqualTo(HttpStatus.LOCKED.value());
@@ -173,7 +183,7 @@ public class CheckApiTest extends BaseCheckTest {
     MvcResult mvcResult = mockMvc.perform(get("/api/checks/exception"))
         .andReturn();
 
-    // Assert: API Response.
+    // Assert: API response should indicate failure.
     assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR.value());
     // Assert: Correct problem detail is present.
     ProblemDetailBox expectedPdb = new ProblemDetailBox(
@@ -199,7 +209,7 @@ public class CheckApiTest extends BaseCheckTest {
     MvcResult mvcResult = mockMvc.perform(get("/api/checks/must-be-logged"))
         .andReturn();
 
-    // Assert: API Response.
+    // Assert: API response should indicate failure.
     assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.UNAUTHORIZED.value());
     // Assert: Correct problem detail is present.
     problemDetailService.assertPdUnauthorized(mvcResult, "/api/checks/must-be-logged");
@@ -215,7 +225,7 @@ public class CheckApiTest extends BaseCheckTest {
             .header("Authorization", "Bearer MALFORMED_TOKEN"))
         .andReturn();
 
-    // Assert: API Response.
+    // Assert: API response should indicate failure.
     assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.UNAUTHORIZED.value());
     // Assert: Check the header required by RFC 6750.
     String authHeader = mvcResult.getResponse().getHeader("WWW-Authenticate");
@@ -251,7 +261,7 @@ public class CheckApiTest extends BaseCheckTest {
             .header("Authorization", "Bearer " + token))
         .andReturn();
 
-    // Assert: API Response.
+    // Assert: API response should indicate failure.
     assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.UNAUTHORIZED.value());
     // Assert: Correct problem detail is present.
     problemDetailService.assertPdUnauthorized(mvcResult, "/api/checks/must-be-logged");
@@ -276,7 +286,7 @@ public class CheckApiTest extends BaseCheckTest {
             .header("Authorization", "Bearer " + token))
         .andReturn();
 
-    // Assert: API Response.
+    // Assert: API response should indicate failure.
     assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.UNAUTHORIZED.value());
     // Assert: Correct problem detail is present.
     problemDetailService.assertPdUnauthorized(mvcResult, "/api/checks/must-be-logged");
@@ -301,7 +311,7 @@ public class CheckApiTest extends BaseCheckTest {
             .header("Authorization", "Bearer " + token))
         .andReturn();
 
-    // Assert: API Response.
+    // Assert: API response should indicate failure.
     assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.UNAUTHORIZED.value());
     // Assert: Correct problem detail is present.
     problemDetailService.assertPdUnauthorized(mvcResult, "/api/checks/must-be-logged");
@@ -322,7 +332,7 @@ public class CheckApiTest extends BaseCheckTest {
             .header("Authorization", "Bearer " + token))
         .andReturn();
 
-    // Assert: API Response.
+    // Assert: API response should indicate failure.
     assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.FORBIDDEN.value());
     // Assert: Correct problem detail is present.
     problemDetailService.assertPdForbidden(mvcResult, "/api/checks/must-be-admin");
@@ -345,7 +355,7 @@ public class CheckApiTest extends BaseCheckTest {
     MvcResult mvcResult = mockMvc.perform(get("/api/checks/alive"))
         .andReturn();
 
-    // Assert: API Response.
+    // Assert: API response should indicate failure.
     assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.CONFLICT.value());
     ProblemDetailBox expectedPdb = new ProblemDetailBox(
         HttpStatus.CONFLICT.value(),
@@ -379,7 +389,7 @@ public class CheckApiTest extends BaseCheckTest {
             .header("Authorization", "Bearer " + token))
         .andReturn();
 
-    // Assert: API Response.
+    // Assert: API response should indicate failure.
     assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.CONFLICT.value());
     ProblemDetailBox expectedPdb = new ProblemDetailBox(
         HttpStatus.CONFLICT.value(),
@@ -409,7 +419,7 @@ public class CheckApiTest extends BaseCheckTest {
             .header("Authorization", "Bearer " + token))
         .andReturn();
 
-    // Assert: API Response.
+    // Assert: API response should indicate success.
     assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.OK.value());
     // Assert: Endpoint response. Note we do not check bootAt (as it changes all the time).
     CheckInfoResp actualResp = objectMapper.readValue(mvcResult.getResponse().getContentAsString(), CheckInfoResp.class);

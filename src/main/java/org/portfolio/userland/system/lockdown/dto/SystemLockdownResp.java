@@ -1,7 +1,7 @@
 package org.portfolio.userland.system.lockdown.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 
 /**
@@ -11,7 +11,7 @@ import lombok.Builder;
 @Builder(toBuilder = true)
 @Schema(description = "Data about state of system lockdown.")
 public record SystemLockdownResp(
-    @NotBlank(message = "State is required")
+    @NotNull
     @Schema(description = "State of system lockdown.", example = "OFF")
     EnSystemLockdownState state
 ) {}

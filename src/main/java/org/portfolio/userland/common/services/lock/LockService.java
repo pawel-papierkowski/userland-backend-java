@@ -54,7 +54,7 @@ public class LockService {
 
   /**
    * Attempt running a task with a ShedLock lock. This method is designed to be run in Controller endpoint.
-   * @param lockName Name of lock. Must match the name used in your @SchedulerLock annotation!
+   * @param lockName Name of lock. Must match the name used in your <code>@SchedulerLock</code> annotation!
    * @param task Task to run.
    * @return Response for HTTP call.
    */

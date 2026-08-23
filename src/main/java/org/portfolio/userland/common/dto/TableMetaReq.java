@@ -1,6 +1,8 @@
 package org.portfolio.userland.common.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import lombok.Builder;
 
 /**
@@ -15,11 +17,16 @@ import lombok.Builder;
 @Schema(description = "Metadata for table request. Used in requests that retrieve page from table. All fields can be null, in this case defaults will be used.")
 public record TableMetaReq(
     @Schema(description = "Size of page.", example = "20")
+    @Min(1L)
+    @Max(100L)
     Integer pageSize,
+
     @Schema(description = "Page number.", example = "3")
     Integer page,
+
     @Schema(description = "Name of field to sort by. If null/empty, will sort by default field (usually createdAt).", example = "username")
     String sortBy,
+
     @Schema(description = "Sort order for sortBy. If null/empty, will use descending order.", example = "ASC")
     EnSortOrder sortOrder
 ) {}

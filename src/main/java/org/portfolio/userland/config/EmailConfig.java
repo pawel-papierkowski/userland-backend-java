@@ -18,7 +18,7 @@ public class EmailConfig {
 
   @Bean
   public Resend resend() {
-    if (StringUtils.isEmpty(resendApiKey)) throw new ShouldNeverHappenException("Resent API key is not present!");
+    if (StringUtils.isEmpty(resendApiKey)) throw new ShouldNeverHappenException("Resend API key is not present!");
     return new Resend(resendApiKey);
   }
 }

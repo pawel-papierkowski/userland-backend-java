@@ -10,6 +10,9 @@ import org.threeten.bp.Duration;
 
 import java.io.IOException;
 
+/**
+ * GCP configuration class.
+ */
 @Configuration
 public class GcpConfig {
   /**

@@ -89,7 +89,7 @@ public class EmailService {
    */
   private String resolveSubject(EmailReq emailReq) {
     if (!build.getTest()) return emailReq.subject();
-    return GeneralConst.TEST_INDICTATOR + " " + emailReq.subject();
+    return GeneralConst.TEST_INDICATOR + " " + emailReq.subject();
   }
 
   /**
