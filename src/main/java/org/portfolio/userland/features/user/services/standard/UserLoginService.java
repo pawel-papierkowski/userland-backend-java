@@ -89,6 +89,9 @@ public class UserLoginService extends BaseUserService {
 
   /**
    * Perform user logout. If there is no login, nothing happens.
+   * <p>Note: works purely off <code>CustomUserDetails</code> from SecurityContext, without loading <code>User</code>
+   * entity from database. The JWT filter has already verified that user exists, is active and is not locked, and
+   * only the user id and email are needed here (FK for history event comes from id via reference proxy).</p>
    */
   @Transactional
   public void logout() {
@@ -102,11 +105,10 @@ public class UserLoginService extends BaseUserService {
     // If we are logged in, add entry in history and remove JWT entries in database. It will invalidate any JWT that
     // might be in circulation.
     LocalDateTime nowAt = clockService.getNowUTC();
-    User user = userHelperService.resolveUser(customUserDetails.getEmail(), false);
-    userJwtRepository.deleteAllByUser(user.getId()); // Revoke all JWTs related to this user.
-    addHistoryEvent(user, nowAt, EnUserHistoryWho.USER, EnUserHistoryWhat.LOGOUT, "");
+    userJwtRepository.deleteAllByUser(customUserDetails.getId()); // Revoke all JWTs related to this user.
+    addHistoryEvent(customUserDetails.getId(), nowAt, EnUserHistoryWho.USER, EnUserHistoryWhat.LOGOUT, "");
 
-    log.trace("User '{}' has been logged out.", user.getEmail());
+    log.trace("User '{}' has been logged out.", customUserDetails.getEmail());
   }
 
   // //////////////////////////////////////////////////////////////////////////
