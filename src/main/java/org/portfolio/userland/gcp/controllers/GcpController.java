@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.portfolio.userland.common.exception.GeneralException;
 import org.portfolio.userland.features.email.dto.EmailReq;
 import org.portfolio.userland.features.email.services.EmailService;
 import org.springframework.http.HttpStatus;
@@ -54,10 +55,13 @@ public class GcpController {
       // Returning 2xx tells GCP the task succeeded, and can be deleted from the queue.
       emailService.sendEmail(emailReq);
       return new ResponseEntity<>(HttpStatus.OK);
-    } catch (Exception ex) {
+    } catch (GeneralException ex) {
       log.error("Exception thrown!", ex);
       // Returning 5xx tells GCP the task failed.
       // Cloud Tasks will automatically wait (using exponential backoff) and call this endpoint again later.
+      // Note: we must catch ALL domain exceptions here (even ones with 4xx status) - any non-5xx response would make
+      // Cloud Tasks delete the task and the email would be silently lost. Truly unexpected exceptions are not caught
+      // on purpose: GlobalExceptionHandler converts them into 500 anyway, which preserves retry semantics too.
       return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
