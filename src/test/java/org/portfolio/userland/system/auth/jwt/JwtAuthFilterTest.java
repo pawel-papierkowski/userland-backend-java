@@ -5,7 +5,6 @@ import jakarta.servlet.FilterChain;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.portfolio.userland.config.security.constants.EndpointConst;
-import org.portfolio.userland.features.user.repositories.jwt.UserJwtRepository;
 import org.portfolio.userland.system.auth.details.CustomUserDetails;
 import org.portfolio.userland.system.auth.details.CustomUserDetailsService;
 import org.portfolio.userland.system.auth.jwt.exceptions.InvalidBearerTokenException;
@@ -34,7 +33,6 @@ public class JwtAuthFilterTest {
   private final static String TOKEN_VALID = "valid.jwt.token";
   private static final String TOKEN_BAD = "bad.jwt.token";
 
-  private UserJwtRepository userJwtRepository;
   private JwtService jwtService;
   private CustomUserDetailsService customUserDetailsService;
   private HandlerExceptionResolver handlerExceptionResolver;
@@ -48,13 +46,12 @@ public class JwtAuthFilterTest {
     // Clear context amd reset mocks before each test.
     SecurityContextHolder.clearContext();
 
-    userJwtRepository = mock(UserJwtRepository.class);
     jwtService = mock(JwtService.class);
     customUserDetailsService = mock(CustomUserDetailsService.class);
     handlerExceptionResolver = mock(HandlerExceptionResolver.class);
 
     // JwtAuthFilter is real, but we need to set services it uses to our mocks.
-    jwtAuthFilter = new JwtAuthFilter(userJwtRepository, jwtService, customUserDetailsService, handlerExceptionResolver);
+    jwtAuthFilter = new JwtAuthFilter(jwtService, customUserDetailsService, handlerExceptionResolver);
 
     publicEndpointsMatcher = new OrRequestMatcher(
         Arrays.stream(EndpointConst.PUBLIC)
@@ -82,9 +79,8 @@ public class JwtAuthFilterTest {
         1L, true, false, "Jan Kowalski", email,
         List.of(new SimpleGrantedAuthority("ROLE_ADMIN"), new SimpleGrantedAuthority("USER_VIEW")));
 
-    when(userJwtRepository.existsByToken(TOKEN_VALID)).thenReturn(true);
     when(jwtService.extractAllClaims(TOKEN_VALID)).thenReturn(claims);
-    when(customUserDetailsService.loadFromToken(claims)).thenReturn(customUserDetails);
+    when(customUserDetailsService.loadFromToken(claims, TOKEN_VALID)).thenReturn(customUserDetails);
 
     // Act: Execute the filter.
     jwtAuthFilter.doFilterInternal(request, response, filterChain);
@@ -105,9 +101,8 @@ public class JwtAuthFilterTest {
     assertThat(principal.getEmail()).isEqualTo(email);
     assertThat(principal.getAuthorities()).isEqualTo(customUserDetails.getAuthorities());
 
-    verify(userJwtRepository).existsByToken(TOKEN_VALID);
     verify(jwtService).extractAllClaims(TOKEN_VALID);
-    verify(customUserDetailsService).loadFromToken(claims);
+    verify(customUserDetailsService).loadFromToken(claims, TOKEN_VALID);
     verifyNoInteractions(handlerExceptionResolver);
   }
 
@@ -154,7 +149,7 @@ public class JwtAuthFilterTest {
 
     // Assert: Exception happened.
     verify(jwtService).extractAllClaims(TOKEN_BAD);
-    verify(customUserDetailsService, never()).loadFromToken(any());
+    verify(customUserDetailsService, never()).loadFromToken(any(), any());
     verify(handlerExceptionResolver).resolveException(
         eq(request),
         eq(response),
@@ -187,7 +182,7 @@ public class JwtAuthFilterTest {
         .isNull();
 
     verify(jwtService).extractAllClaims(TOKEN_BAD);
-    verify(customUserDetailsService, never()).loadFromToken(any());
+    verify(customUserDetailsService, never()).loadFromToken(any(), any());
     // Assert: The handlerExceptionResolver should NOT be called for public endpoints with malformed tokens
     verifyNoInteractions(handlerExceptionResolver);
     // Assert: The filter chain should continue.
@@ -198,7 +193,8 @@ public class JwtAuthFilterTest {
 
   @Test
   void revokedTokenIsRejected() throws Exception {
-    // Arrange: Token parses fine, but its entry was deleted from database (logout/revocation).
+    // Arrange: Token parses fine, but its entry was deleted from database (logout/revocation). Revocation is
+    // checked inside the service via the database join, which then returns no user details.
 
     // Arrange: Setup state where token is good, but was revoked.
     MockHttpServletRequest request = new MockHttpServletRequest();
@@ -210,11 +206,9 @@ public class JwtAuthFilterTest {
     String email = "testuser@example.com";
     Claims claims = mock(Claims.class);
     when(claims.getSubject()).thenReturn(email);
-    CustomUserDetails customUserDetails = new CustomUserDetails(1L, true, false, "Jan Kowalski", email, null);
 
-    when(userJwtRepository.existsByToken(TOKEN_VALID)).thenReturn(false);
     when(jwtService.extractAllClaims(TOKEN_VALID)).thenReturn(claims);
-    when(customUserDetailsService.loadFromToken(claims)).thenReturn(customUserDetails);
+    when(customUserDetailsService.loadFromToken(claims, TOKEN_VALID)).thenReturn(null);
 
     // Act: Execute the filter.
     jwtAuthFilter.doFilterInternal(request, response, filterChain);
@@ -228,7 +222,8 @@ public class JwtAuthFilterTest {
 
   @Test
   void unknownUserIsRejected() throws Exception {
-    // Token parses fine, but user does not exist anymore.
+    // Token parses fine, but user does not exist anymore. Same mechanism as revocation - service returns
+    // no user details when the email/token pair has no row in database.
 
     // Arrange: Setup state where token is good, but user is gone.
     MockHttpServletRequest request = new MockHttpServletRequest();
@@ -239,7 +234,7 @@ public class JwtAuthFilterTest {
 
     Claims claims = mock(Claims.class);
     when(jwtService.extractAllClaims(TOKEN_VALID)).thenReturn(claims);
-    when(customUserDetailsService.loadFromToken(claims)).thenReturn(null);
+    when(customUserDetailsService.loadFromToken(claims, TOKEN_VALID)).thenReturn(null);
 
     // Act: Execute the filter.
     jwtAuthFilter.doFilterInternal(request, response, filterChain);
@@ -248,7 +243,6 @@ public class JwtAuthFilterTest {
     assertThat(SecurityContextHolder.getContext().getAuthentication())
         .as("Authentication should not be created for non-existing user")
         .isNull();
-    verify(userJwtRepository, never()).existsByToken(any());
     verify(filterChain, times(1)).doFilter(request, response);
   }
 }

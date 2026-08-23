@@ -11,7 +11,6 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.portfolio.userland.config.security.SecurityConfig;
 import org.portfolio.userland.config.security.constants.EndpointConst;
-import org.portfolio.userland.features.user.repositories.jwt.UserJwtRepository;
 import org.portfolio.userland.system.auth.details.CustomUserDetails;
 import org.portfolio.userland.system.auth.details.CustomUserDetailsService;
 import org.portfolio.userland.system.auth.jwt.exceptions.InvalidBearerTokenException;
@@ -57,7 +56,6 @@ public class JwtAuthFilter extends OncePerRequestFilter {
   /** Length of prefix above. */
   private final static int HEADER_TOKEN_PREFIX_LENGTH = HEADER_TOKEN_PREFIX.length();
 
-  private final UserJwtRepository userJwtRepository;
   private final JwtService jwtService;
   private final CustomUserDetailsService customUserDetailsService;
 
@@ -126,9 +124,10 @@ public class JwtAuthFilter extends OncePerRequestFilter {
       return;
     }
 
-    // Build user details from signed token claims (permissions) and slim user state from database.
-    CustomUserDetails customUserDetails = customUserDetailsService.loadFromToken(claims);
-    if (!verifyCustomUser(customUserDetails, token)) {
+    // Build user details from signed token claims (permissions) and slim user state from database. The same
+    // database query also performs the revocation check, so the whole authentication costs one SELECT.
+    CustomUserDetails customUserDetails = customUserDetailsService.loadFromToken(claims, token);
+    if (!verifyCustomUser(customUserDetails)) {
       log.trace("Failed to verify custom user details.");
       filterChain.doFilter(request, response); // Continue the filter chain.
       return;
@@ -182,16 +181,15 @@ public class JwtAuthFilter extends OncePerRequestFilter {
   // //////////////////////////////////////////////////////////////////////////
 
   /**
-   * Verify if user can be authenticated. Note: token signature and expiration were already verified during parsing.
-   * @param customUserDetails Custom user details resolved from token claims. Can be null if user was not found.
-   * @param jwtStr Token string for JWT.
+   * Verify if user can be authenticated. Note: token signature, expiration and revocation were already verified
+   * (revocation via the database join in {@link CustomUserDetailsService}).
+   * @param customUserDetails Custom user details resolved from token claims and database user state. Can be null
+   *                          if user does not exist or token was revoked.
    * @return True if user can be authenticated, otherwise false.
    */
-  private boolean verifyCustomUser(@Nullable CustomUserDetails customUserDetails, String jwtStr) {
-    // Details could not be built (user does not exist).
+  private boolean verifyCustomUser(@Nullable CustomUserDetails customUserDetails) {
+    // Details could not be built (user does not exist or token was revoked).
     if (customUserDetails == null) return false;
-    // Check if JWT is present in database (not revoked). This is what makes logout/revocation instant.
-    if (!userJwtRepository.existsByToken(jwtStr)) return false;
     // Other checks.
     return customUserDetails.getActive() && !customUserDetails.getLocked();
   }

@@ -60,15 +60,18 @@ public interface UserRepository extends JpaRepository<User, Long>, UserCustomRep
   //
 
   /**
-   * Find only authorization state of user by email (id, status, locked). Deliberately avoids loading permissions
-   * and other data, as <code>JwtAuthFilter</code> needs just the state on every request - permissions are taken
-   * from signed JWT claims.
-   * @param email Email.
-   * @return Authorization state or empty optional.
+   * Find only authorization state of user (id, status, locked) by email and JWT token in one query. Deliberately
+   * avoids loading permissions and other data, as <code>JwtAuthFilter</code> needs just the state on every request -
+   * permissions are taken from signed JWT claims. The join with the JWT table simultaneously serves as the revocation
+   * check: a revoked (deleted) token yields no row, so the whole per-request authentication costs a single indexed
+   * SELECT instead of two separate queries.
+   * @param email Email from verified JWT subject claim.
+   * @param token Raw JWT string.
+   * @return Authorization state or empty optional (unknown user or revoked/unknown token).
    */
   @Query("SELECT new org.portfolio.userland.features.user.repositories.user.UserAuthState(u.id, u.status, u.locked) "
-      + "FROM User u WHERE u.email = :email")
-  Optional<UserAuthState> findAuthStateByEmail(@Param("email") String email);
+      + "FROM UserJwt j JOIN j.user u WHERE u.email = :email AND j.token = :token")
+  Optional<UserAuthState> findAuthStateByEmailAndToken(@Param("email") String email, @Param("token") String token);
 
   //
 

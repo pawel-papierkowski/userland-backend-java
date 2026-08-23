@@ -72,10 +72,13 @@ You can think of it as baseline for other projects, as almost any project, syste
   - Cache life is short, so cache eviction on instance A will not cause stale results on instance B for too long.
 
 ### Security
+
+- Features instant revocation of JWT (so also permission enforcement), instant enforcement of locked user.
+  Only lockdown enforcement can be slightly delayed (system config table in DB is cached with 20s TTL).
 - System uses JWT for all API requests that require security (for example, some endpoints require admin panel access permissions).
 - Every user has `iam.user_permissions` and `iam.jwt` subtables.
-  - System generates JWT tokens with embedded permissions on login/prolong. JWT is persisted in database.
-  - Backend verifies JWT in request against JWT in database, so token revocation with immediate effect is possible.
+  - System generates JWT with embedded permissions on login/prolong. JWT is persisted in database.
+  - Backend verifies JWT in request against JWT in database, so JWT revocation with immediate effect is possible.
   - Permission changes via admin panel revoke all JWTs for given user, forcing them to re-log.
 
 ## GitHub config

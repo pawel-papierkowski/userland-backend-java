@@ -10,7 +10,6 @@ import org.portfolio.userland.system.auth.jwt.constants.JwtClaims;
 import org.portfolio.userland.system.auth.perm.PermissionHelper;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collection;
 import java.util.List;
@@ -33,16 +32,18 @@ public class CustomUserDetailsService {
   private final UserRepository userRepository;
 
   /**
-   * Locates user data based on verified JWT claims and slim user state from database. Permissions are resolved
-   * from token claims (signed), user state (id/status/locked) is always loaded fresh from database so that
-   * locking/disabling takes effect immediately.
+   * Locates user data based on verified JWT claims. Permissions are resolved from token claims (signed), user state
+   * (id/status/locked) is always loaded fresh from database so that locking/disabling takes effect immediately.
+   * The same query also verifies the token is not revoked, keeping per-request authentication at a single
+   * indexed SELECT (unknown user or revoked token results in empty database row).
    * @param claims Verified JWT claims (signature and expiration already validated by parser).
-   * @return User details or null if subject/email is missing or user does not exist.
+   * @param jwtStr Raw JWT string for the revocation check.
+   * @return User details or null if subject/email is missing or user/token pair does not exist in database.
    */
-  @Transactional(readOnly = true)
-  public @Nullable CustomUserDetails loadFromToken(@NonNull Claims claims) {
-    // Note we use special slim query that loads just authorization state, as permissions come from token claims.
-    return userRepository.findAuthStateByEmail(claims.getSubject())
+  public @Nullable CustomUserDetails loadFromToken(@NonNull Claims claims, @NonNull String jwtStr) {
+    // Note we use special slim query that loads just authorization state and simultaneously checks that the JWT
+    // entry exists (not revoked), as permissions come from token claims.
+    return userRepository.findAuthStateByEmailAndToken(claims.getSubject(), jwtStr)
         .map(state -> new CustomUserDetails(
             state.id(),
             EnUserStatus.ACTIVE.equals(state.status()),
