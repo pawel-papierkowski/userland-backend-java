@@ -2,6 +2,7 @@ package org.portfolio.userland.features.check.services;
 
 import lombok.RequiredArgsConstructor;
 import org.portfolio.userland.features.check.dto.CheckInfoResp;
+import org.portfolio.userland.features.check.exceptions.CheckInterruptedException;
 import org.portfolio.userland.system.base.BaseService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
@@ -47,7 +48,9 @@ public class CheckService extends BaseService {
     try {
       Thread.sleep(Duration.ofSeconds(30));
     } catch (InterruptedException ex) {
-      throw new RuntimeException(ex);
+      // Restore the interrupt flag so higher-level code (e.g. server shutdown) can detect the interruption.
+      Thread.currentThread().interrupt();
+      throw new CheckInterruptedException(ex);
     }
   }
 }
