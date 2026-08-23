@@ -22,23 +22,29 @@ import org.portfolio.userland.features.user.services.standard.*;
 import org.portfolio.userland.swagger.annotations.ApiResponsesAuth;
 import org.portfolio.userland.swagger.annotations.ApiResponsesToken;
 import org.portfolio.userland.swagger.detail.common.ValidationProblemDetail;
+import org.portfolio.userland.swagger.detail.user.EmailExistsProblemDetail;
 import org.portfolio.userland.swagger.detail.user.TokenAlreadyExistsProblemDetail;
-import org.portfolio.userland.swagger.detail.user.TokenMissingProblemDetail;
 import org.portfolio.userland.swagger.detail.user.UserDataStaleProblemDetail;
+import org.portfolio.userland.swagger.detail.user.UserWrongPasswordProblemDetail;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 /**
- * REST endpoints for user. These endpoints are available without authentication.
- * <p>Endpoints:</p>
+ * REST endpoints for user.
+ * <p>Public endpoints (no authentication required):</p>
  * <ul>
  *   <li><code>POST /api/users/register</code> - registers user.</li>
  *   <li><code>POST /api/users/activate</code> - activates user.</li>
- *   <li><code>GET /api/users/view</code> - view user and user profile data.</li>
- *   <li><code>PATCH /api/users/edit</code> - edit user and user profile data.</li>
  *   <li><code>POST /api/users/password/link</code> - sends email with password reset link.</li>
  *   <li><code>PATCH /api/users/password/confirm</code> - actually resets password.</li>
+ * </ul>
+ * <p>Endpoints that require user to be logged in:</p>
+ * <ul>
+ *   <li><code>GET /api/users/view</code> - view user and user profile data.</li>
+ *   <li><code>PATCH /api/users/edit</code> - edit user and user profile data.</li>
+ *   <li><code>POST /api/users/email/link</code> - sends emails about email change.</li>
+ *   <li><code>PATCH /api/users/email/confirm</code> - actually changes email.</li>
  *   <li><code>POST /api/users/delete/link</code> - sends email with account deletion link.</li>
  *   <li><code>DELETE /api/users/delete/confirm</code> - actually deletes user account.</li>
  * </ul>
@@ -87,7 +93,7 @@ public class UserController {
           content = @Content(schema = @Schema(hidden = true))),
       @ApiResponse(responseCode = "400", description = "Invalid input (malformed token string).",
           content = @Content(mediaType = "application/problem+json",
-                             schema = @Schema(implementation = TokenMissingProblemDetail.class)))
+                             schema = @Schema(implementation = ValidationProblemDetail.class)))
   })
   public ResponseEntity<Void> activateUser(@Valid @RequestBody TokenActivateReq tokenActivateReq) {
     userRegisterService.activate(tokenActivateReq);
@@ -142,15 +148,16 @@ public class UserController {
    */
   @PostMapping(value = "/email/link", produces = "application/json")
   @Operation(summary = "Send email change link", description = "Sends email to old address with warning and email to new address with link to page where you actually change email. Note: on production, trying to use already existing email or wrong password will have same result to prevent email enumeration attack.")
+  @ApiResponsesAuth
   @ApiResponses(value = {
       @ApiResponse(responseCode = "204", description = "Email change emails successfully sent. Also when request was ignored due to wrong email address or wrong password on production.",
           content = @Content(schema = @Schema(hidden = true))),
       @ApiResponse(responseCode = "400", description = "Invalid input (missing or malformed email).",
           content = @Content(mediaType = "application/problem+json",
               schema = @Schema(implementation = ValidationProblemDetail.class))),
-      @ApiResponse(responseCode = "409", description = "Email change is already pending. Not shown on production.",
+      @ApiResponse(responseCode = "409", description = "Wrong password OR email change is already pending. Pending case not shown on production.",
           content = @Content(mediaType = "application/problem+json",
-              schema = @Schema(implementation = TokenAlreadyExistsProblemDetail.class)))
+              schema = @Schema(oneOf = { TokenAlreadyExistsProblemDetail.class, UserWrongPasswordProblemDetail.class })))
   })
   public ResponseEntity<Void> sendEmailChangeLink(@Valid @RequestBody UserEmailChangeLinkReq userEmailChangeLinkReq) {
     userEmailService.send(userEmailChangeLinkReq);
@@ -170,7 +177,10 @@ public class UserController {
           content = @Content(schema = @Schema(hidden = true))),
       @ApiResponse(responseCode = "400", description = "Invalid input (missing data).",
           content = @Content(mediaType = "application/problem+json",
-              schema = @Schema(implementation = ValidationProblemDetail.class)))
+              schema = @Schema(implementation = ValidationProblemDetail.class))),
+      @ApiResponse(responseCode = "409", description = "New email is already taken (lost race against concurrent email change or registration).",
+          content = @Content(mediaType = "application/problem+json",
+              schema = @Schema(implementation = EmailExistsProblemDetail.class)))
   })
   public ResponseEntity<Void> emailChangeConfirm(@Valid @RequestBody UserEmailChangeConfirmReq userEmailChangeConfirmReq) {
     userEmailService.confirm(userEmailChangeConfirmReq);
@@ -234,15 +244,16 @@ public class UserController {
    */
   @PostMapping(value = "/delete/link", produces = "application/json")
   @Operation(summary = "Send account deletion link", description = "Sends email with link that leads to page where you can confirm account deletion. Note: on production, trying to use unknown email will fail silently to prevent email enumeration attack.")
+  @ApiResponsesAuth
   @ApiResponses(value = {
       @ApiResponse(responseCode = "204", description = "Account deletion email successfully sent. On production also when request failed due to issues like unknown email address.",
           content = @Content(schema = @Schema(hidden = true))),
       @ApiResponse(responseCode = "400", description = "Invalid input (missing or malformed email).",
           content = @Content(mediaType = "application/problem+json",
               schema = @Schema(implementation = ValidationProblemDetail.class))),
-      @ApiResponse(responseCode = "409", description = "Account deletion is already pending. Not shown on production.",
+      @ApiResponse(responseCode = "409", description = "Wrong password OR account deletion is already pending. Pending case not shown on production.",
           content = @Content(mediaType = "application/problem+json",
-              schema = @Schema(implementation = TokenAlreadyExistsProblemDetail.class)))
+              schema = @Schema(oneOf = { TokenAlreadyExistsProblemDetail.class, UserWrongPasswordProblemDetail.class })))
   })
   public ResponseEntity<Void> sendAccountDeleteLink(@Valid @RequestBody UserDeleteLinkReq userDeleteLinkReq) {
     userDeleteService.send(userDeleteLinkReq);
@@ -256,6 +267,7 @@ public class UserController {
    */
   @DeleteMapping(value = "/delete/confirm", produces = "application/json")
   @Operation(summary = "Delete user", description = "Removes user from system.")
+  @ApiResponsesAuth
   @ApiResponsesToken
   @ApiResponses(value = {
       @ApiResponse(responseCode = "204", description = "Account deletion was successful.",

@@ -53,7 +53,7 @@ public class CheckController {
   })
   public ResponseEntity<Void> alive() {
     // Yes, this endpoint does nothing by itself.
-    return new ResponseEntity<>(HttpStatus.NO_CONTENT); // deliberately OK instead of NO_CONTENT in this particular case
+    return new ResponseEntity<>(HttpStatus.NO_CONTENT);
   }
 
   /**

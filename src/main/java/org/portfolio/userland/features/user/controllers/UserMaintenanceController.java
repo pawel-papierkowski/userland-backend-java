@@ -11,6 +11,7 @@ import org.portfolio.userland.common.services.lock.LockService;
 import org.portfolio.userland.features.user.constants.UserLockConst;
 import org.portfolio.userland.features.user.schedulers.UserScheduler;
 import org.portfolio.userland.features.user.services.standard.UserMaintenanceService;
+import org.portfolio.userland.swagger.annotations.ApiResponsesAuthPerm;
 import org.portfolio.userland.system.auth.annotations.HasAdminPermission;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
@@ -23,7 +24,8 @@ import org.springframework.web.bind.annotation.RestController;
  * All endpoints are secured against running more than one task at once. You need to be admin.
  * <p>Endpoints:</p>
  * <ul>
- *   <li><code>POST /api/users/maintenance/expiredUsers</code> - cleanup of expired users.</li>
+ *   <li><code>POST /api/users/maintenance/pendingUsers</code> - cleanup of pending users.</li>
+ *   <li><code>POST /api/users/maintenance/activeUsers</code> - cleanup of active users.</li>
  *   <li><code>POST /api/users/maintenance/expiredTokens</code> - cleanup of expired tokens.</li>
  *   <li><code>POST /api/users/maintenance/expiredJwts</code> - cleanup of expired JWTs.</li>
  * </ul>
@@ -43,6 +45,7 @@ public class UserMaintenanceController {
    */
   @PostMapping(value = "/pendingUsers", produces = "application/json")
   @HasAdminPermission
+  @ApiResponsesAuthPerm
   @Operation(summary = "Cleanup of pending users", description = "Remove all PENDING users that are too old.")
   @ApiResponses(value = {
       @ApiResponse(responseCode = "200", description = "Successfully started cleanup.",
@@ -61,6 +64,7 @@ public class UserMaintenanceController {
    */
   @PostMapping(value = "/activeUsers", produces = "application/json")
   @HasAdminPermission
+  @ApiResponsesAuthPerm
   @Operation(summary = "Cleanup of active users", description = "Remove all ACTIVE users that were idle for too long. Note: works only in portfolio mode.")
   @ApiResponses(value = {
       @ApiResponse(responseCode = "200", description = "Successfully started cleanup.",
@@ -79,6 +83,7 @@ public class UserMaintenanceController {
    */
   @PostMapping(value = "/expiredTokens", produces = "application/json")
   @HasAdminPermission
+  @ApiResponsesAuthPerm
   @Operation(summary = "Cleanup of expired tokens", description = "Remove all tokens that are too old.")
   @ApiResponses(value = {
       @ApiResponse(responseCode = "200", description = "Successfully started cleanup.",
@@ -97,6 +102,7 @@ public class UserMaintenanceController {
    */
   @PostMapping(value = "/expiredJwts", produces = "application/json")
   @HasAdminPermission
+  @ApiResponsesAuthPerm
   @Operation(summary = "Cleanup of expired JWTs", description = "Remove all JWTs that are too old.")
   @ApiResponses(value = {
       @ApiResponse(responseCode = "200", description = "Successfully started cleanup.",

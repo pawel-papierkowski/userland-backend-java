@@ -11,8 +11,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.portfolio.userland.features.email.dto.EmailReq;
 import org.portfolio.userland.features.email.services.EmailService;
-import org.portfolio.userland.swagger.annotations.ApiResponsesAuthPerm;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -37,10 +37,12 @@ public class GcpController {
    */
   @PostMapping(value = "/email/send", produces = "application/json")
   @Operation(summary = "Send email", description = "Actually sends email. Available only to GCP Tasks.")
-  @ApiResponsesAuthPerm
   @ApiResponses(value = {
       @ApiResponse(responseCode = "200", description = "Email sent successfully.",
           content = @Content(schema = @Schema(hidden = true))),
+      @ApiResponse(responseCode = "401", description = "Missing or invalid Google-signed OIDC token.",
+          content = @Content(mediaType = "application/problem+json",
+              schema = @Schema(implementation = ProblemDetail.class))),
       @ApiResponse(responseCode = "500", description = "Sending email failed.",
           content = @Content(schema = @Schema(hidden = true)))
   })
