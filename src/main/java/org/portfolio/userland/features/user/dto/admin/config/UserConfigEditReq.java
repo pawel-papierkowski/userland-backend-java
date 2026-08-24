@@ -3,6 +3,7 @@ package org.portfolio.userland.features.user.dto.admin.config;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.Builder;
 
 /**
@@ -23,6 +24,7 @@ public record UserConfigEditReq(
     Long userId,
 
     @NotBlank(message = "Name of user config entry must be provided")
+    @Size(max = 250, message = "Name of user config entry cannot exceed 250 characters")
     @Schema(description = "User config entry name.", example = "jwt.expires")
     String name,
 

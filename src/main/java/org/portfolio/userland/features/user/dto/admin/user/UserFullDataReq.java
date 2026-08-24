@@ -3,6 +3,7 @@ package org.portfolio.userland.features.user.dto.admin.user;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.Builder;
 import org.apache.commons.lang3.StringUtils;
 import org.portfolio.userland.common.constants.ValidConst;
@@ -31,6 +32,7 @@ public record UserFullDataReq(
     @Schema(description = "Optimistic locking version of user account. Must be equal to version returned by last read of user data.", example = "3")
     Long version,
 
+    @Size(max = 100, message = "User name cannot exceed 100 characters")
     @Schema(description = "Name shown on frontend.", example = "John Doe")
     String username,
 

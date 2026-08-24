@@ -1,6 +1,7 @@
 package org.portfolio.userland.features.user.dto.common;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.Size;
 import lombok.Builder;
 import org.apache.commons.lang3.StringUtils;
 
@@ -14,9 +15,11 @@ import org.apache.commons.lang3.StringUtils;
 @Builder(toBuilder = true)
 @Schema(description = "Contains data of user profile.")
 public record UserProfileData(
+    @Size(max = 100, message = "Name cannot exceed 100 characters")
     @Schema(description = "Name of user.", example = "John")
     String name,
 
+    @Size(max = 100, message = "Surname cannot exceed 100 characters")
     @Schema(description = "Surname of user.", example = "Smith")
     String surname
 ) {

@@ -41,11 +41,11 @@ public class UserProfile {
   //
 
   /** Name of user. */
-  @Column
+  @Column(length = 100)
   private String name;
 
   /** Surname of user. */
-  @Column
+  @Column(length = 100)
   private String surname;
 
   // ... you can add other needed data here, like address, invoice data, billing etc

@@ -23,6 +23,7 @@ import org.portfolio.userland.features.user.dto.common.EnFrontendFramework;
 @Schema(description = "Payload required to register a new user.")
 public record UserRegisterReq(
     @NotBlank(message = "User name is required")
+    @Size(max = 100, message = "User name cannot exceed 100 characters")
     @Schema(description = "Name shown on frontend.", example = "John Doe")
     String username,
 

@@ -32,6 +32,7 @@ public record UserEditReq(
 
   // basic
 
+  @Size(max = 100, message = "User name cannot exceed 100 characters")
   @Schema(description = "Name shown on frontend. Can be nickname or similar.", example = "John Doe")
   String username,
 
