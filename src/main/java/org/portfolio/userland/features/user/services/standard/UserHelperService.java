@@ -24,6 +24,11 @@ import java.time.LocalDateTime;
 @Service
 @RequiredArgsConstructor
 public class UserHelperService {
+  /** Minimum expiration time in minutes. */
+  private final static int MIN_EXPIRATION = 1;
+  /** Maximum expiration time in minutes. */
+  private final static int MAX_EXPIRATION = 60*24*31; // at most, month
+
   private final PasswordEncoder passwordEncoder;
   private final UserRepository userRepository;
 
@@ -213,14 +218,14 @@ public class UserHelperService {
   }
 
   /**
-   * Finds out when JWT expires.
+   * Finds out when JWT expires. Note custom expiration is clamped.
    * @param issuedAt Issue date&time of JWT.
    * @param customExpiration Custom expiration period in minutes. Can be null, will use default expiration.
    * @return Expiration date&time.
    */
   public LocalDateTime resolveJwtExpiration(LocalDateTime issuedAt, Long customExpiration) {
     long actualExpiration = jwtExpiration;
-    if (customExpiration != null) actualExpiration = customExpiration;
+    if (customExpiration != null) actualExpiration = Math.clamp(customExpiration, MIN_EXPIRATION, MAX_EXPIRATION);
     return issuedAt.plusMinutes(actualExpiration);
   }
 }

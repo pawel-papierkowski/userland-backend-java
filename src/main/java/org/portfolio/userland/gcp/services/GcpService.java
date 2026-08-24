@@ -74,6 +74,9 @@ public class GcpService extends BaseGcpService {
    * <p>Security note: payload comes from our own queue and is already sanitized at enqueue time, but we apply
    * defense-in-depth restrictions here too (see {@link #sanitizeTaskPayload(EmailReq)}). Sender address is
    * additionally overridden with system value inside <code>EmailService.sendEmail()</code>.</p>
+   * <p>Note on validation: <code>@Valid</code> failures at the controller return 400, and any non-5xx response makes
+   * Cloud Tasks delete the task silently. Since payloads are produced by us, a 400 here means producer/consumer
+   * drift (e.g. deploy skew), not transient failure - dropping the task is the correct behavior.</p>
    * @param emailReq Email request.
    * @return True if task succeeded, otherwise false.
    */

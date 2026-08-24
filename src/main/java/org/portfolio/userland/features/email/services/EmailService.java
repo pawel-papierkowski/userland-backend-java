@@ -1,5 +1,7 @@
 package org.portfolio.userland.features.email.services;
 
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.Validator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -7,6 +9,7 @@ import org.portfolio.userland.common.constants.EnAppBuild;
 import org.portfolio.userland.common.constants.GeneralConst;
 import org.portfolio.userland.common.exception.SystemMisconfigurationException;
 import org.portfolio.userland.features.email.dto.EmailReq;
+import org.portfolio.userland.features.email.exceptions.InvalidEmailReqException;
 import org.portfolio.userland.features.email.services.providers.EmailProviderFactory;
 import org.portfolio.userland.features.email.services.providers.IntEmailProvider;
 import org.portfolio.userland.features.user.services.standard.UserSendEmailService;
@@ -17,6 +20,7 @@ import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
 import java.util.Locale;
+import java.util.Set;
 
 /**
  * Email service that handles arbitrary email. See intermediate <code>XxxEmailService</code> beans (for example
@@ -31,6 +35,7 @@ public class EmailService {
   private final GcpEmailService gcpEmailService;
   private final EmailProviderFactory emailProviderFactory;
   private final TemplateEngine templateEngine;
+  private final Validator validator;
 
   /** System profile. */
   @Value("${app.main.build}")
@@ -44,9 +49,12 @@ public class EmailService {
 
   /**
    * Queue email to be sent later.
+   * <p>Request is validated first, so misuse is caught early (at enqueue time) instead of crashing during actual
+   * sending.</p>
    * @param emailReq Email request.
    */
   public void queueEmail(EmailReq emailReq) {
+    validate(emailReq);
     log.trace("queueEmail() called. Recipients: '{}', template: {}.", emailReq.getRecipients(), emailReq.template());
 
     emailReq = process(emailReq);
@@ -54,6 +62,16 @@ public class EmailService {
     // GCP Tasks ensure that emails won't be lost in case of failure.
     if (canEmailTask) gcpEmailService.queueEmailTask(emailReq);
     else sendEmail(emailReq); // On locally run server just send synchronically.
+  }
+
+  /**
+   * Validates given request against constraints declared on {@link EmailReq}. Note the REST boundary
+   * (<code>GcpController</code>) validates via <code>@Valid</code> too - this covers internal callers that bypass it.
+   * @param emailReq Email request.
+   */
+  private void validate(EmailReq emailReq) {
+    Set<ConstraintViolation<EmailReq>> violations = validator.validate(emailReq);
+    if (!violations.isEmpty()) throw new InvalidEmailReqException(violations);
   }
 
   /**
@@ -110,7 +128,8 @@ public class EmailService {
   private String resolveTemplate(EmailReq emailReq) {
     if (!StringUtils.isEmpty(emailReq.messageHtml())) return emailReq.messageHtml();
 
-    Locale userLocale = Locale.forLanguageTag(emailReq.lang());
+    // Null-safe language fallback.
+    Locale userLocale = Locale.forLanguageTag(StringUtils.defaultIfEmpty(emailReq.lang(), "en"));
     Context context = new Context(userLocale);
     context.setVariables(emailReq.params());
     return templateEngine.process(emailReq.template(), context);

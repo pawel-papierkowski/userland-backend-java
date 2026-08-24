@@ -6,7 +6,8 @@ import org.apache.commons.lang3.StringUtils;
  * Helper class for string manipulation methods that aren't present in other libraries.
  */
 public class StringHelper {
-  private static final int LENGTH_VISIBLE = 10;
+  private static final int LENGTH_TOKEN_VISIBLE = 13;
+  private static final int LENGTH_JWT_VISIBLE = 23;
 
   private StringHelper() {
   }
@@ -20,7 +21,7 @@ public class StringHelper {
    * @return Masked token.
    */
   public static String maskToken(String token) {
-    return StringUtils.abbreviate(token, LENGTH_VISIBLE);
+    return StringUtils.abbreviate(token, LENGTH_TOKEN_VISIBLE);
   }
 
   /**
@@ -31,6 +32,6 @@ public class StringHelper {
    * @return Masked JWT.
    */
   public static String maskJwt(String jwt) {
-    return StringUtils.abbreviateMiddle(jwt, "...", LENGTH_VISIBLE);
+    return StringUtils.abbreviateMiddle(jwt, "...", LENGTH_JWT_VISIBLE);
   }
 }

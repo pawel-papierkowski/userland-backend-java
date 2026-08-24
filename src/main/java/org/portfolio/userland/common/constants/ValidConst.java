@@ -6,6 +6,8 @@ package org.portfolio.userland.common.constants;
 public class ValidConst {
   /** Regular expression that represents valid email. Example: 'a@b.pl' is valid email. */
   public static final String REG_EXPR_EMAIL = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$";
+  /** Regular expression that represents valid or EMPTY email (empty string means 'not provided'). Example: 'a@b.pl' is valid email, '' is valid absence. */
+  public static final String REG_EXPR_EMAIL_OR_EMPTY = "^(|[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,})$";
   /** Regular expression that represents valid password.
    * Ensure that there is at least one digit, at least one lower-case letter, at least one upper-case letter and
    * at least one special character from list.
