@@ -10,13 +10,12 @@ import org.portfolio.userland.system.config.repositories.ConfigRepository;
 import org.portfolio.userland.system.config.service.ConfigConst;
 import org.portfolio.userland.system.config.service.ConfigService;
 import org.portfolio.userland.system.history.repositories.SystemHistoryRepository;
+import org.portfolio.userland.test.config.TestPostgres;
 import org.portfolio.userland.test.helpers.factories.system.ConfigFactory;
 import org.portfolio.userland.test.helpers.problemDetail.ProblemDetailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.springframework.cache.CacheManager;
-import org.springframework.test.context.DynamicPropertyRegistry;
-import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.support.TransactionTemplate;
 import org.testcontainers.postgresql.PostgreSQLContainer;
@@ -71,28 +70,9 @@ public abstract class BaseIntegrationTest {
   /** Used to convert Java objects to JSON. Note: for some reason autowiring ObjectMapper fails. */
   protected final ObjectMapper objectMapper = new ObjectMapper().findAndRegisterModules();
 
-  /** Defines PostgreSQL container used in tests. Note we manage it manually. */
+  /** Defines PostgreSQL container used in tests. Shared singleton, started once for the whole suite. */
   @ServiceConnection
-  protected static final PostgreSQLContainer postgresCont = new PostgreSQLContainer("postgres:17-alpine");
-
-  //
-
-  static {
-    // This ensures the container starts exactly once for the entire test suite run, and stays alive until the JVM exits.
-    // Use of @Container would cause crashes when running test suite.
-    postgresCont.start();
-  }
-
-  /**
-   * Map the dynamic port to Spring Boot's datasource.
-   * @param registry Registry.
-   */
-  @DynamicPropertySource
-  static void configureProperties(DynamicPropertyRegistry registry) {
-    registry.add("spring.datasource.url", postgresCont::getJdbcUrl);
-    registry.add("spring.datasource.username", postgresCont::getUsername);
-    registry.add("spring.datasource.password", postgresCont::getPassword);
-  }
+  protected static final PostgreSQLContainer postgresCont = TestPostgres.get();
 
   /**
    * Reset basic things.
