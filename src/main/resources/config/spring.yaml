@@ -54,10 +54,7 @@ management:
   endpoints:
     web:
       exposure: # ONLY expose these specific, safe endpoints
-        include: "health,info,metrics"
-  info:
-    env:
-      enabled: true # Allows the /actuator/info endpoint to show environment details
+        include: "health,metrics"
 
 # Secrets are defined in GitHub (Repository Secrets).
 security:
