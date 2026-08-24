@@ -167,27 +167,32 @@ public class TableHelper {
 
   /**
    * Applies pagination.
+   * <p>Note: table metadata is normalized via {@link #prepareTableMeta(TableMetaReq)} first, so this method is safe
+   * to call with null or partially filled metadata and stays consistent with default handling everywhere else.</p>
    * @param query Typed query.
-   * @param tableMetaReq Table metadata. Must be filled properly.
+   * @param tableMetaReq Table metadata. Can be null or partially filled.
    * @param <E> Entity.
    */
   public static <E> void applyPagination(TypedQuery<E> query, TableMetaReq tableMetaReq) {
-    int pageSize = tableMetaReq.pageSize() <= 0 ? DEFAULT_PAGE_SIZE : tableMetaReq.pageSize();
+    tableMetaReq = prepareTableMeta(tableMetaReq); // single source of truth for defaults
     // Apply pagination.
-    query.setFirstResult(tableMetaReq.page() * pageSize);
-    query.setMaxResults(pageSize);
+    query.setFirstResult(tableMetaReq.page() * tableMetaReq.pageSize());
+    query.setMaxResults(tableMetaReq.pageSize());
   }
 
   //
 
   /**
    * Fill metadata for table page response.
-   * @param tableMetaReq Metadata for table page request.
+   * <p>Note: table metadata is normalized via {@link #prepareTableMeta(TableMetaReq)} first, so this method is safe
+   * to call with null or partially filled metadata and stays consistent with default handling everywhere else.</p>
+   * @param tableMetaReq Metadata for table page request. Can be null or partially filled.
    * @param entryCount Entry count.
    * @return Metadata for table page response.
    */
   public static TableMetaResp fillTableMetaResp(TableMetaReq tableMetaReq, Long entryCount) {
-    int pageSize = tableMetaReq.pageSize() <= 0 ? DEFAULT_PAGE_SIZE : tableMetaReq.pageSize();
+    tableMetaReq = prepareTableMeta(tableMetaReq); // single source of truth for defaults
+    int pageSize = tableMetaReq.pageSize();
     long pageCount = entryCount <= 0 ? 0 : (entryCount + pageSize - 1) / pageSize;
     return TableMetaResp.builder()
         .pageCount(pageCount)
