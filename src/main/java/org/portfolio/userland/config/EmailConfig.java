@@ -2,7 +2,7 @@ package org.portfolio.userland.config;
 
 import com.resend.Resend;
 import org.apache.commons.lang3.StringUtils;
-import org.portfolio.userland.common.exception.ShouldNeverHappenException;
+import org.portfolio.userland.common.exception.SystemMisconfigurationException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -18,7 +18,7 @@ public class EmailConfig {
 
   @Bean
   public Resend resend() {
-    if (StringUtils.isEmpty(resendApiKey)) throw new ShouldNeverHappenException("Resend API key is not present!");
+    if (StringUtils.isEmpty(resendApiKey)) throw new SystemMisconfigurationException("Resend API key is not present!");
     return new Resend(resendApiKey);
   }
 }

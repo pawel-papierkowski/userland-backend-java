@@ -62,5 +62,5 @@ management:
 # Secrets are defined in GitHub (Repository Secrets).
 security:
   jwt:
-    secret: ${JWT_SECRET:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=} # As bytes encoded in BASE64. Default is placeholder for local development environment.
+    secret: ${JWT_SECRET:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=} # As bytes encoded in BASE64. Placeholder exists only so property resolution works when JWT_SECRET is unset - JwtService fails fast at startup if it is used, so JWT_SECRET must always be set.
     expiration: 360 # 6 hours, in minutes

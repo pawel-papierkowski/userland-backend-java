@@ -85,7 +85,9 @@ You can think of it as baseline for other projects, as almost any project, syste
 
 System uses variables and secrets defined in GitHub.
 
-Some of these have default values in YAML configuration, but you must override everything, especially keys, secrets and passwords. Default values are strictly for local development and even then sensitive values like keys and passwords should be in run configuration in your IDE. YAML configuration contains only placeholder values.
+Some of these have default values in YAML configuration, but you must override everything, especially keys, secrets and passwords.
+Default values are strictly for local development and even then sensitive values like keys and passwords should be in run configuration in your IDE.
+YAML configuration contains only placeholder values.
 
 ### Repository Variables
 These values are visible and freely editable in GitHub panel.
@@ -120,8 +122,9 @@ These values are encrypted and write-only in GitHub panel.
   - **EMAIL_PASSWORD**: Password (or App password) for standard `plain` provider (Google etc).
   - **TEP_RESEND_APIKEY**: API key for Transactional Email Provider called Resend. For `resend` provider.
 - Other:
-  - **JWT_SECRET**: JWT token secret. Must have at least 256 bits (32 bytes) and be string encoded in BASE64.
-    - Best way to generate: in Linux/macOS/Git Bash terminal execute `openssl rand -base64 32`.
+  - **JWT_SECRET**: JWT token secret. Must have at least 256 bits (32 bytes) and be string encoded in BASE64. To generate:
+    - In Linux/macOS/Git Bash terminal execute `openssl rand -base64 32`.
+    - In Windows terminal (PowerShell) execute `$b = [byte[]]::new(32); [Security.Cryptography.RandomNumberGenerator]::Create().GetBytes($b); [Convert]::ToBase64String($b)`.
 
 ## Local startup
 
@@ -129,8 +132,8 @@ In your IDE, ensure Java 25 Temurin is installed and selected.
 
 You need to configure environment variables for your run configuration. Most variables have defaults, but some must be declared.
 
-- Necessary **environment variables** (without them project will fail to start):
-  - None! In theory, you can run app without custom variables. But some things won't work properly (mainly email service). 
+- Necessary **environment variables** (without them project will just fail to start):
+  - You must explicitly set `JWT_SECRET`. System checks for unset/placeholder values to prevent misconfiguration silently using known key. 
 - Needed **environment variables** (without them some parts of project won't work properly):
   - If you use email provider `plain`:
     - You must fill these variables: `EMAIL_HOST`, `EMAIL_USERNAME`, `EMAIL_PASSWORD`.
@@ -139,7 +142,7 @@ You need to configure environment variables for your run configuration. Most var
     - You need proper api key in `TEP_RESEND_APIKEY` provided by Resend.
     - You will also need custom domain registered in Resend.
 - Optional **environment variables**:
-  - If you want to use real database (like local PostgreSQL) instead of database in container, add in run config:
+  - If you want to use real database (like local PostgreSQL instance) instead of database in container, add in run config:
     - `SPRING_DATASOURCE_URL`=jdbc:postgresql://[URL]
     - `SPRING_DATASOURCE_USERNAME`=[NAME OF POSTGRESQL ACCOUNT]
     - `SPRING_DATASOURCE_PASSWORD`=[YOUR PASSWORD FOR ACCOUNT ABOVE]

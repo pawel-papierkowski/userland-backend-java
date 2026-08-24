@@ -5,7 +5,7 @@ import com.google.api.gax.rpc.ApiException;
 import com.google.cloud.tasks.v2.*;
 import com.google.protobuf.ByteString;
 import lombok.extern.slf4j.Slf4j;
-import org.portfolio.userland.common.exception.ShouldNeverHappenException;
+import org.portfolio.userland.common.exception.SystemMisconfigurationException;
 import org.portfolio.userland.features.email.dto.EmailReq;
 import org.portfolio.userland.features.email.services.EmailService;
 import org.portfolio.userland.gcp.exceptions.GcpTaskEnqueueFailureException;
@@ -34,7 +34,7 @@ public class GcpEmailService extends BaseGcpService {
    * @param emailReq Email request.
    */
   public void queueEmailTask(EmailReq emailReq) {
-    if (cloudTasksClient == null) throw new ShouldNeverHappenException("CloudTasksClient is null. Misconfigured/wrong environment?");
+    if (cloudTasksClient == null) throw new SystemMisconfigurationException("CloudTasksClient is null. Misconfigured/wrong environment?");
 
     try {
       String queuePath = QueueName.of(projectId, locationId, queueId).toString();

@@ -3,13 +3,12 @@ package org.portfolio.userland.common.exception;
 import org.springframework.http.HttpStatus;
 
 /**
- * Exception used in "this should never happen" guards. It is just fancier IllegalStateException.
- * <p>If it is thrown, something is very, very wrong.</p>
+ * If it is thrown, there is some misconfiguration in project.
  */
-public class ShouldNeverHappenException extends GeneralException {
+public class SystemMisconfigurationException extends GeneralException {
   private final String details;
 
-  public ShouldNeverHappenException(String details) {
+  public SystemMisconfigurationException(String details) {
     super(details);
     this.details = details;
   }
@@ -21,7 +20,7 @@ public class ShouldNeverHappenException extends GeneralException {
 
   @Override
   public String getTitle() {
-    return "This exception should not happen.";
+    return "System misconfiguration detected.";
   }
 
   @Override
@@ -31,6 +30,6 @@ public class ShouldNeverHappenException extends GeneralException {
 
   @Override
   public String getType() {
-    return "https://api.general.org/errors/shouldNeverHappen";
+    return "https://api.general.org/errors/systemMisconfiguration";
   }
 }

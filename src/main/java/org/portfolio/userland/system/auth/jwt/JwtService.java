@@ -5,9 +5,12 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtParser;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
+import io.jsonwebtoken.io.DecodingException;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
+import org.portfolio.userland.common.exception.SystemMisconfigurationException;
 import org.portfolio.userland.features.user.entities.EnUserStatus;
 import org.portfolio.userland.features.user.entities.User;
 import org.portfolio.userland.features.user.exceptions.UserInvalidStatusException;
@@ -29,6 +32,15 @@ import java.util.Map;
 @Service
 @RequiredArgsConstructor
 public class JwtService extends BaseService {
+  /**
+   * Placeholder value committed in configuration for local property resolution. It is publicly known,
+   * so it must never reach the signing key - otherwise anyone could forge valid tokens.
+   */
+  private static final String PLACEHOLDER_SECRET = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=";
+
+  /** Minimal length of decoded secret key bytes (256 bits), required by HS256. */
+  private static final int MIN_SECRET_KEY_BYTES = 32;
+
   private final JwtClock jwtClock;
 
   /** Secret key used to sign JWT tokens. Must be at least 256 bits (32 characters) long. */
@@ -45,9 +57,13 @@ public class JwtService extends BaseService {
    * Builds the signing key and parser once at startup. The secret is static config,
    * so both are immutable for the lifetime of the application; rebuilding them per operation
    * would only waste CPU on every token generation and parse.
+   * <p>Fails fast on invalid secrets (missing, committed placeholder, too short or malformed),
+   * so a misconfigured deployment refuses to boot instead of silently signing tokens
+   * with a publicly known key.</p>
    */
   @PostConstruct
   private void initSigningAssets() {
+    verifySecret(secretKey);
     signingKey = resolveSigningKey();
     jwtParser = Jwts.parser()
         .verifyWith(signingKey)
@@ -116,11 +132,28 @@ public class JwtService extends BaseService {
   }
 
   /**
+   * Verifies that secret is safe to use for signing. Guards against the case where <code>JWT_SECRET</code>
+   * environment variable is unset in a deployment and configuration falls back to the committed placeholder -
+   * that key is publicly known, so tokens signed with it could be forged by anyone.
+   * @param secret Raw BASE64-encoded secret from configuration.
+   */
+  private void verifySecret(String secret) {
+    if (StringUtils.isBlank(secret)) throw new SystemMisconfigurationException("JWT secret is not present! Set the JWT_SECRET environment variable.");
+    if (PLACEHOLDER_SECRET.equals(secret)) throw new SystemMisconfigurationException("JWT secret is set to publicly known placeholder! Set the JWT_SECRET environment variable.");
+  }
+
+  /**
    * Resolves signing key.
    * @return Secret key.
    */
   private SecretKey resolveSigningKey() {
-    byte[] keyBytes = Decoders.BASE64.decode(secretKey);
+    byte[] keyBytes;
+    try {
+      keyBytes = Decoders.BASE64.decode(secretKey);
+    } catch (DecodingException ex) {
+      throw new SystemMisconfigurationException("JWT secret is not valid BASE64.");
+    }
+    if (keyBytes.length < MIN_SECRET_KEY_BYTES) throw new SystemMisconfigurationException("JWT secret must be at least 256 bits (32 bytes) long.");
     return Keys.hmacShaKeyFor(keyBytes);
   }
 
