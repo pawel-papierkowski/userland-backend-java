@@ -4,7 +4,7 @@ import io.jsonwebtoken.io.Decoders;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-import org.portfolio.userland.common.exception.ShouldNeverHappenException;
+import org.portfolio.userland.common.exception.SystemMisconfigurationException;
 import org.portfolio.userland.common.services.clock.ClockService;
 import org.springframework.test.util.ReflectionTestUtils;
 
@@ -39,7 +39,7 @@ public class JwtSecretValidationTest {
 
     Throwable thrown = catchThrowable(() -> ReflectionTestUtils.invokeMethod(jwtService, "initSigningAssets"));
 
-    assertThat(thrown).isInstanceOf(ShouldNeverHappenException.class);
+    assertThat(thrown).isInstanceOf(SystemMisconfigurationException.class);
     assertThat(thrown.getMessage()).contains("placeholder");
   }
 
@@ -51,17 +51,17 @@ public class JwtSecretValidationTest {
     // Arrange & Act & Assert: empty string.
     ReflectionTestUtils.setField(jwtService, "secretKey", "");
     Throwable thrownEmpty = catchThrowable(() -> ReflectionTestUtils.invokeMethod(jwtService, "initSigningAssets"));
-    assertThat(thrownEmpty).isInstanceOf(ShouldNeverHappenException.class);
+    assertThat(thrownEmpty).isInstanceOf(SystemMisconfigurationException.class);
 
     // Arrange & Act & Assert: whitespace-only string.
     ReflectionTestUtils.setField(jwtService, "secretKey", "   ");
     Throwable thrownWhitespace = catchThrowable(() -> ReflectionTestUtils.invokeMethod(jwtService, "initSigningAssets"));
-    assertThat(thrownWhitespace).isInstanceOf(ShouldNeverHappenException.class);
+    assertThat(thrownWhitespace).isInstanceOf(SystemMisconfigurationException.class);
 
     // Arrange & Act & Assert: null (property not resolved at all).
     ReflectionTestUtils.setField(jwtService, "secretKey", null);
     Throwable thrownNull = catchThrowable(() -> ReflectionTestUtils.invokeMethod(jwtService, "initSigningAssets"));
-    assertThat(thrownNull).isInstanceOf(ShouldNeverHappenException.class);
+    assertThat(thrownNull).isInstanceOf(SystemMisconfigurationException.class);
   }
 
   /**
@@ -75,7 +75,7 @@ public class JwtSecretValidationTest {
 
     // Act & Assert.
     Throwable thrown = catchThrowable(() -> ReflectionTestUtils.invokeMethod(jwtService, "initSigningAssets"));
-    assertThat(thrown).isInstanceOf(ShouldNeverHappenException.class);
+    assertThat(thrown).isInstanceOf(SystemMisconfigurationException.class);
     assertThat(thrown.getMessage()).contains("256 bits");
   }
 
@@ -88,7 +88,7 @@ public class JwtSecretValidationTest {
 
     Throwable thrown = catchThrowable(() -> ReflectionTestUtils.invokeMethod(jwtService, "initSigningAssets"));
 
-    assertThat(thrown).isInstanceOf(ShouldNeverHappenException.class);
+    assertThat(thrown).isInstanceOf(SystemMisconfigurationException.class);
     assertThat(thrown.getMessage()).contains("BASE64");
   }
 
