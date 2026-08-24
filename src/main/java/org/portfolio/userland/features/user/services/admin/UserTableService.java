@@ -138,9 +138,8 @@ public class UserTableService extends BaseUserService {
     if (userFullDataReq.email() == null || userFullDataReq.email().equals(user.getEmail())) return;
 
     boolean emailExists = userRepository.existsByEmail(userFullDataReq.email());
-    // Verify if email is valid. Note user id discrepancy will also be presented as email issue to prevent id leak.
-    if (emailExists || !user.getId().equals(userFullDataReq.id()))
-      throw new UserEmailAlreadyExistsException(userFullDataReq.email());
+    // Verify if email is valid.
+    if (emailExists) throw new UserEmailAlreadyExistsException(userFullDataReq.email());
   }
 
   /**

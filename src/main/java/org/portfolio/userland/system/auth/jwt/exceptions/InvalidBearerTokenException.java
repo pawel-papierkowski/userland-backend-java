@@ -2,6 +2,7 @@ package org.portfolio.userland.system.auth.jwt.exceptions;
 
 import org.portfolio.userland.common.exception.GeneralException;
 import org.portfolio.userland.system.auth.jwt.constants.JwtErrCode;
+import org.portfolio.userland.utils.StringHelper;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 
@@ -12,7 +13,7 @@ import java.util.Map;
  */
 public class InvalidBearerTokenException extends GeneralException {
   public InvalidBearerTokenException(String jwtStr) {
-    super(jwtStr);
+    super(StringHelper.maskJwt(jwtStr));
   }
 
   @Override
