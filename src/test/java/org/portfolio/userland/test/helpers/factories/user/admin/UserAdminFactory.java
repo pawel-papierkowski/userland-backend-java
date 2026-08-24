@@ -12,6 +12,7 @@ import org.portfolio.userland.features.user.dto.admin.user.UserTableEntry;
 import org.portfolio.userland.features.user.dto.common.UserProfileData;
 import org.portfolio.userland.features.user.entities.*;
 import org.portfolio.userland.test.helpers.factories.BaseFactory;
+import org.portfolio.userland.utils.StringHelper;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -211,7 +212,7 @@ public class UserAdminFactory extends BaseFactory {
         .id(entity.getId())
         .createdAt(entity.getCreatedAt())
         .expiresAt(entity.getExpiresAt())
-        .token(entity.getToken())
+        .token(StringHelper.maskToken(entity.getToken()))
         .payload(entity.getPayload())
         .build();
   }
@@ -245,7 +246,7 @@ public class UserAdminFactory extends BaseFactory {
         .id(entity.getId())
         .createdAt(entity.getCreatedAt())
         .expiresAt(entity.getExpiresAt())
-        .token(entity.getToken())
+        .token(StringHelper.maskJwt(entity.getToken()))
         .build();
   }
 }

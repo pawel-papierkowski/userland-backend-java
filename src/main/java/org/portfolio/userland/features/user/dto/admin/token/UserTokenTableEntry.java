@@ -25,7 +25,7 @@ public record UserTokenTableEntry(
     @Schema(description = "When this token will expire.", example = "2026-04-22T15:27:17")
     LocalDateTime expiresAt,
 
-    @Schema(description = "Value of token.", example = "EMAIL")
+    @Schema(description = "Value of token.", example = "oMVoUQeNa5...")
     String token,
 
     @Schema(description = "Payload of token. Only some types of tokens need payload.", example = "new.email@example.com")

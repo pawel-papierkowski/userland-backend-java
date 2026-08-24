@@ -13,14 +13,14 @@ import org.portfolio.userland.features.user.dto.common.UserDataResp;
 import org.portfolio.userland.features.user.dto.common.UserProfileData;
 import org.portfolio.userland.features.user.dto.standard.register.UserRegisterReq;
 import org.portfolio.userland.features.user.entities.*;
+import org.portfolio.userland.utils.StringHelper;
 import org.springframework.web.util.HtmlUtils;
 
 /**
  * Maps requests to user-related entities and user-related entities to responses.
  */
-@Mapper(componentModel = "spring", imports = {HtmlUtils.class})
+@Mapper(componentModel = "spring", imports = {HtmlUtils.class, StringHelper.class})
 public abstract class UserMapper {
-
   /**
    * Maps registration request to <code>User</code> entity.
    * <p>Notes:</p>
@@ -113,6 +113,7 @@ public abstract class UserMapper {
    * @param userToken <code>UserToken</code> entity.
    * @return <code>UserTokenTableEntry</code> instance.
    */
+  @Mapping(target = "token", expression = "java(StringHelper.maskToken(userToken.getToken()))")
   public abstract UserTokenTableEntry entityToTableEntry(UserToken userToken);
 
   /**
@@ -120,5 +121,6 @@ public abstract class UserMapper {
    * @param userJwt <code>UserJwt</code> entity.
    * @return <code>UserJwtTableEntry</code> instance.
    */
+  @Mapping(target = "token", expression = "java(StringHelper.maskJwt(userJwt.getToken()))")
   public abstract UserJwtTableEntry entityToTableEntry(UserJwt userJwt);
 }

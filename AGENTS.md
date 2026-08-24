@@ -52,6 +52,7 @@ This is a modern **Java 25**, **Spring Boot 4.1.0** application. The backend ser
   - `config/` - Handles system configuration feature.
   - `history/` - Handles system history feature.
   - `lockdown/` - Handles system lockdown feature.
+- `utils/` - Utility classes: static helper classes and similar.
 
 ### ⚙️ Features
 - `check` - Debug endpoints to get health and status of system. Independent of Actuator.

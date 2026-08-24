@@ -24,6 +24,6 @@ public record UserJwtTableEntry(
     @Schema(description = "When this JWT will expire.", example = "2026-04-22T15:27:17")
     LocalDateTime expiresAt,
 
-    @Schema(description = "JWT token string.", example = "eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiYWRtaW4iLCJuYW1lIjoiUGF3ZcWCIFBhcGllcmtvd3NraSIsInN1YiI6InBhd2VsLnBhcGllcmtvd3NraUBnbWFpbC5jb20iLCJpYXQiOjE3ODAwNjgzNzAsImV4cCI6MTc4MDE1NDc3MH0.1SqWUyiexH9WTLt8-LpovCk8UJ74dzUyw_f-Dop4kgA")
+    @Schema(description = "JWT token string.", example = "eyJhbGciOi..._f-Dop4kgA")
     String token
 ) {}
