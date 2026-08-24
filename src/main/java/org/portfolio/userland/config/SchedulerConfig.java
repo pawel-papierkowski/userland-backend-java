@@ -12,7 +12,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @Configuration
 @EnableScheduling
 @ConditionalOnProperty(
-    value = "app.scheduling.enabled", // this property will exist only in tests
+    value = "app.scheduling.enabled", // set to false in test configuration (userland-schedulers-test.yaml); see matchIfMissing
     havingValue = "true",
     matchIfMissing = true // ensures it runs normally in production
 )

@@ -57,7 +57,9 @@ public class UserEmailService extends BaseUserService {
    * <p>Note: the real guard against duplicate emails is the unique constraint on <code>users.email</code>; the
    * {@code existsByEmail} check above is only a fast path. If we lose a race against a concurrent email change (or
    * registration) for the same address, the constraint violation is translated into a clean
-   * {@link UserEmailAlreadyExistsException}. The consumed token stays consumed, same as in the sequential case.</p>
+   * {@link UserEmailAlreadyExistsException}. The whole transaction rolls back in that case - including the token
+   * consumption done by <code>resolveToken()</code> - so the token remains valid and can be used for another
+   * attempt.</p>
    * @param userEmailChangeConfirmReq User email change confirmation request.
    */
   @Transactional
@@ -79,7 +81,8 @@ public class UserEmailService extends BaseUserService {
       userRepository.flush();
     } catch (DataIntegrityViolationException ex) {
       // We lost the race: another transaction took this email in the meantime. Abort transaction immediately
-      // (persistence context is inconsistent) - rollback also discards JWT deletion, history and confirm email.
+      // (persistence context is inconsistent) - rollback discards token consumption (so the token stays usable),
+      // JWT deletion, history and confirm email.
       throw new UserEmailAlreadyExistsException(userToken.getPayload());
     }
 

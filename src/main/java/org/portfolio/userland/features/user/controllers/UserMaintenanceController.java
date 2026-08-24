@@ -48,7 +48,7 @@ public class UserMaintenanceController {
   @ApiResponsesAuthPerm
   @Operation(summary = "Cleanup of pending users", description = "Remove all PENDING users that are too old.")
   @ApiResponses(value = {
-      @ApiResponse(responseCode = "200", description = "Successfully started cleanup.",
+      @ApiResponse(responseCode = "204", description = "Successfully started cleanup.",
           content = @Content(schema = @Schema(hidden = true))),
       @ApiResponse(responseCode = "423", description = "Locked: same code is still running.",
           content = @Content(mediaType = "application/problem+json",
@@ -67,7 +67,7 @@ public class UserMaintenanceController {
   @ApiResponsesAuthPerm
   @Operation(summary = "Cleanup of active users", description = "Remove all ACTIVE users that were idle for too long. Note: works only in portfolio mode.")
   @ApiResponses(value = {
-      @ApiResponse(responseCode = "200", description = "Successfully started cleanup.",
+      @ApiResponse(responseCode = "204", description = "Successfully started cleanup.",
           content = @Content(schema = @Schema(hidden = true))),
       @ApiResponse(responseCode = "423", description = "Locked: same code is still running.",
           content = @Content(mediaType = "application/problem+json",

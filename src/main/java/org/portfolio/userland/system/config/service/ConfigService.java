@@ -31,8 +31,7 @@ public class ConfigService {
 
   /**
    * Get value of configuration variable. It won't create missing configuration variable.
-   * <p>Result is served from cache when available. Note that the default value is part of the cache key,
-   * so calls with different defaults for a missing variable never collide.</p>
+   * <p>Result is served from cache when available. Note: the cache key is the configuration name only.</p>
    * @param name Name of configuration variable.
    * @return Value of configuration variable.
    */
@@ -46,10 +45,9 @@ public class ConfigService {
 
   /**
    * Get value of configuration variable. It won't create missing configuration variable.
-   * <p>Result is served from cache when available. Note that the default value is part of the cache key,
-   * so calls with different defaults for a missing variable never collide.</p>
-   * <p>Note: same name of configuration variable means same default value.
-   * Violation of that rule will break the cache, so... don't do that.</p>
+   * <p>Note: the cache key is the name only, so the same configuration name must always resolve to the same default
+   * value - otherwise a cache entry produced with one default could be served where another was expected. This
+   * invariant is enforced by the public getter via <code>ConfigConst.DEFAULTS</code>.</p>
    * @param name Name of configuration variable.
    * @param defaultValue Returns this if configuration variable is missing.
    * @return Value of configuration variable.
