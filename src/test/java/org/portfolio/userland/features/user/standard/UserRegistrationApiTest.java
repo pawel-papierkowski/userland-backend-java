@@ -235,8 +235,9 @@ public class UserRegistrationApiTest extends BaseUserTest {
   //
 
   @Test
-  public void userIsSanitized() throws Exception {
-    // Make sure weird username is sanitized.
+  public void usernameIsStoredAsIs() throws Exception {
+    // Make sure weird username is stored raw (unmodified). HTML-escaping happens at render time (email templates,
+    // frontend), not in persistence.
     clock.setFixedTime("2026-04-10T10:00:00Z");
 
     // Arrange: Create the JSON payload.
@@ -248,11 +249,52 @@ public class UserRegistrationApiTest extends BaseUserTest {
             .content(objectMapper.writeValueAsString(req)))
         .andReturn();
 
+    // Assert: API Response.
+    assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.CREATED.value());
+
     // Assert: Database state.
     transactionTemplate.execute(_ -> {
       // Prepare expected result.
       User expectedUser = userFactory.genUser(EnUserStatus.PENDING);
-      expectedUser.setUsername("&lt;script&gt;alert(&#39;hacked&#39;)&lt;/script&gt;"); // make sure it is sanitized
+      expectedUser.setUsername("<script>alert('hacked')</script>"); // make sure it is stored as-is, no escaping
+      UserProfile expectedUserProfile = userProfileFactory.genProfile(expectedUser);
+      // Assert: User state.
+      assertAllUser("test@example.com", expectedUser, expectedUserProfile);
+      return null;
+    });
+  }
+
+  /**
+   * Regression test: usernames consisting of characters that HTML-escaping would expand (quotes, angle brackets,
+   * ampersands) must not hit the database length constraint, since they are stored raw. Worst case for a
+   * <code>VARCHAR(100)</code> column used to be ~600 chars after escaping.
+   */
+  @Test
+  public void usernameOfSpecialCharsFitsLengthConstraint() throws Exception {
+    // Registering user with maximum-length username made purely of escapable characters.
+    clock.setFixedTime("2026-04-10T10:00:00Z");
+
+    // Arrange: 100 double quotes - worst-case expansion under htmlEscape() would be 600 chars (&quot;).
+    String username = "\"".repeat(100);
+    assertThat(username.length()).as("Test setup error: username must be exactly 100 chars").isEqualTo(100);
+
+    // Arrange: Create the JSON payload.
+    UserRegisterReq req = new UserRegisterReq(username, "test@example.com", "Password123!", "en", null, null, false, null, EnFrontendFramework.VUE);
+
+    // Act: Call the API endpoint.
+    MvcResult mvcResult = mockMvc.perform(post("/api/users/register")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(req)))
+        .andReturn();
+
+    // Assert: API Response.
+    assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.CREATED.value());
+
+    // Assert: Database state.
+    transactionTemplate.execute(_ -> {
+      // Prepare expected result.
+      User expectedUser = userFactory.genUser(EnUserStatus.PENDING);
+      expectedUser.setUsername(username); // stored as-is, still fits VARCHAR(100)
       UserProfile expectedUserProfile = userProfileFactory.genProfile(expectedUser);
       // Assert: User state.
       assertAllUser("test@example.com", expectedUser, expectedUserProfile);

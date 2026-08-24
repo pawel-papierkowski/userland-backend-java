@@ -14,18 +14,18 @@ import org.portfolio.userland.features.user.dto.common.UserProfileData;
 import org.portfolio.userland.features.user.dto.standard.register.UserRegisterReq;
 import org.portfolio.userland.features.user.entities.*;
 import org.portfolio.userland.utils.StringHelper;
-import org.springframework.web.util.HtmlUtils;
 
 /**
  * Maps requests to user-related entities and user-related entities to responses.
  */
-@Mapper(componentModel = "spring", imports = {HtmlUtils.class, StringHelper.class})
+@Mapper(componentModel = "spring", imports = {StringHelper.class})
 public abstract class UserMapper {
   /**
    * Maps registration request to <code>User</code> entity.
    * <p>Notes:</p>
    * <ul>
-   *   <li>Username is sanitized, since it is shown in emails or frontend as is.</li>
+   *   <li>Username is stored as-is (raw). HTML-escaping happens at render time - in email templates via
+   *   <code>#strings.escapeXml()</code> and on the frontend via default framework escaping.</li>
    *   <li>Password is NOT mapped. It has to be set separately with already computed hash, so CPU-heavy BCrypt
    *   hashing can run outside of transaction.</li>
    * </ul>
@@ -36,7 +36,7 @@ public abstract class UserMapper {
   @Mapping(target = "uuid", ignore = true)
   @Mapping(target = "createdAt", ignore = true)
   @Mapping(target = "modifiedAt", ignore = true)
-  @Mapping(target = "username", expression = "java(HtmlUtils.htmlEscape(req.username()))")
+  // username as is (escaped at render time)
   // email as is
   @Mapping(target = "password", ignore = true) // computed separately
   // lang as is

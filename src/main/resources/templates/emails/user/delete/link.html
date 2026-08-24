@@ -5,7 +5,7 @@
     <title th:text="#{email.user.delete.link.subject(${systemName})}">SystemName: account deletion requested</title>
 </head>
 <body>
-<p th:utext="#{email.user.delete.link.greeting(${username})}">Hello, <b>User</b>!</p>
+<p th:utext="#{email.user.delete.link.greeting(${#strings.escapeXml(username)})}">Hello, <b>User</b>!</p>
 <p><span th:utext="#{email.user.delete.link.l1}">Please click this link to delete account:</span> <a th:href="${accountDeleteLink}" th:text="${accountDeleteLink}">LINK_ACCOUNT_DELETE</a>.</p>
 <p th:utext="#{email.user.delete.link.l2(${accountDeleteTokenExpires})}">Link will be valid for 15 minutes.</p>
 </body>

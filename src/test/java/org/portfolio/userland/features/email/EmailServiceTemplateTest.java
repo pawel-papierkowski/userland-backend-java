@@ -110,6 +110,48 @@ public class EmailServiceTemplateTest extends BaseIntegrationTest {
 
   //
 
+  /**
+   * Regression test for render-time escaping: username is stored raw in database, so the email template has to
+   * escape it via <code>#strings.escapeXml()</code> inside <code>th:utext</code>. Verifies that a malicious username
+   * arrives escaped in rendered HTML, while HTML tags from the translation itself (like &lt;b&gt;) are preserved.
+   */
+  @Test
+  public void registrationTemplateEscapesUsernameParam() {
+    // Arrange: prepare email request using real registration template with malicious username.
+    Map<String, Object> params = Maps.newHashMap();
+    params.put("systemName", "TestSystem");
+    params.put("username", "<script>alert('hacked')</script>");
+    params.put("activationLink", "https://example.com/user/activate?token=TOKEN");
+    params.put("activationTokenExpires", 24);
+    EmailReq emailReq = new EmailReq(
+        "plain",
+        "en", // greeting resolves to: Hello, <b>{0}</b>!
+        "tester@test.test",
+        List.of("newuser@example.com"),
+        List.of(),
+        List.of(),
+        "",
+        "TITLE",
+        "user/registration",
+        params,
+        null); // null means system will try to use template to fill messageHtml
+
+    // Act: simulate sending email.
+    emailService.queueEmail(emailReq);
+
+    // Assert: capture processed request and verify escaping of username in rendered HTML.
+    ArgumentCaptor<EmailReq> captor = ArgumentCaptor.forClass(EmailReq.class);
+    verify(emailProvider).send(captor.capture());
+
+    EmailReq processedReq = captor.getValue();
+    assertThat(processedReq.messageHtml()).isNotNull(); // ensure templating engine actually filled messageHtml
+    assertThat(processedReq.messageHtml())
+        .contains("Hello, <b>&lt;script&gt;alert(&#39;hacked&#39;)&lt;/script&gt;</b>") // username escaped
+        .doesNotContain("<script>alert("); // no raw injection
+  }
+
+  //
+
   @Test
   public void errUnknownTemplate() {
     // Arrange: prepare email request.

@@ -5,7 +5,7 @@
     <title th:text="#{email.user.password.confirm.subject(${systemName})}">SystemName: password changed</title>
 </head>
 <body>
-<p th:utext="#{email.user.password.confirm.greeting(${username})}">Hello, <b>User</b>!</p>
+<p th:utext="#{email.user.password.confirm.greeting(${#strings.escapeXml(username)})}">Hello, <b>User</b>!</p>
 <p th:utext="#{email.user.password.confirm.l1}">Password for your account was successfully changed.</p>
 </body>
 </html>
