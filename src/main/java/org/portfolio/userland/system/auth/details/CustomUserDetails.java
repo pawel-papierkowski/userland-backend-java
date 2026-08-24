@@ -41,9 +41,9 @@ public class CustomUserDetails implements UserDetails {
   @Getter
   private final Long id;
   @Getter
-  private final Boolean active;
+  private final boolean active;
   @Getter
-  private final Boolean locked;
+  private final boolean locked;
   private final String username;
   @Getter
   private final String email;
@@ -79,7 +79,7 @@ public class CustomUserDetails implements UserDetails {
    * @param email Email.
    * @param authorities Authorities.
    */
-  public CustomUserDetails(Long id, Boolean active, Boolean locked, String username, String email,
+  public CustomUserDetails(Long id, boolean active, boolean locked, String username, String email,
                            Collection<? extends GrantedAuthority> authorities) {
     this.id = id;
     this.active = active;

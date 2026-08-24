@@ -7,7 +7,6 @@ import org.portfolio.userland.features.user.dto.standard.email.UserEmailChangeLi
 import org.portfolio.userland.features.user.entities.*;
 import org.portfolio.userland.features.user.events.UserEmailChangeConfirmEvent;
 import org.portfolio.userland.features.user.exceptions.UserEmailAlreadyExistsException;
-import org.portfolio.userland.features.user.exceptions.UserWrongPasswordException;
 import org.portfolio.userland.features.user.services.BaseUserService;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
@@ -43,7 +42,6 @@ public class UserEmailService extends BaseUserService {
    */
   public void send(@Valid UserEmailChangeLinkReq userEmailChangeLinkReq) {
     User user = userHelperService.resolveUser(false);
-    if (user == null) throw new UserWrongPasswordException();
 
     // Verify password (BCrypt) BEFORE entering transaction - it is CPU-heavy and must not hold a database connection.
     userHelperService.verifyPassword(user, userEmailChangeLinkReq.password());

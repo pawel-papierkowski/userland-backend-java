@@ -7,7 +7,6 @@ import org.portfolio.userland.features.user.entities.EnUserTokenType;
 import org.portfolio.userland.features.user.entities.User;
 import org.portfolio.userland.features.user.entities.UserToken;
 import org.portfolio.userland.features.user.events.UserAccountDeleteConfirmEvent;
-import org.portfolio.userland.features.user.exceptions.UserWrongPasswordException;
 import org.portfolio.userland.features.user.services.BaseUserService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -41,7 +40,6 @@ public class UserDeleteService extends BaseUserService {
    */
   public void send(UserDeleteLinkReq userDeleteLinkReq) {
     User user = userHelperService.resolveUser(false);
-    if (user == null) throw new UserWrongPasswordException();
 
     // Verify password (BCrypt) BEFORE entering transaction - it is CPU-heavy and must not hold a database connection.
     userHelperService.verifyPassword(user, userDeleteLinkReq.password());

@@ -196,6 +196,6 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     // Details could not be built (user does not exist or token was revoked).
     if (customUserDetails == null) return false;
     // Other checks.
-    return customUserDetails.getActive() && !customUserDetails.getLocked();
+    return customUserDetails.isActive() && !customUserDetails.isLocked();
   }
 }

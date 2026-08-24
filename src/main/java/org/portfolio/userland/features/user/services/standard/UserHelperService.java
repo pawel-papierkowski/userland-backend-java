@@ -53,7 +53,7 @@ public class UserHelperService {
 
   /**
    * Resolves user by user detail. In other words, user must be logged in.
-   * @param failSilently If true, method will return null instead of throwing exception if user does not exist.
+   * @param failSilently If true, method will return null if user does not exist. Otherwise, will throw exception.
    * @return User or null if user could not be found.
    */
   public User resolveUser(boolean failSilently) {
@@ -65,8 +65,7 @@ public class UserHelperService {
   /**
    * Resolves user by email and verifies user state.
    * @param email User email.
-   * @param failSilently If true, method will return null instead of throwing exception if user with given email does
-   *                     not exist.
+   * @param failSilently If true, method will return null if user does not exist. Otherwise, will throw exception.
    * @return User or null if user could not be found.
    */
   public User resolveUser(String email, boolean failSilently) {
@@ -83,8 +82,7 @@ public class UserHelperService {
   /**
    * Resolves user by id and optionally verifies user state.
    * @param id User identificator.
-   * @param failSilently If true, method will return null instead of throwing exception if user with given email does
-   *                     not exist.
+   * @param failSilently If true, method will return null if user does not exist. Otherwise, will throw exception.
    * @param verify If false, skip verification.
    * @return User or null if user could not be found.
    */
@@ -105,7 +103,7 @@ public class UserHelperService {
    * Resolves user by id and verifies user state. This version of call should be used for auth purposes when user
    * is already authenticated (id comes from <code>CustomUserDetails</code>), as it avoids non-PK lookups.
    * @param id User identificator.
-   * @param failSilently If true, method will return null instead of throwing exception if user does not exist.
+   * @param failSilently If true, method will return null if user does not exist. Otherwise, will throw exception.
    * @return User or null if user could not be found.
    */
   public User resolveAuthUser(Long id, boolean failSilently) {
@@ -122,8 +120,7 @@ public class UserHelperService {
   /**
    * Resolves user by email and verifies user state. This version of call should be used for auth purposes.
    * @param email User email.
-   * @param failSilently If true, method will return null instead of throwing exception if user with given email does
-   *                     not exist.
+   * @param failSilently If true, method will return null if user does not exist. Otherwise, will throw exception.
    * @return User or null if user could not be found.
    */
   public User resolveAuthUser(String email, boolean failSilently) {
@@ -141,7 +138,7 @@ public class UserHelperService {
 
   /**
    * Resolve user details.
-   * @param failSilently If true, method will return null instead of throwing exception if user details do not exist.
+   * @param failSilently If true, method will return null if user does not exist. Otherwise, will throw exception.
    * @return User details or null.
    */
   private CustomUserDetails resolveUserDetails(boolean failSilently) {
@@ -156,7 +153,7 @@ public class UserHelperService {
   /**
    * Verifies user state (status and locked). If user state is invalid, throws exception or returns false.
    * @param user User.
-   * @param failSilently If true, return false instead of throwing exception.
+   * @param failSilently If user verification fails, and it is true, method will return false. Otherwise, will throw exception.
    * @return True if verification succeed, otherwise false. Applicable only if <code>failSilently == true</code>.
    * @throws UserInvalidStatusException If user has invalid status.
    * @throws UserLockedException If user is locked.

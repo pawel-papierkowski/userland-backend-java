@@ -96,8 +96,8 @@ public class JwtAuthFilterTest {
     CustomUserDetails principal = (CustomUserDetails) authentication.getPrincipal();
     assertThat(principal).isNotNull();
     assertThat(principal.getId()).isEqualTo(1L);
-    assertThat(principal.getActive()).isTrue();
-    assertThat(principal.getLocked()).isFalse();
+    assertThat(principal.isActive()).isTrue();
+    assertThat(principal.isLocked()).isFalse();
     assertThat(principal.getUsername()).isEqualTo("Jan Kowalski");
     assertThat(principal.getEmail()).isEqualTo(email);
     assertThat(principal.getAuthorities()).isEqualTo(customUserDetails.getAuthorities());
