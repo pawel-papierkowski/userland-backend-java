@@ -21,7 +21,7 @@ public class PermissionTest extends BaseUserTest {
   private PermissionService permissionService;
 
   @BeforeEach
-  public void tearDown() {
+  public void setup() {
     resetDatabase();
   }
 

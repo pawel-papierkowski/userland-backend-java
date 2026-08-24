@@ -52,4 +52,18 @@ public class PermissionHelperTest {
     assertThat(PermissionHelper.resolveAuthoritiesFromClaim(null)).isEmpty();
     assertThat(PermissionHelper.resolveAuthoritiesFromClaim(Map.of("user", ""))).isEmpty();
   }
+
+  //
+
+  /**
+   * Single source of truth for authority string format - mixed-case input must produce canonical uppercase
+   * NAME_VALUE form.
+   */
+  @Test
+  public void buildAuthorityNormalizesCase() {
+    assertThat(PermissionHelper.buildAuthority("role", "AdMiN"))
+        .as("Mixed-case input should produce canonical authority")
+        .isEqualTo("ROLE_ADMIN");
+    assertThat(PermissionHelper.buildAuthority("user", "edit")).isEqualTo("USER_EDIT");
+  }
 }

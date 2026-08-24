@@ -17,7 +17,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
  */
 public class UserLogoutApiTest extends BaseUserTest {
   @BeforeEach
-  public void tearDown() {
+  public void setup() {
     resetDatabase();
   }
 

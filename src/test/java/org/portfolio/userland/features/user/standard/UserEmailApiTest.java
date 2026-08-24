@@ -28,7 +28,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
  */
 public class UserEmailApiTest extends BaseUserTest {
   @BeforeEach
-  public void tearDown() {
+  public void setup() {
     resetDatabase();
   }
 

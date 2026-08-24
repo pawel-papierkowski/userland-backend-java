@@ -43,7 +43,7 @@ public class CheckApiTest extends BaseCheckTest {
   protected String systemVersion;
 
   @BeforeEach
-  public void tearDown() {
+  public void setup() {
     resetDatabase();
   }
 

@@ -41,7 +41,7 @@ public class UserTableEditConstraintTest {
    * Prepare service under test with mocked collaborators and fake authenticated operator.
    */
   @BeforeEach
-  public void setUp() {
+  public void setup() {
     userRepository = mock(UserRepository.class);
     userProfileRepository = mock(UserProfileRepository.class);
     userHelperService = mock(UserHelperService.class);

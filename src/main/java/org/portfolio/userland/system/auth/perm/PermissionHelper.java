@@ -18,6 +18,19 @@ public class PermissionHelper {
   }
 
   /**
+   * Build canonical authority string from permission name and value.
+   * <p>Example: ("role", "admin") results in "ROLE_ADMIN". Both parts are uppercased (locale-independent), since
+   * authorities are compared in uppercase form everywhere. Single source of truth for this format - do not build
+   * authority strings manually.</p>
+   * @param name Permission name. Example: "role".
+   * @param value Permission value. Example: "admin". Must be trimmed already if needed.
+   * @return Authority string.
+   */
+  public static String buildAuthority(String name, String value) {
+    return name.toUpperCase(Locale.ROOT) + "_" + value.toUpperCase(Locale.ROOT);
+  }
+
+  /**
    * Map user permissions to authorities.
    * <p>Example: permission <code>role</code> and userPermission <code>operator</code> will result in <code>ROLE_OPERATOR</code>.</p>
    * @param userPermissions User permissions.
@@ -25,11 +38,9 @@ public class PermissionHelper {
    */
   public static Collection<? extends GrantedAuthority> resolveAuthorities(Set<UserPermission> userPermissions) {
     return userPermissions.stream()
-        .map(userPermission -> {
-          String authorityStr = userPermission.getPermission().getName().toUpperCase()
-              + "_" + userPermission.getValue().toUpperCase();
-          return new SimpleGrantedAuthority(authorityStr);
-        })
+        .map(userPermission -> new SimpleGrantedAuthority(buildAuthority(
+            userPermission.getPermission().getName(),
+            userPermission.getValue())))
         .sorted(Comparator.comparing(GrantedAuthority::getAuthority)) // sorted by natural key required by UserDetail
         .toList();
   }
@@ -53,8 +64,7 @@ public class PermissionHelper {
       String permValues = entry.getValue() == null ? "" : entry.getValue().toString();
       for (String permValue : permValues.split(",")) {
         if (StringUtils.isBlank(permValue)) continue;
-        authorities.add(new SimpleGrantedAuthority(permissionName.toUpperCase()
-            + "_" + permValue.trim().toUpperCase()));
+        authorities.add(new SimpleGrantedAuthority(buildAuthority(permissionName, permValue.trim())));
       }
     }
 

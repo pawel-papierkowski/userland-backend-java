@@ -32,7 +32,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
  */
 public class UserConfigTableApiTest extends BaseUserTest {
   @BeforeEach
-  public void tearDown() {
+  public void setup() {
     resetDatabase();
   }
 

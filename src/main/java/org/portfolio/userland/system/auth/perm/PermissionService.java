@@ -86,6 +86,7 @@ public class PermissionService {
    * <pre>Map.of("role", Set.of("operator", "admin"))</pre>
    * will be converted to
    * <pre>"ROLE_OPERATOR", "ROLE_ADMIN"</pre>
+   * <p>Note: format of authority strings is defined in {@link PermissionHelper#buildAuthority(String, String)}.</p>
    * @param permissionsMap Permission map.
    * @return Array of strings that represent permissions.
    */
@@ -94,7 +95,7 @@ public class PermissionService {
     for (Map.Entry<String, Set<String>> entry : permissionsMap.entrySet()) {
       Set<String> values = entry.getValue();
       for (String permValue : values) {
-        permissionsList.add(entry.getKey().toUpperCase() + "_" + permValue.toUpperCase());
+        permissionsList.add(PermissionHelper.buildAuthority(entry.getKey(), permValue));
       }
     }
     return permissionsList.toArray(new String[] {});

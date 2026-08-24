@@ -37,7 +37,7 @@ public class UserLoginApiTest extends BaseUserTest {
   private ConfigService configService;
 
   @BeforeEach
-  public void tearDown() {
+  public void setup() {
     resetDatabase();
   }
 

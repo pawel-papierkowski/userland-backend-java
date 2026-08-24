@@ -31,7 +31,7 @@ public class JwtServiceTest extends BaseUserTest {
   private long jwtExpiration;
 
   @BeforeEach
-  public void tearDown() {
+  public void setup() {
     resetDatabase();
   }
 

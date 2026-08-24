@@ -18,7 +18,7 @@ public class UserConfigTest extends BaseUserTest {
   private UserConfigService userConfigService;
 
   @BeforeEach
-  public void tearDown() {
+  public void setup() {
     resetDatabase();
   }
 

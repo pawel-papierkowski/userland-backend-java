@@ -22,7 +22,7 @@ public class SystemHistoryServiceTest extends BaseSystemTest {
   private SystemHistoryService systemHistoryService;
 
   @BeforeEach
-  public void tearDown() {
+  public void setup() {
     resetDatabase();
   }
 

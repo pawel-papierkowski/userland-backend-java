@@ -37,7 +37,7 @@ public class UserMaintenanceTest extends BaseUserTest {
   private SystemHistoryAssert systemHistoryAssert;
 
   @BeforeEach
-  public void tearDown() {
+  public void setup() {
     resetDatabase();
   }
 

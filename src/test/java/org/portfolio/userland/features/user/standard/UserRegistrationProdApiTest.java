@@ -31,7 +31,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 @TestPropertySource(properties = "app.main.build=PROD")
 public class UserRegistrationProdApiTest extends BaseUserTest {
   @BeforeEach
-  public void tearDown() {
+  public void setup() {
     resetDatabase();
   }
 

@@ -27,6 +27,7 @@ public class EmailServicePlainTest extends BaseIntegrationTest {
   @ServiceConnection
   static MailpitContainer mailpit = new MailpitContainer();
 
+  /** Clear all emails from pit. */
   @AfterEach
   void tearDown() {
     mailpit.getClient().deleteAllMessages();

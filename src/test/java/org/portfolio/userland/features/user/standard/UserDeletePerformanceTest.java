@@ -25,7 +25,7 @@ public class UserDeletePerformanceTest extends BaseUserTest {
   private UserDeleteService userDeleteService;
 
   @BeforeEach
-  public void tearDown() {
+  public void setup() {
     resetDatabase();
   }
 

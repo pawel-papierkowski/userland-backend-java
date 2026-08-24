@@ -29,7 +29,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class UserPermissionPerformanceTest extends BaseUserTest {
   @BeforeEach
-  public void tearDown() {
+  public void setup() {
     resetDatabase();
   }
 

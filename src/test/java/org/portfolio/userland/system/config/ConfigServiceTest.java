@@ -23,7 +23,7 @@ public class ConfigServiceTest extends BaseIntegrationTest {
   private ConfigRepository configRepository;
 
   @BeforeEach
-  public void tearDown() {
+  public void setup() {
     configRepository.deleteAll();
     // Config reads are cached; clear the cache so values cached by previous tests don't leak here.
     cacheManager.getCache(ConfigService.CONFIG_CACHE).clear();

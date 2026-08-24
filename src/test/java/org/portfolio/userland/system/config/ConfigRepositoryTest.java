@@ -22,7 +22,7 @@ public class ConfigRepositoryTest extends BaseIntegrationTest {
   private EntityManager entityManager;
 
   @BeforeEach
-  public void tearDown() {
+  public void setup() {
     configRepository.deleteAll();
     cacheManager.getCache(ConfigService.CONFIG_CACHE).clear();
   }
