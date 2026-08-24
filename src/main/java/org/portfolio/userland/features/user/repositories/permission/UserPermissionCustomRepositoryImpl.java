@@ -76,10 +76,11 @@ public class UserPermissionCustomRepositoryImpl extends EntityTableHandling<User
   @Transactional(readOnly = true)
   public boolean isRedundant(Long id, Long userId, String name, String value) {
     // Note we ignore entry that we edit (if any).
+    // Comparison is case-insensitive (lower()), so 'role/admin' and 'role/ADMIN' are treated as duplicates.
     String query = """
       SELECT count(up)
       FROM UserPermission up
-      WHERE (:id IS NULL OR up.id <> :id) and up.user.id = :userId and up.permission.name = :name and up.value = :value
+      WHERE (:id IS NULL OR up.id <> :id) and up.user.id = :userId and lower(up.permission.name) = lower(:name) and lower(up.value) = lower(:value)
     """;
     Long count = entityManager.createQuery(query, Long.class)
         .setParameter("id", id)

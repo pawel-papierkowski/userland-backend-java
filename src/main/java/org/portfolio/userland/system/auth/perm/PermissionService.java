@@ -58,16 +58,27 @@ public class PermissionService {
   //
 
   /**
-   * Check if you have one particular permission.
+   * Check if you have one particular permission. Note: comparison is case-insensitive, so stored data like
+   * <code>'ADMIN'</code> matches expected value <code>'admin'</code>. This keeps this overload consistent with
+   * authority-based checks, where permission strings are uppercased before comparison.
    * @param permissionMap Map of permissions.
    * @param name Permission name.
    * @param value Permission value.
    * @return True if permission with given name and value is present in permissionMap, otherwise false.
    */
   private boolean hasPermission(Map<String, Set<String>> permissionMap, String name, String value) {
-    Set<String> values = permissionMap.get(name);
+    Set<String> values = null;
+    for (Map.Entry<String, Set<String>> entry : permissionMap.entrySet()) {
+      if (entry.getKey().equalsIgnoreCase(name)) { // case-insensitive key lookup
+        values = entry.getValue();
+        break;
+      }
+    }
     if (values == null) return false;
-    return values.contains(value);
+    for (String candidate : values) {
+      if (candidate.equalsIgnoreCase(value)) return true; // case-insensitive value match
+    }
+    return false; // nothing matched
   }
 
   /**

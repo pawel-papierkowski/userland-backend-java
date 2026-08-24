@@ -94,6 +94,7 @@ This is a modern **Java 25**, **Spring Boot 4.1.0** application. The backend ser
   - Protected and private classes can have comments.
 
 ### 💼 Business Rules
+- Due to nature of portfolio project, there are no migration concerns, though still mention them as they would be applicable in real project.
 - `User` and `UserProfile` have 1:1 relationship and profile always exist if user exist.
 
 ### 🌐 Internationalization (I18n)

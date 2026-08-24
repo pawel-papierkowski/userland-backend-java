@@ -463,6 +463,51 @@ public class UserPermissionTableApiTest extends BaseUserTest {
     problemDetailService.assertPd(mvcResult, expectedPdb);
   }
 
+  //
+
+  @Test
+  @WithMockCustomUser(authorities = { "ROLE_ADMIN" })
+  public void addUserPermissionMixedCaseIsNormalized() throws Exception {
+    clock.setFixedTime("2026-06-11T10:00:00Z");
+    // Mixed-case input must be normalized to lowercase before persisting (see UserPermissionEditReq compact
+    // constructor), so stored data stays consistent with seeded permission constants.
+
+    // Arrange: Get user with many permission entries.
+    List<User> users = arrangeUserData();
+    User user = users.getFirst();
+
+    // Arrange: Prepare request with wrong-case value.
+    UserPermissionEditReq req = UserPermissionEditReq.builder()
+        .id(null) // add new entry
+        .userId(user.getId())
+        .name("role")
+        .value("OBSERVER") // wrong case on purpose
+        .build();
+
+    // Act: Try to add new user permission entry.
+    MvcResult mvcResult = mockMvc.perform(patch("/api/admin/user/permission")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(req)))
+        .andReturn();
+
+    // Assert: API Response.
+    assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.NO_CONTENT.value());
+
+    // Assert: Database state - value is stored lowercase.
+    transactionTemplate.execute(_ -> {
+      User expectedUser = users.getFirst();
+      expectedUser.getJwts().clear(); // permission change enforce user logout
+      userPermissionFactory.genPermissionEntry(expectedUser, permissionRepository.findByName("role").orElseThrow(), "observer"); // lowercase!
+      userHistoryFactory.genHistoryEvent(expectedUser, EnUserHistoryWho.OPERATOR, EnUserHistoryWhat.EDIT_PERM, "add 'role_observer'");
+
+      // Assert: User state.
+      assertAllUser(user.getEmail(), expectedUser, null);
+      return null;
+    });
+  }
+
+  //
+
   @Test
   @WithMockCustomUser(authorities = { "ROLE_ADMIN" })
   public void addAlreadyExistingUserPermission() throws Exception {
@@ -477,6 +522,43 @@ public class UserPermissionTableApiTest extends BaseUserTest {
         .userId(user.getId())
         .name("role")
         .value("admin")
+        .build();
+
+    // Act: Try to add new user permission entry.
+    MvcResult mvcResult = mockMvc.perform(patch("/api/admin/user/permission")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(req)))
+        .andReturn();
+
+    // Assert: API Response.
+    assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.CONFLICT.value());
+    // Assert: Content has correct error.
+    ProblemDetailBox expectedPdb = new ProblemDetailBox(
+        HttpStatus.CONFLICT.value(),
+        "User permission entry is redundant.",
+        "User permission entry 'role_admin' already exists.",
+        "/api/admin/user/permission",
+        "https://api.userland.org/errors/user/permission/redundant",
+        Map.of("errCode", UserErrCode.PERMISSION_USER_REDUNDANT)
+    );
+    problemDetailService.assertPd(mvcResult, expectedPdb);
+  }
+
+  @Test
+  @WithMockCustomUser(authorities = { "ROLE_ADMIN" })
+  public void addAlreadyExistingUserPermissionMixedCase() throws Exception {
+    // Duplicate detection is case-insensitive - user already has 'role/admin', so 'ROLE/ADMIN' must be rejected too.
+    clock.setFixedTime("2026-06-11T10:00:00Z");
+    // Arrange: Get user with many permission entries.
+    List<User> users = arrangeUserData();
+    User user = users.getFirst();
+
+    // Arrange: Prepare request with wrong-case duplicate of existing 'role/admin' entry.
+    UserPermissionEditReq req = UserPermissionEditReq.builder()
+        .id(null) // add new entry
+        .userId(user.getId())
+        .name("ROLE")
+        .value("ADMIN")
         .build();
 
     // Act: Try to add new user permission entry.
