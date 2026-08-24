@@ -71,10 +71,14 @@ public class GcpService extends BaseGcpService {
   /**
    *
    * Actually sends email. Available only to GCP Tasks.
+   * <p>Security note: payload comes from our own queue and is already sanitized at enqueue time, but we apply
+   * defense-in-depth restrictions here too (see {@link #sanitizeTaskPayload(EmailReq)}). Sender address is
+   * additionally overridden with system value inside <code>EmailService.sendEmail()</code>.</p>
    * @param emailReq Email request.
    * @return True if task succeeded, otherwise false.
    */
   public boolean processTaskEmailSend(EmailReq emailReq) {
+    emailReq = sanitizeTaskPayload(emailReq);
     log.trace("processTaskEmailSend(): Will try to send email to '{}'. Template: '{}'.",
         emailReq.getRecipients(), emailReq.template());
 
@@ -89,5 +93,17 @@ public class GcpService extends BaseGcpService {
       log.error("Exception thrown!", ex);
       return false;
     }
+  }
+
+  /**
+   * Sanitizes payload received from Cloud Tasks before sending.
+   * <p>Provider selection is stripped - tasks must always use default provider. Note <code>messageHtml</code> is
+   * intentionally kept: it was rendered by us from a system template at enqueue time (see
+   * <code>EmailService.process()</code>) and re-rendering or dropping it would break delivery.</p>
+   * @param emailReq Email request from task payload.
+   * @return Sanitized copy of the request.
+   */
+  private EmailReq sanitizeTaskPayload(EmailReq emailReq) {
+    return emailReq.toBuilder().provider(null).build();
   }
 }

@@ -65,7 +65,11 @@ public class EmailServiceTemplateTest extends BaseIntegrationTest {
 
     // Assert: Verify the email was actually sent to the provider.
     // Note: due to app.main.build=PROD we do NOT add [TEST] prefix to subject.
-    EmailReq modEmailReq = emailReq.toBuilder().subject("TITLE").build();
+    // Note: sender is overridden with configured system sender, regardless of what request provided.
+    EmailReq modEmailReq = emailReq.toBuilder()
+        .subject("TITLE")
+        .sender("pawel.papierkowski.portfolio@gmail.com")
+        .build();
     verify(emailProvider).send(modEmailReq);
     // We know templating engine was not run, because it would throw exception due to null template name.
   }

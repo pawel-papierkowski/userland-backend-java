@@ -3,11 +3,14 @@ package org.portfolio.userland.gcp.services;
 import com.google.api.gax.rpc.ApiException;
 import com.google.api.gax.rpc.StatusCode;
 import com.google.cloud.tasks.v2.CloudTasksClient;
+import com.google.cloud.tasks.v2.OidcToken;
 import com.google.cloud.tasks.v2.Task;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.portfolio.userland.features.email.dto.EmailReq;
+import org.portfolio.userland.gcp.constants.GcpConst;
 import org.portfolio.userland.gcp.exceptions.GcpTaskEnqueueFailureException;
 import org.springframework.test.util.ReflectionTestUtils;
 
@@ -75,5 +78,25 @@ public class GcpEmailServiceTest {
     gcpEmailService.queueEmailTask(emailReq);
 
     Mockito.verify(cloudTasksClientMock).createTask(Mockito.contains("queues/test-queue"), Mockito.any(Task.class));
+  }
+
+  /**
+   * Verifies that enqueued task carries explicit OIDC audience matching the target endpoint URL. Receiving side
+   * (JwtGcpTokenValidator) requires exactly this value, so both sides must stay in sync.
+   */
+  @Test
+  public void queueEmailTaskSetsExpectedAudience() {
+    ArgumentCaptor<Task> taskCaptor = ArgumentCaptor.forClass(Task.class);
+    EmailReq emailReq = EmailReq.builder()
+        .recipients(List.of("recipient@test.test"))
+        .messageHtml("<p>Content</p>")
+        .build();
+
+    gcpEmailService.queueEmailTask(emailReq);
+
+    Mockito.verify(cloudTasksClientMock).createTask(Mockito.anyString(), taskCaptor.capture());
+    OidcToken oidcToken = taskCaptor.getValue().getHttpRequest().getOidcToken();
+    assertThat(oidcToken.getAudience()).isEqualTo("https://test.example.com" + GcpConst.EMAIL_SEND_ENDPOINT_PATH);
+    assertThat(oidcToken.getServiceAccountEmail()).isEqualTo("test-sa@test-project.iam.gserviceaccount.com");
   }
 }

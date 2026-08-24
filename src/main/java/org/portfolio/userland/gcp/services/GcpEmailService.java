@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.portfolio.userland.common.exception.SystemMisconfigurationException;
 import org.portfolio.userland.features.email.dto.EmailReq;
 import org.portfolio.userland.features.email.services.EmailService;
+import org.portfolio.userland.gcp.constants.GcpConst;
 import org.portfolio.userland.gcp.exceptions.GcpTaskEnqueueFailureException;
 import org.springframework.stereotype.Service;
 
@@ -47,12 +48,17 @@ public class GcpEmailService extends BaseGcpService {
 
       // Build the HTTP request that GCP will make back to your app.
       HttpRequest httpRequest = HttpRequest.newBuilder()
-          .setUrl(serviceUrl + "/api/gcp/email/send")
+          .setUrl(serviceUrl + GcpConst.EMAIL_SEND_ENDPOINT_PATH)
           .setHttpMethod(HttpMethod.POST)
           .putHeaders("Content-Type", "application/json")
           .setBody(ByteString.copyFromUtf8(jsonPayload))
           // Secure it via OIDC so only Cloud Tasks can call this endpoint.
-          .setOidcToken(OidcToken.newBuilder().setServiceAccountEmail(fullServiceAccountEmail).build())
+          // Audience is set explicitly (instead of relying on the URL default) so it exactly matches what
+          // JwtGcpTokenValidator expects on the receiving side.
+          .setOidcToken(OidcToken.newBuilder()
+              .setServiceAccountEmail(fullServiceAccountEmail)
+              .setAudience(serviceUrl + GcpConst.EMAIL_SEND_ENDPOINT_PATH)
+              .build())
           .build();
 
       Task task = Task.newBuilder()

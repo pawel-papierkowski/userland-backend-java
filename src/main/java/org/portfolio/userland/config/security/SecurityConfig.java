@@ -14,6 +14,11 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.oauth2.core.DelegatingOAuth2TokenValidator;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.oauth2.jwt.JwtIssuerValidator;
+import org.springframework.security.oauth2.jwt.JwtTimestampValidator;
+import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
@@ -32,8 +37,14 @@ import java.util.Arrays;
 @EnableMethodSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
+  /** Google's OIDC issuer for ID tokens. */
+  private static final String GOOGLE_ISSUER = "https://accounts.google.com";
+  /** Google's public JWKS endpoint - holds public keys used to verify token signatures. */
+  private static final String GOOGLE_JWKS_URI = "https://www.googleapis.com/oauth2/v3/certs";
+
   private final JwtAuthFilter jwtAuthFilter;
   private final LockdownFilter lockdownFilter;
+  private final JwtGcpTokenValidator jwtGcpTokenValidator;
   private final ProblemDetailAuthenticationEntryPoint problemDetailAuthenticationEntryPoint;
   private final ProblemDetailAccessDeniedHandler problemDetailAccessDeniedHandler;
 
@@ -144,7 +155,9 @@ public class SecurityConfig {
 
   /**
    * This specific filter chain defines endpoints called by Google Cloud (e.g. Cloud Tasks).
-   * It requires a valid Google-signed OIDC token.
+   * It requires a valid Google-signed OIDC token that additionally passes {@link JwtGcpTokenValidator} - meaning
+   * the token must target our endpoint (audience) and must be minted for our service account (identity). Without
+   * these extra checks, any Google-signed token from any account would be accepted.
    * @param http HTTP security data.
    * @return Security filter chain.
    */
@@ -156,14 +169,32 @@ public class SecurityConfig {
         .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .securityMatcher(EndpointConst.GCP) // Match all GCP endpoints
         .authorizeHttpRequests(requests -> requests.anyRequest().authenticated())
-        // Enable OAuth2 Resource Server to automatically validate the Bearer token against Google's public keys
-        .oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt -> {}))
+        // Enable OAuth2 Resource Server to automatically validate the Bearer token against Google's public keys,
+        // plus our own extra validation (audience + service account identity).
+        .oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt -> jwt.decoder(gcpJwtDecoder())))
         .exceptionHandling(ex -> ex
             .authenticationEntryPoint(problemDetailAuthenticationEntryPoint)
             .accessDeniedHandler(problemDetailAccessDeniedHandler)
         );
 
     return http.build();
+  }
+
+  /**
+   * Builds JWT decoder used to verify tokens calling GCP endpoints.
+   * <p>Decoder verifies signature against Google's public keys and delegates remaining checks (timestamp, issuer,
+   * and our custom audience/identity validation) to a chain of validators.</p>
+   * <p>Note: JWKS URI is hardcoded instead of derived from issuer metadata, so no HTTP call is made at startup.</p>
+   * @return JWT decoder for GCP tokens.
+   */
+  private JwtDecoder gcpJwtDecoder() {
+    NimbusJwtDecoder decoder = NimbusJwtDecoder.withJwkSetUri(GOOGLE_JWKS_URI).build();
+    decoder.setJwtValidator(new DelegatingOAuth2TokenValidator<>(
+        new JwtTimestampValidator(), // standard: reject expired/too-early tokens
+        new JwtIssuerValidator(GOOGLE_ISSUER), // token must come from Google
+        jwtGcpTokenValidator // our extra checks: audience + service account identity
+    ));
+    return decoder;
   }
 
   /**

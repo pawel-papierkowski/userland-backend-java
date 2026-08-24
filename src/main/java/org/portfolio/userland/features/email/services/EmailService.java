@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.portfolio.userland.common.constants.EnAppBuild;
 import org.portfolio.userland.common.constants.GeneralConst;
+import org.portfolio.userland.common.exception.SystemMisconfigurationException;
 import org.portfolio.userland.features.email.dto.EmailReq;
 import org.portfolio.userland.features.email.services.providers.EmailProviderFactory;
 import org.portfolio.userland.features.email.services.providers.IntEmailProvider;
@@ -37,6 +38,9 @@ public class EmailService {
   /** If true, use GCP Cloud Task for queueing emails. */
   @Value("${app.gcp.email.task}")
   private Boolean canEmailTask;
+  /** Configured system sender address - always overrides whatever caller provided. */
+  @Value("${app.email.sender}")
+  private String sender;
 
   /**
    * Queue email to be sent later.
@@ -54,10 +58,16 @@ public class EmailService {
 
   /**
    * Actually send email based on data in email request.
+   * <p>Security note: sender address is always overridden with configured system sender, so no caller (internal
+   * code, queued task payload, or anything else) can spoof the 'from' address.</p>
    * @param emailReq Email request.
    */
   public void sendEmail(EmailReq emailReq) {
     log.trace("sendEmail() called. Recipients: '{}', template: {}.", emailReq.getRecipients(), emailReq.template());
+
+    // Force configured sender, ignoring whatever was provided in the request.
+    if (StringUtils.isEmpty(sender)) throw new SystemMisconfigurationException("System sender address is not configured!");
+    emailReq = emailReq.toBuilder().sender(sender).build();
 
     // Determine correct provider.
     IntEmailProvider emailProvider = emailProviderFactory.getProvider(emailReq.provider());

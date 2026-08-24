@@ -34,7 +34,7 @@ public class EmailServicePlainTest extends BaseIntegrationTest {
 
   @Test
   public void plainEmailSimple() {
-    // Arrange: prepare email request.
+    // Arrange: prepare email request. Note: caller-provided sender must be ignored (security), see assertion below.
     EmailReq emailReq = new EmailReq(
         "plain",
         "pl",
@@ -51,11 +51,12 @@ public class EmailServicePlainTest extends BaseIntegrationTest {
     // Act: send email.
     emailService.queueEmail(emailReq);
 
-    // Assert: that email was actually sent.
+    // Assert: that email was actually sent, and that configured system sender was used instead of the
+    // one provided in the request ("tester@test.test").
     assertThat(mailpit)
         .hasMessages()
         .hasMessageCount(1)
-        .hasMessageFrom("tester@test.test")
+        .hasMessageFrom("pawel.papierkowski.portfolio@gmail.com")
         .hasMessageTo("newuser@example.com")
         .hasMessageWithSubject("[TEST] TITLE"); // We add [TEST] to subject due to app.main.build being TEST
   }
