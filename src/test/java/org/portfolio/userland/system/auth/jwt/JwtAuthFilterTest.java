@@ -1,6 +1,7 @@
 package org.portfolio.userland.system.auth.jwt;
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.MalformedJwtException;
 import jakarta.servlet.FilterChain;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -137,7 +138,9 @@ public class JwtAuthFilterTest {
     MockHttpServletResponse response = new MockHttpServletResponse();
     FilterChain filterChain = mock(FilterChain.class);
 
-    when(jwtService.extractAllClaims(TOKEN_BAD)).thenThrow(new RuntimeException("Malformed JWT"));
+    // Note: filter catches only JwtException/IllegalArgumentException - stub with the real exception type
+    // parseSignedClaims() throws for malformed tokens. A RuntimeException would propagate as a genuine bug.
+    when(jwtService.extractAllClaims(TOKEN_BAD)).thenThrow(new MalformedJwtException("Malformed JWT"));
 
     // Act: Execute the filter.
     jwtAuthFilter.doFilterInternal(request, response, filterChain);
@@ -171,7 +174,7 @@ public class JwtAuthFilterTest {
     MockHttpServletResponse response = new MockHttpServletResponse();
     FilterChain filterChain = mock(FilterChain.class);
 
-    when(jwtService.extractAllClaims(TOKEN_BAD)).thenThrow(new RuntimeException("Malformed JWT"));
+    when(jwtService.extractAllClaims(TOKEN_BAD)).thenThrow(new MalformedJwtException("Malformed JWT"));
 
     // Act: Execute the filter.
     jwtAuthFilter.doFilterInternal(request, response, filterChain);

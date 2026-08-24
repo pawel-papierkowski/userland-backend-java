@@ -1,6 +1,7 @@
 package org.portfolio.userland.system.auth.jwt;
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -66,7 +67,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
   /** Exempt endpoint matcher. */
   private final RequestMatcher exemptMatcher = new OrRequestMatcher(
-      PathPatternRequestMatcher.withDefaults().matcher("/api/gcp/**")
+      PathPatternRequestMatcher.withDefaults().matcher(EndpointConst.GCP)
   );
 
   /** Public endpoint matcher. */
@@ -111,7 +112,11 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     final Claims claims;
     try {
       claims = jwtService.extractAllClaims(token);
-    } catch (Exception ex) { // Important to catch exception here!
+    } catch (JwtException | IllegalArgumentException ex) {
+      // Only expected failure modes of parseSignedClaims() are caught: JwtException (malformed, expired, bad
+      // signature, invalid claims) and IllegalArgumentException (null/empty token). Anything else is a genuine bug
+      // and must propagate instead of being masked as an auth failure (401).
+
       // If it's a public endpoint, ignore the JWT failure and proceed without authentication (as if JWT was never supplied).
       if (publicEndpointsMatcher.matches(request)) {
         log.trace("Token is malformed or expired, but endpoint is public.");

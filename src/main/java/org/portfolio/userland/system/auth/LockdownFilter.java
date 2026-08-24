@@ -7,6 +7,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.jspecify.annotations.NonNull;
+import org.portfolio.userland.config.security.constants.EndpointConst;
 import org.portfolio.userland.system.auth.details.CustomUserDetails;
 import org.portfolio.userland.system.auth.jwt.JwtAuthFilter;
 import org.portfolio.userland.system.auth.perm.EnPermKind;
@@ -48,7 +49,7 @@ public class LockdownFilter extends OncePerRequestFilter {
 
   /** Exempt endpoint matcher. */
   private final RequestMatcher exemptMatcher = new OrRequestMatcher(
-      PathPatternRequestMatcher.withDefaults().matcher("/api/gcp/**"),
+      PathPatternRequestMatcher.withDefaults().matcher(EndpointConst.GCP),
       PathPatternRequestMatcher.withDefaults().matcher("/api/users/login")
   );
 

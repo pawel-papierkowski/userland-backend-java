@@ -1,5 +1,6 @@
 package org.portfolio.userland.gcp.services;
 
+import com.google.api.gax.rpc.ApiException;
 import com.google.auth.oauth2.ComputeEngineCredentials;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.auth.oauth2.ServiceAccountCredentials;
@@ -40,8 +41,12 @@ public class GcpService extends BaseGcpService {
       // A simple "getQueue" call forces the networking layer to initialize.
       cloudTasksClient.getQueue(queuePath);
       log.trace("Cloud Tasks connection established.");
-    } catch (Exception ex) {
+    } catch (IOException | ApiException ex) {
+      // Expected failure modes of the pre-warm call (credential resolution and gRPC/network/permission errors).
+      // Pre-warm is best-effort - failure here degrades gracefully, it must not prevent application startup.
+      // Anything else is a genuine bug and must propagate, so a broken deployment fails fast on Cloud Run.
       log.warn("Failed to pre-warm Cloud Tasks connection: {}", ex.getMessage());
+      log.debug("Cloud Tasks pre-warm failure details.", ex);
     }
   }
 
@@ -51,17 +56,20 @@ public class GcpService extends BaseGcpService {
    */
   public void debugGetCurrentAccount() throws IOException {
     GoogleCredentials credentials = GoogleCredentials.getApplicationDefault();
-    if (credentials instanceof ServiceAccountCredentials) {
-      String activeEmail = ((ServiceAccountCredentials) credentials).getAccount();
-      log.debug("GCP currently running as Service Account: {}", activeEmail);
-    } else if (credentials instanceof UserCredentials) {
-      String clientId = ((UserCredentials) credentials).getClientId();
-      log.debug("GCP currently running as User Account: {}", clientId);
-    } else if (credentials instanceof ComputeEngineCredentials) {
-      String accountId = ((ComputeEngineCredentials) credentials).getAccount();
-      log.debug("GCP currently running as compute engine: {}", accountId);
-    } else {
-      log.debug("GCP currently running as an unknown credential type. Type of credential: {}.",
+    switch (credentials) {
+      case ServiceAccountCredentials serviceAccountCredentials -> {
+        String activeEmail = serviceAccountCredentials.getAccount();
+        log.debug("GCP currently running as Service Account: {}", activeEmail);
+      }
+      case UserCredentials userCredentials -> {
+        String clientId = userCredentials.getClientId();
+        log.debug("GCP currently running as User Account: {}", clientId);
+      }
+      case ComputeEngineCredentials computeEngineCredentials -> {
+        String accountId = computeEngineCredentials.getAccount();
+        log.debug("GCP currently running as compute engine: {}", accountId);
+      }
+      default -> log.debug("GCP currently running as an unknown credential type. Type of credential: {}.",
           credentials.getClass().getName());
     }
   }

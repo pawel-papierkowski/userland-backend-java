@@ -19,17 +19,11 @@ public class EndpointConst {
   };
 
   /** Endpoints for administration panel. */
-  public static final String[] ADMIN = new String[] {
-      "/api/admin/**"  // any administration panel endpoint, including all path segments
-  };
+  public static final String ADMIN = "/api/admin/**";
 
   /** Endpoints for system. */
-  public static final String[] SYSTEM = new String[] {
-      "/api/system/**"  // any system endpoint, including all path segments
-  };
+  public static final String SYSTEM = "/api/system/**";
 
   /** Endpoints for GCP. */
-  public static final String[] GCP = new String[] {
-      "/api/gcp/**"  // all GCP endpoints
-  };
+  public static final String GCP = "/api/gcp/**";
 }
