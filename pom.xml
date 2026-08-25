@@ -190,7 +190,7 @@
 			<groupId>org.mapstruct</groupId>
 			<artifactId>mapstruct-processor</artifactId>
 			<version>1.6.3</version>
-			<scope>compile</scope>
+			<scope>provided</scope>
 		</dependency>
 
 		<!-- Google stuff. -->
@@ -274,12 +274,6 @@
 	</dependencyManagement>
 
 	<build>
-		<resources>
-			<resource> <!-- Turn on Maven parsing (needed for parsing @...@). -->
-				<directory>src/main/resources</directory>
-				<filtering>true</filtering>
-			</resource>
-		</resources>
 
 		<plugins>
 			<!-- Fix for annoying JVM warning message during tests. -->
@@ -315,6 +309,14 @@
 						</exclude>
 					</excludes>
 				</configuration>
+				<executions> <!-- Generates META-INF/build-info.properties (source of BuildProperties bean with app version). -->
+					<execution>
+						<id>build-info</id>
+						<goals>
+							<goal>build-info</goal>
+						</goals>
+					</execution>
+				</executions>
 			</plugin>
 
 			<plugin>
