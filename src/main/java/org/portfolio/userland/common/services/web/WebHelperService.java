@@ -22,7 +22,7 @@ public class WebHelperService {
 
   /** System build. */
   @Value("${app.main.build}")
-  protected EnAppBuild build;
+  private EnAppBuild build;
 
   /**
    * Resolve login link. Note it is for frontend, not backend.

@@ -252,12 +252,24 @@ public abstract class BaseUserService extends BaseService {
 
   //
 
+  /**
+   * Add permission entry to user and save it.
+   * @param user User.
+   * @param name Name of permission.
+   * @param value Value of permission.
+   */
   protected void addPermission(User user, String name, String value) {
     UserPermission permissionEntry = createPermission(name, value);
     permissionEntry.setUser(user);
     userPermissionRepository.save(permissionEntry);
   }
 
+  /**
+   * Create and fill permission data.
+   * @param name Name of permission.
+   * @param value Value of permission.
+   * @return User permission entry.
+   */
   protected UserPermission createPermission(String name, String value) {
     Permission permission = permissionRepository.findByName(name).orElseThrow();
 

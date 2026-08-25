@@ -56,7 +56,7 @@ public class UserSendEmailService {
 
   /** Name of system. */
   @Value("${app.main.name}")
-  protected String systemName;
+  private String systemName;
   /** Sender address. */
   @Value("${app.email.sender}")
   private String emailSender;

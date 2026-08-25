@@ -10,6 +10,10 @@ import java.time.Clock;
  */
 @Configuration
 public class ClockConfig {
+  /**
+   * Define clock. Uses UTC.
+   * @return Clock.
+   */
   @Bean
   public Clock clock() {
     return Clock.systemUTC();

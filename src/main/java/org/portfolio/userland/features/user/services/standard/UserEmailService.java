@@ -1,6 +1,5 @@
 package org.portfolio.userland.features.user.services.standard;
 
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.portfolio.userland.features.user.dto.standard.email.UserEmailChangeConfirmReq;
 import org.portfolio.userland.features.user.dto.standard.email.UserEmailChangeLinkReq;
@@ -40,7 +39,7 @@ public class UserEmailService extends BaseUserService {
    * <p>Note 2: on production, if email is already taken (or some other problem occurred), will return same error as bad password.</p>
    * @param userEmailChangeLinkReq User email change request.
    */
-  public void send(@Valid UserEmailChangeLinkReq userEmailChangeLinkReq) {
+  public void send(UserEmailChangeLinkReq userEmailChangeLinkReq) {
     User user = userHelperService.resolveUser(false);
 
     // Verify password (BCrypt) BEFORE entering transaction - it is CPU-heavy and must not hold a database connection.
@@ -61,7 +60,7 @@ public class UserEmailService extends BaseUserService {
    * @param userEmailChangeConfirmReq User email change confirmation request.
    */
   @Transactional
-  public void confirm(@Valid UserEmailChangeConfirmReq userEmailChangeConfirmReq) {
+  public void confirm(UserEmailChangeConfirmReq userEmailChangeConfirmReq) {
     LocalDateTime nowAt = clockService.getNowUTC();
 
     UserToken userToken = resolveToken(nowAt, EnUserTokenType.EMAIL, userEmailChangeConfirmReq.token());

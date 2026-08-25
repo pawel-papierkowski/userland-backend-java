@@ -73,7 +73,7 @@ This is a modern **Java 25**, **Spring Boot 4.1.0** application. The backend ser
     - Never write manual `equals()`/`hashCode()` methods, except Hibernate entities that require custom code for these methods.
 - **REST APIs:**
     - Return `ResponseEntity<T>` from all controller endpoints.
-      - In case endpoint do not return anything, use `ResponseEntity<Void>` and return `204 No Content`.
+      - In case endpoint do not return anything, use `ResponseEntity<Void>` and return `204 No Content`. Any exception to this rule must be documented.
     - All request classes have `Req` suffix. Endpoints with requests have `@Valid` annotation.
     - All response classes have `Resp` suffix.
     - Document all endpoints using Swagger/OpenAPI `@Operation`, `@Schema`, and custom meta-annotations like `@ApiAuthResponses`. `ProblemDetail` and derived classes are used for errors.
@@ -119,7 +119,7 @@ This is a modern **Java 25**, **Spring Boot 4.1.0** application. The backend ser
       - `factories/` - Convenient classes that create more or less random entities for you (either hardcoded data or via Instancio).
       - `mocks/` - Auxiliary classes that help with mocking.
       - `problemDetail/` - Handles problem details in testing.
-- Do not use context slicing (like `@DataJpaTest` or `@WebMvcTest`) unless explicitly asked; prefer `BaseIntegrationTest` to ensure configurations load correctly.
+- Do not use context slicing (like `@DataJpaTest` or `@WebMvcTest`) for new test files unless explicitly asked; prefer `BaseIntegrationTest` to ensure configurations load correctly. Note already existing test files are ok.
 
 ## 🔎 Reviewing code
 

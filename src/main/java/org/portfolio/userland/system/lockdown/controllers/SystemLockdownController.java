@@ -49,7 +49,7 @@ public class SystemLockdownController {
   /**
    * Sets new status of lockdown.
    * @param systemLockdownReq Lockdown request.
-   * @return Response.
+   * @return Response with empty body. Note we can return 200 to distinguish "set new status" from "no change".
    */
   @PostMapping(value = "/lockdown", produces = "application/json")
   @Operation(summary = "Set new status of lockdown", description = "Changes status of lockdown.")

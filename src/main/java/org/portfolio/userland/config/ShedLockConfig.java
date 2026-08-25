@@ -16,9 +16,14 @@ import javax.sql.DataSource;
 @Configuration
 @EnableSchedulerLock(defaultLockAtMostFor = "10m") // enable ShedLock
 public class ShedLockConfig {
+  /**
+   * Configures ShedLock. Among other things, we tell it where is shedlock table to use.
+   * @param dataSource Data source.
+   * @param transactionManager Transaction manager.
+   * @return Lock provider.
+   */
   @Bean
   public LockProvider lockProvider(DataSource dataSource, PlatformTransactionManager transactionManager) {
-    // Configures ShedLock. Among other things, we tell it where is shedlock table to use.
     return new JdbcTemplateLockProvider(
         JdbcTemplateLockProvider.Configuration.builder()
             .withJdbcTemplate(new JdbcTemplate(dataSource))
