@@ -59,12 +59,31 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
   /**
    * Handle authentication exceptions.
+   * <p>Note: this handler is never triggered by application code directly. It is reached in two ways, both via
+   * {@link org.springframework.web.servlet.HandlerExceptionResolver} delegation:</p>
+   * <ul>
+   *   <li>unauthenticated request to any protected endpoint - <code>ProblemDetailAuthenticationEntryPoint</code>
+   *       forwards the exception raised by the security filter chains (e.g. <code>InsufficientAuthenticationException</code>) here,</li>
+   *   <li>invalid or missing OIDC token on GCP endpoints - oauth2 resource server failures (e.g.
+   *       <code>OAuth2AuthenticationException</code>) are routed through the same entry point.</li>
+   * </ul>
+   * <p>The generic response body is intentional - token validation specifics must not leak to clients.</p>
+   * <p>Contract: application code must NEVER throw Spring's <code>AuthenticationException</code> subtypes (like
+   * <code>BadCredentialsException</code> or <code>LockedException</code>). Model authentication/authorization
+   * failures as {@link GeneralException} derivatives instead (see <code>InvalidBearerTokenException</code>),
+   * so they carry proper error codes and headers. If such an exception ever shows up in logs below, it means
+   * someone violated this contract.</p>
    * @param ex Exception.
    * @param request Web request.
    * @return Problem detail.
    */
   @ExceptionHandler(AuthenticationException.class)
   public ProblemDetail handleAuthenticationException(AuthenticationException ex, WebRequest request) {
+    // Debug level: unauthenticated access is routine traffic, but unexpected AuthenticationException subtypes
+    // thrown from within application code would only be visible here. Log type + message only - never log raw
+    // tokens or credentials that could be embedded in exception data.
+    log.debug("Authentication failed ({}): {}", ex.getClass().getSimpleName(), ex.getMessage());
+
     ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.UNAUTHORIZED);
     problemDetail.setTitle("Unauthorized");
     problemDetail.setDetail("Authentication is required to access this resource.");
