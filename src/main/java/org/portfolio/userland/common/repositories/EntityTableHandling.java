@@ -7,6 +7,7 @@ import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
+import org.portfolio.userland.common.dto.TableMetaReq;
 import org.portfolio.userland.common.exception.ShouldNeverHappenException;
 import org.portfolio.userland.common.services.table.TableHelper;
 
@@ -75,11 +76,15 @@ public abstract class EntityTableHandling<R extends TableReq, E> {
   }
 
   /**
-   * View page of user config entries. Note: tableMeta must be filled.
+   * View page of user config entries. Note: tableMeta can be null or partially filled - missing fields are filled
+   * with defaults (see {@link TableHelper#prepareTableMeta(TableMetaReq)}).
    * @param req Table view request.
    * @return Page of entities.
    */
   public List<E> viewPage(R req) {
+    // Normalize table meta once at the top.
+    TableMetaReq tableMeta = TableHelper.prepareTableMeta(req.tableMeta());
+
     CriteriaBuilder cb = entityManager.getCriteriaBuilder();
     CriteriaQuery<E> cq = cb.createQuery(entityClass);
     Root<E> entity = cq.from(entityClass);
@@ -94,9 +99,9 @@ public abstract class EntityTableHandling<R extends TableReq, E> {
       cq.where(cb.and(predicates.toArray(new Predicate[0])));
     }
 
-    TableHelper.applySorting(cb, cq, entity, entityManager.getMetamodel(), req.tableMeta());
+    TableHelper.applySorting(cb, cq, entity, entityManager.getMetamodel(), tableMeta);
     TypedQuery<E> query = entityManager.createQuery(cq);
-    TableHelper.applyPagination(query, req.tableMeta());
+    TableHelper.applyPagination(query, tableMeta);
     return query.getResultList();
   }
 

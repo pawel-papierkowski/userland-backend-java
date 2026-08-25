@@ -3,6 +3,7 @@ package org.portfolio.userland.common.dto;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.PositiveOrZero;
 import lombok.Builder;
 
 /**
@@ -22,6 +23,7 @@ public record TableMetaReq(
     Integer pageSize,
 
     @Schema(description = "Page number.", example = "3")
+    @PositiveOrZero
     Integer page,
 
     @Schema(description = "Name of field to sort by. If null/empty, will sort by default field (usually createdAt).", example = "username")

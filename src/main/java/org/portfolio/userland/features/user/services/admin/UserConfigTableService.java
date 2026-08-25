@@ -46,22 +46,9 @@ public class UserConfigTableService extends BaseUserService {
   @Transactional(readOnly = true)
   public UserConfigTableResp getPage(UserConfigTableReq tableReq) {
     verifyRequest(tableReq);
-    tableReq = prepareRequest(tableReq);
     Long entryCount = userConfigRepository.countEntries(tableReq);
     List<UserConfig> userPage = userConfigRepository.viewPage(tableReq);
     return cnvEntitiesToEntries(tableReq.userId(), userPage, tableReq.tableMeta(), entryCount);
-  }
-
-  /**
-   * Prepare request, adding missing fields where needed.
-   * @param tableReq User config table page request.
-   * @return Modified user table page request.
-   */
-  private UserConfigTableReq prepareRequest(UserConfigTableReq tableReq) {
-    TableMetaReq tableMetaReq = TableHelper.prepareTableMeta(tableReq.tableMeta());
-    return tableReq.toBuilder()
-        .tableMeta(tableMetaReq)
-        .build();
   }
 
   /**

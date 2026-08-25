@@ -40,22 +40,9 @@ public class UserTableService extends BaseUserService {
   @Transactional(readOnly = true)
   public UserTableResp getPage(UserTableReq tableReq) {
     verifyRequest(tableReq);
-    tableReq = prepareRequest(tableReq);
     Long entryCount = userRepository.countEntries(tableReq);
     List<User> userPage = userRepository.viewPage(tableReq);
     return cnvEntitiesToEntries(userPage, tableReq.tableMeta(), entryCount);
-  }
-
-  /**
-   * Prepare request, adding missing fields where needed.
-   * @param tableReq User table view request.
-   * @return Modified user table page request.
-   */
-  private UserTableReq prepareRequest(UserTableReq tableReq) {
-    TableMetaReq tableMetaReq = TableHelper.prepareTableMeta(tableReq.tableMeta());
-    return tableReq.toBuilder()
-        .tableMeta(tableMetaReq)
-        .build();
   }
 
   /**

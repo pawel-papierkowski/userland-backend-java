@@ -30,22 +30,9 @@ public class UserHistoryTableService extends BaseUserService {
   @Transactional(readOnly = true)
   public UserHistoryTableResp getPage(UserHistoryTableReq tableReq) {
     verifyRequest(tableReq);
-    tableReq = prepareRequest(tableReq);
     Long entryCount = userHistoryRepository.countEntries(tableReq);
     List<UserHistory> userPage = userHistoryRepository.viewPage(tableReq);
     return cnvEntitiesToEntries(userPage, tableReq.tableMeta(), entryCount);
-  }
-
-  /**
-   * Prepare request, adding missing fields where needed.
-   * @param tableReq User history table page request.
-   * @return Modified user table page request.
-   */
-  private UserHistoryTableReq prepareRequest(UserHistoryTableReq tableReq) {
-    TableMetaReq tableMetaReq = TableHelper.prepareTableMeta(tableReq.tableMeta());
-    return tableReq.toBuilder()
-        .tableMeta(tableMetaReq)
-        .build();
   }
 
   /**

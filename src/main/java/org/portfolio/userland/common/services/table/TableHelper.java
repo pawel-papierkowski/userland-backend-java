@@ -27,7 +27,7 @@ public class TableHelper {
    * @return Filled table meta.
    */
   public static TableMetaReq prepareTableMeta(TableMetaReq tableMetaReq) {
-    return TableHelper.prepareTableMeta(tableMetaReq, DEFAULT_PAGE_SIZE, DEFAULT_PAGE, DEFAULT_SORT_BY, DEFAULT_SORT_ORDER);
+    return prepareTableMeta(tableMetaReq, DEFAULT_PAGE_SIZE, DEFAULT_PAGE, DEFAULT_SORT_BY, DEFAULT_SORT_ORDER);
   }
 
   /**
@@ -66,10 +66,11 @@ public class TableHelper {
    * @param cq Criteria query.
    * @param entity Entity.
    * @param metamodel JPA metamodel, used to validate sort field.
-   * @param tableMetaReq Table metadata.
+   * @param tableMetaReq Table metadata. Can be null or partially filled, defaults will be used.
    * @param <E> Entity class.
    */
   public static <E> void applySorting(CriteriaBuilder cb, CriteriaQuery<E> cq, Root<E> entity, Metamodel metamodel, TableMetaReq tableMetaReq) {
+    tableMetaReq = prepareTableMeta(tableMetaReq); // single source of truth for defaults
     List<Order> order = Lists.newArrayList();
     // Determine custom sorting.
     Order customOrder;
@@ -167,10 +168,8 @@ public class TableHelper {
 
   /**
    * Applies pagination.
-   * <p>Note: table metadata is normalized via {@link #prepareTableMeta(TableMetaReq)} first, so this method is safe
-   * to call with null or partially filled metadata and stays consistent with default handling everywhere else.</p>
    * @param query Typed query.
-   * @param tableMetaReq Table metadata. Can be null or partially filled.
+   * @param tableMetaReq Table metadata. Can be null or partially filled, defaults will be used.
    * @param <E> Entity.
    */
   public static <E> void applyPagination(TypedQuery<E> query, TableMetaReq tableMetaReq) {

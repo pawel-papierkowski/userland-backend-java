@@ -30,22 +30,9 @@ public class UserTokenTableService extends BaseUserService {
   @Transactional(readOnly = true)
   public UserTokenTableResp getPage(UserTokenTableReq tableReq) {
     verifyRequest(tableReq);
-    tableReq = prepareRequest(tableReq);
     Long entryCount = userTokenRepository.countEntries(tableReq);
     List<UserToken> userPage = userTokenRepository.viewPage(tableReq);
     return cnvEntitiesToEntries(userPage, tableReq.tableMeta(), entryCount);
-  }
-
-  /**
-   * Prepare request, adding missing fields where needed.
-   * @param tableReq User token table page request.
-   * @return Modified user table page request.
-   */
-  private UserTokenTableReq prepareRequest(UserTokenTableReq tableReq) {
-    TableMetaReq tableMetaReq = TableHelper.prepareTableMeta(tableReq.tableMeta());
-    return tableReq.toBuilder()
-        .tableMeta(tableMetaReq)
-        .build();
   }
 
   /**

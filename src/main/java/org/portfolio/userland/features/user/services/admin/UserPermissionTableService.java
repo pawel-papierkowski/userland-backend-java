@@ -42,7 +42,6 @@ public class UserPermissionTableService extends BaseUserService {
   @Transactional(readOnly = true)
   public UserPermissionTableResp getPage(UserPermissionTableReq tableReq) {
     verifyRequest(tableReq);
-    tableReq = prepareRequest(tableReq);
     TableMetaReq baseMeta = tableReq.tableMeta(); // we need sortBy with original value
     tableReq = prepareMeta(tableReq);
 
@@ -52,25 +51,15 @@ public class UserPermissionTableService extends BaseUserService {
   }
 
   /**
-   * Prepare request, adding missing fields where needed.
-   * @param tableReq User permission table page request.
-   * @return Modified user table page request.
-   */
-  private UserPermissionTableReq prepareRequest(UserPermissionTableReq tableReq) {
-    TableMetaReq tableMetaReq = TableHelper.prepareTableMeta(tableReq.tableMeta());
-    return tableReq.toBuilder()
-        .tableMeta(tableMetaReq)
-        .build();
-  }
-
-  /**
    * Prepare table meta separately due to sort handling.
+   * <p>Note: tableMeta itself is normalized later inside {@code viewPage()}/{@code fillTableMetaResp()}, so missing
+   * fields are fine here.</p>
    * @param tableReq User permission table page request.
    * @return New version of table meta request.
    */
   private UserPermissionTableReq prepareMeta(UserPermissionTableReq tableReq) {
     TableMetaReq tableMetaReq = tableReq.tableMeta();
-    if ("name".equals(tableMetaReq.sortBy())) {
+    if (tableMetaReq != null && "name".equals(tableMetaReq.sortBy())) {
       // Name needs special sort handling.
       tableMetaReq = tableMetaReq.toBuilder().sortBy("permission.name").build();
     }

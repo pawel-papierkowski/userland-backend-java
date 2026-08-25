@@ -30,22 +30,9 @@ public class UserJwtTableService extends BaseUserService {
   @Transactional(readOnly = true)
   public UserJwtTableResp getPage(UserJwtTableReq tableReq) {
     verifyRequest(tableReq);
-    tableReq = prepareRequest(tableReq);
     Long entryCount = userJwtRepository.countEntries(tableReq);
     List<UserJwt> userPage = userJwtRepository.viewPage(tableReq);
     return cnvEntitiesToEntries(userPage, tableReq.tableMeta(), entryCount);
-  }
-
-  /**
-   * Prepare request, adding missing fields where needed.
-   * @param tableReq User jwt table page request.
-   * @return Modified user table page request.
-   */
-  private UserJwtTableReq prepareRequest(UserJwtTableReq tableReq) {
-    TableMetaReq tableMetaReq = TableHelper.prepareTableMeta(tableReq.tableMeta());
-    return tableReq.toBuilder()
-        .tableMeta(tableMetaReq)
-        .build();
   }
 
   /**
