@@ -1,75 +1,39 @@
 package org.portfolio.userland.gcp.services;
 
-import com.google.api.gax.rpc.ApiException;
-import com.google.api.gax.rpc.StatusCode;
-import com.google.cloud.tasks.v2.CloudTasksClient;
-import com.google.cloud.tasks.v2.OidcToken;
-import com.google.cloud.tasks.v2.Task;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.portfolio.userland.features.email.dto.EmailReq;
 import org.portfolio.userland.gcp.constants.GcpConst;
-import org.portfolio.userland.gcp.exceptions.GcpTaskEnqueueFailureException;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.catchThrowable;
 
 /**
- * Tests queuing of email tasks via GCP Cloud Tasks, focusing on error handling
- * when Cloud Tasks API call fails.
+ * Tests that {@link GcpEmailService} correctly delegates to {@link TaskEnqueuer}.
  */
 public class GcpEmailServiceTest {
-  private CloudTasksClient cloudTasksClientMock;
+  private TaskEnqueuer taskEnqueuerMock;
   private GcpEmailService gcpEmailService;
 
   /**
-   * Prepares service instance with mocked CloudTasksClient and configuration values.
+   * Prepares service instance with mocked task enqueuer and configuration values.
    */
   @BeforeEach
   public void setUp() {
-    cloudTasksClientMock = Mockito.mock(CloudTasksClient.class);
-    gcpEmailService = new GcpEmailService();
-    ReflectionTestUtils.setField(gcpEmailService, "cloudTasksClient", cloudTasksClientMock);
-    ReflectionTestUtils.setField(gcpEmailService, "serviceUrl", "https://test.example.com");
-    ReflectionTestUtils.setField(gcpEmailService, "serviceAccount", "test-sa");
-    ReflectionTestUtils.setField(gcpEmailService, "projectId", "test-project");
-    ReflectionTestUtils.setField(gcpEmailService, "locationId", "europe-central2");
+    taskEnqueuerMock = Mockito.mock(TaskEnqueuer.class);
+    gcpEmailService = new GcpEmailService(taskEnqueuerMock);
     ReflectionTestUtils.setField(gcpEmailService, "queueId", "test-queue");
   }
 
   /**
-   * Verifies that failure of CloudTasksClient.createTask() results in domain-specific exception.
+   * Verifies that email request is delegated to the task enqueuer with correct queue and endpoint path.
    */
   @Test
-  public void queueEmailTaskThrowsDomainExceptionOnApiFailure() {
-    // Arrange: make Cloud Tasks client fail.
-    Mockito.doThrow(new ApiException(Mockito.mock(ApiException.class), Mockito.mock(StatusCode.class), false))
-        .when(cloudTasksClientMock)
-        .createTask(Mockito.anyString(), Mockito.any(Task.class));
-
-    EmailReq emailReq = EmailReq.builder()
-        .recipients(List.of("recipient@test.test"))
-        .messageHtml("<p>Content</p>")
-        .build();
-
-    // Act & Assert: enqueueing must throw our domain-specific exception.
-    Throwable thrown = catchThrowable(() -> gcpEmailService.queueEmailTask(emailReq));
-    assertThat(thrown).isInstanceOf(GcpTaskEnqueueFailureException.class);
-    GcpTaskEnqueueFailureException ex = (GcpTaskEnqueueFailureException) thrown;
-    assertThat(ex.getTitle()).isEqualTo("Failed to enqueue GCP task.");
-    assertThat(ex.getDetail()).contains("queueEmailTask");
-  }
-
-  /**
-   * Verifies that successful enqueueing does not throw any exception.
-   */
-  @Test
-  public void queueEmailTaskSucceeds() {
+  public void queueEmailTaskDelegatesToTaskEnqueuer() {
     EmailReq emailReq = EmailReq.builder()
         .recipients(List.of("recipient@test.test"))
         .messageHtml("<p>Content</p>")
@@ -77,26 +41,8 @@ public class GcpEmailServiceTest {
 
     gcpEmailService.queueEmailTask(emailReq);
 
-    Mockito.verify(cloudTasksClientMock).createTask(Mockito.contains("queues/test-queue"), Mockito.any(Task.class));
-  }
-
-  /**
-   * Verifies that enqueued task carries explicit OIDC audience matching the target endpoint URL. Receiving side
-   * (JwtGcpTokenValidator) requires exactly this value, so both sides must stay in sync.
-   */
-  @Test
-  public void queueEmailTaskSetsExpectedAudience() {
-    ArgumentCaptor<Task> taskCaptor = ArgumentCaptor.forClass(Task.class);
-    EmailReq emailReq = EmailReq.builder()
-        .recipients(List.of("recipient@test.test"))
-        .messageHtml("<p>Content</p>")
-        .build();
-
-    gcpEmailService.queueEmailTask(emailReq);
-
-    Mockito.verify(cloudTasksClientMock).createTask(Mockito.anyString(), taskCaptor.capture());
-    OidcToken oidcToken = taskCaptor.getValue().getHttpRequest().getOidcToken();
-    assertThat(oidcToken.getAudience()).isEqualTo("https://test.example.com" + GcpConst.EMAIL_SEND_ENDPOINT_PATH);
-    assertThat(oidcToken.getServiceAccountEmail()).isEqualTo("test-sa@test-project.iam.gserviceaccount.com");
+    ArgumentCaptor<Object> payloadCaptor = ArgumentCaptor.forClass(Object.class);
+    Mockito.verify(taskEnqueuerMock).enqueue(Mockito.eq("test-queue"), Mockito.eq(GcpConst.EMAIL_SEND_ENDPOINT_PATH), payloadCaptor.capture());
+    assertThat(payloadCaptor.getValue()).isSameAs(emailReq);
   }
 }

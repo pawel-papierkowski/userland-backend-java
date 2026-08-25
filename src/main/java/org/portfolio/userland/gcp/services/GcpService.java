@@ -1,83 +1,22 @@
 package org.portfolio.userland.gcp.services;
 
-import com.google.api.gax.rpc.ApiException;
-import com.google.auth.oauth2.ComputeEngineCredentials;
-import com.google.auth.oauth2.GoogleCredentials;
-import com.google.auth.oauth2.ServiceAccountCredentials;
-import com.google.auth.oauth2.UserCredentials;
-import com.google.cloud.tasks.v2.QueueName;
-import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.portfolio.userland.common.exception.GeneralException;
 import org.portfolio.userland.features.email.dto.EmailReq;
 import org.portfolio.userland.features.email.services.EmailService;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
-
-import java.io.IOException;
 
 /**
  * General GCP service.
  */
 @Service
 @RequiredArgsConstructor
-@Lazy(false) // Overrides global lazy-initialization: true, so init() is called as soon as possible.
 @Slf4j
-public class GcpService extends BaseGcpService {
+public class GcpService {
   private final EmailService emailService;
 
   /**
-   * Make a dummy, lightweight network call to force DNS resolution and TCP/TLS handshakes BEFORE any user traffic hits
-   * the server.
-   */
-  @PostConstruct
-  public void init() {
-    if (cloudTasksClient == null) return;
-    try {
-      debugGetCurrentAccount();
-      String queuePath = QueueName.of(projectId, locationId, queueId).toString();
-      log.trace("Pre-warming Cloud Tasks gRPC connection. queuePath: {}", queuePath);
-      // A simple "getQueue" call forces the networking layer to initialize.
-      cloudTasksClient.getQueue(queuePath);
-      log.trace("Cloud Tasks connection established.");
-    } catch (IOException | ApiException ex) {
-      // Expected failure modes of the pre-warm call (credential resolution and gRPC/network/permission errors).
-      // Pre-warm is best-effort - failure here degrades gracefully, it must not prevent application startup.
-      // Anything else is a genuine bug and must propagate, so a broken deployment fails fast on Cloud Run.
-      log.warn("Failed to pre-warm Cloud Tasks connection: {}", ex.getMessage());
-      log.debug("Cloud Tasks pre-warm failure details.", ex);
-    }
-  }
-
-  /**
-   * Prints to console currently used GCP account.
-   * @throws IOException When something goes wrong.
-   */
-  public void debugGetCurrentAccount() throws IOException {
-    GoogleCredentials credentials = GoogleCredentials.getApplicationDefault();
-    switch (credentials) {
-      case ServiceAccountCredentials serviceAccountCredentials -> {
-        String activeEmail = serviceAccountCredentials.getAccount();
-        log.debug("GCP currently running as Service Account: {}", activeEmail);
-      }
-      case UserCredentials userCredentials -> {
-        String clientId = userCredentials.getClientId();
-        log.debug("GCP currently running as User Account: {}", clientId);
-      }
-      case ComputeEngineCredentials computeEngineCredentials -> {
-        String accountId = computeEngineCredentials.getAccount();
-        log.debug("GCP currently running as compute engine: {}", accountId);
-      }
-      default -> log.debug("GCP currently running as an unknown credential type. Type of credential: {}.",
-          credentials.getClass().getName());
-    }
-  }
-
-  //
-
-  /**
-   *
    * Actually sends email. Available only to GCP Tasks.
    * <p>Security note: payload comes from our own queue and is already sanitized at enqueue time, but we apply
    * defense-in-depth restrictions here too (see {@link #sanitizeTaskPayload(EmailReq)}). Sender address is

@@ -1,21 +1,18 @@
 package org.portfolio.userland.gcp.services;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.google.api.gax.rpc.ApiException;
-import com.google.cloud.tasks.v2.*;
-import com.google.protobuf.ByteString;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.portfolio.userland.common.exception.SystemMisconfigurationException;
 import org.portfolio.userland.features.email.dto.EmailReq;
 import org.portfolio.userland.features.email.services.EmailService;
 import org.portfolio.userland.gcp.constants.GcpConst;
-import org.portfolio.userland.gcp.exceptions.GcpTaskEnqueueFailureException;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 /**
- * Uses GCP Cloud Tasks to queue emails.
- * <p>Note: This code is not used at all in local environment. You are responsible for checking if <code>GcpEmailService</code>
- * can be called. Example:</p>
+ * Uses GCP Cloud Tasks to queue emails. Actual enqueueing is delegated to {@link TaskEnqueuer}, which is
+ * environment-aware (real on GCP, no-op locally), so this service is safe to call in any environment.
+ * <p>Note: caller is responsible for deciding whether emails should actually be queued via Cloud Tasks or sent
+ * synchronously. Example:</p>
  * <pre>
  *   &#064;Value("${app.gcp.email.task}")
  *   private Boolean canEmailTask;
@@ -28,47 +25,22 @@ import org.springframework.stereotype.Service;
  * @see EmailService
  */
 @Service
+@RequiredArgsConstructor
 @Slf4j
-public class GcpEmailService extends BaseGcpService {
+public class GcpEmailService {
+  private final TaskEnqueuer taskEnqueuer;
+
+  /** Queue that holds email tasks. */
+  @Value("${app.gcp.email.queue}")
+  private String queueId;
+
   /**
    * Queues email task for GCP Tasks.
    * @param emailReq Email request.
    */
   public void queueEmailTask(EmailReq emailReq) {
-    if (cloudTasksClient == null) throw new SystemMisconfigurationException("CloudTasksClient is null. Misconfigured/wrong environment?");
-
-    try {
-      String queuePath = QueueName.of(projectId, locationId, queueId).toString();
-      String jsonPayload = objectMapper.writeValueAsString(emailReq);
-      String fullServiceAccountEmail = serviceAccount+"@"+projectId+".iam.gserviceaccount.com";
-
-      log.trace("queueEmailTask(): Email to '{}' (template '{}') is queued. queuePath: '{}', fullServiceAccountEmail: '{}'",
-          emailReq.getRecipients(), emailReq.template(), queuePath, fullServiceAccountEmail);
-      log.trace("queueEmailTask(): Payload:\n{}", jsonPayload);
-
-      // Build the HTTP request that GCP will make back to your app.
-      HttpRequest httpRequest = HttpRequest.newBuilder()
-          .setUrl(serviceUrl + GcpConst.EMAIL_SEND_ENDPOINT_PATH)
-          .setHttpMethod(HttpMethod.POST)
-          .putHeaders("Content-Type", "application/json")
-          .setBody(ByteString.copyFromUtf8(jsonPayload))
-          // Secure it via OIDC so only Cloud Tasks can call this endpoint.
-          // Audience is set explicitly (instead of relying on the URL default) so it exactly matches what
-          // JwtGcpTokenValidator expects on the receiving side.
-          .setOidcToken(OidcToken.newBuilder()
-              .setServiceAccountEmail(fullServiceAccountEmail)
-              .setAudience(serviceUrl + GcpConst.EMAIL_SEND_ENDPOINT_PATH)
-              .build())
-          .build();
-
-      Task task = Task.newBuilder()
-          .setHttpRequest(httpRequest)
-          .build();
-
-      // Send to GCP
-      cloudTasksClient.createTask(queuePath, task);
-    } catch (JsonProcessingException | ApiException ex) {
-      throw new GcpTaskEnqueueFailureException("queueEmailTask", ex);
-    }
+    log.trace("queueEmailTask(): Email to '{}' (template '{}') is queued.",
+        emailReq.getRecipients(), emailReq.template());
+    taskEnqueuer.enqueue(queueId, GcpConst.EMAIL_SEND_ENDPOINT_PATH, emailReq);
   }
 }

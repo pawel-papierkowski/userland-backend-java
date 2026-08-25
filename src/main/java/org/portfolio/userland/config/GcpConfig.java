@@ -16,7 +16,9 @@ import java.io.IOException;
 @Configuration
 public class GcpConfig {
   /**
-   * Provides the <code>CloudTasksClient</code> bean.
+   * Provides the <code>CloudTasksClient</code> bean. Used by {@link org.portfolio.userland.gcp.services.GcpTaskEnqueuer}.
+   * In other environments there is no client bean at all - {@link org.portfolio.userland.gcp.services.NoopTaskEnqueuer}
+   * is used instead (see {@link org.portfolio.userland.gcp.services.TaskEnqueuer}).
    * @return The configured <code>CloudTasksClient</code>.
    * @throws IOException If the client fails to initialize (e.g., missing credentials).
    */
@@ -48,17 +50,5 @@ public class GcpConfig {
     // Locally, it uses `gcloud auth application-default login` credentials.
     // On GCP Cloud Run, it automatically uses Service Account.
     return CloudTasksClient.create(settings);
-  }
-
-  /**
-   * Fake <code>CloudTasksClient</code> for local development and tests. Will not do anything, but app won't crash.
-   * In this way you do not have to install and configure GCloud CLI.
-   * Note: everything that uses <code>cloudTasksClient</code> needs to check for null.
-   * @return Fake <code>CloudTasksClient</code>.
-   */
-  @Bean
-  @Profile("!gcp")
-  public CloudTasksClient fakeCloudTasksClient() {
-    return null;
   }
 }
