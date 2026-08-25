@@ -1,6 +1,5 @@
 package org.portfolio.userland.test.base;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.AfterEach;
 import org.portfolio.userland.common.services.clock.ClockService;
@@ -19,6 +18,7 @@ import org.springframework.cache.CacheManager;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.support.TransactionTemplate;
 import org.testcontainers.postgresql.PostgreSQLContainer;
+import tools.jackson.databind.ObjectMapper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -67,8 +67,11 @@ public abstract class BaseIntegrationTest {
   @Autowired
   protected CacheManager cacheManager;
 
-  /** Used to convert Java objects to JSON. Note: for some reason autowiring ObjectMapper fails. */
-  protected final ObjectMapper objectMapper = new ObjectMapper().findAndRegisterModules();
+  /**
+   * Spring's auto-configured ObjectMapper (Jackson 3), used to convert Java objects to JSON for request bodies.
+   */
+  @Autowired
+  protected ObjectMapper objectMapper;
 
   /** Defines PostgreSQL container used in tests. Shared singleton, started once for the whole suite. */
   @ServiceConnection

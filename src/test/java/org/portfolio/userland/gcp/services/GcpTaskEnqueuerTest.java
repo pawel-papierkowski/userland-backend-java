@@ -12,6 +12,7 @@ import org.mockito.Mockito;
 import org.portfolio.userland.features.email.dto.EmailReq;
 import org.portfolio.userland.gcp.exceptions.GcpTaskEnqueueFailureException;
 import org.springframework.test.util.ReflectionTestUtils;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.util.List;
 
@@ -32,7 +33,7 @@ public class GcpTaskEnqueuerTest {
   @BeforeEach
   public void setUp() {
     cloudTasksClientMock = Mockito.mock(CloudTasksClient.class);
-    gcpTaskEnqueuer = new GcpTaskEnqueuer(cloudTasksClientMock);
+    gcpTaskEnqueuer = new GcpTaskEnqueuer(cloudTasksClientMock, JsonMapper.builder().findAndAddModules().build());
     ReflectionTestUtils.setField(gcpTaskEnqueuer, "serviceUrl", "https://test.example.com");
     ReflectionTestUtils.setField(gcpTaskEnqueuer, "serviceAccount", "test-sa");
     ReflectionTestUtils.setField(gcpTaskEnqueuer, "projectId", "test-project");

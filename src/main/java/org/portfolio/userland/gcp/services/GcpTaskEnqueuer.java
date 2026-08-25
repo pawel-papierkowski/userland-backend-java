@@ -1,7 +1,5 @@
 package org.portfolio.userland.gcp.services;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.api.gax.rpc.ApiException;
 import com.google.auth.oauth2.ComputeEngineCredentials;
 import com.google.auth.oauth2.GoogleCredentials;
@@ -17,6 +15,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
 
@@ -30,7 +30,11 @@ import java.io.IOException;
 @Slf4j
 public class GcpTaskEnqueuer implements TaskEnqueuer {
   private final CloudTasksClient cloudTasksClient;
-  private final ObjectMapper objectMapper = new ObjectMapper().findAndRegisterModules();
+  /**
+   * Spring's auto-configured ObjectMapper (Jackson 3). Must be the same mapper the consumer side uses to deserialize
+   * task payloads (see GcpController), otherwise any Jackson configuration would silently apply to only one direction.
+   */
+  private final ObjectMapper objectMapper;
 
   @Value("${app.gcp.general.url}")
   private String serviceUrl;
@@ -97,7 +101,7 @@ public class GcpTaskEnqueuer implements TaskEnqueuer {
 
       // Send to GCP
       cloudTasksClient.createTask(queuePath, task);
-    } catch (JsonProcessingException | ApiException ex) {
+    } catch (JacksonException | ApiException ex) {
       throw new GcpTaskEnqueueFailureException("enqueue", ex);
     }
   }

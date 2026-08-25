@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.portfolio.userland.common.dto.TableMetaReq;
 import org.portfolio.userland.common.exception.BadParamsException;
+import org.portfolio.userland.common.exception.ShouldNeverHappenException;
 import org.portfolio.userland.common.services.table.TableHelper;
 import org.portfolio.userland.features.user.dto.admin.user.*;
 import org.portfolio.userland.features.user.dto.common.UserProfileData;
@@ -104,7 +105,7 @@ public class UserTableService extends BaseUserService {
 
     verifyRequest(userFullDataReq, user);
     CustomUserDetails userDetails = AuthHelper.resolveUserDetails();
-    if (userDetails == null) return null; // Should not happen.
+    if (userDetails == null) throw new ShouldNeverHappenException("User details should exist!");
 
     if (userDetails.getId().equals(user.getId())) // We are not allowed to edit our own account.
       throw new UserCannotEditException(user.getId());

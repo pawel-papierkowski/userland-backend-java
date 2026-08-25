@@ -1,13 +1,13 @@
 package org.portfolio.userland.test.helpers.problemDetail;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.JsonNodeType;
 import com.google.common.collect.Maps;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.test.web.servlet.MvcResult;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.node.JsonNodeType;
 
 import java.io.UnsupportedEncodingException;
 import java.util.List;
@@ -19,8 +19,10 @@ import static org.assertj.core.api.Assertions.assertThat;
  * Handle asserting Problem Detail.
  */
 @Service
+@RequiredArgsConstructor
 public class ProblemDetailService {
-  protected final ObjectMapper objectMapper = new ObjectMapper();
+  /** Spring's auto-configured ObjectMapper, same as the one used to serialize responses under test. */
+  private final ObjectMapper objectMapper;
 
   //
 
@@ -30,7 +32,7 @@ public class ProblemDetailService {
    * @param instance Expected value of instance field.
    */
   public void assertPdUnauthorized(MvcResult actualMvcResult, String instance)
-      throws JsonProcessingException, UnsupportedEncodingException {
+      throws UnsupportedEncodingException {
     ProblemDetailBox expectedPdb = new ProblemDetailBox(
         HttpStatus.UNAUTHORIZED.value(),
         "Unauthorized",
@@ -48,7 +50,7 @@ public class ProblemDetailService {
    * @param instance Expected value of instance field.
    */
   public void assertPdForbidden(MvcResult actualMvcResult, String instance)
-      throws JsonProcessingException, UnsupportedEncodingException {
+      throws UnsupportedEncodingException {
     ProblemDetailBox expectedPdb = new ProblemDetailBox(
         HttpStatus.FORBIDDEN.value(),
         "Forbidden",
@@ -68,7 +70,7 @@ public class ProblemDetailService {
    * @param expectedPdb Expected Problem Detail box.
    */
   public void assertPd(MvcResult actualMvcResult, ProblemDetailBox expectedPdb)
-      throws JsonProcessingException, UnsupportedEncodingException {
+      throws UnsupportedEncodingException {
     String jsonResponse = actualMvcResult.getResponse().getContentAsString();
     ProblemDetailBox actualPdb = convert(jsonResponse);
     assertPd(actualPdb, expectedPdb);
@@ -79,7 +81,7 @@ public class ProblemDetailService {
    * @param actualRawJson Actual raw JSON that represents Problem Detail box.
    * @param expectedPdb Expected Problem Detail box.
    */
-  public void assertPd(String actualRawJson, ProblemDetailBox expectedPdb) throws JsonProcessingException {
+  public void assertPd(String actualRawJson, ProblemDetailBox expectedPdb) {
     ProblemDetailBox actualPdb = convert(actualRawJson);
     assertPd(actualPdb, expectedPdb);
   }
@@ -113,7 +115,7 @@ public class ProblemDetailService {
    * @param rawJson JSON string.
    * @return Problem Detail box instance.
    */
-  private ProblemDetailBox convert(String rawJson) throws JsonProcessingException {
+  private ProblemDetailBox convert(String rawJson) {
     JsonNode json = objectMapper.readTree(rawJson);
     Map<String, Object> params = convertParams(json);
     JsonNode type = json.get("type");

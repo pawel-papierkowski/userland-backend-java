@@ -1,9 +1,9 @@
 package org.portfolio.userland.test.base;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.portfolio.userland.test.helpers.problemDetail.ProblemDetailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.web.servlet.MockMvc;
+import tools.jackson.databind.ObjectMapper;
 
 /**
  * Base class for all pure web API tests.
@@ -17,6 +17,9 @@ public abstract class BaseWebTest {
   @Autowired
   protected ProblemDetailService problemDetailService;
 
-  /** Used to convert Java objects to JSON. */
-  protected final ObjectMapper objectMapper = new ObjectMapper();
+  /**
+   * Spring's auto-configured ObjectMapper (Jackson 3), used to convert Java objects to JSON for request bodies.
+   */
+  @Autowired
+  protected ObjectMapper objectMapper;
 }
