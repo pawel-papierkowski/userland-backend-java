@@ -90,6 +90,43 @@ public class UserLoginApiTest extends BaseUserTest {
   }
 
   @Test
+  public void loginForgedForwardedForPrefix() throws Exception {
+    clock.setFixedTime("2026-04-10T10:00:00Z");
+    // Arrange: Create active user in database that has no special permissions.
+    User expectedUser = userFactory.genUser(EnUserStatus.ACTIVE);
+    userRepository.save(expectedUser);
+
+    clock.setFixedTime("2026-04-10T10:05:00Z");
+    // Arrange: Create login request.
+    UserLoginReq req = new UserLoginReq("test@example.com", "Password123!");
+
+    // Act: Log in user. Client sends a forged XFF entry; trusted front end (GFE) appends the real IP at the end.
+    MvcResult mvcResult = mockMvc.perform(post("/api/users/login")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(req))
+            .header("X-Forwarded-For", "6.6.6.6, 192.168.1.50") // forged client value + real IP appended by proxy
+            .header("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64)")) // Simulate Browser
+        .andReturn();
+
+    // Assert: API Response.
+    assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.OK.value());
+
+    UserLoginResp actualResp = objectMapper.readValue(mvcResult.getResponse().getContentAsString(), UserLoginResp.class);
+
+    // Prepare expected result (only the last, trusted XFF entry must be recorded).
+    userHistoryFactory.genHistoryEvent(expectedUser, EnUserHistoryWho.USER, EnUserHistoryWhat.LOGIN, "IP: '192.168.1.50', User-Agent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'");
+    userJwtFactory.genJwtEntry(expectedUser, actualResp.jwtToken());
+
+    // Assert: Database state.
+    transactionTemplate.execute(_ -> {
+      // Assert: User state.
+      User actualUser = userRepository.findByEmail("test@example.com").orElseThrow();
+      userAssert.assertIt(actualUser, expectedUser);
+      return null;
+    });
+  }
+
+  @Test
   public void loginWithRights() throws Exception {
     clock.setFixedTime("2026-04-10T10:00:00Z");
     // Arrange: Create active user in database that has special permissions (operator of administration panel).
