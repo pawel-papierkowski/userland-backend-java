@@ -1,6 +1,5 @@
 package org.portfolio.userland.features.user.standard;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.portfolio.userland.features.user.BaseUserTest;
 import org.portfolio.userland.features.user.dto.standard.email.UserEmailChangeConfirmReq;
@@ -37,14 +36,6 @@ public class UserEmailRaceTest extends BaseUserTest {
 
   /** Email used by both races. */
   private static final String RACED_EMAIL = "raced@example.com";
-
-  /**
-   * Reset state of database so test does not interfere with other tests (or its own previous runs).
-   */
-  @BeforeEach
-  protected void resetDb() {
-    resetDatabase();
-  }
 
   /**
    * Verifies that two concurrent registrations with same email result in exactly one created account, while the

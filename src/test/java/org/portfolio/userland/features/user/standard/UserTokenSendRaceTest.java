@@ -1,6 +1,5 @@
 package org.portfolio.userland.features.user.standard;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.portfolio.userland.features.user.BaseUserTest;
 import org.portfolio.userland.features.user.dto.standard.delete.UserDeleteLinkReq;
@@ -36,14 +35,6 @@ public class UserTokenSendRaceTest extends BaseUserTest {
   private UserEmailTx userEmailTx;
   @Autowired
   private UserDeleteTx userDeleteTx;
-
-  /**
-   * Reset state of database so test does not interfere with other tests (or its own previous runs).
-   */
-  @BeforeEach
-  protected void resetDb() {
-    resetDatabase();
-  }
 
   /**
    * Verifies that two concurrent requests for password reset link result in exactly one created token and one sent

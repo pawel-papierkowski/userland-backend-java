@@ -1,6 +1,5 @@
 package org.portfolio.userland.system.auth.perm;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.portfolio.userland.features.user.BaseUserTest;
 import org.portfolio.userland.features.user.entities.Permission;
@@ -19,11 +18,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class PermissionTest extends BaseUserTest {
   @Autowired
   private PermissionService permissionService;
-
-  @BeforeEach
-  public void setup() {
-    resetDatabase();
-  }
 
   // //////////////////////////////////////////////////////////////////////////
 

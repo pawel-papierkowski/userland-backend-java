@@ -1,6 +1,5 @@
 package org.portfolio.userland.system.history;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.portfolio.userland.features.user.entities.EnUserStatus;
 import org.portfolio.userland.features.user.entities.User;
@@ -20,11 +19,6 @@ import java.util.List;
 public class SystemHistoryServiceTest extends BaseSystemTest {
   @Autowired
   private SystemHistoryService systemHistoryService;
-
-  @BeforeEach
-  public void setup() {
-    resetDatabase();
-  }
 
   //
 

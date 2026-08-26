@@ -1,7 +1,6 @@
 package org.portfolio.userland.features.user.standard;
 
 import com.google.common.collect.Maps;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.portfolio.userland.features.user.BaseUserTest;
 import org.portfolio.userland.features.user.constants.UserConfigConst;
@@ -35,11 +34,6 @@ public class UserLoginApiTest extends BaseUserTest {
   private JwtService jwtService;
   @Autowired
   private ConfigService configService;
-
-  @BeforeEach
-  public void setup() {
-    resetDatabase();
-  }
 
   // //////////////////////////////////////////////////////////////////////////
 

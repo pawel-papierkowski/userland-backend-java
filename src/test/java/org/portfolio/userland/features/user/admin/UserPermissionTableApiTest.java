@@ -1,6 +1,5 @@
 package org.portfolio.userland.features.user.admin;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.portfolio.userland.common.dto.*;
 import org.portfolio.userland.common.services.table.TableHelper;
@@ -29,10 +28,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
  * Integration test for user permission table viewing.
  */
 public class UserPermissionTableApiTest extends BaseUserTest {
-  @BeforeEach
-  public void setup() {
-    resetDatabase();
-  }
 
   // //////////////////////////////////////////////////////////////////////////
 

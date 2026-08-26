@@ -1,6 +1,5 @@
 package org.portfolio.userland.system.config;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.portfolio.userland.system.config.entities.Config;
 import org.portfolio.userland.system.config.exceptions.ConfigUnknownException;
@@ -21,13 +20,6 @@ public class ConfigServiceTest extends BaseIntegrationTest {
   private ConfigService configService;
   @Autowired
   private ConfigRepository configRepository;
-
-  @BeforeEach
-  public void setup() {
-    configRepository.deleteAll();
-    // Config reads are cached; clear the cache so values cached by previous tests don't leak here.
-    cacheManager.getCache(ConfigService.CONFIG_CACHE).clear();
-  }
 
   /**
    * Insert a config variable directly into the repository.

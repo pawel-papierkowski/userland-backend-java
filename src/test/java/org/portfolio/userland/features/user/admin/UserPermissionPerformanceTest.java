@@ -2,7 +2,6 @@ package org.portfolio.userland.features.user.admin;
 
 import org.hibernate.SessionFactory;
 import org.hibernate.stat.Statistics;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.portfolio.userland.common.dto.TableMetaReq;
 import org.portfolio.userland.common.services.table.TableHelper;
@@ -28,10 +27,6 @@ import static org.assertj.core.api.Assertions.assertThat;
  * so lazy loads cannot be batched away either.</p>
  */
 public class UserPermissionPerformanceTest extends BaseUserTest {
-  @BeforeEach
-  public void setup() {
-    resetDatabase();
-  }
 
   // //////////////////////////////////////////////////////////////////////////
 

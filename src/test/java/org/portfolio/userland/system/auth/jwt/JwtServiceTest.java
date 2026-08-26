@@ -1,7 +1,6 @@
 package org.portfolio.userland.system.auth.jwt;
 
 import com.google.common.collect.Maps;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.portfolio.userland.features.user.BaseUserTest;
 import org.portfolio.userland.features.user.entities.EnUserStatus;
@@ -29,11 +28,6 @@ public class JwtServiceTest extends BaseUserTest {
   /** How long before JWT token expires in minutes. */
   @Value("${security.jwt.expiration}")
   private long jwtExpiration;
-
-  @BeforeEach
-  public void setup() {
-    resetDatabase();
-  }
 
   // //////////////////////////////////////////////////////////////////////////
 

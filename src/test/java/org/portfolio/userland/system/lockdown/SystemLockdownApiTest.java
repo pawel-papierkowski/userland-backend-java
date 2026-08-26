@@ -1,6 +1,5 @@
 package org.portfolio.userland.system.lockdown;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.portfolio.userland.features.user.entities.User;
 import org.portfolio.userland.system.BaseSystemTest;
@@ -30,10 +29,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
  * Integration test for lockdown endpoints.
  */
 public class SystemLockdownApiTest extends BaseSystemTest {
-  @BeforeEach
-  public void setup() {
-    resetDatabase();
-  }
 
   // //////////////////////////////////////////////////////////////////////////
 

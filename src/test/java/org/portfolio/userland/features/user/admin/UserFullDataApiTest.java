@@ -1,6 +1,5 @@
 package org.portfolio.userland.features.user.admin;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.portfolio.userland.features.user.BaseUserTest;
 import org.portfolio.userland.features.user.constants.UserErrCode;
@@ -28,10 +27,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
  * Integration test for handling almost all data for any user.
  */
 public class UserFullDataApiTest extends BaseUserTest {
-  @BeforeEach
-  public void setup() {
-    resetDatabase();
-  }
 
   // //////////////////////////////////////////////////////////////////////////
 

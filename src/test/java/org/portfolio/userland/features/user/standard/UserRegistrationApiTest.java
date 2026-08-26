@@ -1,6 +1,5 @@
 package org.portfolio.userland.features.user.standard;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.portfolio.userland.features.email.dto.EmailReq;
@@ -35,10 +34,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
  * Integration test for user registration.
  */
 public class UserRegistrationApiTest extends BaseUserTest {
-  @BeforeEach
-  public void setup() {
-    resetDatabase();
-  }
 
   // //////////////////////////////////////////////////////////////////////////
 

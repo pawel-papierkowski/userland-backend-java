@@ -1,6 +1,5 @@
 package org.portfolio.userland.features.user.standard;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.portfolio.userland.features.user.BaseUserTest;
 import org.portfolio.userland.features.user.constants.UserErrCode;
@@ -25,10 +24,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
  * Integration test for editing user account.
  */
 public class UserEditApiTest extends BaseUserTest {
-  @BeforeEach
-  public void setup() {
-    resetDatabase();
-  }
 
   // //////////////////////////////////////////////////////////////////////////
 

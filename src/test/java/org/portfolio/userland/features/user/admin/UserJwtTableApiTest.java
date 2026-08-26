@@ -1,6 +1,5 @@
 package org.portfolio.userland.features.user.admin;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.portfolio.userland.common.dto.EnSortOrder;
 import org.portfolio.userland.common.dto.TableMetaReq;
@@ -30,10 +29,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
  * Integration test for user JWT table viewing.
  */
 public class UserJwtTableApiTest extends BaseUserTest {
-  @BeforeEach
-  public void setup() {
-    resetDatabase();
-  }
 
   // //////////////////////////////////////////////////////////////////////////
 

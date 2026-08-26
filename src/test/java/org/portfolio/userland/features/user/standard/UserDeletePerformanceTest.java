@@ -2,7 +2,6 @@ package org.portfolio.userland.features.user.standard;
 
 import org.hibernate.SessionFactory;
 import org.hibernate.stat.Statistics;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.portfolio.userland.features.user.BaseUserTest;
 import org.portfolio.userland.features.user.dto.standard.delete.UserDeleteConfirmReq;
@@ -23,11 +22,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class UserDeletePerformanceTest extends BaseUserTest {
   @Autowired
   private UserDeleteService userDeleteService;
-
-  @BeforeEach
-  public void setup() {
-    resetDatabase();
-  }
 
   // //////////////////////////////////////////////////////////////////////////
 

@@ -1,6 +1,5 @@
 package org.portfolio.userland.features.user.standard;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.portfolio.userland.features.user.BaseUserTest;
 import org.portfolio.userland.features.user.constants.UserErrCode;
@@ -27,10 +26,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
  */
 @TestPropertySource(properties = "app.main.build=PROD")
 public class UserEmailProdApiTest extends BaseUserTest {
-  @BeforeEach
-  public void setup() {
-    resetDatabase();
-  }
 
   // //////////////////////////////////////////////////////////////////////////
 

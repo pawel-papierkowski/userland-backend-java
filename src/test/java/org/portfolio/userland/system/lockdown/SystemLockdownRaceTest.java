@@ -1,6 +1,5 @@
 package org.portfolio.userland.system.lockdown;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.portfolio.userland.system.BaseSystemTest;
 import org.portfolio.userland.system.config.repositories.ConfigRepository;
@@ -35,14 +34,6 @@ public class SystemLockdownRaceTest extends BaseSystemTest {
   private SystemHistoryRepository systemHistoryRepository;
   @Autowired
   private TransactionTemplate transactionTemplate;
-
-  /**
-   * Reset state of database so test does not interfere with other tests (or its own previous runs).
-   */
-  @BeforeEach
-  protected void resetDb() {
-    resetDatabase();
-  }
 
   //
   // Note: history events are attributed via AuthHelper (SecurityContext), which is not set when calling the service

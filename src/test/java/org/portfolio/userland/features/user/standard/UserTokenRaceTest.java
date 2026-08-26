@@ -1,6 +1,5 @@
 package org.portfolio.userland.features.user.standard;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.portfolio.userland.features.user.BaseUserTest;
 import org.portfolio.userland.features.user.dto.standard.register.TokenActivateReq;
@@ -26,14 +25,6 @@ public class UserTokenRaceTest extends BaseUserTest {
   /** Service under test. Called directly (not via MockMvc), so each call runs in its own transaction. */
   @Autowired
   private UserRegisterTx userRegisterTx;
-
-  /**
-   * Reset state of database so test does not interfere with other tests (or its own previous runs).
-   */
-  @BeforeEach
-  protected void resetDb() {
-    resetDatabase();
-  }
 
   /**
    * Verifies that when two threads race to activate a user with the same token,

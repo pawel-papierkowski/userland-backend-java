@@ -2,6 +2,7 @@ package org.portfolio.userland.test.base;
 
 import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.portfolio.userland.common.services.clock.ClockService;
 import org.portfolio.userland.common.services.clock.MutableClock;
 import org.portfolio.userland.system.config.entities.Config;
@@ -88,8 +89,10 @@ public abstract class BaseIntegrationTest {
   // //////////////////////////////////////////////////////////////////////////
 
   /**
-   * Reset state of database so tests don't interfere with each other. Works without explicit @Transactional on test.
+   * Reset state of database before every test so tests don't interfere with each other. Runs automatically via
+   * {@code @BeforeEach}, works without explicit @Transactional on test. Tests must not call this method themselves.
    */
+  @BeforeEach
   protected void resetDatabase() {
     transactionTemplate.execute(_ -> {
       cleanDatabase();

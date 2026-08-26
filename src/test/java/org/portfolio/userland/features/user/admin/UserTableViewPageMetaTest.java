@@ -1,6 +1,5 @@
 package org.portfolio.userland.features.user.admin;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.portfolio.userland.common.dto.TableMetaReq;
 import org.portfolio.userland.features.user.BaseUserTest;
@@ -22,10 +21,6 @@ import static org.assertj.core.api.Assertions.assertThat;
  * even though pagination was already null-safe.</p>
  */
 public class UserTableViewPageMetaTest extends BaseUserTest {
-  @BeforeEach
-  public void setup() {
-    resetDatabase();
-  }
 
   // //////////////////////////////////////////////////////////////////////////
 

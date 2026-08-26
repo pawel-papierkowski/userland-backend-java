@@ -1,6 +1,5 @@
 package org.portfolio.userland.features.user.standard;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.portfolio.userland.features.user.BaseUserTest;
 import org.portfolio.userland.features.user.constants.UserConfigConst;
@@ -35,11 +34,6 @@ public class UserMaintenanceTest extends BaseUserTest {
   private SystemHistoryFactory systemHistoryFactory;
   @Autowired
   private SystemHistoryAssert systemHistoryAssert;
-
-  @BeforeEach
-  public void setup() {
-    resetDatabase();
-  }
 
   //
 
