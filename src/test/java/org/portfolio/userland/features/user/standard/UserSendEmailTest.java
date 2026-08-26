@@ -51,7 +51,7 @@ public class UserSendEmailTest extends BaseUserTest {
         "pl",
         null,
         "nDVAZXAEt1VvrYrazvxmU8yruiur9cJg",
-        24L
+        1440L
     );
 
     // Act: send registration email.

@@ -13,7 +13,6 @@ import org.portfolio.userland.features.user.exceptions.UserAlreadyRegisteredExce
 import org.portfolio.userland.features.user.exceptions.UserTokenNotFoundException;
 import org.portfolio.userland.features.user.services.BaseUserService;
 import org.portfolio.userland.system.auth.perm.PermConst;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,9 +29,6 @@ import java.time.LocalDateTime;
 @Slf4j
 @Transactional
 public class UserRegisterTx extends BaseUserService {
-  /** How long before activation token expires in hours. */
-  @Value("${app.user.token.activation.expires}")
-  private long activationTokenExpires;
 
   /**
    * Registers user in system. Password hash must be already computed (see {@link UserRegisterService#register}).
@@ -177,7 +173,7 @@ public class UserRegisterTx extends BaseUserService {
         user.getLang(),
         userRegisterReq.frontend(),
         token.getToken(),
-        activationTokenExpires
+        userHelperService.resolveExpirationTime(EnUserTokenType.ACTIVATE)
     );
     // Will trigger UserSendEmailService.sendRegistrationEmail().
     eventPublisher.publishEvent(userRegisteredEvent);

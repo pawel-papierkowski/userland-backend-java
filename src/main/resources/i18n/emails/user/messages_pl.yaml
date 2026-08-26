@@ -5,7 +5,7 @@ email:
       greeting: "Cześć, <b>{0}</b>!"
       l1: "Dziękujemy za zainteresowanie portalem <b>{0}</b>."
       l2: "Prosimy aktywować konto tutaj:"
-      l3: "Link będzie ważny przez {0} godzin."
+      l3: "Link będzie ważny przez {0} minut."
     activation:
       subject: "{0}: witamy"
       greeting: "Cześć, <b>{0}</b>!"

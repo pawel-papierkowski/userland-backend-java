@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 
 /**
@@ -32,7 +33,7 @@ public class UserHelperService {
   private final PasswordEncoder passwordEncoder;
   private final UserRepository userRepository;
 
-  /** How long before activation token expires in hours. */
+  /** How long before activation token expires in minutes. */
   @Value("${app.user.token.activation.expires}")
   private long activationTokenExpires;
   /** How long before email change token expires in minutes. */
@@ -186,9 +187,9 @@ public class UserHelperService {
   //
 
   /**
-   * Finds out expiration time.
+   * Finds out expiration time of given token type. All token types use minutes as their unit.
    * @param type Type of token.
-   * @return Time in time units. Check description of given type to see what unit is used (minutes or hours).
+   * @return Time in minutes.
    */
   public long resolveExpirationTime(EnUserTokenType type) {
     return switch (type) {
@@ -200,18 +201,22 @@ public class UserHelperService {
   }
 
   /**
+   * Finds out for how long given token type is valid.
+   * @param type Type of token.
+   * @return Duration of validity.
+   */
+  public Duration resolveExpirationDuration(EnUserTokenType type) {
+    return Duration.ofMinutes(resolveExpirationTime(type));
+  }
+
+  /**
    * Finds out when given token type expires.
    * @param nowAt Current date&time.
    * @param type Type of token.
    * @return Expiration date&time.
    */
   public LocalDateTime resolveExpirationSince(LocalDateTime nowAt, EnUserTokenType type) {
-    return switch (type) {
-      case ACTIVATE -> nowAt.plusHours(activationTokenExpires);
-      case EMAIL -> nowAt.plusMinutes(emailChangeTokenExpires);
-      case PASSWORD -> nowAt.plusMinutes(passwordResetTokenExpires);
-      case DELETE -> nowAt.plusMinutes(deletionTokenExpires);
-    };
+    return nowAt.plus(resolveExpirationDuration(type));
   }
 
   /**

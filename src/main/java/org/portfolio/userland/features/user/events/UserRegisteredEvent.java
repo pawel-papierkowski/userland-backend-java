@@ -10,7 +10,7 @@ import org.portfolio.userland.features.user.dto.common.EnFrontendFramework;
  * @param lang User language.
  * @param frontend Frontend.
  * @param activationToken Token string.
- * @param activationTokenExpires How long before activation token expires in hours.
+ * @param activationTokenExpires How long before activation token expires in minutes.
  */
 public record UserRegisteredEvent(
     Long id,
@@ -19,5 +19,5 @@ public record UserRegisteredEvent(
     String lang,
     EnFrontendFramework frontend,
     String activationToken,
-    Long activationTokenExpires
+    long activationTokenExpires
 ) implements BaseUserEvent {}

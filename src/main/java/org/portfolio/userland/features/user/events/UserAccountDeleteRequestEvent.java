@@ -10,7 +10,7 @@ import org.portfolio.userland.features.user.dto.common.EnFrontendFramework;
  * @param lang User language.
  * @param frontend Frontend.
  * @param accountDeleteToken Token string.
- * @param accountDeleteTokenExpires How long before password reset token expires in minutes.
+ * @param accountDeleteTokenExpires How long before account deletion token expires in minutes.
  */
 public record UserAccountDeleteRequestEvent(
     Long id,

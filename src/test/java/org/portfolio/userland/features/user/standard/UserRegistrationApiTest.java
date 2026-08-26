@@ -81,7 +81,7 @@ public class UserRegistrationApiTest extends BaseUserTest {
           assertThat(event.lang()).isEqualTo("en");
           assertThat(event.frontend()).isNull();
           assertThat(event.activationToken()).isEqualTo(activationToken.get());
-          assertThat(event.activationTokenExpires()).isEqualTo(24L);
+          assertThat(event.activationTokenExpires()).isEqualTo(1440L);
         });
   }
 
@@ -131,7 +131,7 @@ public class UserRegistrationApiTest extends BaseUserTest {
           assertThat(event.lang()).isEqualTo("en");
           assertThat(event.frontend()).isNull();
           assertThat(event.activationToken()).isEqualTo(activationToken.get());
-          assertThat(event.activationTokenExpires()).isEqualTo(24L);
+          assertThat(event.activationTokenExpires()).isEqualTo(1440L);
         });
   }
 
@@ -223,7 +223,7 @@ public class UserRegistrationApiTest extends BaseUserTest {
           assertThat(event.lang()).isEqualTo("en");
           assertThat(event.frontend()).isNull();
           assertThat(event.activationToken()).isEqualTo(activationToken.get());
-          assertThat(event.activationTokenExpires()).isEqualTo(24L);
+          assertThat(event.activationTokenExpires()).isEqualTo(1440L);
         });
   }
 

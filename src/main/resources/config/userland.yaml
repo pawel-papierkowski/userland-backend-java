@@ -15,7 +15,7 @@ app:
     token:
       length: 32
       activation: # user account activate
-        expires: 24 # in hours
+        expires: 1440 # in minutes
       email: # user email change
         expires: 30 # in minutes
       password: # user password reset

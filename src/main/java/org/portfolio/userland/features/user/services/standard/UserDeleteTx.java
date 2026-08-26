@@ -5,7 +5,6 @@ import org.portfolio.userland.features.user.dto.standard.delete.UserDeleteLinkRe
 import org.portfolio.userland.features.user.entities.*;
 import org.portfolio.userland.features.user.events.UserAccountDeleteRequestEvent;
 import org.portfolio.userland.features.user.services.BaseUserService;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,9 +19,6 @@ import java.time.LocalDateTime;
 @RequiredArgsConstructor
 @Transactional
 public class UserDeleteTx extends BaseUserService {
-  /** How long before account deletion token expires in minutes. */
-  @Value("${app.user.token.deletion.expires}")
-  private long deletionTokenExpires;
 
   /**
    * Creates account deletion token and (indirectly, via event) sends email with account deletion link. Password
@@ -56,7 +52,7 @@ public class UserDeleteTx extends BaseUserService {
         user.getLang(),
         userDeleteLinkReq.frontend(),
         token.getToken(),
-        deletionTokenExpires
+        userHelperService.resolveExpirationTime(EnUserTokenType.DELETE)
     );
     // Will trigger UserSendEmailService.sendAccountDeleteRequest().
     eventPublisher.publishEvent(userAccountDeleteRequestEvent);
