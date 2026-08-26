@@ -3,6 +3,7 @@ package org.portfolio.userland.features.user.services.standard;
 import com.google.common.collect.Maps;
 import lombok.RequiredArgsConstructor;
 import org.portfolio.userland.common.services.lang.LangService;
+import org.portfolio.userland.common.services.lang.LangSupportService;
 import org.portfolio.userland.common.services.web.WebHelperService;
 import org.portfolio.userland.features.email.dto.EmailReq;
 import org.portfolio.userland.features.email.services.EmailService;
@@ -52,6 +53,7 @@ public class UserSendEmailService {
 
   private final EmailService emailService;
   private final LangService langService;
+  private final LangSupportService langSupportService;
   private final WebHelperService webHelperService;
 
   /** Name of system. */
@@ -86,11 +88,12 @@ public class UserSendEmailService {
    */
   private EmailReq genEmailReq(UserRegisteredEvent event) {
     String subject = translateSubject(event, "email.user.registration.subject");
+    String expiration = langSupportService.tMinutesPeriod(event.lang(), event.activationTokenExpires(), false);
 
     // Prepare params required by user registration template.
     Map<String, Object> params = genParamsMap(event);
     params.put("activationLink", resolveActivationLink(event.frontend(), event.activationToken()));
-    params.put("activationTokenExpires", event.activationTokenExpires());
+    params.put("activationTokenExpiresTxt", expiration);
 
     return genEmailReq(event, TEMPLATE_USER_REGISTRATION, subject, params);
   }
@@ -203,11 +206,12 @@ public class UserSendEmailService {
    */
   private EmailReq resolveEmailLinkReq(UserEmailChangeRequestEvent event) {
     String subject = translateSubject(event, "email.user.email.link.subject");
+    String expiration = langSupportService.tMinutesPeriod(event.lang(), event.emailChangeTokenExpires(), false);
 
     // Prepare params required by email change link template.
     Map<String, Object> params = genParamsMap(event);
     params.put("emailChangeLink", resolveEmailChangeLink(event.frontend(), event.emailChangeToken()));
-    params.put("emailChangeTokenExpires", event.emailChangeTokenExpires());
+    params.put("emailChangeTokenExpiresTxt", expiration);
 
     return genEmailReq(event, event.newEmail(), TEMPLATE_USER_EMAIL_LINK, subject, params);
   }
@@ -319,11 +323,12 @@ public class UserSendEmailService {
    */
   private EmailReq genEmailReq(UserPasswordResetRequestEvent event) {
     String subject = translateSubject(event, "email.user.password.link.subject");
+    String expiration = langSupportService.tMinutesPeriod(event.lang(), event.passwordResetTokenExpires(), false);
 
     // Prepare params required by password reset template.
     Map<String, Object> params = genParamsMap(event);
     params.put("passwordResetLink", resolvePasswordResetLink(event.frontend(), event.passwordResetToken()));
-    params.put("passResetTokenExpires", event.passwordResetTokenExpires());
+    params.put("passResetTokenExpiresTxt", expiration);
 
     return genEmailReq(event, TEMPLATE_USER_PASSWORD_LINK, subject, params);
   }
@@ -386,11 +391,12 @@ public class UserSendEmailService {
    */
   private EmailReq genEmailReq(UserAccountDeleteRequestEvent event) {
     String subject = translateSubject(event, "email.user.delete.link.subject");
+    String expiration = langSupportService.tMinutesPeriod(event.lang(), event.accountDeleteTokenExpires(), false);
 
     // Prepare params required by user account deletion template.
     Map<String, Object> params = genParamsMap(event);
     params.put("accountDeleteLink", resolveAccountDeleteLink(event.frontend(), event.accountDeleteToken()));
-    params.put("accountDeleteTokenExpires", event.accountDeleteTokenExpires());
+    params.put("accountDeleteTokenExpiresTxt", expiration);
 
     return genEmailReq(event, TEMPLATE_USER_DELETE_LINK, subject, params);
   }

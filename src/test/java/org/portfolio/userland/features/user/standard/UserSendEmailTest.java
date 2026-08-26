@@ -67,7 +67,7 @@ public class UserSendEmailTest extends BaseUserTest {
       params.put("systemName", systemName);
       params.put("username", "Jan Kowalski");
       params.put("activationLink", frontendWwwDev +"vue/user/activate?token=nDVAZXAEt1VvrYrazvxmU8yruiur9cJg");
-      params.put("activationTokenExpires", userHelperService.resolveExpirationTime(EnUserTokenType.ACTIVATE));
+      params.put("activationTokenExpiresTxt", "24 godziny");
       EmailReq expectedEmailReq = new EmailReq(
           null,
           "pl",
@@ -223,7 +223,7 @@ public class UserSendEmailTest extends BaseUserTest {
       paramsLink.put("systemName", systemName);
       paramsLink.put("username", "Jane");
       paramsLink.put("emailChangeLink", frontendWwwDev +"vue/user/emailChange?token=nDVAZXAEt1VvrYrazvxmU8yruiur9cJg");
-      paramsLink.put("emailChangeTokenExpires", 30L);
+      paramsLink.put("emailChangeTokenExpiresTxt", "30 minutes");
       EmailReq expectedEmailLinkReq = new EmailReq(
           null,
           "en",
@@ -378,7 +378,7 @@ public class UserSendEmailTest extends BaseUserTest {
       params.put("systemName", systemName);
       params.put("username", "Jane");
       params.put("passwordResetLink", frontendWwwDev +"vue/user/passwordReset?token=nDVAZXAEt1VvrYrazvxmU8yruiur9cJg");
-      params.put("passResetTokenExpires", 30L);
+      params.put("passResetTokenExpiresTxt", "30 minutes");
       EmailReq expectedEmailReq = new EmailReq(
           null,
           "en",
@@ -467,7 +467,7 @@ public class UserSendEmailTest extends BaseUserTest {
       params.put("systemName", systemName);
       params.put("username", "Jane");
       params.put("accountDeleteLink", frontendWwwDev +"vue/user/accountDel?token=nDVAZXAEt1VvrYrazvxmU8yruiur9cJg");
-      params.put("accountDeleteTokenExpires", 30L);
+      params.put("accountDeleteTokenExpiresTxt", "30 minutes");
       EmailReq expectedEmailReq = new EmailReq(
           null,
           "en",

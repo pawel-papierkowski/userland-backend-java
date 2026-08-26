@@ -1,0 +1,10 @@
+units:
+  time:
+    minute:
+      single: "minutę"
+      few: "minuty"
+      many: "minut"
+    hour:
+      single: "godzinę"
+      few: "godziny"
+      many: "godzin"

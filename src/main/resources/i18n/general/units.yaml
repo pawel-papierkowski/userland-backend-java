@@ -1,0 +1,10 @@
+units:
+  time:
+    minute:
+      single: "minute"
+      few: "minutes"
+      many: "minutes"
+    hour:
+      single: "hour"
+      few: "hours"
+      many: "hours"

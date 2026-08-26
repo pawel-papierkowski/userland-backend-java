@@ -5,7 +5,7 @@ email:
       greeting: "Hello, <b>{0}</b>!"
       l1: "Thank you for interest in {0}."
       l2: "Please activate your account here:"
-      l3: "Link will be valid for {0} minutes."
+      l3: "Link will be valid for {0}."
     activation:
       subject: "{0}: welcome"
       greeting: "Hello, <b>{0}</b>!"
@@ -29,7 +29,7 @@ email:
         subject: "{0}: email change requested"
         greeting: "Hello, <b>{0}</b>!"
         l1: "Please confirm change of email here:"
-        l2: "Link will be valid for {0} minutes. You must be logged in."
+        l2: "Link will be valid for {0}. You must be logged in."
       confirm:
         subject: "{0}: email changed"
         greeting: "Hello, <b>{0}</b>!"
@@ -39,7 +39,7 @@ email:
         subject: "{0}: password reset requested"
         greeting: "Hello, <b>{0}</b>!"
         l1: "Please reset your password here:"
-        l2: "Link will be valid for {0} minutes."
+        l2: "Link will be valid for {0}."
       confirm:
         subject: "{0}: password changed"
         greeting: "Hello, <b>{0}</b>!"
@@ -49,7 +49,7 @@ email:
         subject: "{0}: account deletion requested"
         greeting: "Hello, <b>{0}</b>!"
         l1: "Please click this link to delete account:"
-        l2: "Link will be valid for {0} minutes. You must be logged in."
+        l2: "Link will be valid for {0}. You must be logged in."
       confirm:
         subject: "{0}: account deleted"
         greeting: "Hello, <b>{0}</b>!"

@@ -8,6 +8,6 @@
   <p th:utext="#{email.user.registration.greeting(${#strings.escapeXml(username)})}">Hello, <b>User</b>!</p>
   <p th:utext="#{email.user.registration.l1(${systemName})}">Thank you for interest in <b>SystemName</b>.</p>
   <p><span th:utext="#{email.user.registration.l2}">Please activate your account here:</span> <a th:href="${activationLink}" th:text="${activationLink}">LINK_ACTIVATION</a>.</p>
-  <p th:utext="#{email.user.registration.l3(${activationTokenExpires})}">Link will be valid for 1440 minutes.</p>
+  <p th:utext="#{email.user.registration.l3(${activationTokenExpiresTxt})}">Link will be valid for 1440 minutes.</p>
 </body>
 </html>
