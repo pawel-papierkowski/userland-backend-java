@@ -18,11 +18,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Duration;
+import java.util.List;
 import java.util.Map;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.awaitility.Awaitility.await;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
 /**
@@ -134,40 +137,52 @@ public class CheckApiTest extends BaseCheckTest {
     userRepository.save(user);
     String token = userJwtRepository.findAll().getFirst().getToken();
 
-    // We use a CountDownLatch to ensure the second request only fires AFTER the first request has successfully entered
-    // the controller.
-    CountDownLatch startSecondRequestLatch = new CountDownLatch(1);
+    // Fire the first request asynchronously in a dedicated thread. Unlike CompletableFuture.cancel(), shutdownNow()
+    // below truly interrupts the thread, which breaks the 30-second sleep inside the endpoint and lets LockService
+    // release the lock in its finally block.
+    ExecutorService executor = Executors.newSingleThreadExecutor();
+    try {
+      executor.submit(() -> mockMvc.perform(get("/api/checks/pretendWork")
+              .header("Authorization", "Bearer " + token))
+          .andReturn());
 
-    // Fire the first request asynchronously in a separate thread.
-    CompletableFuture<MvcResult> firstRequestFuture = CompletableFuture.supplyAsync(() -> {
-      try {
-        // Signal the main thread that the first request has started.
-        startSecondRequestLatch.countDown();
+      // Wait until the first request has actually reached the controller and acquired the ShedLock. We poll the
+      // aux.shedlock table instead of guessing with a sleep - this is deterministic even on slow CI machines.
+      awaitPretendWorkLock(true);
 
-        // This call will block this thread for 30 seconds.
-        return mockMvc.perform(get("/api/checks/pretendWork")
-                .header("Authorization", "Bearer " + token))
-            .andReturn();
-      } catch (Exception ex) {
-        throw new RuntimeException(ex);
-      }
+      // Fire the second request on the main test thread and assert it was rejected with 423 LOCKED.
+      MvcResult secondResult = mockMvc.perform(get("/api/checks/pretendWork")
+              .header("Authorization", "Bearer " + token))
+          .andReturn();
+      assertThat(secondResult.getResponse().getStatus())
+          .as("Second request should be blocked by ShedLock").isEqualTo(HttpStatus.LOCKED.value());
+    } finally {
+      // Interrupt the 30-second work so the test does not have to wait for it (and so the lock gets released).
+      executor.shutdownNow();
+    }
+
+    // Wait until the lock is really released (interrupt processed, finally-unlock done), so no state leaks into
+    // subsequent tests.
+    awaitPretendWorkLock(false);
+  }
+
+  /**
+   * Waits (with timeout) until the ShedLock row of the pretend work endpoint reaches the required state.
+   * <p>Note: ShedLock is configured with {@code usingDbTime()}, so lock expiry must be evaluated against database
+   * time too - doing it JVM-side would break when application and database use different timezones.</p>
+   * @param expectLocked True to wait until the lock is held, false to wait until it is released.
+   */
+  private void awaitPretendWorkLock(boolean expectLocked) {
+    await().atMost(Duration.ofSeconds(10)).untilAsserted(() -> {
+      // Native query bypasses the persistence context - we need current database state, not cached entities.
+      List<?> locks = entityManager.createNativeQuery(
+              "SELECT name FROM aux.shedlock WHERE name = :name AND lock_until > CURRENT_TIMESTAMP AT TIME ZONE 'UTC'")
+          .setParameter("name", "CheckLock_pretendWork")
+          .getResultList();
+      assertThat(!locks.isEmpty())
+          .as("Pretend work lock should be %s", expectLocked ? "held" : "released")
+          .isEqualTo(expectLocked);
     });
-
-    // Wait just a moment to ensure the first request has actually reached the LockProvider.
-    startSecondRequestLatch.await();
-    Thread.sleep(500); // 500ms is usually enough for the controller to acquire the lock
-
-    // Fire the second request on the main test thread.
-    MvcResult secondResult = mockMvc.perform(get("/api/checks/pretendWork")
-            .header("Authorization", "Bearer " + token))
-        .andReturn();
-
-    // Assert the second request was rejected with 423 LOCKED.
-    assertThat(secondResult.getResponse().getStatus()).as("Second request should be blocked by ShedLock").isEqualTo(HttpStatus.LOCKED.value());
-
-    // Cleanup: Cancel the 30-second future so the test finishes immediately rather than waiting the full 30 seconds for
-    // the first request to finish.
-    firstRequestFuture.cancel(true);
   }
 
   @Test

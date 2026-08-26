@@ -26,6 +26,8 @@ public abstract class BaseCheckTest extends BaseIntegrationTest {
   @Override
   protected void cleanDatabase() {
     userRepository.deleteAll(); // will remove everything from related tables too
+    // Safety net: drop ShedLock rows so a lock left held by an interrupted/failed test cannot leak into other tests.
+    entityManager.createNativeQuery("DELETE FROM aux.shedlock").executeUpdate();
     super.cleanDatabase();
   }
 }
