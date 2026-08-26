@@ -15,6 +15,8 @@ public class UserErrCode {
   public final static String TOKEN_ALREADY = "user_0013";
   /** User token was already used. */
   public final static String TOKEN_USED = "user_0014";
+  /** User token was not found. */
+  public final static String TOKEN_NOT_FOUND = "user_0015";
 
   /** User config entry is missing. */
   public final static String CONFIG_MISSING = "user_0021";

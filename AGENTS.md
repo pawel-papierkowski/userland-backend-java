@@ -19,7 +19,7 @@ This is a modern **Java 25**, **Spring Boot 4.1.0** application. The backend ser
 - **Maven:** Use Maven wrapper `.\mvnw`.
   - Compile the project: `.\mvnw clean compile`
   - Run single test: `.\mvnw test "-Dtest=ClassNameTest#nameOfTestFunction"`
-  - Run all tests from single file: `.\mvnw test "-Dtest=ClassNameTest"`
+  - Run all tests from single file: `.\mvnw test "-Dtest=ClassNameTests"`
   - Run all tests for entire project: `.\mvnw clean test` (only at end of work/task to make sure nothing broke)
   - Generate JaCoCo coverage report: `.\mvnw clean test jacoco:report`
   - Start the application locally: `.\mvnw spring-boot:run`

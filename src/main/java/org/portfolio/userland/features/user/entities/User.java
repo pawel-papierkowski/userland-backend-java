@@ -150,6 +150,8 @@ public class User {
     historyEvent.setUser(this);
   }
 
+  //
+
   /**
    * Add token entry to list of token entries. Call only if you expect to use tokens, or it was already used.
    * @param tokenEntry User token entry to add.
@@ -159,6 +161,19 @@ public class User {
     tokens.add(tokenEntry);
     tokenEntry.setUser(this);
   }
+
+  /**
+   * Find token of given type.
+   * @param type Type of token.
+   * @return Found token or null if it could not find token.
+   */
+  public UserToken findToken(EnUserTokenType type) {
+    if (tokens == null || type == null) return null;
+    Optional<UserToken> tokenOpt = tokens.stream().filter(t -> t.getType().equals(type)).findFirst();
+    return tokenOpt.orElse(null);
+  }
+
+  //
 
   /**
    * Add JWT entry to list of JWT entries. Call only if you expect to use JWTs, or it was already used.

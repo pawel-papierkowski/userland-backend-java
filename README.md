@@ -4,7 +4,7 @@ This project is **backend** part of **UserLand system**, designed to work with f
 
 It demonstrates basics of modern Java and Spring Boot project focused on pure user management. It was made from scratch using Spring Initializr.
 
-Project is finished.
+Project is finished. Please read entire file before doing anything. You will need to configure some stuff before you can deploy project.
 
 ## Basic info
 
@@ -143,7 +143,7 @@ You need to configure environment variables for your run configuration. Most var
     - You will also need custom domain registered in Resend.
 - Optional **environment variables**:
   - If you want to use real database (like local PostgreSQL instance) instead of database in container, add in run config:
-    - `SPRING_DATASOURCE_URL`=jdbc:postgresql://[URL]
+    - `SPRING_DATASOURCE_URL`=jdbc:postgresql://[URL] (keep in mind local instance likely does not require SSL)
     - `SPRING_DATASOURCE_USERNAME`=[NAME OF POSTGRESQL ACCOUNT]
     - `SPRING_DATASOURCE_PASSWORD`=[YOUR PASSWORD FOR ACCOUNT ABOVE]
     - `SPRING_DOCKER_COMPOSE_ENABLED`=false
@@ -152,6 +152,7 @@ You need to configure environment variables for your run configuration. Most var
 
 If you run test deployment locally via `TestUserLandApplication`, you need Docker engine running on your computer.
 Same with running tests in general.
+Additionally, you will need to add Maven goal `generate-resources` to run configuration before running any tests (caused by `build-info` execution in POM, needed to generate `META-INF/build-info.properties`).
 
 ### Commands
 
@@ -159,7 +160,7 @@ Note we use Maven wrapper.
 
 Run all tests for this project: `.\mvnw.cmd clean test`
 
-Run all tests from given test file: `.\mvnw.cmd clean test -Dtest=ClassNameTest`
+Run all tests from given test file: `.\mvnw.cmd clean test -Dtest=ClassNameTests`
 
 ### Coverage
 

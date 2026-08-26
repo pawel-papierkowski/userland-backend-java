@@ -10,6 +10,7 @@ import org.portfolio.userland.features.user.events.UserActivatedEvent;
 import org.portfolio.userland.features.user.events.UserAlreadyRegisteredEvent;
 import org.portfolio.userland.features.user.events.UserRegisteredEvent;
 import org.portfolio.userland.features.user.exceptions.UserAlreadyRegisteredException;
+import org.portfolio.userland.features.user.exceptions.UserTokenNotFoundException;
 import org.portfolio.userland.features.user.services.BaseUserService;
 import org.portfolio.userland.system.auth.perm.PermConst;
 import org.springframework.beans.factory.annotation.Value;
@@ -114,7 +115,7 @@ public class UserRegisterTx extends BaseUserService {
     user.setUuid(securityGeneratorService.uuid());
     // createdAt and modifiedAt is maintained automatically by JPA auditing
     user.addHistory(createHistoryEvent(nowAt, EnUserHistoryWho.USER, EnUserHistoryWhat.CREATE, ""));
-    if (userRegisterReq.activate()) { // already activate user?
+    if (userRegisterReq.activate()) { // Already activate user? This will skip email confirmation.
       user.setStatus(EnUserStatus.ACTIVE);
       user.addHistory(createHistoryEvent(nowAt, EnUserHistoryWho.USER, EnUserHistoryWhat.ACTIVATE, ""));
     } else user.addToken(createTokenData(nowAt, EnUserTokenType.ACTIVATE));
@@ -166,13 +167,16 @@ public class UserRegisterTx extends BaseUserService {
    * @param userRegisterReq User registration request.
    */
   private void triggerRegisterEvent(User user, UserRegisterReq userRegisterReq) {
+    UserToken token = user.findToken(EnUserTokenType.ACTIVATE);
+    if (token == null) throw new UserTokenNotFoundException();
+
     UserRegisteredEvent userRegisteredEvent = new UserRegisteredEvent(
         user.getId(),
         user.getUsername(),
         user.getEmail(),
         user.getLang(),
         userRegisterReq.frontend(),
-        user.getTokens().getFirst().getToken(),
+        token.getToken(),
         activationTokenExpires
     );
     // Will trigger UserSendEmailService.sendRegistrationEmail().
