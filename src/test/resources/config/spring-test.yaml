@@ -4,6 +4,7 @@
 spring:
   main:
     lazy-initialization: false # enforce initializing all beans on startup, so any issue will show at start
+    allow-bean-definition-overriding: true # allow tests to override production beans (e.g. gcpJwtDecoder)
   datasource:
     hikari:
       # Tests inherit the small production pool (see /src/main/resources/config/spring.yaml), but race tests run

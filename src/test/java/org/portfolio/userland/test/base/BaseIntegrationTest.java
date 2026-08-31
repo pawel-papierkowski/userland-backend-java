@@ -78,6 +78,8 @@ public abstract class BaseIntegrationTest {
   @ServiceConnection
   protected static final PostgreSQLContainer postgresCont = TestPostgres.get();
 
+  // //////////////////////////////////////////////////////////////////////////
+
   /**
    * Reset basic things.
    */
@@ -85,8 +87,6 @@ public abstract class BaseIntegrationTest {
   protected void resetBaseIntegration() {
     clock.reset();
   }
-
-  // //////////////////////////////////////////////////////////////////////////
 
   /**
    * Reset state of database before every test so tests don't interfere with each other. Runs automatically via

@@ -1,13 +1,13 @@
 # Configuration specific to UserLand project: GCP config for tests.
-# Note GCP is not used in tests.
+# Note GCP is not used in tests, but values are needed for JwtGcpTokenValidator and GcpOidcTokenHelper.
 
 app:
   gcp:
     general: # general GCP config
-      url: "" # The public URL of your Cloud Run service.
-      service-account: "" # Your service account. Ensure it has all needed permissions.
-      project: "" # project ID
-      location: "" # location (region)
+      url: "https://test.example.com" # The public URL of your Cloud Run service.
+      service-account: "test-sa" # Your service account. Ensure it has all needed permissions.
+      project: "test-project" # project ID
+      location: "europe-central2" # location (region)
     email:
       task: false # If true, use GCP Cloud Task for queueing emails.
-      queue: "" # task queue ID for emails
+      queue: "test-email-queue" # task queue ID for emails

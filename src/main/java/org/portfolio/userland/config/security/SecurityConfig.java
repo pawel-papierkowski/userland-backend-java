@@ -159,11 +159,12 @@ public class SecurityConfig {
    * the token must target our endpoint (audience) and must be minted for our service account (identity). Without
    * these extra checks, any Google-signed token from any account would be accepted.
    * @param http HTTP security data.
+   * @param gcpJwtDecoder JWT decoder for verifying GCP tokens.
    * @return Security filter chain.
    */
   @Bean
   @Order(50) // Make sure it's before the defaultSecurityFilterChain
-  public SecurityFilterChain gcpInternalSecurityFilterChain(HttpSecurity http) {
+  public SecurityFilterChain gcpInternalSecurityFilterChain(HttpSecurity http, JwtDecoder gcpJwtDecoder) {
     http.cors(Customizer.withDefaults())
         .csrf(AbstractHttpConfigurer::disable)
         .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -171,7 +172,7 @@ public class SecurityConfig {
         .authorizeHttpRequests(requests -> requests.anyRequest().authenticated())
         // Enable OAuth2 Resource Server to automatically validate the Bearer token against Google's public keys,
         // plus our own extra validation (audience + service account identity).
-        .oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt -> jwt.decoder(gcpJwtDecoder())))
+        .oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt -> jwt.decoder(gcpJwtDecoder)))
         .exceptionHandling(ex -> ex
             .authenticationEntryPoint(problemDetailAuthenticationEntryPoint)
             .accessDeniedHandler(problemDetailAccessDeniedHandler)
@@ -187,7 +188,8 @@ public class SecurityConfig {
    * <p>Note: JWKS URI is hardcoded instead of derived from issuer metadata, so no HTTP call is made at startup.</p>
    * @return JWT decoder for GCP tokens.
    */
-  private JwtDecoder gcpJwtDecoder() {
+  @Bean("gcpJwtDecoder")
+  public JwtDecoder gcpJwtDecoder() {
     NimbusJwtDecoder decoder = NimbusJwtDecoder.withJwkSetUri(GOOGLE_JWKS_URI).build();
     decoder.setJwtValidator(new DelegatingOAuth2TokenValidator<>(
         new JwtTimestampValidator(), // standard: reject expired/too-early tokens

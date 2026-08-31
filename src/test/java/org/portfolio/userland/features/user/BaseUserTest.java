@@ -78,6 +78,7 @@ public abstract class BaseUserTest extends BaseIntegrationTest {
   @Autowired
   protected UserAdminAssert userAdminAssert;
 
+  /** Prevents real email sending. */
   @MockitoBean
   protected EmailService emailService;
 
