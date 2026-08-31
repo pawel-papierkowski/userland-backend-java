@@ -8,6 +8,11 @@ app:
     wwwProd: "https://pawelpapierkowski.net.pl/userland-frontend-" # you need to attach suffix like 'vue' yourself
   rate-limit: # configuration for rate limits
     active: true # enable or disable rate limiting here
+    exclude: # Ant-style patterns excluded from rate limiting
+      - /api/admin/**
+      - /api/system/**
+      - /api/checks/**
+      - /api/gcp/**
     cache:
       maximum-size: 10000 # max unique IP addresses tracked simultaneously
       expire-after-access: 10 # cleanup idle entries, in minutes

@@ -17,10 +17,12 @@ import org.portfolio.userland.config.security.SecurityConfig;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.stereotype.Service;
+import org.springframework.util.AntPathMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 
@@ -44,6 +46,8 @@ import java.util.function.Supplier;
 @ConditionalOnBean(ProxyManager.class) // so it works in slice test context
 @Slf4j
 public class RateLimitFilter extends OncePerRequestFilter {
+  private static final AntPathMatcher PATH_MATCHER = new AntPathMatcher();
+
   private final ProxyManager<String> proxyManager;
   private final Supplier<BucketConfiguration> bucketConfigurationSupplier;
   private final HttpHelperService httpHelperService;
@@ -56,7 +60,7 @@ public class RateLimitFilter extends OncePerRequestFilter {
   protected void doFilterInternal(@NonNull HttpServletRequest request,
                                   @NonNull HttpServletResponse response,
                                   @NonNull FilterChain filterChain) throws ServletException, IOException {
-    if (!rateLimitProperties.active()) {
+    if (!shouldRateLimit(request)) {
       filterChain.doFilter(request, response);
       return;
     }
@@ -75,5 +79,29 @@ public class RateLimitFilter extends OncePerRequestFilter {
     log.debug("Rate limit exceeded for IP '{}'. Retry after {} seconds.", clientIp, retryAfterSeconds);
 
     handlerExceptionResolver.resolveException(request, response, null, new RateLimitException(retryAfterSeconds));
+  }
+
+  /**
+   * Determines whether the given request should be rate-limited based on configured path patterns.
+   * <p>Evaluation order:</p>
+   * <ol>
+   *   <li>If path matches any {@code exclude} pattern → skip rate limiting.</li>
+   *   <li>If {@code include} list is non-empty and path does not match any → skip rate limiting.</li>
+   *   <li>Otherwise → apply rate limiting.</li>
+   * </ol>
+   * @param request The HTTP request to check.
+   * @return {@code true} if the request should be rate-limited, {@code false} otherwise.
+   */
+  private boolean shouldRateLimit(HttpServletRequest request) {
+    if (!rateLimitProperties.active()) return false;
+
+    String path = request.getRequestURI();
+
+    List<String> exclude = rateLimitProperties.exclude();
+    if (exclude != null && exclude.stream().anyMatch(pattern -> PATH_MATCHER.match(pattern, path))) {
+      return false;
+    }
+
+    return true;
   }
 }

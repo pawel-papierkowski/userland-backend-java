@@ -6,14 +6,16 @@ import java.util.List;
 
 /**
  * Configuration properties for rate limiting.
- * <p>Reads values from {@code app.rateLimit.*} in YAML configuration.</p>
+ * <p>Reads values from {@code app.rate-limit.*} in YAML configuration.</p>
  * @param active If false, rate limiting is disabled.
+ * @param exclude Ant-style path patterns to exclude from rate limiting.
  * @param cache Cache properties.
  * @param limits List of limit properties.
  */
 @ConfigurationProperties(prefix = "app.rate-limit")
 public record RateLimitProperties(
     Boolean active,
+    List<String> exclude,
     CacheProperties cache,
     List<LimitProperties> limits)
 {
