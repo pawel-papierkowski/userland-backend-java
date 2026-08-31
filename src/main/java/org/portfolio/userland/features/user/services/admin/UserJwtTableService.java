@@ -2,13 +2,11 @@ package org.portfolio.userland.features.user.services.admin;
 
 import lombok.RequiredArgsConstructor;
 import org.portfolio.userland.common.dto.TableMetaReq;
-import org.portfolio.userland.common.exception.BadParamsException;
 import org.portfolio.userland.common.services.table.TableHelper;
 import org.portfolio.userland.features.user.dto.admin.jwt.UserJwtTableEntry;
 import org.portfolio.userland.features.user.dto.admin.jwt.UserJwtTableReq;
 import org.portfolio.userland.features.user.dto.admin.jwt.UserJwtTableResp;
 import org.portfolio.userland.features.user.entities.UserJwt;
-import org.portfolio.userland.features.user.services.BaseUserService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,7 +18,7 @@ import java.util.List;
  */
 @Service
 @RequiredArgsConstructor
-public class UserJwtTableService extends BaseUserService {
+public class UserJwtTableService extends BaseUserTableService {
   /**
    * Get page from user jwt table. Request contains filtering and other (pagination, sorting) data needed to return
    * correct results.
@@ -33,17 +31,6 @@ public class UserJwtTableService extends BaseUserService {
     Long entryCount = userJwtRepository.countEntries(tableReq);
     List<UserJwt> userPage = userJwtRepository.viewPage(tableReq);
     return cnvEntitiesToEntries(userPage, tableReq.tableMeta(), entryCount);
-  }
-
-  /**
-   * Verify request. Any error will cause exception.
-   * @param tableReq User jwt table page request.
-   */
-  private void verifyRequest(UserJwtTableReq tableReq) {
-    if (tableReq.createdFromAt() != null && tableReq.createdToAt() != null) {
-      if (tableReq.createdFromAt().isAfter(tableReq.createdToAt()))
-        throw new BadParamsException("Field createdFromAt is after createdToAt!");
-    }
   }
 
   /**

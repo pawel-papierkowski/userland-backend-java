@@ -3,7 +3,6 @@ package org.portfolio.userland.features.user.services.admin;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.portfolio.userland.common.dto.TableMetaReq;
-import org.portfolio.userland.common.exception.BadParamsException;
 import org.portfolio.userland.common.exception.ShouldNeverHappenException;
 import org.portfolio.userland.common.services.table.TableHelper;
 import org.portfolio.userland.features.user.dto.admin.user.*;
@@ -14,7 +13,6 @@ import org.portfolio.userland.features.user.entities.User;
 import org.portfolio.userland.features.user.entities.UserProfile;
 import org.portfolio.userland.features.user.exceptions.UserCannotEditException;
 import org.portfolio.userland.features.user.exceptions.UserEmailAlreadyExistsException;
-import org.portfolio.userland.features.user.services.BaseUserService;
 import org.portfolio.userland.system.auth.AuthHelper;
 import org.portfolio.userland.system.auth.details.CustomUserDetails;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -32,7 +30,7 @@ import java.util.TreeSet;
  */
 @Service
 @RequiredArgsConstructor
-public class UserTableService extends BaseUserService {
+public class UserTableService extends BaseUserTableService {
   /**
    * Get page from user table. Request contains filtering and other (pagination, sorting) data needed to return correct
    * results.
@@ -45,17 +43,6 @@ public class UserTableService extends BaseUserService {
     Long entryCount = userRepository.countEntries(tableReq);
     List<User> userPage = userRepository.viewPage(tableReq);
     return cnvEntitiesToEntries(userPage, tableReq.tableMeta(), entryCount);
-  }
-
-  /**
-   * Verify request. Any error will cause exception.
-   * @param tableReq User table page request.
-   */
-  private void verifyRequest(UserTableReq tableReq) {
-    if (tableReq.createdFromAt() != null && tableReq.createdToAt() != null) {
-      if (tableReq.createdFromAt().isAfter(tableReq.createdToAt()))
-        throw new BadParamsException("Field createdFromAt is after createdToAt!");
-    }
   }
 
   /**

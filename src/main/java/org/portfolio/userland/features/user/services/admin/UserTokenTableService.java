@@ -2,13 +2,11 @@ package org.portfolio.userland.features.user.services.admin;
 
 import lombok.RequiredArgsConstructor;
 import org.portfolio.userland.common.dto.TableMetaReq;
-import org.portfolio.userland.common.exception.BadParamsException;
 import org.portfolio.userland.common.services.table.TableHelper;
 import org.portfolio.userland.features.user.dto.admin.token.UserTokenTableEntry;
 import org.portfolio.userland.features.user.dto.admin.token.UserTokenTableReq;
 import org.portfolio.userland.features.user.dto.admin.token.UserTokenTableResp;
 import org.portfolio.userland.features.user.entities.UserToken;
-import org.portfolio.userland.features.user.services.BaseUserService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,7 +18,7 @@ import java.util.List;
  */
 @Service
 @RequiredArgsConstructor
-public class UserTokenTableService extends BaseUserService {
+public class UserTokenTableService extends BaseUserTableService {
   /**
    * Get page from user token table. Request contains filtering and other (pagination, sorting) data needed to return
    * correct results.
@@ -33,17 +31,6 @@ public class UserTokenTableService extends BaseUserService {
     Long entryCount = userTokenRepository.countEntries(tableReq);
     List<UserToken> userPage = userTokenRepository.viewPage(tableReq);
     return cnvEntitiesToEntries(userPage, tableReq.tableMeta(), entryCount);
-  }
-
-  /**
-   * Verify request. Any error will cause exception.
-   * @param tableReq User token table page request.
-   */
-  private void verifyRequest(UserTokenTableReq tableReq) {
-    if (tableReq.createdFromAt() != null && tableReq.createdToAt() != null) {
-      if (tableReq.createdFromAt().isAfter(tableReq.createdToAt()))
-        throw new BadParamsException("Field createdFromAt is after createdToAt!");
-    }
   }
 
   /**

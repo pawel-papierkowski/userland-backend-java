@@ -1,11 +1,8 @@
 package org.portfolio.userland.features.user.services.admin;
 
 import lombok.RequiredArgsConstructor;
-import org.portfolio.userland.common.dto.EnOptionAccess;
 import org.portfolio.userland.common.dto.EntryMetaResp;
-import org.portfolio.userland.common.dto.EntryOption;
 import org.portfolio.userland.common.dto.TableMetaReq;
-import org.portfolio.userland.common.exception.BadParamsException;
 import org.portfolio.userland.common.exception.ShouldNeverHappenException;
 import org.portfolio.userland.common.services.table.TableHelper;
 import org.portfolio.userland.features.user.dto.admin.config.UserConfigEditReq;
@@ -18,25 +15,21 @@ import org.portfolio.userland.features.user.entities.UserConfig;
 import org.portfolio.userland.features.user.exceptions.UserCannotEditException;
 import org.portfolio.userland.features.user.exceptions.UserConfigMissingException;
 import org.portfolio.userland.features.user.exceptions.UserConfigRedundantException;
-import org.portfolio.userland.features.user.services.BaseUserService;
 import org.portfolio.userland.system.auth.AuthHelper;
 import org.portfolio.userland.system.auth.details.CustomUserDetails;
-import org.portfolio.userland.system.auth.perm.EnPermKind;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Business logic for viewing data of user config table.
  */
 @Service
 @RequiredArgsConstructor
-public class UserConfigTableService extends BaseUserService {
+public class UserConfigTableService extends BaseUserTableService {
   /**
    * Get page from user config table. Request contains filtering and other (pagination, sorting) data needed to return
    * correct results.
@@ -49,17 +42,6 @@ public class UserConfigTableService extends BaseUserService {
     Long entryCount = userConfigRepository.countEntries(tableReq);
     List<UserConfig> userPage = userConfigRepository.viewPage(tableReq);
     return cnvEntitiesToEntries(tableReq.userId(), userPage, tableReq.tableMeta(), entryCount);
-  }
-
-  /**
-   * Verify request. Any error will cause exception.
-   * @param tableReq User config table page request.
-   */
-  private void verifyRequest(UserConfigTableReq tableReq) {
-    if (tableReq.createdFromAt() != null && tableReq.createdToAt() != null) {
-      if (tableReq.createdFromAt().isAfter(tableReq.createdToAt()))
-        throw new BadParamsException("Field createdFromAt is after createdToAt!");
-    }
   }
 
   /**
@@ -97,45 +79,6 @@ public class UserConfigTableService extends BaseUserService {
   private UserConfigTableEntry toEntry(UserConfig entity, EntryMetaResp meta) {
     return userMapper.entityToTableEntry(entity).toBuilder()
         .meta(meta)
-        .build();
-  }
-
-  /**
-   * Resolve metadata for user config entry.
-   * @param userId User identificator for this entry.
-   * @return Entry metadata.
-   */
-  private EntryMetaResp resolveMetadata(Long userId) {
-    Map<String, EntryOption> options = new HashMap<>();
-    options.put("edit", resolveOption(userId));
-    options.put("delete", resolveOption(userId));
-    return EntryMetaResp.builder()
-        .options(options)
-        .build();
-  }
-
-  /**
-   * Find out state of option. You can edit/delete user configuration only if you are admin.
-   * @param userId User identificator for this entry.
-   * @return Entry option.
-   */
-  private EntryOption resolveOption(Long userId) {
-    EnOptionAccess access = EnOptionAccess.ENABLED;
-    String reason = null; // frontend will use default reason for tooltip
-
-    CustomUserDetails userDetails = AuthHelper.resolveUserDetails();
-    Long loggedUserId = userDetails == null ? null : userDetails.getId();
-    if (userId.equals(loggedUserId)) {
-      reason = "notYourself";
-      access = EnOptionAccess.DISABLED;
-    }
-    if (!permissionService.has(EnPermKind.ADMIN_ONLY)) {
-      reason = "adminOnly";
-      access = EnOptionAccess.DISABLED;
-    }
-    return EntryOption.builder()
-        .access(access)
-        .reason(reason)
         .build();
   }
 
