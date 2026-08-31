@@ -42,6 +42,7 @@ public class UserPermission {
   /** Permission that has this user permission entry. */
   @ManyToOne(optional = false, fetch = FetchType.LAZY)
   @JoinColumn(name = "id_permission")
+  @OnDelete(action = OnDeleteAction.CASCADE)
   private Permission permission;
 
   //

@@ -241,6 +241,7 @@ public class SecurityConfig {
   @Bean
   public CorsConfigurationSource corsConfigurationSource() {
     CorsConfiguration configuration = new CorsConfiguration();
+    configuration.setMaxAge(3600L);
     configuration.setAllowedOrigins(Arrays.asList(CorsConst.ALLOWED_ORIGINS));
     configuration.setAllowedMethods(Arrays.asList(CorsConst.ALLOWED_METHODS));
     configuration.setAllowedHeaders(Arrays.asList(CorsConst.ALLOWED_HEADERS));

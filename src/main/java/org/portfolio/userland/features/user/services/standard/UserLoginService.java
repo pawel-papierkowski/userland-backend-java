@@ -15,9 +15,7 @@ import org.portfolio.userland.system.auth.AuthHelper;
 import org.portfolio.userland.system.auth.details.CustomUserDetails;
 import org.portfolio.userland.system.auth.jwt.JwtService;
 import org.portfolio.userland.system.auth.perm.EnPermKind;
-import org.portfolio.userland.system.auth.perm.PermissionService;
 import org.portfolio.userland.system.config.service.ConfigConst;
-import org.portfolio.userland.system.config.service.ConfigService;
 import org.portfolio.userland.system.lockdown.exceptions.UserLockdownException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,8 +31,6 @@ import java.time.LocalDateTime;
 public class UserLoginService extends BaseUserService {
   private final UserConfigService userConfigService;
 
-  private final ConfigService configService;
-  private final PermissionService permissionService;
   private final JwtService jwtService;
   private final HttpHelperService httpHelperService;
   private final UserLoginTx userLoginTx;
@@ -48,10 +44,14 @@ public class UserLoginService extends BaseUserService {
    * @return User login response.
    */
   public UserLoginResp login(UserLoginReq userLoginReq) {
-    // We want to make sure attacker cannot distinguish case when email does not exist and case when wrong password was
-    // given. We just say that was wrong password in both cases.
     User user = userHelperService.resolveAuthUser(userLoginReq.email(), true);
-    if (user == null) throw new UserWrongPasswordException(); // prevent email enumeration attack
+    if (user == null) {
+      // Prevent timing attacks, ensuring missing user takes roughly same amount of time as verifying password of real user.
+      userHelperService.pretendVerifyPassword();
+      // We want to make sure attacker cannot distinguish case when email does not exist and case when wrong password was
+      // given. We just say that was wrong password in both cases.
+      throw new UserWrongPasswordException();
+    }
 
     // Verify password (BCrypt) BEFORE entering transaction - it is CPU-heavy and must not hold a database connection.
     userHelperService.verifyPassword(user, userLoginReq.password());

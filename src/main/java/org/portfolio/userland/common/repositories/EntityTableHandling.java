@@ -124,4 +124,19 @@ public abstract class EntityTableHandling<R extends TableReq, E> {
   protected void addFetches(@SuppressWarnings("unused") Root<E> entity) {
     // Default: no fetches needed.
   }
+
+  //
+
+  /**
+   * Escapes LIKE metacharacters in user input so they are treated as literal characters.
+   * Escapes: {@code \} (backslash), {@code %} (multi-character wildcard), {@code _} (single-character wildcard).
+   * @param value Raw user input.
+   * @return Escaped string safe for use in a LIKE pattern with {@code '\\'} as the escape character.
+   */
+  protected static String escapeLike(String value) {
+    return value
+        .replace("\\", "\\\\")
+        .replace("%", "\\%")
+        .replace("_", "\\_");
+  }
 }

@@ -362,6 +362,47 @@ public class UserTableApiTest extends BaseUserTest {
     actAssert(req, expectedResults, 1L, 3L);
   }
 
+  @Test
+  @WithMockCustomUser(authorities = { "ROLE_OPERATOR", "USER_VIEW" })
+  public void viewUsernameWithLikeMetacharacters() throws Exception {
+    // Tests that LIKE metacharacters (% and _) in username filter are escaped and treated as literals,
+    // not as SQL wildcards. Searching for '%' should match nothing, not all users.
+
+    arrangeUserData();
+
+    // Searching for '%' as literal username - should match no one.
+    UserTableReq reqPercent = UserTableReq.builder()
+        .username("%")
+        .build();
+    actAssert(reqPercent, List.of(), 0L, 0L);
+
+    // Searching for '_' as literal username - should match no one.
+    UserTableReq reqUnderscore = UserTableReq.builder()
+        .username("_")
+        .build();
+    actAssert(reqUnderscore, List.of(), 0L, 0L);
+  }
+
+  @Test
+  @WithMockCustomUser(authorities = { "ROLE_OPERATOR", "USER_VIEW" })
+  public void viewEmailWithLikeMetacharacters() throws Exception {
+    // Tests that LIKE metacharacters (% and _) in email filter are escaped and treated as literals.
+
+    arrangeUserData();
+
+    // Searching for '%' as literal email - should match no one.
+    UserTableReq reqPercent = UserTableReq.builder()
+        .email("%")
+        .build();
+    actAssert(reqPercent, List.of(), 0L, 0L);
+
+    // Searching for '_' as literal email - should match no one.
+    UserTableReq reqUnderscore = UserTableReq.builder()
+        .email("_")
+        .build();
+    actAssert(reqUnderscore, List.of(), 0L, 0L);
+  }
+
   //
 
   @Test

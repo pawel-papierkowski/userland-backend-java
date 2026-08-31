@@ -8,7 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 /**
  * Common class for all factories.
  */
-public class BaseFactory {
+public abstract class BaseFactory {
   @Autowired
   protected SecurityGeneratorService securityGeneratorService;
   @Autowired

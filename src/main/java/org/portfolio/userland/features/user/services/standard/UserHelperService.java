@@ -184,6 +184,13 @@ public class UserHelperService {
     if (!isMatch) throw new UserWrongPasswordException();
   }
 
+  /**
+   * Verifies if password is correct, but does not enforce consequences. Used to prevent timing attacks.
+   */
+  public void pretendVerifyPassword() {
+    passwordEncoder.matches("abcABC123!@#", "$2a$10$PyQoDnY93QujZCrw0P5h3u0PmiCfGwKrjvf6.7oYGh8qn.mC4iXZO");
+  }
+
   //
 
   /**

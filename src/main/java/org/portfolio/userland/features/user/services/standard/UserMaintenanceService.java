@@ -93,7 +93,7 @@ public class UserMaintenanceService {
   @Transactional
   public void cleanExpiredJwts() {
     log.info("Starting scheduled cleanup of expired JWTs...");
-    StopWatch stopWatch = new StopWatch("Expired Tokens Cleanup");
+    StopWatch stopWatch = new StopWatch("Expired JWTs Cleanup");
     LocalDateTime nowAt = clockService.getNowUTC();
 
     // Delete tokens that expired naturally.

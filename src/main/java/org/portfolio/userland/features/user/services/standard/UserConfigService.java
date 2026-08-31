@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.portfolio.userland.features.user.entities.User;
 import org.portfolio.userland.features.user.entities.UserConfig;
-import org.portfolio.userland.features.user.repositories.config.UserConfigRepository;
 import org.portfolio.userland.features.user.services.BaseUserService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,8 +14,6 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 public class UserConfigService extends BaseUserService {
-  private final UserConfigRepository userConfigRepository;
-
   /**
    * Get value of configuration variable as string.
    * @param name Name of configuration variable.

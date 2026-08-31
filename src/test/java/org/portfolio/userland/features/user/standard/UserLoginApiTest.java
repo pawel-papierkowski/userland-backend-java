@@ -80,7 +80,7 @@ public class UserLoginApiTest extends BaseUserTest {
     expectedClaimMap.put(JwtClaims.SUBJECT, "test@example.com"); // user account email as subject
     expectedClaimMap.put(JwtClaims.NAME, "Jane"); // username
     expectedClaimMap.put(JwtClaims.PERMS, Map.of()); // perms
-    jwtAssert.assertIt(actualResp.jwtToken(), expectedUser.getEmail(), expectedClaimMap);
+    jwtAssert.assertIt(actualResp.jwtToken(), expectedClaimMap);
   }
 
   @Test
@@ -163,7 +163,7 @@ public class UserLoginApiTest extends BaseUserTest {
     expectedClaimMap.put(JwtClaims.SUBJECT, "test@example.com"); // user account email as subject
     expectedClaimMap.put(JwtClaims.NAME, "Jane"); // username
     expectedClaimMap.put(JwtClaims.PERMS, Map.of("role", "operator")); // perms
-    jwtAssert.assertIt(actualResp.jwtToken(), expectedUser.getEmail(), expectedClaimMap);
+    jwtAssert.assertIt(actualResp.jwtToken(), expectedClaimMap);
   }
 
   @Test
@@ -214,7 +214,7 @@ public class UserLoginApiTest extends BaseUserTest {
     expectedClaimMap.put(JwtClaims.SUBJECT, "test@example.com"); // user account email as subject
     expectedClaimMap.put(JwtClaims.NAME, "Jane"); // username
     expectedClaimMap.put(JwtClaims.PERMS, Map.of("role", "operator")); // perms
-    jwtAssert.assertIt(actualResp.jwtToken(), expectedUser.getEmail(), expectedClaimMap);
+    jwtAssert.assertIt(actualResp.jwtToken(), expectedClaimMap);
   }
 
   @Test
@@ -261,7 +261,7 @@ public class UserLoginApiTest extends BaseUserTest {
     expectedClaimMap.put(JwtClaims.SUBJECT, "test@example.com"); // user account email as subject
     expectedClaimMap.put(JwtClaims.NAME, "Jane"); // username
     expectedClaimMap.put(JwtClaims.PERMS, Map.of()); // perms
-    jwtAssert.assertIt(actualResp.jwtToken(), expectedUser.getEmail(), expectedClaimMap);
+    jwtAssert.assertIt(actualResp.jwtToken(), expectedClaimMap);
   }
 
   // //////////////////////////////////////////////////////////////////////////

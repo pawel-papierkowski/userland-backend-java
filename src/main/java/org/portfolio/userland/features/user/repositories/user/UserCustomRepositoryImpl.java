@@ -7,6 +7,7 @@ import org.portfolio.userland.common.repositories.EntityTableHandling;
 import org.portfolio.userland.features.user.constants.UserConfigConst;
 import org.portfolio.userland.features.user.dto.admin.user.UserTableReq;
 import org.portfolio.userland.features.user.entities.User;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -21,10 +22,10 @@ public class UserCustomRepositoryImpl extends EntityTableHandling<UserTableReq, 
     List<Predicate> predicates = new ArrayList<>();
     // Apply filters.
     if (req.username() != null && !req.username().isBlank()) {
-      predicates.add(cb.like(cb.lower(entity.get("username")), "%" + req.username().toLowerCase() + "%"));
+      predicates.add(cb.like(cb.lower(entity.get("username")), "%" + escapeLike(req.username().toLowerCase()) + "%", '\\'));
     }
     if (req.email() != null && !req.email().isBlank()) {
-      predicates.add(cb.like(cb.lower(entity.get("email")), "%" + req.email().toLowerCase() + "%"));
+      predicates.add(cb.like(cb.lower(entity.get("email")), "%" + escapeLike(req.email().toLowerCase()) + "%", '\\'));
     }
     if (req.status() != null) {
       predicates.add(cb.equal(entity.get("status"), req.status()));
@@ -44,6 +45,7 @@ public class UserCustomRepositoryImpl extends EntityTableHandling<UserTableReq, 
   //
 
   @Override
+  @Transactional
   public int deleteActiveUsers(LocalDateTime cutoffDateAt) {
     // Will find users that do NOT have any entries in history that are after cutoff date.
     // This effectively identifies users whose last activity was before the cutoff.
