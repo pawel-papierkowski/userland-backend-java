@@ -6,6 +6,7 @@ import org.portfolio.userland.config.security.constants.EndpointConst;
 import org.portfolio.userland.system.auth.LockdownFilter;
 import org.portfolio.userland.system.auth.RateLimitFilter;
 import org.portfolio.userland.system.auth.jwt.JwtAuthFilter;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.boot.security.autoconfigure.actuate.web.servlet.EndpointRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -45,7 +46,7 @@ public class SecurityConfig {
 
   private final JwtAuthFilter jwtAuthFilter;
   private final LockdownFilter lockdownFilter;
-  private final RateLimitFilter rateLimitFilter;
+  private final ObjectProvider<RateLimitFilter> rateLimitFilterProvider;
   private final JwtGcpTokenValidator jwtGcpTokenValidator;
   private final ProblemDetailAuthenticationEntryPoint problemDetailAuthenticationEntryPoint;
   private final ProblemDetailAccessDeniedHandler problemDetailAccessDeniedHandler;
@@ -82,6 +83,7 @@ public class SecurityConfig {
         .csrf(AbstractHttpConfigurer::disable)
         .securityMatcher(EndpointConst.SWAGGER)
         .authorizeHttpRequests(requests -> requests.anyRequest().permitAll());
+    addRateLimitFilter(http);
     return http.build();
   }
 
@@ -99,9 +101,9 @@ public class SecurityConfig {
         .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .securityMatcher(EndpointConst.PUBLIC)
         .authorizeHttpRequests(requests -> requests.anyRequest().permitAll())
-        .addFilterBefore(rateLimitFilter, UsernamePasswordAuthenticationFilter.class)
         .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
         .addFilterAfter(lockdownFilter, JwtAuthFilter.class);
+    addRateLimitFilter(http);
     return http.build();
   }
 
@@ -126,9 +128,9 @@ public class SecurityConfig {
             .authenticationEntryPoint(problemDetailAuthenticationEntryPoint)
             .accessDeniedHandler(problemDetailAccessDeniedHandler)
         )
-        .addFilterBefore(rateLimitFilter, UsernamePasswordAuthenticationFilter.class)
         .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
         .addFilterAfter(lockdownFilter, JwtAuthFilter.class);
+    addRateLimitFilter(http);
     return http.build();
   }
 
@@ -152,9 +154,9 @@ public class SecurityConfig {
             .authenticationEntryPoint(problemDetailAuthenticationEntryPoint)
             .accessDeniedHandler(problemDetailAccessDeniedHandler)
         )
-        .addFilterBefore(rateLimitFilter, UsernamePasswordAuthenticationFilter.class)
         .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
         .addFilterAfter(lockdownFilter, JwtAuthFilter.class);
+    addRateLimitFilter(http);
     return http.build();
   }
 
@@ -229,13 +231,23 @@ public class SecurityConfig {
             .authenticationEntryPoint(problemDetailAuthenticationEntryPoint)
             .accessDeniedHandler(problemDetailAccessDeniedHandler)
         )
-        .addFilterBefore(rateLimitFilter, UsernamePasswordAuthenticationFilter.class)
         .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
         .addFilterAfter(lockdownFilter, JwtAuthFilter.class);
+    addRateLimitFilter(http);
     return http.build();
   }
 
   // SUPPORTING BEANS
+
+  /**
+   * Conditionally adds the rate limit filter before the JWT auth filter.
+   * <p>If {@link RateLimitFilter} is not available (e.g. in slice tests), this is a no-op.</p>
+   * @param http HTTP security data.
+   */
+  private void addRateLimitFilter(HttpSecurity http) {
+    RateLimitFilter rl = rateLimitFilterProvider.getIfAvailable();
+    if (rl != null) http.addFilterBefore(rl, UsernamePasswordAuthenticationFilter.class);
+  }
 
   /**
    * Configures CORS so frontend can work with backend without CORS-related issues.

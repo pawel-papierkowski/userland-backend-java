@@ -15,11 +15,14 @@ public class ValidConst {
   public static final int PASS_LEN_MAX = 100;
 
   /** Regular expression that represents valid password.
-   * Ensure that there is at least one digit, at least one lower-case letter, at least one upper-case letter and
-   * at least one special character from list. Also, there must be at least 8 characters.
-   * Example: 'StrongP@ssw0rd' is valid password.
+   * Ensures that there is at least one digit, at least one lower-case letter, at least one upper-case letter and
+   * at least one special character from list.
+   * <p>Example: <code>StrongP@ssw0rd</code> is valid password.</p>
+   * Note: size is enforced separately. All <code>@Pattern</code>s with this regexp need to have accompanying
+   * <code>@Size</code> annotation. It is necessary due to non-deterministic order of processing annotations on given
+   * field. Also, it gives better error message.
    */
-  public static final String REG_EXPR_PASSWORD = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=.,?!]).{"+PASS_LEN_MIN+","+PASS_LEN_MAX+"}$";
+  public static final String REG_EXPR_PASSWORD = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=.,?!]).*$";
 
   /** Regular expression that represents valid UUID. Example: 'd9a6075e-85de-4d57-8ba3-3d0d829158fb' is valid UUID. */
   public static final String REG_EXPR_UUID = "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$";

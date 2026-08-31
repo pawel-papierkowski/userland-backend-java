@@ -12,9 +12,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NonNull;
 import org.portfolio.userland.common.services.web.HttpHelperService;
-import org.portfolio.userland.config.RateLimitConfig;
 import org.portfolio.userland.config.RateLimitProperties;
+import org.portfolio.userland.config.security.SecurityConfig;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.stereotype.Service;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.servlet.HandlerExceptionResolver;
@@ -31,12 +32,16 @@ import java.util.function.Supplier;
  * {@link HandlerExceptionResolver}, which returns HTTP 429 with a {@code Retry-After} header.</p>
  * <p>Filter placement: this filter should run early in the chain (before authentication) to reject
  * abusive traffic before any expensive processing occurs.</p>
+ * <p>This bean is conditional on {@link ProxyManager} being available. In slice tests
+ * (e.g. {@code @WebMvcTest}) where {@code RateLimitConfig} is not loaded, this filter is not
+ * created and {@link SecurityConfig} must handle its absence gracefully.</p>
  *
- * @see RateLimitConfig
+ * @see org.portfolio.userland.config.RateLimitConfig
  * @see RateLimitException
  */
 @Service
 @RequiredArgsConstructor
+@ConditionalOnBean(ProxyManager.class) // so it works in slice test context
 @Slf4j
 public class RateLimitFilter extends OncePerRequestFilter {
   private final ProxyManager<String> proxyManager;
@@ -51,7 +56,7 @@ public class RateLimitFilter extends OncePerRequestFilter {
   protected void doFilterInternal(@NonNull HttpServletRequest request,
                                   @NonNull HttpServletResponse response,
                                   @NonNull FilterChain filterChain) throws ServletException, IOException {
-    if (!rateLimitProperties.active()) { // rate limit filter is disabled, exit already
+    if (!rateLimitProperties.active()) {
       filterChain.doFilter(request, response);
       return;
     }
