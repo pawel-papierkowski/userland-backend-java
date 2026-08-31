@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.portfolio.userland.config.security.constants.CorsConst;
 import org.portfolio.userland.config.security.constants.EndpointConst;
 import org.portfolio.userland.system.auth.LockdownFilter;
+import org.portfolio.userland.system.auth.RateLimitFilter;
 import org.portfolio.userland.system.auth.jwt.JwtAuthFilter;
 import org.springframework.boot.security.autoconfigure.actuate.web.servlet.EndpointRequest;
 import org.springframework.context.annotation.Bean;
@@ -44,6 +45,7 @@ public class SecurityConfig {
 
   private final JwtAuthFilter jwtAuthFilter;
   private final LockdownFilter lockdownFilter;
+  private final RateLimitFilter rateLimitFilter;
   private final JwtGcpTokenValidator jwtGcpTokenValidator;
   private final ProblemDetailAuthenticationEntryPoint problemDetailAuthenticationEntryPoint;
   private final ProblemDetailAccessDeniedHandler problemDetailAccessDeniedHandler;
@@ -97,6 +99,7 @@ public class SecurityConfig {
         .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .securityMatcher(EndpointConst.PUBLIC)
         .authorizeHttpRequests(requests -> requests.anyRequest().permitAll())
+        .addFilterBefore(rateLimitFilter, UsernamePasswordAuthenticationFilter.class)
         .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
         .addFilterAfter(lockdownFilter, JwtAuthFilter.class);
     return http.build();
@@ -123,6 +126,7 @@ public class SecurityConfig {
             .authenticationEntryPoint(problemDetailAuthenticationEntryPoint)
             .accessDeniedHandler(problemDetailAccessDeniedHandler)
         )
+        .addFilterBefore(rateLimitFilter, UsernamePasswordAuthenticationFilter.class)
         .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
         .addFilterAfter(lockdownFilter, JwtAuthFilter.class);
     return http.build();
@@ -148,6 +152,7 @@ public class SecurityConfig {
             .authenticationEntryPoint(problemDetailAuthenticationEntryPoint)
             .accessDeniedHandler(problemDetailAccessDeniedHandler)
         )
+        .addFilterBefore(rateLimitFilter, UsernamePasswordAuthenticationFilter.class)
         .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
         .addFilterAfter(lockdownFilter, JwtAuthFilter.class);
     return http.build();
@@ -224,6 +229,7 @@ public class SecurityConfig {
             .authenticationEntryPoint(problemDetailAuthenticationEntryPoint)
             .accessDeniedHandler(problemDetailAccessDeniedHandler)
         )
+        .addFilterBefore(rateLimitFilter, UsernamePasswordAuthenticationFilter.class)
         .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
         .addFilterAfter(lockdownFilter, JwtAuthFilter.class);
     return http.build();

@@ -6,6 +6,18 @@ app:
     build: ${BUILD:DEV} # so system knows if it is running on production or in other environment
     wwwDev: "http://localhost:5173/userland-frontend-" # you need to attach suffix like 'vue' yourself
     wwwProd: "https://pawelpapierkowski.net.pl/userland-frontend-" # you need to attach suffix like 'vue' yourself
+  rate-limit: # configuration for rate limits
+    active: true # enable or disable rate limiting here
+    cache:
+      maximum-size: 10000 # max unique IP addresses tracked simultaneously
+      expire-after-access: 10 # cleanup idle entries, in minutes
+    limits:
+      - capacity: 10 # short burst: 10 requests per minute
+        refill-tokens: 10
+        refill-interval: 1 # in minutes
+      - capacity: 30 # long-term: 30 requests per hour
+        refill-tokens: 30
+        refill-interval: 60 # in minutes
   user:
     cleanup: # cleanup config
       pending:

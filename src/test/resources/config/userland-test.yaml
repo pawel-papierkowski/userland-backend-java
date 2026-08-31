@@ -4,3 +4,5 @@
 app:
   main:
     build: "TEST"
+  rate-limit: # configuration for rate limits
+    active: false # in tests rate limiting is disabled, only exception are tests that test rate limits

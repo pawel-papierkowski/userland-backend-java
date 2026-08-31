@@ -31,11 +31,11 @@ public class HttpHelperService {
    * the real connecting client's IP at the end of any client-supplied <code>X-Forwarded-For</code> value, therefore
    * the last entry is the only one we can trust. Everything before it (including the first entry!) is fully
    * attacker-controlled and must be ignored.</p>
-   * <p><b>Warning:</b> result of this method is informational only (user history audit records) and must never be
-   * used for security decisions (rate limiting, bans, lockouts) without revisiting this trust model first.</p>
+   * <p><b>Note:</b> only last entry can be trusted and used for security decisions (rate limiting, bans, lockouts).
+   * This is what we return.</p>
    * @return Ip.
    */
-  private String resolveClientIp() {
+  public String resolveClientIp() {
     String ip = request.getHeader("X-Forwarded-For");
     // If the header is missing, fall back to the direct remote address.
     if (ip == null || ip.isEmpty() || "unknown".equalsIgnoreCase(ip)) ip = request.getRemoteAddr();

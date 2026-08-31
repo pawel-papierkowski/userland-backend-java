@@ -77,6 +77,9 @@ This is a modern **Java 25**, **Spring Boot 4.1.0** application. The backend ser
     - All request classes have `Req` suffix. Endpoints with requests have `@Valid` annotation.
     - All response classes have `Resp` suffix.
     - Document all endpoints using Swagger/OpenAPI `@Operation`, `@Schema`, and custom meta-annotations like `@ApiAuthResponses`. `ProblemDetail` and derived classes are used for errors.
+- **YAML configuration:**
+  - For simple cases we use `@Value`.
+  - For more complex cases we use `@ConfigurationProperties`.
 - **Database:**
   - We run on PostgreSQL via Hibernate.
   - We use Flyway. See `src/main/resources/db/migration/` files for structure of database.
