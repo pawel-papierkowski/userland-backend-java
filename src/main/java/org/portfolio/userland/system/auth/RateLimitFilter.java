@@ -1,7 +1,6 @@
 package org.portfolio.userland.system.auth;
 
 import io.github.bucket4j.Bucket;
-import io.github.bucket4j.BucketConfiguration;
 import io.github.bucket4j.ConsumptionProbe;
 import io.github.bucket4j.distributed.proxy.ProxyManager;
 import jakarta.servlet.FilterChain;
@@ -12,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NonNull;
 import org.portfolio.userland.common.services.web.HttpHelperService;
+import org.portfolio.userland.config.RateLimitProfileResolver;
 import org.portfolio.userland.config.RateLimitProperties;
 import org.portfolio.userland.config.security.SecurityConfig;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -24,12 +24,14 @@ import org.springframework.web.servlet.HandlerExceptionResolver;
 import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Supplier;
 
 /**
  * Rate limiting filter that enforces per-IP token bucket limits on incoming requests.
  * <p>Uses Bucket4j with a Caffeine-backed {@link ProxyManager} to store and enforce token bucket state.
  * Each unique client IP gets its own bucket with configurable capacity and refill rate.</p>
+ * <p>Bucket keys include the resolved profile name ({@code clientIp:profileName}), ensuring
+ * separate buckets per path group. For example, brute-forcing {@code /api/users/login} (strict profile)
+ * does not consume quota for {@code /api/users/view} (standard profile).</p>
  * <p>When the rate limit is exceeded, delegates to {@link RateLimitException} via
  * {@link HandlerExceptionResolver}, which returns HTTP 429 with a {@code Retry-After} header.</p>
  * <p>Filter placement: this filter should run early in the chain (before authentication) to reject
@@ -39,6 +41,7 @@ import java.util.function.Supplier;
  * created and {@link SecurityConfig} must handle its absence gracefully.</p>
  *
  * @see org.portfolio.userland.config.RateLimitConfig
+ * @see RateLimitProfileResolver
  * @see RateLimitException
  */
 @Service
@@ -49,7 +52,7 @@ public class RateLimitFilter extends OncePerRequestFilter {
   private static final AntPathMatcher PATH_MATCHER = new AntPathMatcher();
 
   private final ProxyManager<String> proxyManager;
-  private final Supplier<BucketConfiguration> bucketConfigurationSupplier;
+  private final RateLimitProfileResolver profileResolver;
   private final HttpHelperService httpHelperService;
   private final RateLimitProperties rateLimitProperties;
 
@@ -66,7 +69,9 @@ public class RateLimitFilter extends OncePerRequestFilter {
     }
 
     String clientIp = httpHelperService.resolveClientIp();
-    Bucket bucket = proxyManager.builder().build(clientIp, bucketConfigurationSupplier);
+    String path = request.getRequestURI();
+    String bucketKey = profileResolver.resolveBucketKey(path, clientIp);
+    Bucket bucket = proxyManager.builder().build(bucketKey, profileResolver.resolveConfig(path));
 
     ConsumptionProbe probe = bucket.tryConsumeAndReturnRemaining(1);
     if (probe.isConsumed()) {
@@ -76,7 +81,8 @@ public class RateLimitFilter extends OncePerRequestFilter {
 
     long retryAfterNanos = probe.getNanosToWaitForRefill();
     long retryAfterSeconds = TimeUnit.NANOSECONDS.toSeconds(retryAfterNanos);
-    log.debug("Rate limit exceeded for IP '{}'. Retry after {} seconds.", clientIp, retryAfterSeconds);
+    String profile = profileResolver.resolveProfile(path);
+    log.debug("Rate limit exceeded for IP '{}' (profile '{}'). Retry after {} seconds.", clientIp, profile, retryAfterSeconds);
 
     handlerExceptionResolver.resolveException(request, response, null, new RateLimitException(retryAfterSeconds));
   }
@@ -86,7 +92,6 @@ public class RateLimitFilter extends OncePerRequestFilter {
    * <p>Evaluation order:</p>
    * <ol>
    *   <li>If path matches any {@code exclude} pattern → skip rate limiting.</li>
-   *   <li>If {@code include} list is non-empty and path does not match any → skip rate limiting.</li>
    *   <li>Otherwise → apply rate limiting.</li>
    * </ol>
    * @param request The HTTP request to check.

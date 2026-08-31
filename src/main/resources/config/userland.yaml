@@ -13,16 +13,29 @@ app:
       - /api/system/**
       - /api/checks/**
       - /api/gcp/**
+    default-profile: standard # profile used for paths without an explicit mapping
+    profiles:
+      strict: # brute-force targets (login, register, password reset)
+        limits:
+          - capacity: 5 # strict burst: 5 requests per minute
+            refill-tokens: 5
+            refill-interval: 1 # in minutes
+      standard: # normal user endpoints
+        limits:
+          - capacity: 10 # short burst: 10 requests per minute
+            refill-tokens: 10
+            refill-interval: 1 # in minutes
+          - capacity: 30 # long-term: 30 requests per hour
+            refill-tokens: 30
+            refill-interval: 60 # in minutes
+    path-mappings: # profile-to-paths mapping
+      strict: # brute-force targets
+        - /api/users/login
+        - /api/users/register
+        - /api/users/password/**
     cache:
       maximum-size: 10000 # max unique IP addresses tracked simultaneously
       expire-after-access: 10 # cleanup idle entries, in minutes
-    limits:
-      - capacity: 10 # short burst: 10 requests per minute
-        refill-tokens: 10
-        refill-interval: 1 # in minutes
-      - capacity: 30 # long-term: 30 requests per hour
-        refill-tokens: 30
-        refill-interval: 60 # in minutes
   user:
     cleanup: # cleanup config
       pending:
