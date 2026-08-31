@@ -8,12 +8,13 @@ import org.portfolio.userland.features.user.entities.EnUserHistoryWhat;
 import org.portfolio.userland.features.user.entities.EnUserHistoryWho;
 import org.portfolio.userland.features.user.entities.User;
 import org.portfolio.userland.features.user.entities.UserProfile;
-import org.portfolio.userland.features.user.exceptions.UserDataStaleException;
 import org.portfolio.userland.features.user.services.BaseUserService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.Set;
+import java.util.TreeSet;
 
 /**
  * Business logic for editing of your own user account (both user and user profile). As such, only some fields are
@@ -37,51 +38,88 @@ public class UserEditService extends BaseUserService {
    * @return Updated user data.
    */
   @Transactional
-  public UserDataResp edit(UserEditReq userEditReq) {
+  public UserDataResp editUserData(UserEditReq userEditReq) {
     User user = userHelperService.resolveUser(false);
-    UserProfile userProfile = userProfileRepository.findById(user.getId()).orElseThrow(); // profile should always exist
 
-    // Optimistic locking check: fail early if client based its edit on stale data.
     verifyVersion(userEditReq.version(), user);
 
+    UserProfile userProfile = userProfileRepository.findById(user.getId()).orElseThrow(); // profile should always exist
+    user = updateUserData(userEditReq, user, userProfile);
+    return resolveResponse(user, userProfile);
+  }
+
+  //
+
+  /**
+   * Change user/user profile data.
+   * @param userEditReq User data to change.
+   * @param user User entity.
+   * @return History event params.
+   */
+  private User updateUserData(UserEditReq userEditReq, User user, UserProfile userProfile) {
     boolean userPresent = userEditReq.userPresent();
     boolean userProfilePresent = userEditReq.userProfilePresent();
-    String params = "";
+
+    Set<String> changedFields = new TreeSet<>(); // we need deterministic ordering
     if (userPresent || userProfilePresent) {
-      if (userPresent) params += editUser(userEditReq, user);
-      if (userProfilePresent) params += editUserProfile(userEditReq, userProfile);
-      params = params.trim().replace(" ", ", ");
+      if (userPresent) updateUser(userEditReq, user, changedFields);
+      if (userProfilePresent) updateUserProfile(userEditReq, userProfile, changedFields);
 
       // possible to skip this if we "changed" fields to same value
-      if (!params.isEmpty()) {
-        LocalDateTime nowAt = clockService.getNowUTC();
+      if (!changedFields.isEmpty()) {
         // Note: modifiedAt is normally maintained automatically by JPA auditing, but here we set it explicitly because
         // (a) auditing stamps the field only at flush time, which is too late - response below is built from the
         //     in-memory entity and must carry the new value already;
         // (b) auditing cannot see changes to UserProfile (separate entity), yet business rules require bumping
         //     modifiedAt when profile changes. Setting the field explicitly also guarantees an UPDATE is issued.
+        LocalDateTime nowAt = clockService.getNowUTC();
         user.setModifiedAt(nowAt);
         user = userRepository.save(user);
         if (userProfilePresent) userProfileRepository.save(userProfile);
         // Version is incremented by Hibernate only at flush time (like auditing timestamps), which would be too late -
         // response below is built from the in-memory entities and must already carry the new versions.
         userRepository.flush();
-        addHistoryEvent(user, nowAt, EnUserHistoryWho.USER, EnUserHistoryWhat.EDIT, params);
+        addHistoryEvent(user, nowAt, EnUserHistoryWho.USER, EnUserHistoryWhat.EDIT, String.join(", ", changedFields));
       }
     }
-
-    return resolveResponse(user, userProfile);
+    return user;
   }
 
   /**
-   * Verify optimistic locking version. Throws exception if version sent by client does not match current version of
-   * the user entity.
-   * @param reqVersion Version as sent by client (never null, enforced by <code>@NotNull</code> on DTO).
+   * Actually change user data.
+   * @param userEditReq User edit request.
    * @param user User entity.
+   * @param changedFields Set of affected fields.
    */
-  private void verifyVersion(Long reqVersion, User user) {
-    if (!reqVersion.equals(user.getVersion())) throw new UserDataStaleException(user.getId(), reqVersion, user.getVersion());
+  private void updateUser(UserEditReq userEditReq, User user, Set<String> changedFields) {
+    if (StringUtils.isNotEmpty(userEditReq.username()) && !userEditReq.username().equals(user.getUsername())) {
+      user.setUsername(userEditReq.username());
+      changedFields.add("username");
+    }
+    if (StringUtils.isNotEmpty(userEditReq.lang()) && !userEditReq.lang().equals(user.getLang())) {
+      user.setLang(userEditReq.lang());
+      changedFields.add("lang");
+    }
   }
+
+  /**
+   * Actually change user profile data.
+   * @param userEditReq User edit request.
+   * @param userProfile User profile entity.
+   * @param changedFields Set of affected fields.
+   */
+  private void updateUserProfile(UserEditReq userEditReq, UserProfile userProfile, Set<String> changedFields) {
+    if (StringUtils.isNotEmpty(userEditReq.profile().name()) && !userEditReq.profile().name().equals(userProfile.getName())) {
+      userProfile.setName(userEditReq.profile().name());
+      changedFields.add("name");
+    }
+    if (StringUtils.isNotEmpty(userEditReq.profile().surname()) && !userEditReq.profile().surname().equals(userProfile.getSurname())) {
+      userProfile.setSurname(userEditReq.profile().surname());
+      changedFields.add("surname");
+    }
+  }
+
+  // //////////////////////////////////////////////////////////////////////////
 
   /**
    * Generate response.
@@ -93,43 +131,5 @@ public class UserEditService extends BaseUserService {
     UserDataResp userDataResp = userMapper.userToDataResp(user);
     if (userProfile != null) userDataResp = userDataResp.toBuilder().profile(userMapper.profileToData(userProfile)).build();
     return userDataResp;
-  }
-
-  /**
-   * Edit data of <code>User</code> entity.
-   * @param userEditReq User edit request.
-   * @param user User entity.
-   * @return History event params.
-   */
-  private String editUser(UserEditReq userEditReq, User user) {
-    String params = "";
-    if (StringUtils.isNotEmpty(userEditReq.username()) && !userEditReq.username().equals(user.getUsername())) {
-      user.setUsername(userEditReq.username());
-      params += "username ";
-    }
-    if (StringUtils.isNotEmpty(userEditReq.lang()) && !userEditReq.lang().equals(user.getLang())) {
-      user.setLang(userEditReq.lang());
-      params += "lang ";
-    }
-    return params;
-  }
-
-  /**
-   * Edit data of <code>UserProfile</code> entity.
-   * @param userEditReq User edit request.
-   * @param userProfile User profile entity.
-   * @return History event params.
-   */
-  private String editUserProfile(UserEditReq userEditReq, UserProfile userProfile) {
-    String params = "";
-    if (StringUtils.isNotEmpty(userEditReq.profile().name()) && !userEditReq.profile().name().equals(userProfile.getName())) {
-      userProfile.setName(userEditReq.profile().name());
-      params += "name ";
-    }
-    if (StringUtils.isNotEmpty(userEditReq.profile().surname()) && !userEditReq.profile().surname().equals(userProfile.getSurname())) {
-      userProfile.setSurname(userEditReq.profile().surname());
-      params += "surname ";
-    }
-    return params;
   }
 }

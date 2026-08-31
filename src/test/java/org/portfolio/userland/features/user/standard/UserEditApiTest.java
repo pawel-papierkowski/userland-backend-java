@@ -121,7 +121,7 @@ public class UserEditApiTest extends BaseUserTest {
     expectedUserProfile.setName("Jasiu");
     expectedUserProfile.setSurname("Fasola");
     expectedUserProfile.setVersion(1L);
-    userHistoryFactory.genHistoryEvent(expectedUser, EnUserHistoryWho.USER, EnUserHistoryWhat.EDIT, "username, lang, name, surname");
+    userHistoryFactory.genHistoryEvent(expectedUser, EnUserHistoryWho.USER, EnUserHistoryWhat.EDIT, "lang, name, surname, username");
 
     // Assert: Database state.
     transactionTemplate.execute(_ -> {

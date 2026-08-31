@@ -13,7 +13,6 @@ import org.portfolio.userland.features.user.entities.EnUserHistoryWho;
 import org.portfolio.userland.features.user.entities.User;
 import org.portfolio.userland.features.user.entities.UserProfile;
 import org.portfolio.userland.features.user.exceptions.UserCannotEditException;
-import org.portfolio.userland.features.user.exceptions.UserDataStaleException;
 import org.portfolio.userland.features.user.exceptions.UserEmailAlreadyExistsException;
 import org.portfolio.userland.features.user.services.BaseUserService;
 import org.portfolio.userland.system.auth.AuthHelper;
@@ -25,6 +24,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 /**
  * Business logic for viewing data of user table.
@@ -100,24 +101,17 @@ public class UserTableService extends BaseUserService {
   public UserFullDataResp editUserData(UserFullDataReq userFullDataReq) {
     User user = userHelperService.resolveUser(userFullDataReq.id(), false, false);
 
-    // Optimistic locking check: fail early if client based its edit on stale data.
     verifyVersion(userFullDataReq.version(), user);
-
     verifyRequest(userFullDataReq, user);
-    CustomUserDetails userDetails = AuthHelper.resolveUserDetails();
-    if (userDetails == null) throw new ShouldNeverHappenException("User details should exist!");
+    verifyYourOwnAcc(user);
 
-    if (userDetails.getId().equals(user.getId())) // We are not allowed to edit our own account.
-      throw new UserCannotEditException(user.getId());
     UserProfile userProfile = userProfileRepository.findById(user.getId()).orElseThrow(); // profile should always exist
-
     user = updateUserData(userFullDataReq, user, userProfile);
-
     return resolveResponse(user, userProfile);
   }
 
   /**
-   * Verify request.
+   * Verify request. In particular, will prevent change of email to already existing email.
    * @param userFullDataReq User data to change.
    * @param user User. Can be null.
    */
@@ -125,39 +119,48 @@ public class UserTableService extends BaseUserService {
     // No email to modify or no change in email.
     if (userFullDataReq.email() == null || userFullDataReq.email().equals(user.getEmail())) return;
 
+    // Verify if new email is valid.
     boolean emailExists = userRepository.existsByEmail(userFullDataReq.email());
-    // Verify if email is valid.
     if (emailExists) throw new UserEmailAlreadyExistsException(userFullDataReq.email());
   }
 
   /**
-   * Verify optimistic locking version. Throws exception if version sent by client does not match current version of
-   * the user entity.
-   * @param reqVersion Version as sent by client (never null, enforced by <code>@NotNull</code> on DTO).
-   * @param user User entity.
+   * Check if we attempt to edit our own account in admin panel. If so, throw exception.
+   * @param user User to check.
    */
-  private void verifyVersion(Long reqVersion, User user) {
-    if (!reqVersion.equals(user.getVersion())) throw new UserDataStaleException(user.getId(), reqVersion, user.getVersion());
+  private void verifyYourOwnAcc(User user) {
+    CustomUserDetails userDetails = AuthHelper.resolveUserDetails();
+    if (userDetails == null) throw new ShouldNeverHappenException("User details should exist!");
+
+    if (userDetails.getId().equals(user.getId())) // We are not allowed to edit our own account.
+      throw new UserCannotEditException(user.getId());
   }
 
+  //
+
+  /**
+   * Change user/user profile data.
+   * @param userFullDataReq User data to change.
+   * @param user User entity.
+   * @return History event params.
+   */
   private User updateUserData(UserFullDataReq userFullDataReq, User user, UserProfile userProfile) {
     boolean userPresent = userFullDataReq.userPresent();
     boolean userProfilePresent = userFullDataReq.userProfilePresent();
 
-    String params = "";
+    Set<String> changedFields = new TreeSet<> (); // we need deterministic ordering
     if (userPresent || userProfilePresent) {
-      if (userPresent) params += updateUser(userFullDataReq, user);
-      if (userProfilePresent) params += updateUserProfile(userFullDataReq, userProfile);
-      params = params.trim().replace(" ", ", ");
+      if (userPresent) updateUser(userFullDataReq, user, changedFields);
+      if (userProfilePresent) updateUserProfile(userFullDataReq, userProfile, changedFields);
 
       // possible to skip this if we "changed" fields to same value
-      if (!params.isEmpty()) {
-        LocalDateTime nowAt = clockService.getNowUTC();
+      if (!changedFields.isEmpty()) {
         // Note: modifiedAt is normally maintained automatically by JPA auditing, but here we set it explicitly because
         // (a) auditing stamps the field only at flush time, which is too late - response below is built from the
         //     in-memory entity and must carry the new value already;
         // (b) auditing cannot see changes to UserProfile (separate entity), yet business rules require bumping
         //     modifiedAt when profile changes. Setting the field explicitly also guarantees an UPDATE is issued.
+        LocalDateTime nowAt = clockService.getNowUTC();
         user.setModifiedAt(nowAt);
         try {
           user = userRepository.save(user);
@@ -171,13 +174,12 @@ public class UserTableService extends BaseUserService {
           // immediately (persistence context is inconsistent).
           throw new UserEmailAlreadyExistsException(userFullDataReq.email());
         }
-        addHistoryEvent(user, nowAt, EnUserHistoryWho.OPERATOR, EnUserHistoryWhat.EDIT, params);
+        addHistoryEvent(user, nowAt, EnUserHistoryWho.OPERATOR, EnUserHistoryWhat.EDIT, String.join(", ", changedFields));
       }
     }
 
     // If email changed, we need to clear all JWTs.
-    if (params.contains("email")) userJwtRepository.deleteAllByUser(user.getId());
-
+    if (changedFields.contains("email")) userJwtRepository.deleteAllByUser(user.getId());
     return user;
   }
 
@@ -185,46 +187,42 @@ public class UserTableService extends BaseUserService {
    * Actually change user data.
    * @param userFullDataReq User data to change.
    * @param user User entity.
-   * @return History event params.
+   * @param changedFields Set of affected fields.
    */
-  private String updateUser(UserFullDataReq userFullDataReq, User user) {
-    String params = "";
+  private void updateUser(UserFullDataReq userFullDataReq, User user, Set<String> changedFields) {
     if (StringUtils.isNotEmpty(userFullDataReq.username()) && !userFullDataReq.username().equals(user.getUsername())) {
       user.setUsername(userFullDataReq.username());
-      params += "username ";
+      changedFields.add("username");
     }
     if (StringUtils.isNotEmpty(userFullDataReq.email()) && !userFullDataReq.email().equals(user.getEmail())) {
       user.setEmail(userFullDataReq.email());
-      params += "email ";
+      changedFields.add("email");
     }
     if (userFullDataReq.locked() != null && !userFullDataReq.locked().equals(user.getLocked())) {
       user.setLocked(userFullDataReq.locked());
-      params += userFullDataReq.locked() ? "locked " : "unlocked ";
+      changedFields.add(userFullDataReq.locked() ? "locked" : "unlocked");
     }
     if (StringUtils.isNotEmpty(userFullDataReq.lang()) && !userFullDataReq.lang().equals(user.getLang())) {
       user.setLang(userFullDataReq.lang());
-      params += "lang ";
+      changedFields.add("lang");
     }
-    return params;
   }
 
   /**
    * Actually change user profile data.
    * @param userFullDataReq User data to change.
    * @param userProfile User profile entity.
-   * @return History event params.
+   * @param changedFields Set of affected fields.
    */
-  private String updateUserProfile(UserFullDataReq userFullDataReq, UserProfile userProfile) {
-    String params = "";
+  private void updateUserProfile(UserFullDataReq userFullDataReq, UserProfile userProfile, Set<String> changedFields) {
     if (StringUtils.isNotEmpty(userFullDataReq.profile().name()) && !userFullDataReq.profile().name().equals(userProfile.getName())) {
       userProfile.setName(userFullDataReq.profile().name());
-      params += "name ";
+      changedFields.add("name");
     }
     if (StringUtils.isNotEmpty(userFullDataReq.profile().surname()) && !userFullDataReq.profile().surname().equals(userProfile.getSurname())) {
       userProfile.setSurname(userFullDataReq.profile().surname());
-      params += "surname ";
+      changedFields.add("surname");
     }
-    return params;
   }
 
   // //////////////////////////////////////////////////////////////////////////

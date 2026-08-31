@@ -133,7 +133,7 @@ public class UserController {
               schema = @Schema(implementation = UserDataStaleProblemDetail.class)))
   })
   public ResponseEntity<UserDataResp> editUser(@Valid @RequestBody UserEditReq userEditReq) {
-    UserDataResp resp = userEditService.edit(userEditReq);
+    UserDataResp resp = userEditService.editUserData(userEditReq);
     return new ResponseEntity<>(resp, HttpStatus.OK);
   }
 

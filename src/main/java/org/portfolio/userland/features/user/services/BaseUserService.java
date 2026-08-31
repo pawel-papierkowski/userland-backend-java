@@ -1,10 +1,7 @@
 package org.portfolio.userland.features.user.services;
 
 import org.portfolio.userland.features.user.entities.*;
-import org.portfolio.userland.features.user.exceptions.UserTokenAlreadyExistsException;
-import org.portfolio.userland.features.user.exceptions.UserTokenAlreadyUsedException;
-import org.portfolio.userland.features.user.exceptions.UserTokenExpiredException;
-import org.portfolio.userland.features.user.exceptions.UserTokenMissingException;
+import org.portfolio.userland.features.user.exceptions.*;
 import org.portfolio.userland.features.user.mappers.UserMapper;
 import org.portfolio.userland.features.user.repositories.config.UserConfigRepository;
 import org.portfolio.userland.features.user.repositories.history.UserHistoryRepository;
@@ -279,5 +276,17 @@ public abstract class BaseUserService extends BaseService {
     permissionEntry.setPermission(permission);
     permissionEntry.setValue(value);
     return permissionEntry;
+  }
+
+  // //////////////////////////////////////////////////////////////////////////
+
+  /**
+   * Verify optimistic locking version. Throws exception if version sent by client does not match current version of
+   * the user entity.
+   * @param reqVersion Version as sent by client (never null, enforced by <code>@NotNull</code> on DTO).
+   * @param user User entity.
+   */
+  protected void verifyVersion(Long reqVersion, User user) {
+    if (!reqVersion.equals(user.getVersion())) throw new UserDataStaleException(user.getId(), reqVersion, user.getVersion());
   }
 }

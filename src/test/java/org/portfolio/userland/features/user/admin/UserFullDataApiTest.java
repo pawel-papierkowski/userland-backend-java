@@ -147,7 +147,7 @@ public class UserFullDataApiTest extends BaseUserTest {
     expectedUserProfile.setName("Robert");
     expectedUserProfile.setSurname("Novak");
     expectedUserProfile.setVersion(1L);
-    userHistoryFactory.genHistoryEvent(expectedUser, EnUserHistoryWho.OPERATOR, EnUserHistoryWhat.EDIT, "username, email, locked, lang, name, surname");
+    userHistoryFactory.genHistoryEvent(expectedUser, EnUserHistoryWho.OPERATOR, EnUserHistoryWhat.EDIT, "email, lang, locked, name, surname, username");
 
     // Assert: Verify that endpoint response is correct.
     UserFullDataResp actualResp = objectMapper.readValue(mvcResult.getResponse().getContentAsString(), UserFullDataResp.class);
