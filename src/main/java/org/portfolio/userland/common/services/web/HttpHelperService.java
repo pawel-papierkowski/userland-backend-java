@@ -36,9 +36,20 @@ public class HttpHelperService {
    * @return Ip.
    */
   public String resolveClientIp() {
-    String ip = request.getHeader("X-Forwarded-For");
+    return resolveClientIp(request);
+  }
+
+  /**
+   * Resolve client ip from the given request. Use this overload when the {@link HttpServletRequest} is available
+   * directly (e.g. in filters), to avoid relying on the request-scoped proxy.
+   * @param req The HTTP request to resolve the client IP from.
+   * @return Ip.
+   * @see #resolveClientIp()
+   */
+  public String resolveClientIp(HttpServletRequest req) {
+    String ip = req.getHeader("X-Forwarded-For");
     // If the header is missing, fall back to the direct remote address.
-    if (ip == null || ip.isEmpty() || "unknown".equalsIgnoreCase(ip)) ip = request.getRemoteAddr();
+    if (ip == null || ip.isEmpty() || "unknown".equalsIgnoreCase(ip)) ip = req.getRemoteAddr();
     else {
       // X-Forwarded-For can contain multiple IPs if it passed through multiple proxies.
       // The last IP was appended by our trusted front end (GFE) and represents the real connecting address.

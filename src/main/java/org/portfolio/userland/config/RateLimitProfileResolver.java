@@ -20,8 +20,8 @@ import java.util.function.Supplier;
  * <p>Encapsulates the logic of mapping an Ant-style path pattern to a named profile,
  * and provides the corresponding {@link BucketConfiguration} and bucket key for that profile.</p>
  * <p>Each profile gets its own bucket per client IP. The bucket key format is
- * {@code clientIp:profileName}, ensuring that brute-forcing one endpoint (e.g. login)
- * does not consume quota for another endpoint (e.g. view).</p>
+ * {@code clientIp:profileName}, ensuring that brute-forcing one endpoint (e.g. <code>/api/users/login</code>)
+ * does not consume quota for another endpoint (e.g. <code>/api/users/view</code>).</p>
  *
  * @see RateLimitProperties
  * @see org.portfolio.userland.system.auth.RateLimitFilter
@@ -60,9 +60,8 @@ public class RateLimitProfileResolver {
       for (Map.Entry<String, List<String>> entry : pathMappings.entrySet()) {
         String profileName = entry.getKey();
         List<String> patterns = entry.getValue();
-        if (patterns != null && patterns.stream().anyMatch(p -> PATH_MATCHER.match(p, path))) {
+        if (patterns != null && patterns.stream().anyMatch(p -> PATH_MATCHER.match(p, path)))
           return profileName;
-        }
       }
     }
     return defaultProfile;

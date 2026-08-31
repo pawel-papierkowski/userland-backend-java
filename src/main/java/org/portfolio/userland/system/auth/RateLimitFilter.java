@@ -68,7 +68,7 @@ public class RateLimitFilter extends OncePerRequestFilter {
       return;
     }
 
-    String clientIp = httpHelperService.resolveClientIp();
+    String clientIp = httpHelperService.resolveClientIp(request);
     String path = request.getRequestURI();
     String bucketKey = profileResolver.resolveBucketKey(path, clientIp);
     Bucket bucket = proxyManager.builder().build(bucketKey, profileResolver.resolveConfig(path));
