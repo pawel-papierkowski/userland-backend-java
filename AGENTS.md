@@ -130,7 +130,7 @@ When I ask for review, in order of importance:
 - Analyze general purpose and functionality.
 - Check code for bugs, mistakes and other potential issues. If there are a lot of stuff here, skip rest of steps: we need to fix that stuff first.
 - Verify algorithm and logic. Is this correct way to do it? Can it be done better?
-- Make sure common programming principles (like DRY) are followed.
+- Make sure common programming principles (like DRY, SOLID, etc) are followed.
 - Find tests for reviewed code and review them too. If tests are missing, note their absence and plan what tests should be added. Do not add them automatically unless explicitly asked.
 - I might ask to review same code multiple times (to re-check code after changes implemented from previous review). Re-read files as necessary.
   - You can skip some steps if appropriate (for example, skip purpose/functionality analysis if purpose and functionality is already known).
@@ -139,4 +139,4 @@ When I ask for review, in order of importance:
 ## 🛑 What NOT to do
 - Do not use generic `Exception` or `RuntimeException`. Always throw domain-specific exceptions that extend our `GeneralException`.
 - Do not remove or add the `@Generated` or `@NoCoverageGenerated` annotations from exception classes or DTOs.
-- Do not modify `.github/workflows/deploy.yml` without explicit permission.
+- Do not modify existing GitHub workflows without explicit permission.

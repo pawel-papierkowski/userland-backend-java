@@ -462,7 +462,7 @@ public class UserRegistrationApiTest extends BaseUserTest {
     // We are trying to activate user using nonexistent token.
 
     // Arrange: Create token activate request.
-    String tokenStr = "MISSING_TOKEN___________________";
+    String tokenStr = "MISSINGTOKEN12345678901234567890";
     UserActivateReq req = new UserActivateReq(tokenStr, null); // pad it as it must have at least 32 chars
 
     // Act: Try to activate user using non-existent token.

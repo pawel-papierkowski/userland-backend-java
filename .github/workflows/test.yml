@@ -1,0 +1,40 @@
+# What this workflow does:
+# - Check out repo to GitHub Ubuntu server.
+# - Set up Java 25 Temurin.
+# - Run all tests via Maven.
+name: Run tests for UserLand backend
+
+on:
+  # This allows you to click a "Run workflow" button manually in GitHub
+  # without automatic run every time you push code on GitHub.
+  workflow_dispatch:
+  #push: # Runs on any push.
+  #  branches: ["**"]
+  #pull_request: # Runs on pull requests for main branch.
+  #  branches: [main]
+
+concurrency:
+  group: "test-${{ github.ref }}" # ensures runs on different branches won't interfere
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      # Clone repo to temporary Ubuntu build server provided by GitHub.
+      - name: Checkout Code
+        uses: actions/checkout@v6
+
+      # Install Java 25 JDK (Temurin distribution).
+      - name: Set up Java 25
+        uses: actions/setup-java@v5
+        with:
+          java-version: '25'
+          distribution: 'temurin'
+          cache: 'maven'
+
+      # Actually run tests.
+      - name: Run Tests
+        run: |
+          chmod +x mvnw
+          ./mvnw clean test

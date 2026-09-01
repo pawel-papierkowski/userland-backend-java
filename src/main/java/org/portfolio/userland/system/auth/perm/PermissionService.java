@@ -2,6 +2,8 @@ package org.portfolio.userland.system.auth.perm;
 
 import com.google.api.client.util.Lists;
 import lombok.RequiredArgsConstructor;
+import org.hibernate.Hibernate;
+import org.portfolio.userland.common.exception.SystemMisconfigurationException;
 import org.portfolio.userland.features.user.constants.UserPermConst;
 import org.portfolio.userland.features.user.entities.UserPermission;
 import org.portfolio.userland.system.auth.AuthHelper;
@@ -45,10 +47,17 @@ public class PermissionService {
    */
   public boolean has(EnPermKind permKind, Set<UserPermission>  userPermissions) {
     if (userPermissions == null || userPermissions.isEmpty()) return false;
+
+    if (!Hibernate.isInitialized(userPermissions)) {
+      throw new SystemMisconfigurationException(
+          "PermissionService.has() called with uninitialized permissions collection. It will cause N+1. "
+              + "Use @EntityGraph to eagerly load 'permissions' and 'permissions.permission'.");
+    }
+
     Map<String, Set<String>> rawPermissions = getMap(permKind);
 
     for (UserPermission userPermission : userPermissions) {
-      String name = userPermission.getPermission().getName();
+      String name = userPermission.getPermission().getName(); // N+1 if lazy!
       String value = userPermission.getValue();
       if (hasPermission(rawPermissions, name, value)) return true;
     }

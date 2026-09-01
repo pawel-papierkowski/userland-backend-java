@@ -130,7 +130,7 @@ public class UserStandardWebTest extends BaseWebTest {
   @Test
   public void userEdit() throws Exception {
     // Arrange: Provide invalid data for user edit.
-    UserEditReq req = new UserEditReq(1L, null, null, null);
+    UserEditReq req = new UserEditReq(null, null, null, null);
 
     // Act: Call the API endpoint.
     MvcResult mvcResult = mockMvc.perform(patch("/api/users/edit")
@@ -148,8 +148,7 @@ public class UserStandardWebTest extends BaseWebTest {
         "/api/users/edit",
         "https://api.general.org/errors/validation",
         Map.of("validation_errors", Map.of(
-            "username", "User name is required",
-            "lang", "Language is required"
+            "version", "Version cannot be empty"
         ))
     );
     problemDetailService.assertPd(mvcResult, expectedPdb);

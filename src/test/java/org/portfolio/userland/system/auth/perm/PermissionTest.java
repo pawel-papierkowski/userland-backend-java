@@ -2,12 +2,14 @@ package org.portfolio.userland.system.auth.perm;
 
 import org.junit.jupiter.api.Test;
 import org.portfolio.userland.features.user.BaseUserTest;
+import org.portfolio.userland.features.user.constants.UserPermConst;
 import org.portfolio.userland.features.user.entities.Permission;
 import org.portfolio.userland.features.user.entities.UserPermission;
 import org.portfolio.userland.system.auth.details.CustomUserDetails;
 import org.portfolio.userland.test.helpers.context.WithMockCustomUser;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.Map;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -120,5 +122,47 @@ public class PermissionTest extends BaseUserTest {
 
     assertThat(viaAuthorities).as("Both overloads must agree for mixed-case data").isEqualTo(viaEntities);
     assertThat(viaEntities).as("Mixed-case role admin should grant access to admin panel").isTrue();
+  }
+
+  // //////////////////////////////////////////////////////////////////////////
+  // getMap()
+
+  @Test
+  public void getMapReturnsEmptyMapForNull() {
+    assertThat(permissionService.getMap(null)).as("null perm kind should return empty map").isEmpty();
+  }
+
+  @Test
+  public void getMapReturnsCorrectPermissionsForAdminOnly() {
+    Map<String, Set<String>> result = permissionService.getMap(EnPermKind.ADMIN_ONLY);
+
+    assertThat(result).containsOnlyKeys(PermConst.ROLE);
+    assertThat(result.get(PermConst.ROLE)).containsExactly(PermConst.ROLE_ADMIN);
+  }
+
+  @Test
+  public void getMapReturnsCorrectPermissionsForAccessToAdminPanel() {
+    Map<String, Set<String>> result = permissionService.getMap(EnPermKind.ACCESS_TO_ADMIN_PANEL);
+
+    assertThat(result).containsOnlyKeys(PermConst.ROLE);
+    assertThat(result.get(PermConst.ROLE)).containsExactlyInAnyOrder(PermConst.ROLE_ADMIN, PermConst.ROLE_OPERATOR);
+  }
+
+  @Test
+  public void getMapReturnsCorrectPermissionsForUserView() {
+    Map<String, Set<String>> result = permissionService.getMap(EnPermKind.USER_VIEW);
+
+    assertThat(result).containsOnlyKeys(PermConst.ROLE, UserPermConst.USER);
+    assertThat(result.get(PermConst.ROLE)).containsExactly(PermConst.ROLE_ADMIN);
+    assertThat(result.get(UserPermConst.USER)).containsExactly(UserPermConst.USER_VIEW);
+  }
+
+  @Test
+  public void getMapReturnsCorrectPermissionsForUserEdit() {
+    Map<String, Set<String>> result = permissionService.getMap(EnPermKind.USER_EDIT);
+
+    assertThat(result).containsOnlyKeys(PermConst.ROLE, UserPermConst.USER);
+    assertThat(result.get(PermConst.ROLE)).containsExactly(PermConst.ROLE_ADMIN);
+    assertThat(result.get(UserPermConst.USER)).containsExactly(UserPermConst.USER_EDIT);
   }
 }

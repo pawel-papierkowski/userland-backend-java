@@ -175,9 +175,9 @@ public class UserAssert {
         .isEqualTo(expectedToken);
 
     assertThat(actualToken.getId()).as(comment + ": Token["+ix+"] entry id is wrong").isGreaterThan(0L);
-    assertThat(actualToken.getToken()).as(comment + ": Token["+ix+"] entry string must exist").isNullOrEmpty();
-    assertThat(actualToken.getToken().length()).as(comment + ": Token["+ix+"] entry string is too short").isLessThan(ValidConst.TOKEN_LEN_MIN);
-    assertThat(actualToken.getToken().length()).as(comment + ": Token["+ix+"] entry string is too long").isGreaterThan(ValidConst.TOKEN_LEN_MAX);
+    assertThat(actualToken.getToken()).as(comment + ": Token["+ix+"] entry string must exist").isNotNull();
+    assertThat(actualToken.getToken().length()).as(comment + ": Token["+ix+"] entry string is too short").isGreaterThanOrEqualTo(ValidConst.TOKEN_LEN_MIN);
+    assertThat(actualToken.getToken().length()).as(comment + ": Token["+ix+"] entry string is too long").isLessThanOrEqualTo(ValidConst.TOKEN_LEN_MAX);
     assertThat(actualToken.getToken()).as(comment + ": Token["+ix+"] entry string has invalid characters").matches(ValidConst.TOKEN_REGEXPR);
   }
 
