@@ -12,11 +12,12 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
 /**
- * Integration test for rate limiting. Enables rate limiting with tight limits
- * to verify behavior without long waits.
+ * Integration test for rate limiting. Enables rate limiting with tight limits to verify behavior without long waits.
  * <p>Each test uses a unique IP via {@code X-Forwarded-For} header to get isolated buckets.
  * The rate limit filter runs before authentication, so we can test rate limiting on any endpoint
  * regardless of auth requirements — 401 means the request passed rate limiting, 429 means it was blocked.</p>
+ * <p>Note: rate limiting filter fires before any authentication. So there is no difference between non-authenticated
+ * and authenticated requests in this context.</p>
  */
 @TestPropertySource(properties = {
     "app.rate-limit.active=true", // Activate rate limiting for this test file.
