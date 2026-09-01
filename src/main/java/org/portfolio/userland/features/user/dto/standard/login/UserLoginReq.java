@@ -15,7 +15,7 @@ import org.portfolio.userland.common.constants.ValidConst;
 @Schema(description = "Request for user login. Uses email as login name.")
 public record UserLoginReq(
   @NotBlank(message = "Email is required")
-  @Email(regexp = ValidConst.REG_EXPR_EMAIL, message = "Must be a valid email address")
+  @Email(regexp = ValidConst.EMAIL_REGEXPR, message = "Must be a valid email address")
   @Schema(description = "Email address.", example = "john.doe@example.com")
   String email,
 

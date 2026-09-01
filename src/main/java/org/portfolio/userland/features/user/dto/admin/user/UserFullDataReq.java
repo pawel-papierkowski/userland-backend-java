@@ -36,13 +36,14 @@ public record UserFullDataReq(
     @Schema(description = "Name shown on frontend.", example = "John Doe")
     String username,
 
-    @Email(regexp = ValidConst.REG_EXPR_EMAIL, message = "Must be a valid email address")
+    @Email(regexp = ValidConst.EMAIL_REGEXPR, message = "Must be a valid email address")
     @Schema(description = "Email address (must be unique).", example = "john.doe@example.com")
     String email,
 
     @Schema(description = "Is this user locked?", example = "false")
     Boolean locked,
 
+    @Size(min = 2, max = 2, message = "Language code must be exactly 2 characters")
     @Schema(description = "Short language code.", example = "en")
     String lang,
 

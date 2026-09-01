@@ -170,6 +170,7 @@ CREATE TABLE iam.tokens (
 -- Indexes for iam.tokens.
 CREATE INDEX idx_iam_tokens_id_user ON iam.tokens (id_user);
 CREATE INDEX idx_iam_tokens_created_at ON iam.tokens (created_at);
+CREATE INDEX idx_iam_tokens_expires_at ON iam.tokens (expires_at);
 
 -- JWT for user. Exists because we need ability to revoke them.
 CREATE TABLE iam.jwt (
@@ -192,6 +193,7 @@ CREATE TABLE iam.jwt (
 -- Indexes for iam.tokens.
 CREATE INDEX idx_iam_jwt_id_user ON iam.jwt (id_user);
 CREATE INDEX idx_iam_jwt_created_at ON iam.jwt (created_at);
+CREATE INDEX idx_iam_jwt_expires_at ON iam.jwt (expires_at);
 
 -- User history.
 CREATE TABLE iam.history (

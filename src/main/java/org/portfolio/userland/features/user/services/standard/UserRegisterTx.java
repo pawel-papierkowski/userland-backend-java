@@ -3,7 +3,7 @@ package org.portfolio.userland.features.user.services.standard;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.portfolio.userland.features.user.dto.common.EnFrontendFramework;
-import org.portfolio.userland.features.user.dto.standard.register.TokenActivateReq;
+import org.portfolio.userland.features.user.dto.standard.register.UserActivateReq;
 import org.portfolio.userland.features.user.dto.standard.register.UserRegisterReq;
 import org.portfolio.userland.features.user.entities.*;
 import org.portfolio.userland.features.user.events.UserActivatedEvent;
@@ -138,12 +138,12 @@ public class UserRegisterTx extends BaseUserService {
 
   /**
    * Activate user that has token with given token string.
-   * @param tokenActivateReq Token activation request.
+   * @param userActivateReq Token activation request.
    */
-  public void activate(TokenActivateReq tokenActivateReq) {
+  public void activate(UserActivateReq userActivateReq) {
     LocalDateTime nowAt = clockService.getNowUTC();
 
-    UserToken userToken = resolveToken(nowAt, EnUserTokenType.ACTIVATE, tokenActivateReq.token());
+    UserToken userToken = resolveToken(nowAt, EnUserTokenType.ACTIVATE, userActivateReq.token());
     User user = userToken.getUser();
     user.setStatus(EnUserStatus.ACTIVE);
     userRepository.save(user); // modifiedAt is maintained automatically by JPA auditing
@@ -152,7 +152,7 @@ public class UserRegisterTx extends BaseUserService {
 
     log.trace("User '{}' activated successfully.", user.getEmail());
 
-    triggerActivationEvent(user, tokenActivateReq.frontend());
+    triggerActivationEvent(user, userActivateReq.frontend());
   }
 
   // //////////////////////////////////////////////////////////////////////////

@@ -2,7 +2,7 @@ package org.portfolio.userland.features.user.services.standard;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.portfolio.userland.features.user.dto.standard.register.TokenActivateReq;
+import org.portfolio.userland.features.user.dto.standard.register.UserActivateReq;
 import org.portfolio.userland.features.user.dto.standard.register.UserRegisterReq;
 import org.portfolio.userland.features.user.exceptions.UserAlreadyRegisteredException;
 import org.portfolio.userland.features.user.services.BaseUserService;
@@ -78,9 +78,9 @@ public class UserRegisterService extends BaseUserService {
 
   /**
    * Activate user that has token with given token string.
-   * @param tokenActivateReq Token activation request.
+   * @param userActivateReq Token activation request.
    */
-  public void activate(TokenActivateReq tokenActivateReq) {
-    userRegisterTx.activate(tokenActivateReq);
+  public void activate(UserActivateReq userActivateReq) {
+    userRegisterTx.activate(userActivateReq);
   }
 }

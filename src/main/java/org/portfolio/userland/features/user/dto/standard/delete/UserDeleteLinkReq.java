@@ -1,11 +1,8 @@
 package org.portfolio.userland.features.user.dto.standard.delete;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Size;
 import lombok.Builder;
-import org.portfolio.userland.common.constants.ValidConst;
+import org.portfolio.userland.common.annotations.ValidPassword;
 import org.portfolio.userland.features.user.dto.common.EnFrontendFramework;
 
 /**
@@ -16,12 +13,7 @@ import org.portfolio.userland.features.user.dto.common.EnFrontendFramework;
 @Builder(toBuilder = true)
 @Schema(description = "Payload required to send email with link for account deletion.")
 public record UserDeleteLinkReq(
-  @NotBlank(message = "Password is required")
-  @Size(min = ValidConst.PASS_LEN_MIN, max = ValidConst.PASS_LEN_MAX, message = "Password must be between "+ValidConst.PASS_LEN_MIN+" and "+ValidConst.PASS_LEN_MAX+" characters")
-  @Pattern(
-      regexp = ValidConst.REG_EXPR_PASSWORD,
-      message = "Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character"
-  )
+  @ValidPassword
   @Schema(description = "Password.", example = "StrongP@ssw0rd")
   String password,
 

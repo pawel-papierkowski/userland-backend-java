@@ -6,7 +6,7 @@ import org.portfolio.userland.features.email.dto.EmailReq;
 import org.portfolio.userland.features.user.BaseUserTest;
 import org.portfolio.userland.features.user.constants.UserErrCode;
 import org.portfolio.userland.features.user.dto.common.EnFrontendFramework;
-import org.portfolio.userland.features.user.dto.standard.register.TokenActivateReq;
+import org.portfolio.userland.features.user.dto.standard.register.UserActivateReq;
 import org.portfolio.userland.features.user.dto.standard.register.UserRegisterReq;
 import org.portfolio.userland.features.user.entities.EnUserStatus;
 import org.portfolio.userland.features.user.entities.User;
@@ -365,7 +365,7 @@ public class UserRegistrationApiTest extends BaseUserTest {
     clock.setFixedTime("2026-04-10T10:05:00Z");
 
     // Arrange: Create token activate request.
-    TokenActivateReq req = new TokenActivateReq(tokenStr, EnFrontendFramework.VUE);
+    UserActivateReq req = new UserActivateReq(tokenStr, EnFrontendFramework.VUE);
 
     // Act: Try to activate user using valid token.
     MvcResult mvcResult = mockMvc.perform(post("/api/users/activate")
@@ -420,7 +420,7 @@ public class UserRegistrationApiTest extends BaseUserTest {
     String tokenStr = user.getTokens().getFirst().getToken();
 
     clock.setFixedTime("2026-04-10T10:05:00Z");
-    TokenActivateReq req = new TokenActivateReq(tokenStr, null);
+    UserActivateReq req = new UserActivateReq(tokenStr, null);
 
     // Act: Activate user using valid token.
     MvcResult firstResult = mockMvc.perform(post("/api/users/activate")
@@ -463,7 +463,7 @@ public class UserRegistrationApiTest extends BaseUserTest {
 
     // Arrange: Create token activate request.
     String tokenStr = "MISSING_TOKEN___________________";
-    TokenActivateReq req = new TokenActivateReq(tokenStr, null); // pad it as it must have at least 32 chars
+    UserActivateReq req = new UserActivateReq(tokenStr, null); // pad it as it must have at least 32 chars
 
     // Act: Try to activate user using non-existent token.
     MvcResult mvcResult = mockMvc.perform(post("/api/users/activate")
@@ -497,7 +497,7 @@ public class UserRegistrationApiTest extends BaseUserTest {
     clock.setFixedTime("2026-04-10T10:00:00Z");
 
     // Arrange: Create token activate request.
-    TokenActivateReq req = new TokenActivateReq(tokenStr, null); // pad it as it must have at least 32 chars
+    UserActivateReq req = new UserActivateReq(tokenStr, null); // pad it as it must have at least 32 chars
 
     // Act: Try to activate user using expired token.
     MvcResult mvcResult = mockMvc.perform(post("/api/users/activate")

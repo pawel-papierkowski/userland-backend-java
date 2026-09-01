@@ -16,7 +16,7 @@ import org.portfolio.userland.features.user.dto.standard.email.UserEmailChangeCo
 import org.portfolio.userland.features.user.dto.standard.email.UserEmailChangeLinkReq;
 import org.portfolio.userland.features.user.dto.standard.password.UserPassResetConfirmReq;
 import org.portfolio.userland.features.user.dto.standard.password.UserPassResetLinkReq;
-import org.portfolio.userland.features.user.dto.standard.register.TokenActivateReq;
+import org.portfolio.userland.features.user.dto.standard.register.UserActivateReq;
 import org.portfolio.userland.features.user.dto.standard.register.UserRegisterReq;
 import org.portfolio.userland.features.user.services.standard.*;
 import org.portfolio.userland.swagger.annotations.ApiResponsesAuth;
@@ -82,7 +82,7 @@ public class UserController {
 
   /**
    * Fully activates user, provided you give correct token string.
-   * @param tokenActivateReq Token activate request.
+   * @param userActivateReq Token activate request.
    * @return Response.
    */
   @PostMapping(value = "/activate", produces = "application/json")
@@ -95,8 +95,8 @@ public class UserController {
           content = @Content(mediaType = "application/problem+json",
                              schema = @Schema(implementation = ValidationProblemDetail.class)))
   })
-  public ResponseEntity<Void> activateUser(@Valid @RequestBody TokenActivateReq tokenActivateReq) {
-    userRegisterService.activate(tokenActivateReq);
+  public ResponseEntity<Void> activateUser(@Valid @RequestBody UserActivateReq userActivateReq) {
+    userRegisterService.activate(userActivateReq);
     return new ResponseEntity<>(HttpStatus.NO_CONTENT);
   }
 

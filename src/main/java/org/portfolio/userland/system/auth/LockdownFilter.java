@@ -96,7 +96,7 @@ public class LockdownFilter extends OncePerRequestFilter {
    * @return True if system is under lockdown, otherwise false.
    */
   private boolean isLockdown() {
-    return configService.get(ConfigConst.USER_LOCKDOWN).equals(ConfigConst.TRUE);
+    return ConfigConst.TRUE.equals(configService.get(ConfigConst.USER_LOCKDOWN));
   }
 
   /**

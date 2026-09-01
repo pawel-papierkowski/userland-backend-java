@@ -9,7 +9,10 @@ import org.testcontainers.postgresql.PostgreSQLContainer;
  */
 public final class TestPostgres {
 
-  /** The single shared PostgreSQL container instance. Version pinned to match production database. */
+  /**
+   * The single shared PostgreSQL container instance. Version pinned to match production database. Alpine is more
+   * lightweight variant of PostgreSQL. Production should use 'postgres:17'.
+   */
   private static final PostgreSQLContainer POSTGRES = new PostgreSQLContainer("postgres:17-alpine");
 
   private TestPostgres() {

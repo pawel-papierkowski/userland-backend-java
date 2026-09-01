@@ -23,7 +23,7 @@ on:
   workflow_dispatch:
 
 concurrency: # How to act if someone runs two deploys at same time.
-  group: "pages"
+  group: "deploy-gcp"
   cancel-in-progress: true # cancels previous deploy, ensuring only one runs at same time
 
 jobs:

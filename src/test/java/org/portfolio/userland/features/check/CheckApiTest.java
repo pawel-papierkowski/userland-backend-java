@@ -441,6 +441,6 @@ public class CheckApiTest extends BaseCheckTest {
         .profile(EnAppBuild.TEST)
         .build();
     assertThat(actualResp).as("System info is invalid").isEqualTo(expectedResp);
-    assertThat(actualResp.version()).as("Version is invalid").matches(ValidConst.REG_EXPR_VERSION); // ensure build-info version is correctly resolved
+    assertThat(actualResp.version()).as("Version is invalid").matches(ValidConst.VERSION_REGEXPR); // ensure build-info version is correctly resolved
   }
 }

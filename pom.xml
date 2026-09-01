@@ -7,30 +7,15 @@
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
 		<version>4.1.0</version>
-		<relativePath/> <!-- lookup parent from repositoryz -->
+		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 
 	<groupId>org.portfolio.userland</groupId>
 	<artifactId>userland-backend</artifactId>
 	<version>1.0.0</version>
-	<name/>
-	<description/>
-	<url/>
 
-	<licenses>
-		<license/>
-	</licenses>
-
-	<developers>
-		<developer/>
-	</developers>
-
-	<scm>
-		<connection/>
-		<developerConnection/>
-		<tag/>
-		<url/>
-	</scm>
+	<name>UserLand Backend</name>
+	<description>Portfolio project for Java Backend focused on handling users. See README.md for details.</description>
 
 	<properties>
 		<java.version>25</java.version>

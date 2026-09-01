@@ -1,6 +1,7 @@
 package org.portfolio.userland.features.user.dto.standard.edit;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Builder;
@@ -32,12 +33,14 @@ public record UserEditReq(
 
   // basic
 
+  @NotBlank(message = "User name is required")
   @Size(max = 100, message = "User name cannot exceed 100 characters")
   @Schema(description = "Name shown on frontend. Can be nickname or similar.", example = "John Doe")
   String username,
 
   // options
 
+  @NotBlank(message = "Language is required")
   @Size(min = 2, max = 2, message = "Invalid language code")
   @Schema(description = "Short language code.", example = "en")
   String lang,

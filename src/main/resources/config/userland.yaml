@@ -43,7 +43,7 @@ app:
       active:
         removal-delay: 72 # when to remove active users since last action, in hours
     token:
-      length: 32
+      length: 32 # should be between 32 and 128
       activation: # user account activate
         expires: 1440 # in minutes
       email: # user email change

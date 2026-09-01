@@ -2,7 +2,7 @@ package org.portfolio.userland.features.user.standard;
 
 import org.junit.jupiter.api.Test;
 import org.portfolio.userland.features.user.BaseUserTest;
-import org.portfolio.userland.features.user.dto.standard.register.TokenActivateReq;
+import org.portfolio.userland.features.user.dto.standard.register.UserActivateReq;
 import org.portfolio.userland.features.user.entities.EnUserStatus;
 import org.portfolio.userland.features.user.entities.EnUserTokenType;
 import org.portfolio.userland.features.user.entities.User;
@@ -40,7 +40,7 @@ public class UserTokenRaceTest extends BaseUserTest {
     String tokenStr = user.getTokens().getFirst().getToken();
 
     clock.setFixedTime("2026-04-10T10:05:00Z");
-    TokenActivateReq req = new TokenActivateReq(tokenStr, null);
+    UserActivateReq req = new UserActivateReq(tokenStr, null);
 
     // Arrange: Prepare two threads using the same token. Barrier ensures they start as simultaneously as possible.
     CyclicBarrier barrier = new CyclicBarrier(2);

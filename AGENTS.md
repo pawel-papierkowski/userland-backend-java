@@ -28,7 +28,7 @@ This is a modern **Java 25**, **Spring Boot 4.1.0** application. The backend ser
 
 ### 🚀 Deployment & CI/CD
 - **Target:** Google Cloud Run (Serverless).
-- **Memory Limit:** 512 Mi (Severely constrained).
+- **Memory Limit:** 1 Gi (Very constrained).
 - **Build Method:** Paketo Buildpacks via `mvnw spring-boot:build-image`.
 - **Rule:** Do not add heavy, long-running background polling dependencies (like Quartz, Kafka, or heavy schedulers) because Cloud Run throttles CPU to zero when not processing HTTP requests.
 

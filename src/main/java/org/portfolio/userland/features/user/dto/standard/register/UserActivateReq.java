@@ -1,20 +1,19 @@
 package org.portfolio.userland.features.user.dto.standard.register;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
 import lombok.Builder;
+import org.portfolio.userland.common.annotations.ValidToken;
 import org.portfolio.userland.features.user.dto.common.EnFrontendFramework;
 
 /**
- * Token activation request.
+ * User activation request.
  * @param token Token string.
+ * @param frontend Used frontend framework.
  */
 @Builder(toBuilder = true)
 @Schema(description = "Payload required to register a new user.")
-public record TokenActivateReq(
-  @NotBlank(message = "Token string is required")
-  @Size(min = 32, max = 128, message = "Token string must have 32 or more characters.")
+public record UserActivateReq(
+  @ValidToken
   @Schema(description = "Token string.", example = "J4L1wZnLiw3durFYN0WDsulcpFnoKWqg")
   String token,
 

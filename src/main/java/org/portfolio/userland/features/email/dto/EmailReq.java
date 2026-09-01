@@ -40,12 +40,12 @@ public record EmailReq(
 
     @NotEmpty(message = "At least one recipient is required")
     @Size(max = 50, message = "Cannot send to more than 50 recipients")
-    List<@Email(regexp = ValidConst.REG_EXPR_EMAIL, message = "Must be a valid email address") @Valid String> recipients,
+    List<@Email(regexp = ValidConst.EMAIL_REGEXPR, message = "Must be a valid email address") @Valid String> recipients,
     @Schema(description = "Recipient address(es), copy.", example = "[\"john.doe@example.com\"]")
-    List<@Email(regexp = ValidConst.REG_EXPR_EMAIL, message = "Must be a valid email address") @Valid String> recipientsCc,
-    List<@Email(regexp = ValidConst.REG_EXPR_EMAIL, message = "Must be a valid email address") @Valid String> recipientsBcc,
+    List<@Email(regexp = ValidConst.EMAIL_REGEXPR, message = "Must be a valid email address") @Valid String> recipientsCc,
+    List<@Email(regexp = ValidConst.EMAIL_REGEXPR, message = "Must be a valid email address") @Valid String> recipientsBcc,
 
-    @Pattern(regexp = ValidConst.REG_EXPR_EMAIL_OR_EMPTY, message = "Must be a valid email address")
+    @Pattern(regexp = ValidConst.EMAIL_OR_EMPTY_REG_EXPR, message = "Must be a valid email address")
     @Schema(description = "Address of reply. Can be null/empty.", example = "support@example.com")
     String replyTo,
 

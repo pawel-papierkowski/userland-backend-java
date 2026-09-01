@@ -3,9 +3,8 @@ package org.portfolio.userland.features.user.dto.standard.email;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Size;
 import lombok.Builder;
+import org.portfolio.userland.common.annotations.ValidPassword;
 import org.portfolio.userland.common.constants.ValidConst;
 import org.portfolio.userland.features.user.dto.common.EnFrontendFramework;
 
@@ -19,16 +18,11 @@ import org.portfolio.userland.features.user.dto.common.EnFrontendFramework;
 @Schema(description = "Payload required to send emails for email change.")
 public record UserEmailChangeLinkReq(
   @NotBlank(message = "Email is required")
-  @Email(regexp = ValidConst.REG_EXPR_EMAIL, message = "Must be a valid email address")
+  @Email(regexp = ValidConst.EMAIL_REGEXPR, message = "Must be a valid email address")
   @Schema(description = "New email address.", example = "john.doe@example.com")
   String newEmail,
 
-  @NotBlank(message = "Password is required")
-  @Size(min = ValidConst.PASS_LEN_MIN, max = ValidConst.PASS_LEN_MAX, message = "Password must be between "+ValidConst.PASS_LEN_MIN+" and "+ValidConst.PASS_LEN_MAX+" characters")
-  @Pattern(
-      regexp = ValidConst.REG_EXPR_PASSWORD,
-      message = "Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character"
-  )
+  @ValidPassword
   @Schema(description = "Password.", example = "StrongP@ssw0rd")
   String password,
 

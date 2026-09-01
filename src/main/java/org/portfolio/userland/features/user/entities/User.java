@@ -70,7 +70,7 @@ public class User {
   /** E-mail. Also acts as login. Unique. */
   @Column(unique = true, nullable = false, length = 100)
   @NotBlank(message = "Email cannot be empty")
-  @Email(regexp = ValidConst.REG_EXPR_EMAIL, message = "Must be a valid email address")
+  @Email(regexp = ValidConst.EMAIL_REGEXPR, message = "Must be a valid email address")
   private String email;
 
   /** Password. Note: this stores BCrypt hash, not the plain text. */

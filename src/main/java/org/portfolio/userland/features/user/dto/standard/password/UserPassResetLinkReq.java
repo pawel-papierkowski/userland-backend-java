@@ -16,7 +16,7 @@ import org.portfolio.userland.features.user.dto.common.EnFrontendFramework;
 @Schema(description = "Payload required to send email with link for password reset.")
 public record UserPassResetLinkReq(
   @NotBlank(message = "Email is required")
-  @Email(regexp = ValidConst.REG_EXPR_EMAIL, message = "Must be a valid email address")
+  @Email(regexp = ValidConst.EMAIL_REGEXPR, message = "Must be a valid email address")
   @Schema(description = "Email address.", example = "john.doe@example.com")
   String email,
 
