@@ -44,7 +44,7 @@ public class GcpTaskEnqueuer implements TaskEnqueuer {
   private String projectId;
   @Value("${app.gcp.general.location}")
   private String locationId;
-  /** Queue used for connection pre-warm-up at startup (currently the only queue in the system). */
+  /** Queue used for connection pre-warm-up at startup. */
   @Value("${app.gcp.email.queue}")
   private String warmUpQueueId;
 

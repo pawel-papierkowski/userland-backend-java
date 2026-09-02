@@ -16,7 +16,7 @@ import java.lang.reflect.Type;
 import java.util.List;
 
 /**
- * Common entity table handling. Use it directly.
+ * Common entity table handling. Use it via extending repository implementations.
  * <p>Note: uses reflection to get needed information.
  * Any intermediate generic layer (class <code>X&lt;R&gt; extends EntityTableHandling&lt;R, E&gt;</code>) will break it, so do not do that.</p>
  * @param <R> Request with metadata.

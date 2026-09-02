@@ -17,7 +17,7 @@ import javax.sql.DataSource;
 @EnableSchedulerLock(defaultLockAtMostFor = "10m") // enable ShedLock
 public class ShedLockConfig {
   /**
-   * Configures ShedLock. Among other things, we tell it where is shedlock table to use.
+   * Configures ShedLock. Among other things, we tell it which shedlock table to use.
    * @param dataSource Data source.
    * @param transactionManager Transaction manager.
    * @return Lock provider.

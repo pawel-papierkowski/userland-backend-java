@@ -4,7 +4,7 @@ import org.portfolio.userland.common.exception.GeneralException;
 import org.springframework.http.HttpStatus;
 
 /**
- * Thrown when email service encounter unknown provider.
+ * Thrown when email service encounters unknown provider.
  */
 public class UnknownEmailProviderException extends GeneralException {
   private final String provider;

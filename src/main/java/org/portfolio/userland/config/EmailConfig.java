@@ -17,7 +17,7 @@ public class EmailConfig {
   private String resendApiKey;
 
   /**
-   * Resolves Resend instance.
+   * Creates new Resend instance.
    * @return New Resend instance.
    */
   @Bean

@@ -30,7 +30,7 @@ public class PermissionService {
   }
 
   /**
-   * Checks if given custom user details has correct permissions specified by permission kind.
+   * Checks if given custom user details have correct permissions specified by permission kind.
    * @param permKind Permission kind.
    * @param customUserDetails Custom user details.
    * @return True if given user has correct permissions, otherwise false.

@@ -68,10 +68,10 @@ public class UserSendEmailService {
 
   /**
    * React on user registration event.
-   * Note: @TransactionalEventListener annotation ensures event publisher finish its work first.
+   * <p>Note: <code>@TransactionalEventListener</code> annotation ensures event publisher finish its work first.
    * So it is safe to get user entity here - it is guaranteed to exist in database.
-   * Downside is that you cannot use @Transactional here, so event has to carry all needed data
-   * without querying database.
+   * Downside is that you cannot use <code>@Transactional</code> here, so event has to carry all needed data, it can't query database
+   * here.</p>
    * @param event User registration event data.
    */
   @Async("emailTaskExecutor")
@@ -358,7 +358,7 @@ public class UserSendEmailService {
   }
 
   /**
-   * Prepare email request for password reset.
+   * Prepare email request for password reset confirmation.
    * @param event Event.
    * @return Email request.
    */
@@ -426,7 +426,7 @@ public class UserSendEmailService {
   }
 
   /**
-   * Prepare email request for account delete.
+   * Prepare email request for account deletion confirmation.
    * @param event Event.
    * @return Email request.
    */

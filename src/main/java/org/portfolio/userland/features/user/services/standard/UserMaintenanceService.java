@@ -98,9 +98,9 @@ public class UserMaintenanceService {
 
     // Delete JWTs that expired naturally.
     stopWatch.start("Delete Expired JWTs");
-    int deletedTokens = userJwtRepository.deleteExpiredJwts(nowAt);
+    int deletedJwts = userJwtRepository.deleteExpiredJwts(nowAt);
     stopWatch.stop();
 
-    log.info("Cleaned up {} expired JWTs. Total time: {} s", deletedTokens, stopWatch.getTotalTimeSeconds());
+    log.info("Cleaned up {} expired JWTs. Total time: {} s", deletedJwts, stopWatch.getTotalTimeSeconds());
   }
 }

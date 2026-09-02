@@ -23,7 +23,7 @@ public class LockService {
 
   /**
    * Attempt running a task with a ShedLock lock.
-   * @param lockName Name of lock. Must match the name used in your @SchedulerLock annotation!
+   * @param lockName Name of lock. Must match the name used in your <code>@SchedulerLock</code> annotation!
    * @param task Task to run.
    * @return True if executed successfully. False if failed to acquire lock.
    */

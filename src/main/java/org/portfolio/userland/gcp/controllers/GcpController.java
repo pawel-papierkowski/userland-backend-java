@@ -33,7 +33,8 @@ public class GcpController {
   /**
    * Actually sends email. Available only to GCP Tasks.
    * @param emailReq Email request.
-   * @return Response.
+   * @return Response. 2xx means task success, and it will be removed from queue. 5xx means task failed, and it will be tried again.
+   * It is possible to get 4xx from exception inside <code>gcpService</code>: failure that will not be tried again.
    */
   @PostMapping(value = "/email/send", produces = "application/json")
   @Operation(summary = "Send email", description = "Actually sends email. Available only to GCP Tasks.")

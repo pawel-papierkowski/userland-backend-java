@@ -1,7 +1,7 @@
 package org.portfolio.userland.features.user.entities;
 
 /**
- * What caused user history entry?
+ * What history event it is?
  */
 public enum EnUserHistoryWhat {
   /** User was created. */

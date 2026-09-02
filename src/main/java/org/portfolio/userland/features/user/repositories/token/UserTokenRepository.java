@@ -36,7 +36,7 @@ public interface UserTokenRepository extends JpaRepository<UserToken, Long>, Use
    * Checks if given token type for given user exists.
    * @param userId Identifier of user.
    * @param type Type of token.
-   * @return User token.
+   * @return User token or empty optional.
    */
   @Query("SELECT t FROM UserToken t WHERE t.user.id = :userId and t.type = :type")
   Optional<UserToken> findByUserAndType(@Param("userId") Long userId, @Param("type") EnUserTokenType type);

@@ -7,7 +7,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 /**
  * General scheduler configuration. We need to ensure schedulers do not run in tests.
  * <p>If you want to actually test scheduler, annotate test class with
- * <code>&#064;TestPropertySource(properties  = "app.scheduling.enabled=true")</code>.</p>
+ * <code>&#064;TestPropertySource(properties = "app.scheduling.enabled=true")</code>.</p>
  */
 @Configuration
 @EnableScheduling

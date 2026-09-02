@@ -42,7 +42,7 @@ public class CheckService extends BaseService {
   }
 
   /**
-   * Pretend to do some work.
+   * Pretend to do some work. Useful for testing long-running endpoints on frontend (should show feedback like spinner).
    */
   public void pretendWork() {
     try {
@@ -55,7 +55,7 @@ public class CheckService extends BaseService {
   }
 
   /**
-   * Throws exception.
+   * Throws deliberate exception. Useful for testing proper handling of exceptions on frontend.
    */
   public void throwException() {
     // Deliberate generic exception instead of GeneralException subclass.

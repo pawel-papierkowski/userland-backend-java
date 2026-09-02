@@ -21,7 +21,7 @@ public class ShouldNeverHappenException extends GeneralException {
 
   @Override
   public String getTitle() {
-    return "This exception should not happen.";
+    return "This exception should never happen.";
   }
 
   @Override

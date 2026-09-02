@@ -41,13 +41,13 @@ public class PermissionHelper {
         .map(userPermission -> new SimpleGrantedAuthority(buildAuthority(
             userPermission.getPermission().getName(),
             userPermission.getValue())))
-        .sorted(Comparator.comparing(GrantedAuthority::getAuthority)) // sorted by natural key required by UserDetails
+        .sorted(Comparator.comparing(GrantedAuthority::getAuthority)) // sorted by natural key recommended by UserDetails
         .toList();
   }
 
   /**
-   * Map permissions from JWT <code>perms</code> claim back to authorities. This is reverse of
-   * {@link #resolvePermissions(User)} reading authorities from the JWT claim instead of from database entities.
+   * Map permissions from JWT <code>perms</code> claim back to authorities. This is the reverse of
+   * {@link #resolveAuthorities(Set)} reading authorities from the JWT claim instead of from database entities.
    * <p>Example: claim entry <code>"role" -> "admin,operator"</code> will result in <code>ROLE_ADMIN</code> and
    * <code>ROLE_OPERATOR</code>.</p>
    * <p>Note: it is safe to use claims as source of authorities because the JWT is signed - the client cannot modify
@@ -69,7 +69,7 @@ public class PermissionHelper {
     }
 
     return authorities.stream()
-        .sorted(Comparator.comparing(GrantedAuthority::getAuthority)) // sorted by natural key required by UserDetails
+        .sorted(Comparator.comparing(GrantedAuthority::getAuthority)) // sorted by natural key recommended by UserDetails
         .toList();
   }
 

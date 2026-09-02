@@ -21,7 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Business logic for viewing data of user permission table.
+ * Business logic for viewing, editing and deleting data of user permission table.
  */
 @Service
 @RequiredArgsConstructor
@@ -61,7 +61,7 @@ public class UserPermissionTableService extends BaseUserTableService {
 
   /**
    * Converts list of user permission entities to user permission entries in response.
-   * @param userId User identifier for this entry.
+   * @param userId User identifier.
    * @param entities List of user permissions.
    * @param tableMetaReq Metadata for table page request.
    * @param entryCount Entry count.

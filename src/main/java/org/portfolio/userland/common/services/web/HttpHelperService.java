@@ -14,7 +14,7 @@ public class HttpHelperService {
   private final HttpServletRequest request;
 
   /**
-   * Resolve HTTP request params for event in user history.
+   * Resolve HTTP request params. Useful for logging, history events etc.
    * @return Params.
    */
   public String resolveHttpParams() {

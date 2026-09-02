@@ -12,9 +12,10 @@ import java.time.Duration;
 /**
  * <p>Application-wide caching configuration.</p>
  * <p>Uses Caffeine as in-memory cache engine behind the Spring Cache abstraction (@Cacheable/@CacheEvict).
- * Entries expire lazily after write - no background refresh threads are used because Cloud Run throttles CPU
- * between requests. Expiry time also bounds cross-instance staleness: on Cloud Run each instance has its own
- * in-memory cache, so a change performed on one instance becomes visible everywhere at worst after the TTL.</p>
+ * Entries expire after write. Caffeine uses timer-wheel eviction.
+ * No background refresh threads are used because Cloud Run throttles CPU between requests. Expiry time also bounds
+ * cross-instance staleness: on Cloud Run each instance has its own in-memory cache, so a change performed on one
+ * instance becomes visible everywhere at worst after the TTL.</p>
  */
 @Configuration
 @EnableCaching

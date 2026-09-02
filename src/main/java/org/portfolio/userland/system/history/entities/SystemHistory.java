@@ -53,7 +53,7 @@ public class SystemHistory {
   @Enumerated(EnumType.STRING)
   private EnHistoryWho who;
 
-  /** What caused history event? */
+  /** What history event it is? */
   @Column(nullable = false)
   @Enumerated(EnumType.STRING)
   private EnHistoryWhat what;

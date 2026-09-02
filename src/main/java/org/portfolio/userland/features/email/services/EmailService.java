@@ -111,9 +111,9 @@ public class EmailService {
   }
 
   /**
-   * Resolve subject.
+   * Resolve subject. May be modified.
    * @param emailReq Email request.
-   * @return New version of subject.
+   * @return Modified subject.
    */
   private String resolveSubject(EmailReq emailReq) {
     if (!build.getTest()) return emailReq.subject();

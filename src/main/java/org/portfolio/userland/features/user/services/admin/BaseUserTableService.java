@@ -45,7 +45,8 @@ public class BaseUserTableService extends BaseUserService {
   }
 
   /**
-   * Find out state of option. You can edit/delete user subtable entries only if you are admin.
+   * Find out state of option. You can edit/delete user subtable entries only if you are admin and if edited user is not
+   * yourself.
    * @param userId User identifier for this entry.
    * @return Entry option.
    */

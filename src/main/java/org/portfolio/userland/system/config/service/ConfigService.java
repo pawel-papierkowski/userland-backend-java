@@ -49,7 +49,7 @@ public class ConfigService {
    * value - otherwise a cache entry produced with one default could be served where another was expected. This
    * invariant is enforced by the public getter via <code>ConfigConst.DEFAULTS</code>.</p>
    * @param name Name of configuration variable.
-   * @param defaultValue Returns this if configuration variable is missing.
+   * @param defaultValue Default value to use if configuration variable is missing.
    * @return Value of configuration variable.
    */
   private String get(String name, String defaultValue) {

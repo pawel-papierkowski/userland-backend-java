@@ -8,7 +8,7 @@ import org.portfolio.userland.common.annotations.NoCoverageGenerated;
 import java.util.Objects;
 
 /**
- * Permissions available for users.
+ * Permission definitions available for users.
  */
 @Entity
 @Table(name = "permissions", schema = "iam")

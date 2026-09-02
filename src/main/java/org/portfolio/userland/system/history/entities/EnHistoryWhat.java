@@ -1,7 +1,7 @@
 package org.portfolio.userland.system.history.entities;
 
 /**
- * What caused system history event?
+ * What history event it is?
  */
 public enum EnHistoryWhat {
   /** Lockdown state changed. */

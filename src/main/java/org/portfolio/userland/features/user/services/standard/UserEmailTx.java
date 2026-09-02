@@ -35,7 +35,7 @@ public class UserEmailTx extends BaseUserService {
     }
 
     if (userRepository.existsByEmail(userEmailChangeLinkReq.newEmail())) {
-      // send two emails: warning for old account and warning for new, existing email
+      // send two emails: warning for old account and warning for existing email
       triggerEmailChangeFailEvent(userEmailChangeLinkReq, user);
       return; // pretend everything is fine, preventing email enumeration attack
     }
@@ -49,7 +49,7 @@ public class UserEmailTx extends BaseUserService {
 
     addHistoryEvent(user, nowAt, EnUserHistoryWho.USER, EnUserHistoryWhat.EMAIL_CHANGE_REQ, params);
 
-    // send two emails: warning for old account and link for new, existing email
+    // send two emails: warning for old account and link for email change in new email
     triggerEmailChangeReqEvent(userEmailChangeLinkReq, user, token);
   }
 

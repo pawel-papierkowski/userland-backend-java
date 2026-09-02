@@ -39,7 +39,7 @@ public class I18nConfig {
   private final static String REGEX_REPLACE = "(_[a-zA-Z]{2}(_[a-zA-Z]{2})?)?\\.yaml$";
 
   /**
-   * Defines and configures message source that can handle yml/yaml files.
+   * Defines and configures message source that can handle yaml files.
    * @return Message source.
    * @throws IOException If resource resolver fails.
    */
@@ -109,7 +109,7 @@ public class I18nConfig {
     }
   }
 
-  /** Custom message source that can handle yml/yaml files. */
+  /** Custom message source that can handle yaml files. */
   private static class YamlMessageSource extends ReloadableResourceBundleMessageSource {
     @Override
     public void setResourceLoader(ResourceLoader resourceLoader) {

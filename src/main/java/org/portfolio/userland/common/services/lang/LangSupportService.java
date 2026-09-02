@@ -74,7 +74,7 @@ public class LangSupportService {
   }
 
   /**
-   * Resolve language key for time unit. English is very simple.
+   * Resolve part of language key for time unit in English. English is very simple.
    * @param amount Amount.
    * @return Part of language key for ending.
    */
@@ -84,7 +84,7 @@ public class LangSupportService {
   }
 
   /**
-   * Resolve language key for time unit. Polish has pretty specific rules for ending of amount.
+   * Resolve part of language key for time unit in Polish. Polish has pretty specific rules for ending of amount.
    * @param amount Amount.
    * @return Part of language key for ending.
    */

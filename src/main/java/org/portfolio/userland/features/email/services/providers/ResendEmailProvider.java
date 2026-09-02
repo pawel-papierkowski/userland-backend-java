@@ -16,12 +16,13 @@ import java.util.List;
  * Handles Transactional Email Provider called Resend.
  * <p>Notes:</p>
  * <ul>
- *   <li>Testing</li>
+ *   <li>Testing
  *   <ul>
  *     <li>You must use this address as sender: <b>onboarding@resend.dev</b> and you can send email only to your own
  *     email address associated with Resend account.</li>
  *     <li>You can also use this address as destination: <b>delivered@resend.dev</b> with any sender.</li>
  *   </ul>
+ *   </li>
  * </ul>
  */
 @Service
@@ -43,7 +44,7 @@ public class ResendEmailProvider implements IntEmailProvider {
       CreateEmailOptions params = CreateEmailOptions.builder()
         .from(emailReq.sender())
         .replyTo(replyTo)
-        .to(emailReq.recipients()) // delivered@resend.dev
+        .to(emailReq.recipients()) // use delivered@resend.dev for tests
         .subject(emailReq.subject())
         .html(emailReq.messageHtml())
         .build();

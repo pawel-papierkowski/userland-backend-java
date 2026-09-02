@@ -130,7 +130,7 @@ public class CheckController {
 
   /**
    * Deliberately throws exception.
-   * @return Response.
+   * @return Response. Won't happen. Included for completeness.
    */
   @GetMapping(value = "/exception", produces = "application/json")
   @Operation(summary = "Throws exception", description = "Returns error.")
@@ -141,6 +141,8 @@ public class CheckController {
   })
   public ResponseEntity<Void> error() {
     checkService.throwException();
+    // Line below will never be reached, but must be present because compiler does not know checkService.throwException()
+    // call will always throw exception.
     return new ResponseEntity<>(HttpStatus.OK);
   }
 }

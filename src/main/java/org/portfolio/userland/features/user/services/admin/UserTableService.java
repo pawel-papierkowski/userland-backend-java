@@ -19,7 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Business logic for viewing data of user table.
+ * Business logic for viewing and editing data of user table.
  */
 @Service
 @RequiredArgsConstructor

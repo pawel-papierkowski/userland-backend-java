@@ -9,7 +9,7 @@ import java.time.ZoneId;
  * <code>Clock</code> that can be set to any time. Useful in tests.
  */
 public class MutableClock extends Clock {
-  /** Actual clock under the wraps. */
+  /** Actual clock under the hood. */
   private Clock delegate = Clock.systemUTC();
 
   /**
