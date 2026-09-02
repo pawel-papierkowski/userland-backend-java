@@ -237,21 +237,19 @@ public class UserController {
 
   /**
    * Sends email with account deletion link.
-   * <p>Note: on production it will pretend everything is fine if email is not present in database or if account
-   * deletion token already exists to prevent email enumeration attacks.</p>
    * @param userDeleteLinkReq User deletion link request.
    * @return Response.
    */
   @PostMapping(value = "/delete/link", produces = "application/json")
-  @Operation(summary = "Send account deletion link", description = "Sends email with link that leads to page where you can confirm account deletion. Note: on production, trying to use unknown email will fail silently to prevent email enumeration attack.")
+  @Operation(summary = "Send account deletion link", description = "Sends email with link that leads to page where you can confirm account deletion.")
   @ApiResponsesAuth
   @ApiResponses(value = {
-      @ApiResponse(responseCode = "204", description = "Account deletion email successfully sent. On production also when request failed due to issues like unknown email address.",
+      @ApiResponse(responseCode = "204", description = "Account deletion email successfully sent.",
           content = @Content(schema = @Schema(hidden = true))),
       @ApiResponse(responseCode = "400", description = "Invalid input (missing or malformed email).",
           content = @Content(mediaType = "application/problem+json",
               schema = @Schema(implementation = ValidationProblemDetail.class))),
-      @ApiResponse(responseCode = "409", description = "Wrong password OR account deletion is already pending. Pending case not shown on production.",
+      @ApiResponse(responseCode = "409", description = "Wrong password OR account deletion is already pending.",
           content = @Content(mediaType = "application/problem+json",
               schema = @Schema(oneOf = { TokenAlreadyExistsProblemDetail.class, UserWrongPasswordProblemDetail.class })))
   })

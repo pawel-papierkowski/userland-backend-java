@@ -9,7 +9,7 @@ import org.springframework.http.HttpStatus;
 import java.util.Map;
 
 /**
- * Thrown when token is malformed or expired.
+ * Thrown when token is null/empty/malformed or expired. Used also for bad signature and invalid claims.
  */
 public class InvalidBearerTokenException extends GeneralException {
   public InvalidBearerTokenException(String jwtStr) {

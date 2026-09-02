@@ -93,7 +93,7 @@ public class UserTableService extends BaseUserTableService {
   /**
    * Verify request. In particular, will prevent change of email to already existing email.
    * @param userFullDataReq User data to change.
-   * @param user User. Can be null.
+   * @param user User.
    */
   private void verifyRequest(UserFullDataReq userFullDataReq, User user) {
     // No email to modify or no change in email.
@@ -120,8 +120,8 @@ public class UserTableService extends BaseUserTableService {
 
   /**
    * Generate response.
-   * @param user Updated user entity.
-   * @param userProfile Updated user profile entity.
+   * @param user User entity.
+   * @param userProfile User profile entity.
    * @return Updated user data.
    */
   private UserFullDataResp resolveResponse(User user, UserProfile userProfile) {

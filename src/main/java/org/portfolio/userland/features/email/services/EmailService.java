@@ -24,7 +24,7 @@ import java.util.Set;
 
 /**
  * Email service that handles arbitrary email. See intermediate <code>XxxEmailService</code> beans (for example
- * <code>UserEmailService</code>) for usage.
+ * <code>UserSendEmailService</code>) for usage.
  * <p>Note: It should be called asynchronously via event.</p>
  * @see UserSendEmailService
  */

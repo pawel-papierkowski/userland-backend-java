@@ -14,7 +14,7 @@ import java.util.Map;
  * <p>Note: sender address is always overridden server-side with configured system sender - whatever caller provides
  * here is ignored (security measure against 'from' spoofing).</p>
  * @param provider  Use this provider. If empty/null, will use default provider.
- * @param lang Language. Example: "pl". If no language or unknown language, will fall back to "en".
+ * @param lang Language code. If no language, will fall back to 'en'. Unknown language should be properly handled on frontend side.
  * @param sender Sender address. Ignored - server always uses configured system sender.
  * @param recipients Recipient address(es).
  * @param recipientsCc Recipient address(es), copy.
@@ -32,7 +32,7 @@ public record EmailReq(
     String provider,
 
     @Pattern(regexp = "^(|[a-zA-Z]{2}(-[a-zA-Z]{2})?)$", message = "Language must be a 2-letter ISO code, optionally followed by region (example: 'pl' or 'pl-PL')")
-    @Schema(description = "Language. If no language or unknown language, will fall back to 'en'.", example = "pl")
+    @Schema(description = "Language code. If no language, will fall back to 'en'. Unknown language should be properly handled on frontend side.", example = "pl")
     String lang,
 
     @Schema(description = "Sender address. Ignored - server always overrides it with configured system sender.", example = "no-reply@example.com")

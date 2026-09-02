@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 import java.util.UUID;
 
 /**
- * Generates needed secure hashes, tokens, UUIDs etc.
+ * Generates needed secure tokens and UUIDs.
  */
 @Service
 @RequiredArgsConstructor

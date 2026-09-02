@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
  * @param createdAt When this record was created?
  * @param name Name of config variable. See <code>UserConfigConst</code> for available values and meaning.
  * @param value Value of config variable.
+ * @param meta Metadata for this entry. Can be null if no metadata provided.
  */
 @Builder(toBuilder = true)
 @Schema(description = "Contains one user config table record.")
@@ -28,6 +29,6 @@ public record UserConfigTableEntry(
     @Schema(description = "Value of config variable.", example = "1440")
     String value,
 
-    @Schema(description = "Metadata for this entry. Can be null if no metadata provided. ")
+    @Schema(description = "Metadata for this entry. Can be null if no metadata provided.")
     EntryMetaResp meta
 ) {}

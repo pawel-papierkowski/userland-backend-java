@@ -5,11 +5,17 @@ import org.portfolio.userland.common.exception.ShouldNeverHappenException;
 
 /**
  * State of system lockdown.
+ * If lockdown is active, all endpoints are disabled. Exceptions:
+ * <ul>
+ *   <li>you are admin/operator user</li>
+ *   <li>login endpoint is available, but only admin/operator user can successfully log in</li>
+ *   <li>GCP endpoint is exempt in general</li>
+ * </ul>
  */
 public enum EnSystemLockdownState {
-  /** System lockdown is inactive. Endpoints operate normally. */
+  /** System lockdown is inactive. */
   OFF("0"),
-  /** System lockdown is active. All endpoints are disabled unless you are admin/operator user. */
+  /** System lockdown is active.  */
   ON("1");
 
   /** Value of enum as string. */

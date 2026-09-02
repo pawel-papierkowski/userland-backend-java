@@ -30,6 +30,8 @@ import java.util.Map;
  *   <li>authentication errors</li>
  *   <li>authorization errors</li>
  *   <li>validation errors</li>
+ *   <li>locking failures</li>
+ *   <li>database constraint violations</li>
  * </ul>
  * All other (unhandled) exceptions will return <b>500</b>.
  */

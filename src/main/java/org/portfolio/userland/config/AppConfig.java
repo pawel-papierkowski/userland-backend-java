@@ -14,8 +14,8 @@ import java.util.concurrent.Executor;
 @EnableAsync
 public class AppConfig {
   /**
-   * Defines task executor dedicated to email sending. Note it is used by intermediate beans, not by EmailService itself.
-   * <p>Example: <code>UserRegisterService</code> -> (new thread via event) -> <code>UserEmailService</code> -> <code>EmailService</code>.</p>
+   * Defines task executor dedicated to email sending. Note it is used by intermediate beans, not by <code>EmailService</code> itself.
+   * <p>Example: <code>UserRegisterService</code> -> (new thread via event) -> <code>UserSendEmailService</code> -> <code>EmailService</code>.</p>
    * @return Executor.
    */
   @Bean(name = "emailTaskExecutor")

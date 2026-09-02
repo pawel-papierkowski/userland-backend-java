@@ -16,7 +16,7 @@ import org.springframework.context.ApplicationEventPublisher;
  * <p>From this class domain-specific base service classes are inherited. For example, <code>BaseService</code> ->
  * <code>BaseUserService</code> -> <code>UserRegisterService</code>, <code>UserLoginService</code>,
  * <code>UserPasswordService</code> etc.</p>
- * <p>Note: not all services implement base service, only those that need it.</p>
+ * <p>Note: not all services extend base service, only those that need it.</p>
  */
 public abstract class BaseService {
   /** System configuration. */

@@ -160,8 +160,8 @@ public class JwtService extends BaseService {
   //
 
   /**
-   * Parses the token and returns all claims.
-   * If the token is invalid or expired, this will throw a JwtException.
+   * Parses the token and returns all claims. In case of problems with token various exceptions will be thrown.
+   * See <code>JwtParser.parseSignedClaims()</code> for details.
    * @param token JWT token.
    * @return All claims.
    */

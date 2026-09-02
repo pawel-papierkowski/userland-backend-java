@@ -91,6 +91,7 @@ public class RateLimitFilter extends OncePerRequestFilter {
    * Determines whether the given request should be rate-limited based on configured path patterns.
    * <p>Evaluation order:</p>
    * <ol>
+   *   <li>First we check if rate limit is active at all. If not, finish without rate limiting.</li>
    *   <li>If path matches any {@code exclude} pattern → skip rate limiting.</li>
    *   <li>Otherwise → apply rate limiting.</li>
    * </ol>

@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
  * @param createdAt When this record was created?
  * @param name Name of permission.
  * @param value Value of permission.
+ * @param meta Metadata for this entry. Can be null if no metadata provided.
  */
 @Builder(toBuilder = true)
 @Schema(description = "Contains one user permission table record.")
@@ -28,6 +29,6 @@ public record UserPermissionTableEntry(
     @Schema(description = "Value of permission.", example = "operator")
     String value,
 
-    @Schema(description = "Metadata for this entry. Can be null if no metadata provided. ")
+    @Schema(description = "Metadata for this entry. Can be null if no metadata provided.")
     EntryMetaResp meta
 ) {}

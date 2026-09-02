@@ -25,9 +25,6 @@ import java.time.LocalDateTime;
  *   <li>Backend verifies call and in case of success removes user account from database and sends email confirming successful account deletion.</li>
  *   <li>Frontend reacts appropriately to response from account delete endpoint (show success or failure message).</li>
  * </ul>
- * <p>Note: this class is intentionally NOT transactional (where BCrypt verification is involved). BCrypt is CPU-heavy;
- * running it outside of transaction prevents holding a database connection for its duration. All database work is done
- * transactionally by {@link UserDeleteTx}.</p>
  */
 @Service
 @RequiredArgsConstructor
@@ -36,6 +33,8 @@ public class UserDeleteService extends BaseUserService {
 
   /**
    * Creates account deletion token and (indirectly, via event) sends email with account deletion link to user.
+   * <p>Note: this method is not transactional. BCrypt is CPU-heavy; running it outside of transaction prevents holding a
+   * database connection for its duration. All database work is done transactionally by {@link UserDeleteTx}.</p>
    * @param userDeleteLinkReq User account deletion link request.
    */
   public void send(UserDeleteLinkReq userDeleteLinkReq) {

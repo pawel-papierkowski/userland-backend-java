@@ -118,7 +118,7 @@ public class CheckController {
   @Operation(summary = "Pretend work", description = "Will do pretend work for 30 seconds. If you call it too soon, will return 423 Locked.")
   @ApiResponsesAuthPerm
   @ApiResponses(value = {
-      @ApiResponse(responseCode = "200", description = "Call successful.",
+      @ApiResponse(responseCode = "204", description = "Call successful.",
           content = @Content(schema = @Schema(hidden = true))),
       @ApiResponse(responseCode = "423", description = "Locked: same code is still running.",
           content = @Content(mediaType = "application/problem+json",

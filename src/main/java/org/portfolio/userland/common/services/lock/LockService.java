@@ -56,7 +56,7 @@ public class LockService {
    * Attempt running a task with a ShedLock lock. This method is designed to be run in Controller endpoint.
    * @param lockName Name of lock. Must match the name used in your <code>@SchedulerLock</code> annotation!
    * @param task Task to run.
-   * @return Response for HTTP call.
+   * @return Response for HTTP call. Can return <code>204</code> (not locked) or <code>423</code> (locked).
    */
   public ResponseEntity<Void> endpointWithLock(String lockName, Runnable task) {
     boolean result = runWithLock(lockName, task);

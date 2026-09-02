@@ -13,7 +13,7 @@ import org.springframework.stereotype.Service;
  *   <li>Cleanup of expired users (PENDING only).</li>
  *   <li>Cleanup of active users (only in portfolio mode).</li>
  *   <li>Cleanup of expired tokens.</li>
- *   <li>Cleanup of expired JWT.</li>
+ *   <li>Cleanup of expired JWTs.</li>
  * </ul>
  * Note that it will fully work only on real or local server, not our GCP serverless instance.
  */

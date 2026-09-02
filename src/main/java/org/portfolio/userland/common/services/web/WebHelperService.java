@@ -26,7 +26,7 @@ public class WebHelperService {
 
   /**
    * Resolve login link. Note it is for frontend, not backend.
-   * @param frontend Name of used frontend.
+   * @param frontend Used frontend framework.
    * @return Login link.
    */
   public String resolveLoginLink(EnFrontendFramework frontend) {

@@ -12,7 +12,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 public class AuthHelper {
   /**
    * Resolve custom user details from authentication data.
-   * @return Custom user details or null if no authentication is present.
+   * @return Custom user details. Returns null if no authentication is present or principal is not <code>CustomUserDetails</code>.
    */
   public static CustomUserDetails resolveUserDetails() {
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
