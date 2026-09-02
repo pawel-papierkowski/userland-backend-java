@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 
 /**
  * Contains data for one user token record.
- * @param id Identificator of record.
+ * @param id Identifier of record.
  * @param createdAt When this token was created?
  * @param expiresAt When this token will expire.
  * @param token Value of token.
@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
 @Builder(toBuilder = true)
 @Schema(description = "Contains one user token table record.")
 public record UserTokenTableEntry(
-    @Schema(description = "Identificator of record.", example = "13")
+    @Schema(description = "Identifier of record.", example = "13")
     Long id,
 
     @Schema(description = "When this token was created.", example = "2026-04-21T15:27:17")

@@ -21,7 +21,7 @@ import java.util.Objects;
 @Getter
 @Setter
 public class UserToken {
-  /** Identificator. */
+  /** Identifier. */
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;

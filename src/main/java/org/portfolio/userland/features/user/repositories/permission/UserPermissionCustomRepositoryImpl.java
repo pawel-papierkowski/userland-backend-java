@@ -115,7 +115,7 @@ public class UserPermissionCustomRepositoryImpl extends EntityTableHandling<User
   /**
    * Get permission id based on given name.
    * @param name Name of permission.
-   * @return Permission identificator.
+   * @return Permission identifier.
    */
   private Long fetchPermissionIdByName(String name) {
     try {

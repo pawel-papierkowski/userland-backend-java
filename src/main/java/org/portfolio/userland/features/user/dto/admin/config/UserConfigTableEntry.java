@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 
 /**
  * Contains data for one user config record.
- * @param id Identificator of record.
+ * @param id Identifier of record.
  * @param createdAt When this record was created?
  * @param name Name of config variable. See <code>UserConfigConst</code> for available values and meaning.
  * @param value Value of config variable.
@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
 @Builder(toBuilder = true)
 @Schema(description = "Contains one user config table record.")
 public record UserConfigTableEntry(
-    @Schema(description = "Identificator of record.", example = "13")
+    @Schema(description = "Identifier of record.", example = "13")
     Long id,
 
     @Schema(description = "When this record was created.", example = "2026-04-21T15:27:17")

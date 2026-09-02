@@ -32,7 +32,7 @@ import java.util.Arrays;
 /**
  * Security configuration.
  * <p>Major part of security configuration is endpoint config. We assume all endpoints require authentication unless
- * specified otherwise. In particular, <code>publicSecurityFilterChain()</code> specify endpoints that do not require authentication.</p>
+ * specified otherwise. In particular, <code>publicSecurityFilterChain()</code> specifies endpoints that do not require authentication.</p>
  * <p>Note: filters are always applied, code like <code>addFilterBefore()</code> only determine changes in order of filters.</p>
  */
 @Configuration
@@ -108,7 +108,7 @@ public class SecurityConfig {
   }
 
   /**
-   * This specific filter chain defines secured endpoints that also requires operator or administrator permissions.
+   * This specific filter chain defines secured endpoints that also require operator or administrator permissions.
    * Note there can be also endpoints individually marked as <code>@PreAuthorize("hasAuthority('ROLE_OPERATOR')")</code>
    * in Controllers.
    * <p>You have access to auth data inside such endpoints:</p>
@@ -135,7 +135,7 @@ public class SecurityConfig {
   }
 
   /**
-   * This specific filter chain defines secured endpoints that also requires administrator permissions.
+   * This specific filter chain defines secured endpoints that also require administrator permissions.
    * Note there can be also endpoints individually marked as <code>@HasAdminPermission</code> in Controllers.
    * <p>You have access to auth data inside such endpoints:</p>
    * <pre>CustomUserDetails userDetails = AuthHelper.resolveUserDetails();</pre>

@@ -31,8 +31,8 @@ public class BaseUserTableService extends BaseUserService {
   //
 
   /**
-   * Resolve metadata for user permission entry.
-   * @param userId User identificator for this entry.
+   * Resolve metadata for user table entry.
+   * @param userId User identifier for this entry.
    * @return Entry metadata.
    */
   protected EntryMetaResp resolveMetadata(Long userId) {
@@ -45,8 +45,8 @@ public class BaseUserTableService extends BaseUserService {
   }
 
   /**
-   * Find out state of option. You can edit/delete user permissions only if you are admin.
-   * @param userId User identificator for this entry.
+   * Find out state of option. You can edit/delete user subtable entries only if you are admin.
+   * @param userId User identifier for this entry.
    * @return Entry option.
    */
   private EntryOption resolveOption(Long userId) {

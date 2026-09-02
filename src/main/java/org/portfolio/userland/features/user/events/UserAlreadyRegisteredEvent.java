@@ -4,7 +4,7 @@ import org.portfolio.userland.features.user.dto.common.EnFrontendFramework;
 
 /**
  * Event for trying to register already registered user.
- * @param id User identificator.
+ * @param id User identifier.
  * @param username Username.
  * @param email User email.
  * @param lang User language.

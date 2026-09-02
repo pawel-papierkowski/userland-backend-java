@@ -20,7 +20,7 @@ import org.hibernate.annotations.OnDeleteAction;
 @Getter
 @Setter
 public class UserProfile {
-  /** Identificator. Note: no generated value, as we use @MapsId. Profile will always have same id as main user table. */
+  /** Identifier. Note: no generated value, as we use @MapsId. Profile will always have same id as main user table. */
   @Id
   private Long id;
 

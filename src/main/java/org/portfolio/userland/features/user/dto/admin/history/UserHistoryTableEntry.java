@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 
 /**
  * Contains data for one user history record.
- * @param id Identificator of record.
+ * @param id Identifier of record.
  * @param createdAt When this record was created?
  * @param who Who did this thing?
  * @param what What happened?
@@ -18,7 +18,7 @@ import java.time.LocalDateTime;
 @Builder(toBuilder = true)
 @Schema(description = "Contains one user history table record.")
 public record UserHistoryTableEntry(
-    @Schema(description = "Identificator of record.", example = "13")
+    @Schema(description = "Identifier of record.", example = "13")
     Long id,
 
     @Schema(description = "When this record was created.", example = "2026-04-21T15:27:17")

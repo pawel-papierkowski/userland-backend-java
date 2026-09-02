@@ -5,7 +5,7 @@ public class CorsConst {
   /** We allow local Vue frontend and frontend on GitHub Pages. */
   public final static String[] ALLOWED_ORIGINS = {
       "http://localhost:5173", // local development frontend
-      "https://pawelpapierkowski.net.pl" // production frontend
+      "https://pawelpapierkowski.net.pl" // production frontend (address is configured so it is same as GitHub Pages)
   };
 
   /** We allow pretty much all HTTP methods. */

@@ -60,7 +60,7 @@ public class UserTableService extends BaseUserTableService {
 
   /**
    * Get almost all data about user and user profile.
-   * @param id Identificator of user.
+   * @param id Identifier of user.
    * @return Full data about user.
    */
   @Transactional(readOnly = true)

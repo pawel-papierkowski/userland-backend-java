@@ -15,7 +15,7 @@ import java.util.Map;
 @Builder(toBuilder = true)
 @Schema(description = "Metadata for single entry in response.")
 public record EntryMetaResp(
-    @Schema(description = "Options as map. Key is option identificator, value is instance of EntryOption.")
+    @Schema(description = "Options as map. Key is option identifier, value is instance of EntryOption.")
     Map<String, EntryOption> options,
 
     @Schema(description = "Other metadata as key-value pairs.")

@@ -32,8 +32,8 @@ import java.util.Arrays;
 import java.util.stream.Collectors;
 
 /**
- * Filter for JWT. Will always be executed, <code>addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)</code>
- * in <code>SecurityConfig</code> only changes order of filters.
+ * Filter for JWT. Will always be executed (except GCP endpoints), <code>addFilterBefore(jwtAuthFilter,
+ * UsernamePasswordAuthenticationFilter.class)</code> in <code>SecurityConfig</code> only changes order of filters.
  * After successful login we can access user detail data like that:
  * <pre>
  * CustomUserDetails customUserDetails = AuthHelper.resolveUserDetails();

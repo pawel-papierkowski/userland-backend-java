@@ -30,7 +30,7 @@ public interface UserPermissionCustomRepository {
   
   /**
    * Get basic info about user permission entry without loading full entities.
-   * @param id User permission entry identificator.
+   * @param id User permission entry identifier.
    * @return Basic info about the entry (user id, permission name, value).
    * @throws UserPermissionMissingException When cannot find user permission entry with given id.
    */
@@ -47,8 +47,8 @@ public interface UserPermissionCustomRepository {
 
   /**
    * Check if user permission with same name/value combination already exists.
-   * @param id     User permission entry identificator. Can be null if new entry.
-   * @param userId Identificator of the user owning this permission.
+   * @param id     User permission entry identifier. Can be null if new entry.
+   * @param userId Identifier of the user owning this permission.
    * @param name   Name of the permission setting.
    * @param value  Value of the permission setting.
    * @return True if name/value combination already exists, otherwise false.
@@ -67,8 +67,8 @@ public interface UserPermissionCustomRepository {
 
   /**
    * Adds a new user permission entry or updates an existing one.
-   * @param id     User permission entry identificator to update or null to create a new entry.
-   * @param userId Identificator of the user owning this permission.
+   * @param id     User permission entry identifier to update or null to create a new entry.
+   * @param userId Identifier of the user owning this permission.
    * @param name   Name of the permission setting.
    * @param value  Value of the permission setting.
    * @return Created/updated user permission entity.

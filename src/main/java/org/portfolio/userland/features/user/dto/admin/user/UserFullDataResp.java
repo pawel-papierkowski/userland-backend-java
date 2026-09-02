@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
  * UserFullDataResp userData = userMapper.userToFullDataResp(user);
  * UserProfileData userProfileData = userMapper.profileToData(profile);</pre></code>
  *
- * @param id User identificator.
+ * @param id User identifier.
  * @param createdAt Creation date&time.
  * @param modifiedAt Date&time of last modification.
  * @param version Optimistic locking version of user account.
@@ -28,7 +28,7 @@ import java.time.LocalDateTime;
 @Builder(toBuilder = true)
 @Schema(description = "DTO that relays most of the user and user profile entity data.")
 public record UserFullDataResp(
-    @Schema(description = "Identificator.")
+    @Schema(description = "Identifier.")
     Long id,
 
     @Schema(description = "When user was created.")

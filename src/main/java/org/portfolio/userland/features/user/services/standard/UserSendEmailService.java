@@ -237,7 +237,7 @@ public class UserSendEmailService {
    * </ul>
    * In this way, if you control only old email, failure is indistinguishable from success, preventing email enumeration
    * attack.
-   * @param event Email change request event data.
+   * @param event Email change fail event data.
    */
   @Async("emailTaskExecutor")
   @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)

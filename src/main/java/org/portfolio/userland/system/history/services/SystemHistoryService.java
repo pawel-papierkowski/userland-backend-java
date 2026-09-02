@@ -39,7 +39,7 @@ public class SystemHistoryService extends BaseService {
 
   /**
    * Add system history event to database.
-   * @param userId User identificator. Can be null if no user is involved in this system history event.
+   * @param userId User identifier. Can be null if no user is involved in this system history event.
    * @param who Who did that?
    * @param what What happened?
    * @param params Event parameters.

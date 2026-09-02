@@ -43,7 +43,7 @@ public class JwtService extends BaseService {
 
   private final JwtClock jwtClock;
 
-  /** Secret key used to sign JWT tokens. Must be at least 256 bits (32 characters) long. */
+  /** Secret key used to sign JWT tokens. Must be at least 256 bits (32 bytes) long. Note it is in base64. */
   @Value("${security.jwt.secret}")
   private String secretKey;
 

@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
  * DTO for viewing user history table. Contains filters and other settings needed for desired result.
  * All fields except userId can be null or empty, in this case fields won't be used at all (no filtering) or defaults
  * will be used (tableMeta).
- * @param userId User identificator.
+ * @param userId User identifier.
  * @param who If present, filter by who.
  * @param what If present, filter by what.
  * @param createdFromAt If present, show user history records created at this date or later.
@@ -24,8 +24,8 @@ import java.time.LocalDateTime;
 @Builder(toBuilder = true)
 @Schema(description = "Payload required to return page of results from user history table. All fields except userId can be null/empty, in this case fields won't be used at all (no filtering) or defaults will be used (tableMeta).")
 public record UserHistoryTableReq(
-    @NotNull(message = "User identificator must be provided")
-    @Schema(description = "Identificator of user.", example = "13")
+    @NotNull(message = "User identifier must be provided")
+    @Schema(description = "Identifier of user.", example = "13")
     Long userId,
 
     @Schema(description = "Who did this thing.", example = "USER")

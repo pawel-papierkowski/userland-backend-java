@@ -23,7 +23,7 @@ import java.util.Set;
  * public class ProfileController {
  *   &#064;GetMapping("/me")
  *   public String getMyProfile(@AuthenticationPrincipal CustomUserDetails customUserDetails) {
- *     if (customUserDetails == null) return; // not logged in
+ *     if (customUserDetails == null) return null; // not logged in
  *     // You now have safe, typed access to the authenticated user's details.
  *     Long userId = customUserDetails.getId();
  *     String username = customUserDetails.getUsername();
@@ -72,7 +72,7 @@ public class CustomUserDetails implements UserDetails {
    * Constructor used by <code>JwtAuthFilter</code> to build details from signed JWT claims combined with user state
    * loaded from database. Permissions are intentionally taken from token claims, not database.
    * Also used by tests for mock purposes.
-   * @param id User identificator.
+   * @param id User identifier.
    * @param active Is this user active?
    * @param locked Is this user locked?
    * @param username Username.

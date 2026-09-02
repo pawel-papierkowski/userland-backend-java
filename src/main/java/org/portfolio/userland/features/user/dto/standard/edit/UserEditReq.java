@@ -39,7 +39,7 @@ public record UserEditReq(
   @Schema(description = "User profile.")
   UserProfileData profile
 ) implements IntUserEditReq {
-  /** Identificator. Always null, as it is not used in standard user edit API. */
+  /** Identifier. Always null, as it is not used in standard user edit API. */
   @Override
   public Long id() {
     return null; // not editable for user profile editing

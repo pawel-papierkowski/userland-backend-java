@@ -8,19 +8,19 @@ import lombok.Builder;
 
 /**
  * DTO for editing entry of user config table.
- * @param userId User identificator.
- * @param id User config entry identificator. Can be null, in this case will create new user config entry.
+ * @param userId User identifier.
+ * @param id User config entry identifier. Can be null, in this case will create new user config entry.
  * @param name User config entry name.
  * @param value User config entry value.
  */
 @Builder(toBuilder = true)
 @Schema(description = "Data for user config entry change.")
 public record UserConfigEditReq(
-    @Schema(description = "Identificator of user config entry. Can be null, in this case will create new user config entry.", example = "2")
+    @Schema(description = "Identifier of user config entry. Can be null, in this case will create new user config entry.", example = "2")
     Long id,
 
-    @NotNull(message = "User identificator must be provided")
-    @Schema(description = "Identificator of user.", example = "13")
+    @NotNull(message = "User identifier must be provided")
+    @Schema(description = "Identifier of user.", example = "13")
     Long userId,
 
     @NotBlank(message = "Name of user config entry must be provided")

@@ -18,7 +18,7 @@ import org.portfolio.userland.features.user.dto.common.UserProfileData;
  *   of user data. If data was modified in the meantime, request fails with 409 Conflict.</li>
  * </ul>
  *
- * @param id Identificator of user.
+ * @param id Identifier of user.
  * @param version Optimistic locking version of user account.
  * @param username New username.
  * @param email New email.
@@ -29,8 +29,8 @@ import org.portfolio.userland.features.user.dto.common.UserProfileData;
 @Builder(toBuilder = true)
 @Schema(description = "Request for editing user and user profile data. All fields except id and version are optional.")
 public record UserFullDataReq(
-    @NotNull(message = "User identificator must be provided")
-    @Schema(description = "Identificator of user.")
+    @NotNull(message = "User identifier must be provided")
+    @Schema(description = "Identifier of user.")
     Long id,
 
     @NotNull(message = "Version must be provided")

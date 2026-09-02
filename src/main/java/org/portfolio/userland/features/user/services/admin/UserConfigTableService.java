@@ -46,7 +46,7 @@ public class UserConfigTableService extends BaseUserTableService {
 
   /**
    * Converts list of user config entities to user config entries in response.
-   * @param userId User identificator for this entry.
+   * @param userId User identifier for this entry.
    * @param entities List of user configs.
    * @param tableMetaReq Metadata for table page request.
    * @param entryCount Entry count.
@@ -116,7 +116,7 @@ public class UserConfigTableService extends BaseUserTableService {
 
   /**
    * Deletes given user config entry.
-   * @param entryId Identificator of entry.
+   * @param entryId Identifier of entry.
    */
   @Transactional
   public void delete(Long entryId) {
@@ -133,8 +133,8 @@ public class UserConfigTableService extends BaseUserTableService {
 
   /**
    * Resolve configuration entry.
-   * @param entryId Identificator of configuration entry. Can be null if it is new entry.
-   * @param userId Identificator of user.
+   * @param entryId Identifier of configuration entry. Can be null if it is new entry.
+   * @param userId Identifier of user.
    * @return Configuration entry or null if it is new entry.
    */
   private UserConfig resolve(Long entryId, Long userId) {

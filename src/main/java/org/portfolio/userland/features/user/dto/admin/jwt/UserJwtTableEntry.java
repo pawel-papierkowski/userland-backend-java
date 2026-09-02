@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 
 /**
  * Contains data for one user JWT record.
- * @param id Identificator of record.
+ * @param id Identifier of record.
  * @param createdAt When this record was created?
  * @param expiresAt When this JWT will expire.
  * @param token JWT token string.
@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
 @Builder(toBuilder = true)
 @Schema(description = "Contains one user JWT table record.")
 public record UserJwtTableEntry(
-    @Schema(description = "Identificator of record.", example = "13")
+    @Schema(description = "Identifier of record.", example = "13")
     Long id,
 
     @Schema(description = "When this JWT was created.", example = "2026-04-21T15:27:17")

@@ -11,19 +11,19 @@ import java.util.Locale;
  * DTO for editing entry of user permission table.
  * <p>Note: <code>name</code> and <code>value</code> are normalized to lowercase in the compact constructor, so all
  * downstream code (duplicate check, persistence, history entries) always sees canonical lowercase data.</p>
- * @param userId User identificator.
- * @param id User permission entry identificator. Can be null, in this case will create new user permission entry.
+ * @param userId User identifier.
+ * @param id User permission entry identifier. Can be null, in this case will create new user permission entry.
  * @param name User permission entry name.
  * @param value User permission entry value.
  */
 @Builder(toBuilder = true)
 @Schema(description = "Data for user permission entry change.")
 public record UserPermissionEditReq(
-    @Schema(description = "Identificator of user permission entry. Can be null, in this case will create new user permission entry.", example = "2")
+    @Schema(description = "Identifier of user permission entry. Can be null, in this case will create new user permission entry.", example = "2")
     Long id,
 
-    @NotNull(message = "User identificator must be provided")
-    @Schema(description = "Identificator of user.", example = "13")
+    @NotNull(message = "User identifier must be provided")
+    @Schema(description = "Identifier of user.", example = "13")
     Long userId,
 
     @NotBlank(message = "Name of user permission entry must be provided")

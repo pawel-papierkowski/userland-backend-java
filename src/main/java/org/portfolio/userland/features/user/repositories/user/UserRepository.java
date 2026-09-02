@@ -48,7 +48,7 @@ public interface UserRepository extends JpaRepository<User, Long>, UserCustomRep
   /**
    * Find user by id for authorization purposes. Eagerly loads permissions, as these are always needed during
    * authorization (e.g. rebuilding <code>perms</code> claim on session prolongation).
-   * @param id User identificator.
+   * @param id User identifier.
    * @return User or empty optional.
    */
   @EntityGraph(attributePaths = {

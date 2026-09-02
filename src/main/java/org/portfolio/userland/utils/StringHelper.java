@@ -3,7 +3,7 @@ package org.portfolio.userland.utils;
 import org.apache.commons.lang3.StringUtils;
 
 /**
- * Helper class for string manipulation methods that aren't present in other libraries.
+ * Helper class for additional string manipulation methods.
  */
 public class StringHelper {
   private static final int LENGTH_TOKEN_VISIBLE = 13;
@@ -11,8 +11,6 @@ public class StringHelper {
 
   private StringHelper() {
   }
-
-  //
 
   /**
    * Masks token.

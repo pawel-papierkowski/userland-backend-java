@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
  * DTO for viewing user JWT table. Contains filters and other settings needed for desired result.
  * All fields except userId can be null or empty, in this case fields won't be used at all (no filtering) or defaults
  * will be used (tableMeta).
- * @param userId User identificator.
+ * @param userId User identifier.
  * @param createdFromAt If present, show user JWT records created at this date or later.
  * @param createdToAt If present, show user JWT records created at this date or earlier.
  * @param tableMeta Table metadata like pagination settings or sorting.
@@ -20,8 +20,8 @@ import java.time.LocalDateTime;
 @Builder(toBuilder = true)
 @Schema(description = "Payload required to return page of results from user JWT table. All fields except userId can be null/empty, in this case fields won't be used at all (no filtering) or defaults will be used (tableMeta).")
 public record UserJwtTableReq(
-    @NotNull(message = "User identificator must be provided")
-    @Schema(description = "Identificator of user.", example = "13")
+    @NotNull(message = "User identifier must be provided")
+    @Schema(description = "Identifier of user.", example = "13")
     Long userId,
 
     @Schema(description = "If present, show user JWT records with creation date that is same or later.", example = "2026-04-01T12:00:00")

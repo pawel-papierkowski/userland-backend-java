@@ -25,7 +25,7 @@ public interface UserJwtRepository extends JpaRepository<UserJwt, Long>, UserJwt
 
   /**
    * Delete all JWTs for given user.
-   * @param userId User identificator.
+   * @param userId User identifier.
    * @return Count of removed JWTs.
    */
   @Modifying(clearAutomatically = true, flushAutomatically = true)

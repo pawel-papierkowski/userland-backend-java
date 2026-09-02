@@ -97,7 +97,7 @@ public class UserAdminController {
 
   /**
    * View full user data.
-   * @param id Identificator of user.
+   * @param id Identifier of user.
    * @return Response.
    */
   @HasUserViewPermission
@@ -184,7 +184,7 @@ public class UserAdminController {
 
   /**
    * Delete user config entry with given id.
-   * @param id Identificator of user config entry.
+   * @param id Identifier of user config entry.
    * @return Response.
    */
   @HasAdminPermission
@@ -275,7 +275,7 @@ public class UserAdminController {
 
   /**
    * Delete user permission entry with given id.
-   * @param id Identificator of user permission entry.
+   * @param id Identifier of user permission entry.
    * @return Response.
    */
   @HasAdminPermission

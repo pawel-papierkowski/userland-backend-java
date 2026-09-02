@@ -82,7 +82,7 @@ public class UserHelperService {
 
   /**
    * Resolves user by id and optionally verifies user state.
-   * @param id User identificator.
+   * @param id User identifier.
    * @param failSilently If true, method will return null if user does not exist. Otherwise, will throw exception.
    * @param verify If false, skip verification.
    * @return User or null if user could not be found.
@@ -103,7 +103,7 @@ public class UserHelperService {
   /**
    * Resolves user by id and verifies user state. This version of call should be used for auth purposes when user
    * is already authenticated (id comes from <code>CustomUserDetails</code>), as it avoids non-PK lookups.
-   * @param id User identificator.
+   * @param id User identifier.
    * @param failSilently If true, method will return null if user does not exist. Otherwise, will throw exception.
    * @return User or null if user could not be found.
    */

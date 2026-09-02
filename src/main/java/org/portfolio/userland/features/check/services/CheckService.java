@@ -27,7 +27,7 @@ public class CheckService extends BaseService {
   protected String systemName;
 
   /**
-   * Resolve basic information about system.
+   * Resolve basic information about the system.
    * @return Various basic information.
    */
   public CheckInfoResp info() {

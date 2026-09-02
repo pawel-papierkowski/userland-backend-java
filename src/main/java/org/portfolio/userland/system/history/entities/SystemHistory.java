@@ -23,7 +23,7 @@ import java.util.UUID;
 @Getter
 @Setter
 public class SystemHistory {
-  /** Identificator. */
+  /** Identifier. */
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;

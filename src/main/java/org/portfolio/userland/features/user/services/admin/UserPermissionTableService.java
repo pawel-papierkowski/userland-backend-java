@@ -61,7 +61,7 @@ public class UserPermissionTableService extends BaseUserTableService {
 
   /**
    * Converts list of user permission entities to user permission entries in response.
-   * @param userId User identificator for this entry.
+   * @param userId User identifier for this entry.
    * @param entities List of user permissions.
    * @param tableMetaReq Metadata for table page request.
    * @param entryCount Entry count.
@@ -134,7 +134,7 @@ public class UserPermissionTableService extends BaseUserTableService {
 
   /**
    * Deletes given user permission entry.
-   * @param entryId Identificator of entry.
+   * @param entryId Identifier of entry.
    */
   @Transactional
   public void delete(Long entryId) {
@@ -155,9 +155,9 @@ public class UserPermissionTableService extends BaseUserTableService {
   /**
    * Resolve permission entry basic info without loading full entities.
    * Also verifies access rights: logged-in user is not allowed to edit own account.
-   * @param entryId Identificator of permission entry.
-   * @param userId Identificator of user.
-   * @return Basic info about permission entry or null if both identificators are null.
+   * @param entryId Identifier of permission entry.
+   * @param userId Identifier of user.
+   * @return Basic info about permission entry or null if both identifiers are null.
    */
   private UserPermissionEntryInfo resolve(Long entryId, Long userId) {
     if (entryId == null && userId == null) return null;
@@ -175,7 +175,7 @@ public class UserPermissionTableService extends BaseUserTableService {
 
   /**
    * Clear JWT entries for this user, forcing it to relog with new permissions.
-   * @param userId User identificator.
+   * @param userId User identifier.
    */
   private void clearJwt(Long userId) {
     userJwtRepository.deleteAllByUser(userId);

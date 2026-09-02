@@ -18,7 +18,7 @@ public class SecurityGeneratorService {
   private int tokenLength;
 
   /**
-   * Generate token. It is alphanumeric string of length configured in yaml: user.token.length.
+   * Generate token. It is alphanumeric string of length configured in yaml: app.user.token.length.
    * @return Token.
    */
   public String token() {

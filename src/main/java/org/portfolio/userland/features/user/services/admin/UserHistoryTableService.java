@@ -35,7 +35,7 @@ public class UserHistoryTableService extends BaseUserTableService {
 
   /**
    * Converts list of user history entities to user history entries in response.
-   * @param entities List of user historys.
+   * @param entities List of user histories.
    * @param tableMetaReq Metadata for table page request.
    * @param entryCount Entry count.
    * @return User history page response.

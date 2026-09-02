@@ -13,7 +13,7 @@ public class UserDataStaleException extends GeneralException {
 
   /**
    * Constructor.
-   * @param id Identificator of user.
+   * @param id Identifier of user.
    * @param expectedVersion Version as sent by client.
    * @param actualVersion Current version of the entity.
    */

@@ -16,7 +16,7 @@ public record CannotEditUserProblemDetail(
     int status,
     @Schema(example = "User with id '42' cannot be edited.")
     String detail,
-    @Schema(example = "/api/users/password/link")
+    @Schema(example = "/api/admin/user")
     String instance,
     @Schema(example = UserErrCode.CANNOT_EDIT)
     String errCode

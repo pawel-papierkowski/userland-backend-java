@@ -5,7 +5,7 @@ import org.portfolio.userland.features.user.entities.EnUserStatus;
 /**
  * Slim view of user authorization state. Used by <code>JwtAuthFilter</code> to verify user state on every request
  * without loading the whole <code>User</code> entity (permissions come from JWT claims, so they are not needed here).
- * @param id User identificator.
+ * @param id User identifier.
  * @param status Status of user.
  * @param locked Is user locked?
  */

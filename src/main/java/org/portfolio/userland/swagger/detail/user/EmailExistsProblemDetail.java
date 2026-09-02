@@ -16,7 +16,7 @@ public record EmailExistsProblemDetail(
     int status,
     @Schema(example = "Email 'test@test.com' already exists.")
     String detail,
-    @Schema(example = "/api/users/register")
+    @Schema(example = "/api/users/email/confirm")
     String instance,
     @Schema(example = UserErrCode.EMAIL_IN_USE)
     String errCode

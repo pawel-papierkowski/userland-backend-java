@@ -22,21 +22,21 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * Endpoints for assessing state of server and help in frontend development. Also, useful for some tests.
+ * Endpoints for assessing state of server and to help in frontend development. Also, useful for some tests.
  * <p>Endpoints:</p>
  * <ul>
  *   <li><code>GET /api/checks/alive</code> - anyone can access this endpoint.</li>
  *   <li><code>GET /api/checks/must-be-logged</code> - needs to be logged to access this endpoint.</li>
  *   <li><code>GET /api/checks/must-be-admin</code> - needs to be logged as admin to access this endpoint.</li>
- *   <li><code>GET /api/checks/info</code> - basic information about system.</li>
- *   <li><code>GET /api/checks/pretendWork</code> - does pretend work, will prevent another call if still working.</li>
+ *   <li><code>GET /api/checks/info</code> - basic information about system. Must be admin.</li>
+ *   <li><code>GET /api/checks/pretendWork</code> - does pretend work, will prevent another call if still working. Must be admin.</li>
  *   <li><code>GET /api/checks/exception</code> - code deliberately throws exception. Response returns proper problem detail.</li>
  * </ul>
  */
 @RestController
 @RequestMapping("/api/checks")
 @RequiredArgsConstructor
-@Tag(name = "Checks", description = "Endpoints for assessing state of server and help in frontend development.")
+@Tag(name = "Checks", description = "Endpoints for assessing state of server and to help in frontend development.")
 public class CheckController {
   private final CheckService checkService;
   private final LockService lockService;

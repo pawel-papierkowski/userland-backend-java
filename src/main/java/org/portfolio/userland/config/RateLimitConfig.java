@@ -36,7 +36,7 @@ public class RateLimitConfig {
 
   /**
    * Creates a Caffeine-backed proxy manager for distributed token bucket operations.
-   * <p>Each bucket is stored as a Caffeine cache entry keyed by client IP address.
+   * <p>Each bucket is stored as a Caffeine cache entry keyed by client IP address and profileName.
    * Entries are evicted after the configured idle timeout to prevent unbounded memory growth.</p>
    * @return Proxy manager for rate limit buckets.
    */

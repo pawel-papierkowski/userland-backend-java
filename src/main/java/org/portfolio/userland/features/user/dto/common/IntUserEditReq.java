@@ -6,7 +6,7 @@ import org.apache.commons.lang3.StringUtils;
  * Interface for all user edit requests. Some requests can use only some fields - unused ones must return null.
  */
 public interface IntUserEditReq {
-  /** Identificator of user. */
+  /** Identifier of user. */
   Long id();
   /** Version for optimistic locking. */
   Long version();

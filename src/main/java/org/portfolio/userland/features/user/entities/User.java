@@ -32,7 +32,7 @@ import java.util.*;
 @Getter
 @Setter
 public class User {
-  /** Identificator. */
+  /** Identifier. */
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
@@ -62,7 +62,7 @@ public class User {
 
   // basic data
 
-  /** Name of user (can be also nickname) visible on frontend, shown to other uses, in email etc. */
+  /** Name of user (can be also nickname) visible on frontend, shown to other users, in email etc. */
   @Column(nullable = false, length = 100)
   @NotBlank(message = "Username cannot be empty")
   private String username;

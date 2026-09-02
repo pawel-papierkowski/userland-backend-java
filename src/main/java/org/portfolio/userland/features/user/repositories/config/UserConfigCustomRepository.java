@@ -38,8 +38,8 @@ public interface UserConfigCustomRepository {
 
   /**
    * Check if user config with same name combination already exists.
-   * @param id     User config entry identificator. Can be null if new entry.
-   * @param userId Identificator of the user owning this config.
+   * @param id     User config entry identifier. Can be null if new entry.
+   * @param userId Identifier of the user owning this config.
    * @param name   Name of the config setting.
    * @return True if name already exists, otherwise false.
    */
@@ -57,8 +57,8 @@ public interface UserConfigCustomRepository {
 
   /**
    * Adds a new user config entry or updates an existing one.
-   * @param id     User config entry identificator to update or null to create a new entry.
-   * @param userId Identificator of the user owning this config.
+   * @param id     User config entry identifier to update or null to create a new entry.
+   * @param userId Identifier of the user owning this config.
    * @param name   Name of the config setting.
    * @param value  Value of the config setting.
    * @return Created/updated user config entity.

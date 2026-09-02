@@ -16,7 +16,7 @@ import java.util.Objects;
 @Getter
 @Setter
 public class Config {
-  /** Identificator. */
+  /** Identifier. */
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;

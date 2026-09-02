@@ -19,7 +19,7 @@ import java.util.List;
  * minted specifically for us, by our own service account:</p>
  * <ul>
  *   <li><b>Audience</b> - token must target our concrete endpoint URL (audience is set explicitly when Cloud Tasks
- *   tasks are created in <code>GcpEmailService</code>).</li>
+ *   tasks are created in <code>GcpTaskEnqueuer.enqueue()</code>).</li>
  *   <li><b>Identity</b> - token must carry 'email' claim equal to our GCP service account email. Only tokens minted
  *   via IAM for that service account have it.</li>
  * </ul>
