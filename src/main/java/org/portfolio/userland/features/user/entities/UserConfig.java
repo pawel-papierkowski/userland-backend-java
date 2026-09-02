@@ -48,7 +48,7 @@ public class UserConfig {
 
   //
 
-  /** Name of user configuration entry. Acts as business key. */
+  /** Name of user configuration entry. */
   @Column(nullable = false, length = 250)
   @NotBlank(message = "Name cannot be empty")
   private String name;

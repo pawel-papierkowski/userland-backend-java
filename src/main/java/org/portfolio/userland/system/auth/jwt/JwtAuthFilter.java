@@ -164,7 +164,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
   }
 
   /**
-   * Actually set up authentification. Finally.
+   * Actually set up authentication. Finally.
    * @param request Request.
    * @param customUserDetails Custom user details resolved from token claims and database user state.
    */

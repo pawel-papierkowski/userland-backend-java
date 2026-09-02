@@ -26,6 +26,10 @@ import java.time.Duration;
 public class RateLimitConfig {
   private final RateLimitProperties properties;
 
+  /**
+   * Constructor.
+   * @param properties Configuration for rate limiting code.
+   */
   public RateLimitConfig(RateLimitProperties properties) {
     this.properties = properties;
   }

@@ -221,7 +221,7 @@ public class UserAdminFactory extends BaseFactory {
 
   /**
    * Create user JWT table entries based on user JWT entities.
-   * @param entities List of user JWT entities.
+   * @param entities Set of user JWT entities.
    * @return List ot user JWT table entries.
    */
   public List<UserJwtTableEntry> genUserJwtTableEntries(Set<UserJwt> entities) {

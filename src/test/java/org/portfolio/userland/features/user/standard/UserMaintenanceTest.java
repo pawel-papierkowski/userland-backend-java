@@ -90,8 +90,8 @@ public class UserMaintenanceTest extends BaseUserTest {
     assertThat(userRepository.count()).as("Count of all users is wrong").isEqualTo(2);
     // Make sure correct users survived.
     List<User> users = userRepository.findAll();
-    assertThat(users.contains(u2)).as("User 2 (old enough but ACTIVE) should exist").isEqualTo(true);
-    assertThat(users.contains(u3)).as("User 3 (PENDING, but too young) should exist").isEqualTo(true);
+    assertThat(users.contains(u2)).as("User 2 (old enough but ACTIVE) should exist").isTrue();
+    assertThat(users.contains(u3)).as("User 3 (PENDING, but too young) should exist").isTrue();
   }
 
 
@@ -115,9 +115,9 @@ public class UserMaintenanceTest extends BaseUserTest {
     assertThat(userRepository.count()).as("Count of all users after clean is wrong").isEqualTo(3);
     // Make sure correct users survived.
     List<User> users = userRepository.findAll();
-    assertThat(users.contains(savedUsers[0])).as("User 0 (ACTIVE but recently active) should exist").isEqualTo(true);
-    assertThat(users.contains(savedUsers[2])).as("User 2 (idle for long but PENDING) should exist").isEqualTo(true);
-    assertThat(users.contains(savedUsers[3])).as("User 3 (ACTIVE, idle for long but having 'portfolio.noDelete' = '1') should exist").isEqualTo(true);
+    assertThat(users.contains(savedUsers[0])).as("User 0 (ACTIVE but recently active) should exist").isTrue();
+    assertThat(users.contains(savedUsers[2])).as("User 2 (idle for long but PENDING) should exist").isTrue();
+    assertThat(users.contains(savedUsers[3])).as("User 3 (ACTIVE, idle for long but having 'portfolio.noDelete' = '1') should exist").isTrue();
   }
 
   @Test

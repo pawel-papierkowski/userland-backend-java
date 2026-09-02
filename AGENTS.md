@@ -123,6 +123,7 @@ This is a modern **Java 25**, **Spring Boot 4.1.0** application. The backend ser
       - `mocks/` - Auxiliary classes that help with mocking.
       - `problemDetail/` - Handles problem details in testing.
 - Do not use context slicing (like `@DataJpaTest` or `@WebMvcTest`) for new test files unless explicitly asked; prefer `BaseIntegrationTest` to ensure configurations load correctly. Note already existing test files are ok.
+- All assertions must have `.as()`.
 
 ## 🔎 Reviewing code
 

@@ -8,10 +8,10 @@ import java.time.LocalDateTime;
 
 /**
  * Contains basic data about this system.
- * @param name Name of project.
+ * @param name Name of system.
  * @param nowAt Current date and time according to server (UTC).
  * @param bootAt When server boot up (UTC).
- * @param version Version of project.
+ * @param version Version of system.
  * @param profile Server profile.
  */
 @Builder(toBuilder = true)

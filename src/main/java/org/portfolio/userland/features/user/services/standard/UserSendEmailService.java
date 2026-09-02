@@ -124,7 +124,7 @@ public class UserSendEmailService {
 
   /**
    * Prepare email request for activated user.
-   * @param event Event.
+   * @param event User activated event data.
    * @return Email request.
    */
   private EmailReq genEmailReq(UserActivatedEvent event) {
@@ -141,7 +141,7 @@ public class UserSendEmailService {
 
   /**
    * React on user already registered event. Will send email warning that someone tried to register user account.
-   * @param event User activation event data.
+   * @param event User already registered event data.
    */
   @Async("emailTaskExecutor")
   @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
@@ -151,14 +151,14 @@ public class UserSendEmailService {
   }
 
   /**
-   * Prepare email request for activated user.
-   * @param event Event.
+   * Prepare email request for already registered user.
+   * @param event User already registered event data.
    * @return Email request.
    */
   private EmailReq genEmailReq(UserAlreadyRegisteredEvent event) {
     String subject = translateSubject(event, "email.user.alreadyRegistered.subject");
 
-    // Prepare params required by user activated template.
+    // Prepare params required by user already registered template.
     Map<String, Object> params = genParamsMap(event);
     params.put("loginLink", webHelperService.resolveLoginLink(event.frontend()));
 
@@ -290,14 +290,14 @@ public class UserSendEmailService {
   }
 
   /**
-   * Prepare email for sending email change warning.
+   * Prepare email for sending email change confirmation.
    * @param event Event.
    * @return Email request.
    */
   private EmailReq resolveEmailChangeConfirmReq(UserEmailChangeConfirmEvent event) {
     String subject = translateSubject(event, "email.user.email.confirm.subject");
 
-    // Prepare params required by email change warning template.
+    // Prepare params required by email change confirmation template.
     Map<String, Object> params = genParamsMap(event);
 
     return genEmailReq(event, TEMPLATE_USER_EMAIL_CONFIRM, subject, params);
@@ -456,6 +456,7 @@ public class UserSendEmailService {
   /**
    * Generate email request based on provided data.
    * @param event Event.
+   * @param emailTo Email recipient.
    * @param template Template.
    * @param subject Subject of email.
    * @param params Template parameters.
@@ -489,6 +490,7 @@ public class UserSendEmailService {
 
   /**
    * Generate params map with common parameters.
+   * @param event Event.
    * @return Params map.
    */
   private Map<String, Object> genParamsMap(BaseUserEvent event) {

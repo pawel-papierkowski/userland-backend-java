@@ -9,7 +9,7 @@ import org.portfolio.userland.common.exception.ShouldNeverHappenException;
 public enum EnSystemLockdownState {
   /** System lockdown is inactive. Endpoints operate normally. */
   OFF("0"),
-  /** System lockdown is active. All endpoints are disabled unless you are admin user. */
+  /** System lockdown is active. All endpoints are disabled unless you are admin/operator user. */
   ON("1");
 
   /** Value of enum as string. */

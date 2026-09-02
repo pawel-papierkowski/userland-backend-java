@@ -270,7 +270,6 @@ public class UserLoginApiTest extends BaseUserTest {
   @Test
   public void errMissingAccount() throws Exception {
     // Refuse if user do not exist.
-    clock.setFixedTime("2026-04-08T10:00:00Z");
 
     clock.setFixedTime("2026-04-10T10:05:00Z");
     // Arrange: Create login request.

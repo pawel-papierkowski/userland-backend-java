@@ -1,7 +1,6 @@
 package org.portfolio.userland.system.history.services;
 
 import lombok.RequiredArgsConstructor;
-import org.portfolio.userland.common.services.security.SecurityGeneratorService;
 import org.portfolio.userland.features.user.entities.User;
 import org.portfolio.userland.features.user.repositories.user.UserRepository;
 import org.portfolio.userland.system.auth.AuthHelper;
@@ -20,7 +19,6 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 public class SystemHistoryService extends BaseService {
-  private final SecurityGeneratorService securityGeneratorService;
   private final SystemHistoryRepository systemHistoryRepository;
   private final UserRepository userRepository;
 

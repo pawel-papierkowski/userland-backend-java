@@ -11,7 +11,7 @@ import org.portfolio.userland.features.user.dto.common.EnFrontendFramework;
  * @param frontend Used frontend framework.
  */
 @Builder(toBuilder = true)
-@Schema(description = "Payload required to register a new user.")
+@Schema(description = "Payload required to activate user.")
 public record UserActivateReq(
   @ValidToken
   @Schema(description = "Token string.", example = "J4L1wZnLiw3durFYN0WDsulcpFnoKWqg")

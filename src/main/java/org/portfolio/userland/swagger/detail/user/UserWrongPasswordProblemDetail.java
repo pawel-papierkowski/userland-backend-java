@@ -4,7 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import org.portfolio.userland.features.user.constants.UserErrCode;
 
 /**
- * Shows shape of user login error. For Swagger documentation.
+ * Shows shape of user password error. For Swagger documentation.
  */
 @Schema(name = "UserWrongPasswordProblemDetail", description = "Wrong password given")
 public record UserWrongPasswordProblemDetail(

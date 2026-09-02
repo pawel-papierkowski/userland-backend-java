@@ -8,6 +8,10 @@ import java.util.Map;
  * General custom exception. All business logic exceptions should inherit from this one.
  */
 public abstract class GeneralException extends RuntimeException {
+  /**
+   * Constructor.
+   * @param message Exception message.
+   */
   public GeneralException(String message) {
     super(message);
   }

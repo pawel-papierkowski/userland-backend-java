@@ -75,7 +75,7 @@ public record EmailReq(
 
   /**
    * Get list of recipients as single string.
-   * @return List of recipients separated by comma.
+   * @return Recipients separated by comma.
    */
   public String getRecipients() {
     if (recipients == null || recipients.isEmpty()) return "";

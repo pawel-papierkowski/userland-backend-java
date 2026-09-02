@@ -107,10 +107,11 @@ public class GcpTaskEnqueuer implements TaskEnqueuer {
   }
 
   /**
-   * Prints to console currently used GCP account.
+   * Logs currently used GCP account.
    * @throws IOException When something goes wrong.
    */
-  public void debugGetCurrentAccount() throws IOException {
+  private void debugGetCurrentAccount() throws IOException {
+    if (!log.isDebugEnabled()) return;
     GoogleCredentials credentials = GoogleCredentials.getApplicationDefault();
     switch (credentials) {
       case ServiceAccountCredentials serviceAccountCredentials -> {

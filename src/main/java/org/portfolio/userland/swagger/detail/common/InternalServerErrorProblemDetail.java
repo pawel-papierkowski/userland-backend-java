@@ -3,7 +3,7 @@ package org.portfolio.userland.swagger.detail.common;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 /**
- * Shows shape of authorization error. For Swagger documentation.
+ * Shows shape of internal error. For Swagger documentation.
  */
 @Schema(name = "InternalServerErrorProblemDetail", description = "Problem Detail for HTTP 500")
 public record InternalServerErrorProblemDetail(

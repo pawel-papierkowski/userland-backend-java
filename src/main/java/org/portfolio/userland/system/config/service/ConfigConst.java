@@ -44,7 +44,7 @@ public class ConfigConst {
 
   // FEATURE: USER
 
-  /** If present and with value 1, no user can log in, unless they have ROLE_ADMIN. */
+  /** If present and with value 1, no user can log in, unless they have ROLE_ADMIN or ROLE_OPERATOR. */
   public final static String USER_LOCKDOWN = "user.lockdown";
   public final static String USER_LOCKDOWN_DEF = FALSE; // Default for above.
 

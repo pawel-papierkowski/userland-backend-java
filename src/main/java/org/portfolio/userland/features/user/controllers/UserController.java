@@ -166,7 +166,7 @@ public class UserController {
 
   /**
    * Actually change email.
-   * @param userEmailChangeConfirmReq User email change request.
+   * @param userEmailChangeConfirmReq User email change confirmation request.
    * @return Response.
    */
   @PatchMapping(value = "/email/confirm", produces = "application/json")

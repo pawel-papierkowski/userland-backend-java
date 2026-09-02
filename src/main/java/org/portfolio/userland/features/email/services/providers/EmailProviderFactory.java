@@ -28,6 +28,7 @@ public class EmailProviderFactory {
    * fully automated - if you add new provider (service that implements <code>IntEmailProvider</code>), it will be
    * present without adding it manually.</p>
    * @param emailProviderList Spring automatically injects a list of ALL classes that implement <code>IntEmailProvider</code>.
+   * @throws IllegalStateException If duplicate provider name exists.
    */
   public EmailProviderFactory(List<IntEmailProvider> emailProviderList) {
     this.providers = emailProviderList.stream()

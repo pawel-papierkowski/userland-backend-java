@@ -8,7 +8,7 @@ import lombok.Builder;
  * <p>To convert from <code>User</code> entity to <code>UserDataResp</code>, use mapper:</p>
  * <code><pre>
  * UserDataResp userData = userMapper.userToDataResp(user);
- * UserProfileDataResp userProfileData = userProfileMapper.profileToDataResp(user.getProfile());</pre></code>
+ * UserProfileData userProfileData = userMapper.profileToData(userProfile);</pre></code>
  * @param version Optimistic locking version of user account.
  * @param username Username.
  * @param email User email.

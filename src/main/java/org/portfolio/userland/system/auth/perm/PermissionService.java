@@ -1,6 +1,5 @@
 package org.portfolio.userland.system.auth.perm;
 
-import com.google.api.client.util.Lists;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.Hibernate;
 import org.portfolio.userland.common.exception.SystemMisconfigurationException;
@@ -10,6 +9,7 @@ import org.portfolio.userland.system.auth.AuthHelper;
 import org.portfolio.userland.system.auth.details.CustomUserDetails;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -22,6 +22,7 @@ import java.util.Set;
 public class PermissionService {
   /**
    * Checks if logged-in user has correct permissions specified by permission kind.
+   * @param permKind Permission kind.
    * @return True if given user has correct permissions, otherwise false.
    */
   public boolean has(EnPermKind permKind) {
@@ -30,6 +31,7 @@ public class PermissionService {
 
   /**
    * Checks if given custom user details has correct permissions specified by permission kind.
+   * @param permKind Permission kind.
    * @param customUserDetails Custom user details.
    * @return True if given user has correct permissions, otherwise false.
    */
@@ -100,7 +102,7 @@ public class PermissionService {
    * @return Array of strings that represent permissions.
    */
   private String[] mapToArray(Map<String, Set<String>> permissionsMap) {
-    List<String> permissionsList = Lists.newArrayList();
+    List<String> permissionsList = new ArrayList<>();
     for (Map.Entry<String, Set<String>> entry : permissionsMap.entrySet()) {
       Set<String> values = entry.getValue();
       for (String permValue : values) {

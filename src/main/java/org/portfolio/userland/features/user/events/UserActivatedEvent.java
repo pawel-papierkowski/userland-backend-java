@@ -8,6 +8,7 @@ import org.portfolio.userland.features.user.dto.common.EnFrontendFramework;
  * @param username Username.
  * @param email User email.
  * @param lang User language.
+ * @param frontend Used frontend.
  */
 public record UserActivatedEvent(
     Long id,

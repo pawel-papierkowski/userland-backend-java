@@ -28,7 +28,7 @@ public class GcpTaskEnqueuerTest {
   private GcpTaskEnqueuer gcpTaskEnqueuer;
 
   /**
-   * Prepures enqueuer instance with mocked CloudTasksClient and configuration values.
+   * Prepares enqueuer instance with mocked CloudTasksClient and configuration values.
    */
   @BeforeEach
   public void setUp() {

@@ -76,7 +76,7 @@ public abstract class EntityTableHandling<R extends TableReq, E> {
   }
 
   /**
-   * View page of user config entries. Note: tableMeta can be null or partially filled - missing fields are filled
+   * View page of entries. Note: tableMeta can be null or partially filled - missing fields are filled
    * with defaults (see {@link TableHelper#prepareTableMeta(TableMetaReq)}).
    * @param req Table view request.
    * @return Page of entities.

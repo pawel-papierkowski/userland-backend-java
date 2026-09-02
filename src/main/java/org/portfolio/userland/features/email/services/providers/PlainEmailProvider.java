@@ -17,7 +17,6 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 @Slf4j
 public class PlainEmailProvider implements IntEmailProvider {
-  @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection") // IDE is dumb
   private final JavaMailSender mailSender;
 
   @Override

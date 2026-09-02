@@ -96,7 +96,7 @@ public class UserMaintenanceService {
     StopWatch stopWatch = new StopWatch("Expired JWTs Cleanup");
     LocalDateTime nowAt = clockService.getNowUTC();
 
-    // Delete tokens that expired naturally.
+    // Delete JWTs that expired naturally.
     stopWatch.start("Delete Expired JWTs");
     int deletedTokens = userJwtRepository.deleteExpiredJwts(nowAt);
     stopWatch.stop();

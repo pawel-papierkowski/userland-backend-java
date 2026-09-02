@@ -26,8 +26,8 @@ public class UserProfileAssert {
   /**
    * Assert that two user profiles are same.
    * @param comment Comment.
-   * @param actualUserProfile Actual user.
-   * @param expectedUserProfile Expected user.
+   * @param actualUserProfile Actual user profile.
+   * @param expectedUserProfile Expected user profile.
    */
   public void assertIt(String comment, UserProfile actualUserProfile, UserProfile expectedUserProfile) {
     if (actualUserProfile == expectedUserProfile) throw new IllegalArgumentException("Actual and expected user profile must be different instances!");

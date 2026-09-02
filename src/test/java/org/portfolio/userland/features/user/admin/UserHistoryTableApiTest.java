@@ -27,7 +27,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
 /**
- * Integration test for user config table viewing.
+ * Integration test for user history table viewing.
  */
 public class UserHistoryTableApiTest extends BaseUserTest {
 

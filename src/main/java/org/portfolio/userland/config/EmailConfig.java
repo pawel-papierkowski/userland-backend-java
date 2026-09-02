@@ -16,6 +16,10 @@ public class EmailConfig {
   @Value("${app.email.providers.resend.api-key}")
   private String resendApiKey;
 
+  /**
+   * Resolves Resend instance.
+   * @return New Resend instance.
+   */
   @Bean
   public Resend resend() {
     if (StringUtils.isEmpty(resendApiKey)) throw new SystemMisconfigurationException("Resend API key is not present!");

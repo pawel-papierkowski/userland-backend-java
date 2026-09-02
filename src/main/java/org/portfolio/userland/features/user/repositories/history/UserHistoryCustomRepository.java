@@ -17,7 +17,7 @@ public interface UserHistoryCustomRepository {
   Long countEntries(UserHistoryTableReq req);
 
   /**
-   * View page of user config entries. Note: tableMeta must be filled.
+   * View page of user history entries. Note: tableMeta must be filled.
    * @param req User history table view request.
    * @return Page of user history entities.
    */

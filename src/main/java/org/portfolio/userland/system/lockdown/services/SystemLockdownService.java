@@ -73,9 +73,9 @@ public class SystemLockdownService extends BaseService {
    * Activate system lockdown. Note the lockdown config variable was already set to ON by {@link #set}.
    */
   private void lockSystem() {
-    // Revoke all JWTs except ones belonging to admin users. Result is that all users (except admin) have their sessions
-    // invalidated, effectively kicking them out of system. They also cannot call any endpoint, even those that normally
-    // work without user logged in.
+    // Revoke all JWTs except ones belonging to admin/operator users. Result is that all users (except admin/operator)
+    // have their sessions invalidated, effectively kicking them out of system. They also cannot call any endpoint,
+    // even those that normally work without user logged in.
     Map<String, Set<String>> allowedPermissions = permissionService.getMap(EnPermKind.ACCESS_TO_ADMIN_PANEL);
     userJwtRepository.revokeAllTokensExcept(allowedPermissions);
 

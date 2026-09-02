@@ -58,7 +58,7 @@ public interface UserPermissionCustomRepository {
   /**
    * Adds a new user permission entry or updates an existing one.
    * @param editReq User permission entry edit request.
-   * @return Created/updated user permission entity or null if failed to update entity.
+   * @return Created/updated user permission entity.
    * @throws UserPermissionMissingException When cannot find user permission entry with given id.
    */
   default UserPermission upsert(UserPermissionEditReq editReq) {
@@ -71,7 +71,7 @@ public interface UserPermissionCustomRepository {
    * @param userId Identificator of the user owning this permission.
    * @param name   Name of the permission setting.
    * @param value  Value of the permission setting.
-   * @return Created/updated user permission entity or null if failed to update entity.
+   * @return Created/updated user permission entity.
    * @throws UserPermissionMissingException When cannot find user permission entry with given id.
    */
   UserPermission upsert(Long id, Long userId, String name, String value);

@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
  * Scheduler for users. Schedules:
  * <ul>
  *   <li>Cleanup of expired users (PENDING only).</li>
+ *   <li>Cleanup of active users (only in portfolio mode).</li>
  *   <li>Cleanup of expired tokens.</li>
  *   <li>Cleanup of expired JWT.</li>
  * </ul>

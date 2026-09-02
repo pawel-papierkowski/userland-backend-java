@@ -12,6 +12,13 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class UserConfigFactory extends BaseFactory {
+  /**
+   * Generate user config entry.
+   * @param user User.
+   * @param name Name of config entry.
+   * @param value Value of config entry.
+   * @return New user config entry.
+   */
   public UserConfig genConfig(User user, String name, String value) {
     UserConfig userConfig = new UserConfig();
     userConfig.setUuid(securityGeneratorService.uuid());

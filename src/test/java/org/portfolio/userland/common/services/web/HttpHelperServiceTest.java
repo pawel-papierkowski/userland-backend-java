@@ -48,7 +48,7 @@ public class HttpHelperServiceTest {
   }
 
   // //////////////////////////////////////////////////////////////////////////
-  // resolveClientIp (private, tested via resolveHttpParams)
+  // resolveClientIp (tested via resolveHttpParams)
 
   @Test
   public void resolveClientIpFromXffSingleEntry() {

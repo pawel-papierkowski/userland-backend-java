@@ -7,8 +7,8 @@ import org.apache.commons.lang3.StringUtils;
 
 /**
  * <p>DTO for user profile. It contains user profile data.</p>
- * <p>To convert from <code>UserProfile</code> entity to <code>UserProfileDataResp</code>, use mapper:</p>
- * <code>UserProfileDataResp resp = userProfileMapper.dataFromEntity(userProfile);</code>
+ * <p>To convert from <code>UserProfile</code> entity to <code>UserProfileData</code>, use mapper:</p>
+ * <code>UserProfileData resp = userMapper.profileToData(userProfile);</code>
  * @param name Name.
  * @param surname Surname.
  */

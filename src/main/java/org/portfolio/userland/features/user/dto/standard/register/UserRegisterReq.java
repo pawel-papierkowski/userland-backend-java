@@ -12,7 +12,7 @@ import org.portfolio.userland.features.user.dto.common.EnFrontendFramework;
 /**
  * <p>DTO for user registration. It contains minimal subset of whole User - only data needed for registration.</p>
  * <p>To convert from <code>UserRegisterReq</code> to <code>User</code> entity, use mapper:</p>
- * <code>User user = userMapper.registerReqToEntity(req);</code>
+ * <code>User user = userMapper.registerReqToUser(req);</code>
  * @param username Username.
  * @param email User email.
  * @param password User password.

@@ -41,6 +41,7 @@ public class LangSupportService {
 
   /**
    * Resolve language key for minute/minutes.
+   * @param lang Language code.
    * @param amount Amount.
    * @return Language key.
    */
@@ -50,6 +51,7 @@ public class LangSupportService {
 
   /**
    * Resolve language key for hour/hours.
+   * @param lang Language code.
    * @param amount Amount.
    * @return Language key.
    */
@@ -59,6 +61,8 @@ public class LangSupportService {
 
   /**
    * Resolve language key for time unit. Polish has pretty specific rules for end of amount.
+   * @param lang Language code.
+   * @param unit Time unit.
    * @param amount Amount.
    * @return Language key.
    */

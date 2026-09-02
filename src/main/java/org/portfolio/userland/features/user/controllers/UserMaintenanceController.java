@@ -59,7 +59,7 @@ public class UserMaintenanceController {
   }
 
   /**
-   * Cleanup of expired active users.
+   * Cleanup of idle active users. Works only in portfolio mode.
    * @return Response.
    */
   @PostMapping(value = "/activeUsers", produces = "application/json")
@@ -73,7 +73,7 @@ public class UserMaintenanceController {
           content = @Content(mediaType = "application/problem+json",
               schema = @Schema(implementation = ProblemDetail.class)))
   })
-  public ResponseEntity<Void> cleanExpiredUsers() {
+  public ResponseEntity<Void> cleanIdleActiveUsers() {
     return lockService.endpointWithLock(UserLockConst.CLEAN_ACTIVE_USERS, userMaintenanceService::cleanActiveUsers);
   }
 

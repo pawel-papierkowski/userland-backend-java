@@ -12,7 +12,7 @@ public record CannotEditUserProblemDetail(
     String type,
     @Schema(example = "Not allowed to edit this user.")
     String title,
-    @Schema(example = "404")
+    @Schema(example = "409")
     int status,
     @Schema(example = "User with id '42' cannot be edited.")
     String detail,

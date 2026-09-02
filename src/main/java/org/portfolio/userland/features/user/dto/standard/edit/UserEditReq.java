@@ -39,14 +39,20 @@ public record UserEditReq(
   @Schema(description = "User profile.")
   UserProfileData profile
 ) implements IntUserEditReq {
+  /** Identificator. Always null, as it is not used in standard user edit API. */
+  @Override
   public Long id() {
     return null; // not editable for user profile editing
   }
 
+  /** User email. Always null, as it is not used in standard user edit API. */
+  @Override
   public String email() {
     return null; // not editable for user profile editing
   }
 
+  /** Locked status. Always null, as it is not used in standard user edit API. */
+  @Override
   public Boolean locked() {
     return null; // not editable for user profile editing
   }

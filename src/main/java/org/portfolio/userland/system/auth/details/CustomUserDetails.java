@@ -146,7 +146,7 @@ public class CustomUserDetails implements UserDetails {
 
   /**
    * Check if user detail has given authority.
-   * @param authority Authorities.
+   * @param authority Authority to check.
    * @return True if user detail has authority, otherwise false.
    */
   public boolean hasAuthority(String authority) {

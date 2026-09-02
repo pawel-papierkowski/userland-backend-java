@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserConfigService extends BaseUserService {
   /**
    * Get value of configuration variable as string.
+   * @param user User.
    * @param name Name of configuration variable.
    * @param defaultValue Returns this if configuration variable is missing.
    * @return Value of configuration variable as string.
@@ -29,6 +30,7 @@ public class UserConfigService extends BaseUserService {
 
   /**
    * Get value of configuration variable as Long.
+   * @param user User.
    * @param name Name of configuration variable.
    * @param defaultValue Returns this if configuration variable is missing (null) or invalid (cannot be parsed as Long).
    * @return Value of configuration variable as Long.
@@ -51,6 +53,7 @@ public class UserConfigService extends BaseUserService {
 
   /**
    * Set configuration variable. If it does not exist, it will be created.
+   * @param user User.
    * @param name Name of configuration variable.
    * @param newValue New value of configuration variable.
    */

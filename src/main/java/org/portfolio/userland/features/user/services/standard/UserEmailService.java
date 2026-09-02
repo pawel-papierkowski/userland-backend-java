@@ -17,7 +17,7 @@ import java.time.LocalDateTime;
  * Business logic for changing email. Since it is highly sensitive operation (email acts as the user's login and
  * recovery method), process is somewhat involved:
  * <ul>
- *   <li>On frontend user muse be logged. Option to change email should be on profile edit page or similar.</li>
+ *   <li>On frontend user must be logged. Option to change email should be on profile edit page or similar.</li>
  *   <li>Request: in payload we require both new email address and current password.</li>
  *   <li>Backend verifies password and if new email is already present. In both cases returns same error to prevent email enumeration attack.</li>
  *   <li>Backend creates token and sends TWO emails: warning for old account and email change confirmation link to the new account.</li>

@@ -31,7 +31,7 @@ import java.io.IOException;
  * <p>Notes:</p>
  * <ul>
  *   <li>Ensure this filter happens after <code>JwtAuthFilter</code> in <code>SecurityConfig</code>.</li>
- *   <li>Users with admin permissions are exempt from lockdown.</li>
+ *   <li>Users with admin or operator permissions are exempt from lockdown.</li>
  *   <li>GCP endpoints are exempt from lockdown.</li>
  * </ul>
  * @see JwtAuthFilter
@@ -80,7 +80,7 @@ public class LockdownFilter extends OncePerRequestFilter {
     }
 
     // We have system lockdown, but there are exceptions!
-    if (permissionService.has(EnPermKind.ACCESS_TO_ADMIN_PANEL)) { // Admin users are allowed in.
+    if (permissionService.has(EnPermKind.ACCESS_TO_ADMIN_PANEL)) { // Users of admin panel are allowed in.
       filterChain.doFilter(request, response);
       return;
     }
@@ -100,7 +100,7 @@ public class LockdownFilter extends OncePerRequestFilter {
   }
 
   /**
-   * Cause system lockdown exception that will be properly handled by <code>GlobalExceptionHandler</code>.
+   * Cause system or user lockdown exception that will be properly handled by <code>GlobalExceptionHandler</code>.
    * @param request Request.
    * @param response Response.
    * @param email User email. Can be null or empty.

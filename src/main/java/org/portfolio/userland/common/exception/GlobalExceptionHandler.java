@@ -39,7 +39,8 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
   /**
    * Handle general exceptions specific for this application.
    * @param ex General custom exception.
-   * @return Problem detail.
+   * @param request Web request.
+   * @return Response entity that contains problem detail.
    */
   @ExceptionHandler(GeneralException.class)
   public ResponseEntity<ProblemDetail> handleGeneralException(GeneralException ex, WebRequest request) {
@@ -155,6 +156,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
   /**
    * Catch all uncaught exceptions to process it properly.
    * @param ex Exception.
+   * @param request Web request.
    * @return Problem detail.
    */
   @ExceptionHandler(Exception.class)
@@ -181,7 +183,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
    * @param headers – The headers to be written to the response.
    * @param status – The selected response status.
    * @param request – The current request.
-   * @return Problem detail.
+   * @return Response entity.
    */
   @Override
   protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
@@ -207,7 +209,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
    * @param headers – The headers to be written to the response.
    * @param status – The selected response status.
    * @param request – The current request.
-   * @return Problem detail.
+   * @return Response entity.
    */
   @Override
   protected ResponseEntity<Object> handleHandlerMethodValidationException(HandlerMethodValidationException ex, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
@@ -242,7 +244,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
   /**
    * Resolve headers based on custom headers data in exception.
    * @param ex Exception.
-   * @return List of HTTP headers.
+   * @return HTTP headers.
    */
   private HttpHeaders resolveHeaders(GeneralException ex) {
     if (ex.getCustomHeaders().isEmpty()) return HttpHeaders.EMPTY;

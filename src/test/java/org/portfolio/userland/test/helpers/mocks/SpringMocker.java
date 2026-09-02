@@ -23,8 +23,6 @@ public class SpringMocker {
    *     false, // locked
    *     "Jan Kowalski", // username
    *     "jan.kowalski@google.com", // email
-   *     "", // password
-   *     Set.of(), // JWTs
    *     List.of(new SimpleGrantedAuthority("ROLE_OPERATOR")) // authorities
    *   );
    *   SpringMocker.mockAuth(customUserDetails);

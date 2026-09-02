@@ -46,7 +46,7 @@ public class UserEditService extends BaseUserService {
   /**
    * Generate response.
    * @param user Updated user entity.
-   * @param userProfile Updated user profile entity. Can be null if no changes happened.
+   * @param userProfile Updated user profile entity. Can be skipped (set null) if no changes happened in profile.
    * @return Updated user data.
    */
   private UserDataResp resolveResponse(User user, UserProfile userProfile) {

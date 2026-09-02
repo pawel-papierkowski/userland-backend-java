@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 /**
  * Transactional part of user session prolongation. Persists results of successful prolongation: revokes old JWT
  * entries, saves new JWT entry and prolongation history event.
- * <p>It is separated from {@link UserLoginService} so JWT generation can run outside of transaction and not hold
+ * <p>It is separated from {@link UserProlongService} so JWT generation can run outside of transaction and not hold
  * a database connection.</p>
  */
 @Service

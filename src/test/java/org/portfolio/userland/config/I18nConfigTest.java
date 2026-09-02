@@ -29,8 +29,8 @@ public class I18nConfigTest extends BaseIntegrationTest {
     String expectedTitleEn = "This is title of email";
     String expectedTitlePl = "To jest tytuł emaila";
     String expectedTitleRu = "This is title of email"; // RU is unknown to us, so it should fall back to EN
-    assertThat(actualTitleEn).isEqualTo(expectedTitleEn);
-    assertThat(actualTitlePl).isEqualTo(expectedTitlePl);
-    assertThat(actualTitleRu).isEqualTo(expectedTitleRu);
+    assertThat(actualTitleEn).as("Incorrect title for 'en'.").isEqualTo(expectedTitleEn);
+    assertThat(actualTitlePl).as("Incorrect title for 'pl'.").isEqualTo(expectedTitlePl);
+    assertThat(actualTitleRu).as("Incorrect title for 'ru'.").isEqualTo(expectedTitleRu);
   }
 }

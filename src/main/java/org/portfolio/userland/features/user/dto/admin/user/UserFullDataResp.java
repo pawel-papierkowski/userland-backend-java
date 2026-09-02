@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
  * <p>To convert from <code>User</code> entity to <code>UserFullDataResp</code>, use mapper:</p>
  * <code><pre>
  * UserFullDataResp userData = userMapper.userToFullDataResp(user);
- * UserProfileDataResp userProfileData = userProfileMapper.profileToDataResp(profile);</pre></code>
+ * UserProfileData userProfileData = userMapper.profileToData(profile);</pre></code>
  *
  * @param id User identificator.
  * @param createdAt Creation date&time.

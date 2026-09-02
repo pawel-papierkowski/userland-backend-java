@@ -208,7 +208,7 @@ public class UserAdminController {
   /**
    * View user history table data. Request contains filtering and other (pagination, sorting) data needed to return
    * correct results.
-   * @param tableReq User config table view request.
+   * @param tableReq User history table view request.
    * @return Response.
    */
   @HasUserViewPermission

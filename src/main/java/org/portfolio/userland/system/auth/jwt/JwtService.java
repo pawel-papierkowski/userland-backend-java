@@ -116,7 +116,7 @@ public class JwtService extends BaseService {
    * Convert user data to claims. Custom claims:
    * <ul>
    *   <li>name - name of user</li>
-   *   <li>perm - permissions</li>
+   *   <li>perms - permissions</li>
    * </ul>
    * @param user User data.
    * @return Claims as <code>Map</code>.

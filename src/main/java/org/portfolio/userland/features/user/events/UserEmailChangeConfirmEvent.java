@@ -1,7 +1,7 @@
 package org.portfolio.userland.features.user.events;
 
 /**
- * Event for password reset confirmation.
+ * Event for email change confirmation.
  * @param id User identificator.
  * @param username Username.
  * @param email User email.

@@ -3,7 +3,7 @@ package org.portfolio.userland.common.exception;
 import org.springframework.http.HttpStatus;
 
 /**
- * Exception used in "this should never happen" guards. It is just fancier IllegalStateException.
+ * Exception used in "this should never happen" guards. It is just fancier <code>IllegalStateException</code>.
  * <p>If it is thrown, something is very, very wrong.</p>
  */
 public class ShouldNeverHappenException extends GeneralException {

@@ -83,6 +83,7 @@ public class UserAssert {
 
   /**
    * Assert all configuration entries.
+   * @param comment Comment.
    * @param actualConfigs Actual configuration entries.
    * @param expectedConfigs Expected configuration entries.
    */
@@ -97,6 +98,7 @@ public class UserAssert {
 
   /**
    * Assert one configuration entry.
+   * @param comment Comment.
    * @param ix Index.
    * @param actualConfig Actual configuration entry.
    * @param expectedConfig Expected configuration entry.
@@ -116,6 +118,7 @@ public class UserAssert {
 
   /**
    * Assert all history events.
+   * @param comment Comment.
    * @param actualHistory Actual history.
    * @param expectedHistory Expected history.
    */
@@ -130,6 +133,7 @@ public class UserAssert {
 
   /**
    * Assert one history event.
+   * @param comment Comment.
    * @param ix Index.
    * @param actualHistoryEvent Actual history event.
    * @param expectedHistoryEvent Expected history event.
@@ -149,6 +153,7 @@ public class UserAssert {
 
   /**
    * Assert all token entries.
+   * @param comment Comment.
    * @param actualTokens Actual token entries.
    * @param expectedTokens Expected token entries.
    */
@@ -163,6 +168,7 @@ public class UserAssert {
 
   /**
    * Assert one token entry.
+   * @param comment Comment.
    * @param ix Index.
    * @param actualToken Actual token entry.
    * @param expectedToken Expected token entry.
@@ -185,6 +191,7 @@ public class UserAssert {
 
   /**
    * Assert all JWT entries.
+   * @param comment Comment.
    * @param actualJwts Actual JWT entries.
    * @param expectedJwts Expected JWT entries.
    */
@@ -202,6 +209,7 @@ public class UserAssert {
 
   /**
    * Assert one JWT entry.
+   * @param comment Comment.
    * @param ix Index.
    * @param actualJwt Actual JWT entry.
    * @param expectedJwt Expected JWT entry.
@@ -220,6 +228,7 @@ public class UserAssert {
 
   /**
    * Assert all permission entries.
+   * @param comment Comment.
    * @param actualPermissions Actual permission entries.
    * @param expectedPermissions Expected permission entries.
    */
@@ -237,6 +246,7 @@ public class UserAssert {
 
   /**
    * Assert one permission entry.
+   * @param comment Comment.
    * @param ix Index.
    * @param actualPermission Actual permission entry.
    * @param expectedPermission Expected permission entry.
@@ -256,10 +266,10 @@ public class UserAssert {
 
   /**
    * Convert set to sorted list, using given comparator for stable sorting.
+   * @param <T> Type of set and resulting list.
    * @param set Set.
    * @param comparator For sorting.
    * @return Set as sorted list.
-   * @param <T> Type of set and resulting list.
    */
   private <T> List<T> convert(Set<T> set, Comparator<? super T> comparator) {
     return set.stream().sorted(comparator).toList();

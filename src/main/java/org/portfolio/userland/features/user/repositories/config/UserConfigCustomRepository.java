@@ -48,7 +48,7 @@ public interface UserConfigCustomRepository {
   /**
    * Adds a new user config entry or updates an existing one.
    * @param editReq User config entry edit request.
-   * @return Created/updated user config entity or null if failed to update entity.
+   * @return Created/updated user config entity.
    * @throws UserConfigMissingException When cannot find user config entry with given id.
    */
   default UserConfig upsert(UserConfigEditReq editReq) {
@@ -61,7 +61,7 @@ public interface UserConfigCustomRepository {
    * @param userId Identificator of the user owning this config.
    * @param name   Name of the config setting.
    * @param value  Value of the config setting.
-   * @return Created/updated user config entity or null if failed to update entity.
+   * @return Created/updated user config entity.
    * @throws UserConfigMissingException When cannot find user config entry with given id.
    */
   UserConfig upsert(Long id, Long userId, String name, String value);

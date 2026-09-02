@@ -227,8 +227,8 @@ public abstract class BaseUserService extends BaseService {
    * Add JWT entry to user and save it.
    * @param user User.
    * @param nowAt Current date&time.
-   * @param customExpiration Custom expiration in minutes. Can be null, will use default expiration.
    * @param jwtStr JWT string.
+   * @param customExpiration Custom expiration in minutes. Can be null, will use default expiration.
    */
   protected void addJwtEntry(User user, LocalDateTime nowAt, String jwtStr, Long customExpiration) {
     UserJwt jwtEntry = createJwtEntry(nowAt, jwtStr, customExpiration);
@@ -298,7 +298,8 @@ public abstract class BaseUserService extends BaseService {
    * Change user/user profile data.
    * @param userEditReq User data to change.
    * @param user User entity.
-   * @return History event params.
+   * @param userProfile User profile.
+   * @return Updated user.
    */
   protected User updateUserData(IntUserEditReq userEditReq, User user, UserProfile userProfile) {
     boolean userPresent = userEditReq.userPresent();

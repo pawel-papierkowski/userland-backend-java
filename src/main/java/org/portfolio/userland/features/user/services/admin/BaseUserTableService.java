@@ -13,6 +13,9 @@ import org.portfolio.userland.system.auth.perm.EnPermKind;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * For user subtable services.
+ */
 public class BaseUserTableService extends BaseUserService {
   /**
    * Verify request. Any error will cause exception.

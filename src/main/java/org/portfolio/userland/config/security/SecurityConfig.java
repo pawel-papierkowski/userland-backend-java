@@ -240,7 +240,7 @@ public class SecurityConfig {
   // SUPPORTING BEANS
 
   /**
-   * Conditionally adds the rate limit filter before the JWT auth filter.
+   * Conditionally adds the rate limit filter before the authentication filter.
    * <p>If {@link RateLimitFilter} is not available (e.g. in slice tests), this is a no-op.</p>
    * @param http HTTP security data.
    */
