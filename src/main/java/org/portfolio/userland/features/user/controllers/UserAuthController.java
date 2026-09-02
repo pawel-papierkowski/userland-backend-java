@@ -87,8 +87,7 @@ public class UserAuthController {
   @Operation(summary = "Prolong user session", description = "You can re-generate JWT provided you have old JWT that is still valid. After successful prolongation, use newly generated JWT. Old JWT is revoked.")
   @ApiResponsesAuth
   @ApiResponses(value = {
-      @ApiResponse(responseCode = "200", description = "Prolongation was successful.",
-          content = @Content(schema = @Schema(hidden = true)))
+      @ApiResponse(responseCode = "200", description = "Prolongation was successful.")
   })
   public ResponseEntity<UserProlongResp> prolong() {
     UserProlongResp resp = userProlongService.prolong();

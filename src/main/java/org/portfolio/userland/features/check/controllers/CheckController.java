@@ -116,6 +116,7 @@ public class CheckController {
   @HasAdminPermission
   @GetMapping(value = "/pretendWork", produces = "application/json")
   @Operation(summary = "Pretend work", description = "Will do pretend work for 30 seconds. If you call it too soon, will return 423 Locked.")
+  @ApiResponsesAuthPerm
   @ApiResponses(value = {
       @ApiResponse(responseCode = "200", description = "Call successful.",
           content = @Content(schema = @Schema(hidden = true))),
