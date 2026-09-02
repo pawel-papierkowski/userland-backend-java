@@ -5,13 +5,18 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Builder;
-import org.apache.commons.lang3.StringUtils;
 import org.portfolio.userland.common.constants.ValidConst;
+import org.portfolio.userland.features.user.dto.common.IntUserEditReq;
 import org.portfolio.userland.features.user.dto.common.UserProfileData;
 
 /**
- * Provides user and user profile data to change. Any field except <code>id</code> and <code>version</code> is optional -
- * null simply means given field is skipped.
+ * Provides user and user profile data to change.
+ * <p>Notes:</p>
+ * <ul>
+ *   <li>All fields except <code>id</code> and <code>version</code> can be null, in this case given field will be ignored.</li>
+ *   <li>Field <code>version</code> is used for optimistic locking. It must contain version as returned by last read
+ *   of user data. If data was modified in the meantime, request fails with 409 Conflict.</li>
+ * </ul>
  *
  * @param id Identificator of user.
  * @param version Optimistic locking version of user account.
@@ -22,7 +27,7 @@ import org.portfolio.userland.features.user.dto.common.UserProfileData;
  * @param profile New user profile data.
  */
 @Builder(toBuilder = true)
-@Schema(description = "Request for user and user profile data. All fields except id and version are optional.")
+@Schema(description = "Request for editing user and user profile data. All fields except id and version are optional.")
 public record UserFullDataReq(
     @NotNull(message = "User identificator must be provided")
     @Schema(description = "Identificator of user.")
@@ -49,25 +54,5 @@ public record UserFullDataReq(
 
     @Schema(description = "User profile.")
     UserProfileData profile
-) {
-    /**
-     * Check if at least one field of user data is not empty.
-     * @return True if at least one field is not empty, otherwise false.
-     */
-    public boolean userPresent() {
-        if (StringUtils.isNotEmpty(username)) return true;
-        if (StringUtils.isNotEmpty(email)) return true;
-        if (locked != null) return true;
-        if (StringUtils.isNotEmpty(lang)) return true;
-        return false;
-    }
-
-    /**
-     * Check if at least one field of user profile data is not empty.
-     * @return True if at least one field is not empty, otherwise false.
-     */
-    public boolean userProfilePresent() {
-        if (profile == null) return false;
-        return profile.userProfilePresent();
-    }
+) implements IntUserEditReq {
 }

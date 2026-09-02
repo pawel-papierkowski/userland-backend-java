@@ -1,5 +1,7 @@
 package org.portfolio.userland.features.user.services;
 
+import org.apache.commons.lang3.StringUtils;
+import org.portfolio.userland.features.user.dto.common.IntUserEditReq;
 import org.portfolio.userland.features.user.entities.*;
 import org.portfolio.userland.features.user.exceptions.*;
 import org.portfolio.userland.features.user.mappers.UserMapper;
@@ -17,6 +19,8 @@ import org.springframework.dao.DataIntegrityViolationException;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
+import java.util.Set;
+import java.util.TreeSet;
 
 /**
  * Base for all user services.
@@ -288,5 +292,92 @@ public abstract class BaseUserService extends BaseService {
    */
   protected void verifyVersion(Long reqVersion, User user) {
     if (!reqVersion.equals(user.getVersion())) throw new UserDataStaleException(user.getId(), reqVersion, user.getVersion());
+  }
+
+  /**
+   * Change user/user profile data.
+   * @param userEditReq User data to change.
+   * @param user User entity.
+   * @return History event params.
+   */
+  protected User updateUserData(IntUserEditReq userEditReq, User user, UserProfile userProfile) {
+    boolean userPresent = userEditReq.userPresent();
+    boolean userProfilePresent = userEditReq.userProfilePresent();
+
+    Set<String> changedFields = new TreeSet<>(); // we need deterministic ordering
+    if (userPresent || userProfilePresent) {
+      if (userPresent) updateUser(userEditReq, user, changedFields);
+      if (userProfilePresent) updateUserProfile(userEditReq, userProfile, changedFields);
+
+      // possible to skip this if we "changed" fields to same value
+      if (!changedFields.isEmpty()) {
+        // Note: modifiedAt is normally maintained automatically by JPA auditing, but here we set it explicitly because
+        // (a) auditing stamps the field only at flush time, which is too late - response below is built from the
+        //     in-memory entity and must carry the new value already;
+        // (b) auditing cannot see changes to UserProfile (separate entity), yet business rules require bumping
+        //     modifiedAt when profile changes. Setting the field explicitly also guarantees an UPDATE is issued.
+        LocalDateTime nowAt = clockService.getNowUTC();
+        user.setModifiedAt(nowAt);
+        try {
+          user = userRepository.save(user);
+          if (userProfilePresent) userProfileRepository.save(userProfile);
+          // Version is incremented by Hibernate only at flush time (like auditing timestamps), which would be too late -
+          // response below is built from the in-memory entities and must already carry the new versions.
+          userRepository.flush();
+        } catch (DataIntegrityViolationException ex) {
+          // The existsByEmail check in verifyRequest() was only a fast path - the real guard is the unique constraint
+          // on users.email. We lost a race against a concurrent change that took this email first. Abort transaction
+          // immediately (persistence context is inconsistent).
+          throw new UserEmailAlreadyExistsException(userEditReq.email());
+        }
+        addHistoryEvent(user, nowAt, EnUserHistoryWho.OPERATOR, EnUserHistoryWhat.EDIT, String.join(", ", changedFields));
+      }
+    }
+
+    // If email changed, we need to clear all JWTs.
+    if (changedFields.contains("email")) userJwtRepository.deleteAllByUser(user.getId());
+    return user;
+  }
+
+  /**
+   * Actually change user data.
+   * @param userFullDataReq User data to change.
+   * @param user User entity.
+   * @param changedFields Set of affected fields.
+   */
+  private void updateUser(IntUserEditReq userFullDataReq, User user, Set<String> changedFields) {
+    if (StringUtils.isNotEmpty(userFullDataReq.username()) && !userFullDataReq.username().equals(user.getUsername())) {
+      user.setUsername(userFullDataReq.username());
+      changedFields.add("username");
+    }
+    if (StringUtils.isNotEmpty(userFullDataReq.email()) && !userFullDataReq.email().equals(user.getEmail())) {
+      user.setEmail(userFullDataReq.email());
+      changedFields.add("email");
+    }
+    if (userFullDataReq.locked() != null && !userFullDataReq.locked().equals(user.getLocked())) {
+      user.setLocked(userFullDataReq.locked());
+      changedFields.add(userFullDataReq.locked() ? "locked" : "unlocked");
+    }
+    if (StringUtils.isNotEmpty(userFullDataReq.lang()) && !userFullDataReq.lang().equals(user.getLang())) {
+      user.setLang(userFullDataReq.lang());
+      changedFields.add("lang");
+    }
+  }
+
+  /**
+   * Actually change user profile data.
+   * @param userFullDataReq User data to change.
+   * @param userProfile User profile entity.
+   * @param changedFields Set of affected fields.
+   */
+  private void updateUserProfile(IntUserEditReq userFullDataReq, UserProfile userProfile, Set<String> changedFields) {
+    if (StringUtils.isNotEmpty(userFullDataReq.profile().name()) && !userFullDataReq.profile().name().equals(userProfile.getName())) {
+      userProfile.setName(userFullDataReq.profile().name());
+      changedFields.add("name");
+    }
+    if (StringUtils.isNotEmpty(userFullDataReq.profile().surname()) && !userFullDataReq.profile().surname().equals(userProfile.getSurname())) {
+      userProfile.setSurname(userFullDataReq.profile().surname());
+      changedFields.add("surname");
+    }
   }
 }
