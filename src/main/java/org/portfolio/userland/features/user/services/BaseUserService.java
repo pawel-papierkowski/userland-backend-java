@@ -2,6 +2,7 @@ package org.portfolio.userland.features.user.services;
 
 import org.apache.commons.lang3.StringUtils;
 import org.portfolio.userland.features.user.dto.common.IntUserEditReq;
+import org.portfolio.userland.features.user.dto.standard.edit.UserEditReq;
 import org.portfolio.userland.features.user.entities.*;
 import org.portfolio.userland.features.user.exceptions.*;
 import org.portfolio.userland.features.user.mappers.UserMapper;
@@ -331,7 +332,7 @@ public abstract class BaseUserService extends BaseService {
           // immediately (persistence context is inconsistent).
           throw new UserEmailAlreadyExistsException(userEditReq.email());
         }
-        addHistoryEvent(user, nowAt, EnUserHistoryWho.OPERATOR, EnUserHistoryWhat.EDIT, String.join(", ", changedFields));
+        addHistoryEvent(user, nowAt, resolveWho(userEditReq), EnUserHistoryWhat.EDIT, String.join(", ", changedFields));
       }
     }
 
@@ -380,5 +381,15 @@ public abstract class BaseUserService extends BaseService {
       userProfile.setSurname(userFullDataReq.profile().surname());
       changedFields.add("surname");
     }
+  }
+
+  /**
+   * Determine who is responsible for this user edit for history.
+   * @param userEditReq Instance of user edit request.
+   * @return Who edited user.
+   */
+  private EnUserHistoryWho resolveWho(IntUserEditReq userEditReq) {
+    if (userEditReq instanceof UserEditReq) return EnUserHistoryWho.USER;
+    return EnUserHistoryWho.OPERATOR;
   }
 }

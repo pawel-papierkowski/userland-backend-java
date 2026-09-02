@@ -73,7 +73,7 @@ You can think of it as baseline for other projects, as almost any project, syste
 
 ### Security
 
-- Critical endpoints (subjected to brute force attempts) have strict rate limiting.
+- Critical endpoints (subjected to brute force attempts, like `/api/users/login`) have strict rate limiting.
 - Instant revocation of JWT (so also permission enforcement) and instant enforcement of locked user.
   Only lockdown enforcement can be slightly delayed (system config table in DB is cached with 20s TTL).
 - System uses JWT for all API requests that require security (for example, some endpoints require admin panel access permissions).
@@ -149,11 +149,13 @@ You need to configure environment variables for your run configuration. Most var
     - `SPRING_DATASOURCE_PASSWORD`=[YOUR PASSWORD FOR ACCOUNT ABOVE]
     - `SPRING_DOCKER_COMPOSE_ENABLED`=false
 
+Additionally, you will need to add Maven goal `generate-resources` to run configurations (best place are Spring Boot and Test templates) before running anything.
+Reason: there is `build-info` execution in POM, needed to generate `META-INF/build-info.properties`.
+
 ## Testing
 
 If you run test deployment locally via `TestUserLandApplication`, you need Docker engine running on your computer.
 Same with running tests in general.
-Additionally, you will need to add Maven goal `generate-resources` to run configuration before running any tests (caused by `build-info` execution in POM, needed to generate `META-INF/build-info.properties`).
 
 ### Commands
 
