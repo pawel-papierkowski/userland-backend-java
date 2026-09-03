@@ -32,7 +32,7 @@ public class LockdownFilterTest {
 
   @BeforeEach
   void setup() {
-    // Clear context amd reset mocks before each test.
+    // Clear context and reset mocks before each test.
     SecurityContextHolder.clearContext();
     handlerExceptionResolver = mock(HandlerExceptionResolver.class);
     configService = mock(ConfigService.class);

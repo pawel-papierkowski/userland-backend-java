@@ -47,7 +47,7 @@ public record EmailReq(
     @Schema(description = "Recipient address(es), hidden copy.", example = "[\"john.doe@example.com\"]")
     List<@Email(regexp = ValidConst.EMAIL_REGEXPR, message = "Must be a valid email address") @Valid String> recipientsBcc,
 
-    @Pattern(regexp = ValidConst.EMAIL_OR_EMPTY_REG_EXPR, message = "Must be a valid email address")
+    @Pattern(regexp = ValidConst.EMAIL_OR_EMPTY_REG_EXPR, message = "Must be a valid email address or null/empty.")
     @Schema(description = "Address of reply. Can be null/empty.", example = "support@example.com")
     String replyTo,
 

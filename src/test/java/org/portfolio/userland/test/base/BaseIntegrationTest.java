@@ -59,7 +59,7 @@ public abstract class BaseIntegrationTest {
   /** Used to set arbitrary date&time during tests. */
   @Autowired
   protected MutableClock clock;
-  /** For specific tasks like flushing cache. */
+  /** For specific tasks like flushing the persistence context. */
   @Autowired
   protected EntityManager entityManager;
   @Autowired

@@ -22,8 +22,8 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 /**
- * Verifies if UserEmailService constructs correct EmailReq and calls emailService based on event data.
- * Note: methods of this service are called from appropriate events.
+ * Verifies if <code>UserSendEmailService</code> constructs correct <code>EmailReq</code> and calls <code>emailService</code>
+ * based on event data. Note: methods of this service are called from appropriate events.
  */
 public class UserSendEmailTest extends BaseUserTest {
   @Autowired
@@ -101,7 +101,7 @@ public class UserSendEmailTest extends BaseUserTest {
     // Act: Send 'user activated' email.
     userSendEmailService.sendActivatedEmail(event);
 
-    // Assert: Email (confirmation of account activate) was sent.
+    // Assert: Email (confirmation of account activation) was sent.
     await().atMost(Duration.ofSeconds(3)).untilAsserted(() -> {
       ArgumentCaptor<EmailReq> captor = ArgumentCaptor.forClass(EmailReq.class);
       verify(emailService, times(1)).queueEmail(captor.capture());
@@ -144,7 +144,7 @@ public class UserSendEmailTest extends BaseUserTest {
     // Act: Send 'already registered' email.
     userSendEmailService.sendAlreadyRegisteredEmail(event);
 
-    // Assert: Email (confirmation of account activate) was sent.
+    // Assert: Email (already registered) was sent.
     await().atMost(Duration.ofSeconds(3)).untilAsserted(() -> {
       ArgumentCaptor<EmailReq> captor = ArgumentCaptor.forClass(EmailReq.class);
       verify(emailService, times(1)).queueEmail(captor.capture());
@@ -256,10 +256,10 @@ public class UserSendEmailTest extends BaseUserTest {
         "other@example.com"
     );
 
-    // Act: Send email change request emails. Will send two emails: warning and link.
+    // Act: Send email change fail emails. Will send two emails: warning and link.
     userSendEmailService.sendEmailChangeFail(event);
 
-    // Assert: Both emails (warning about email change and link to email change page) were sent.
+    // Assert: Both emails (warning for both new and old address) were sent.
     await().atMost(Duration.ofSeconds(3)).untilAsserted(() -> {
       ArgumentCaptor<EmailReq> captor = ArgumentCaptor.forClass(EmailReq.class);
       verify(emailService, times(2)).queueEmail(captor.capture());
@@ -319,7 +319,7 @@ public class UserSendEmailTest extends BaseUserTest {
         "en"
     );
 
-    // Act: Send password reset confirm email.
+    // Act: Send email change confirm email.
     userSendEmailService.sendEmailChangeConfirm(event);
 
     // Assert: Email (password reset confirmation) was sent.

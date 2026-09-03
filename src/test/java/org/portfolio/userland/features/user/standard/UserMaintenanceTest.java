@@ -204,13 +204,13 @@ public class UserMaintenanceTest extends BaseUserTest {
     entityManager.flush();
     entityManager.clear();
 
-    // Act: manually call scheduler method for cleaning up expired tokens.
+    // Act: manually call scheduler method for cleaning up expired JWTs.
     clock.setFixedTime("2026-04-11T12:30:00Z");
     userScheduler.cleanExpiredJwts();
 
-    // Assert: only one token should exist, rest is deleted.
+    // Assert: only one JWT should exist, rest is deleted.
     assertThat(userJwtRepository.count()).as("Count of all user JWTs is wrong").isEqualTo(1);
-    // Make sure correct token survived.
+    // Make sure correct JWT survived.
     UserJwt userJwt = userJwtRepository.findAll().getFirst();
     assertThat(userJwt.getUser().getId()).as("Wrong user id for JWT").isEqualTo(u3.getId());
   }

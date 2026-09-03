@@ -52,7 +52,7 @@ public class UserHistory {
   @Enumerated(EnumType.STRING)
   private EnUserHistoryWho who;
 
-  /** What caused history event? */
+  /** What history event it is? */
   @Column(nullable = false)
   @Enumerated(EnumType.STRING)
   private EnUserHistoryWhat what;

@@ -45,7 +45,7 @@ public class PermissionService {
    * Checks if given user permissions are compatible with given permission kind.
    * @param permKind Permission kind.
    * @param userPermissions User permissions.
-   * @return True if given user has correct permissions, otherwise false.
+   * @return True if the given permissions satisfy the permission kind.
    */
   public boolean has(EnPermKind permKind, Set<UserPermission>  userPermissions) {
     if (userPermissions == null || userPermissions.isEmpty()) return false;

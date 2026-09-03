@@ -29,7 +29,7 @@ public class UserAdminFactory extends BaseFactory {
   /**
    * Create user table entries based on user entities.
    * @param entities List of user entities.
-   * @return List ot user table entries.
+   * @return List of user table entries.
    */
   public List<UserTableEntry> genUserTableEntries(List<User> entities) {
     List<UserTableEntry> entries = new ArrayList<>();
@@ -89,7 +89,7 @@ public class UserAdminFactory extends BaseFactory {
    * Create user config table entries based on user config entities.
    * @param entities List of user config entities.
    * @param meta Metadata for all entries.
-   * @return List ot user config table entries.
+   * @return List of user config table entries.
    */
   public List<UserConfigTableEntry> genUserConfigTableEntries(List<UserConfig> entities, EntryMetaResp meta) {
     List<UserConfigTableEntry> entries = new ArrayList<>();
@@ -122,7 +122,7 @@ public class UserAdminFactory extends BaseFactory {
   /**
    * Create user history table entries based on user history events.
    * @param entities List of user history events.
-   * @return List ot user history table entries.
+   * @return List of user history table entries.
    */
   public List<UserHistoryTableEntry> genUserHistoryTableEntries(List<UserHistory> entities) {
     List<UserHistoryTableEntry> entries = new ArrayList<>();
@@ -155,7 +155,7 @@ public class UserAdminFactory extends BaseFactory {
    * Create user permission table entries based on user permission entities.
    * @param entities Set of user permission entities.
    * @param meta Metadata for all entries.
-   * @return List ot user permission table entries.
+   * @return List of user permission table entries.
    */
   public List<UserPermissionTableEntry> genUserPermissionTableEntries(Set<UserPermission> entities, EntryMetaResp meta) {
     // We need consistent order.
@@ -190,7 +190,7 @@ public class UserAdminFactory extends BaseFactory {
   /**
    * Create user token table entries based on user token entities.
    * @param entities List of user token entities.
-   * @return List ot user token table entries.
+   * @return List of user token table entries.
    */
   public List<UserTokenTableEntry> genUserTokenTableEntries(List<UserToken> entities) {
     List<UserTokenTableEntry> entries = new ArrayList<>();
@@ -222,7 +222,7 @@ public class UserAdminFactory extends BaseFactory {
   /**
    * Create user JWT table entries based on user JWT entities.
    * @param entities Set of user JWT entities.
-   * @return List ot user JWT table entries.
+   * @return List of user JWT table entries.
    */
   public List<UserJwtTableEntry> genUserJwtTableEntries(Set<UserJwt> entities) {
     // We need consistent order.

@@ -239,8 +239,7 @@ public class UserController {
    * Sends email with account deletion link.
    * <p>Note: no difference between production and other builds is needed, because enumeration attack is impossible here:
    * endpoint requires being logged in and sends email for logged account. Similarly, token being already present won't
-   * mean anything.
-   * enumeration attac</p>
+   * mean anything.</p>
    * @param userDeleteLinkReq User deletion link request.
    * @return Response.
    */

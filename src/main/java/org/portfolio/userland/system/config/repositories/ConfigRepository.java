@@ -9,7 +9,7 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 /**
- * Database interface for project configuration.
+ * Database interface for system configuration.
  */
 @Repository
 public interface ConfigRepository extends JpaRepository<Config, Long> {

@@ -16,7 +16,7 @@ import org.springframework.util.StopWatch;
 import java.time.LocalDateTime;
 
 /**
- * User maintenance service.
+ * User maintenance service. Handles cleanup of expired pending users, idle active users, expired tokens, and expired JWTs.
  */
 @Service
 @RequiredArgsConstructor

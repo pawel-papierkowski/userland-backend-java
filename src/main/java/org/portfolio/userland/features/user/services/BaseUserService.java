@@ -343,42 +343,42 @@ public abstract class BaseUserService extends BaseService {
 
   /**
    * Actually change user data.
-   * @param userFullDataReq User data to change.
+   * @param userEditReq User data to change.
    * @param user User entity.
    * @param changedFields Set of affected fields.
    */
-  private void updateUser(IntUserEditReq userFullDataReq, User user, Set<String> changedFields) {
-    if (StringUtils.isNotEmpty(userFullDataReq.username()) && !userFullDataReq.username().equals(user.getUsername())) {
-      user.setUsername(userFullDataReq.username());
+  private void updateUser(IntUserEditReq userEditReq, User user, Set<String> changedFields) {
+    if (StringUtils.isNotEmpty(userEditReq.username()) && !userEditReq.username().equals(user.getUsername())) {
+      user.setUsername(userEditReq.username());
       changedFields.add("username");
     }
-    if (StringUtils.isNotEmpty(userFullDataReq.email()) && !userFullDataReq.email().equals(user.getEmail())) {
-      user.setEmail(userFullDataReq.email());
+    if (StringUtils.isNotEmpty(userEditReq.email()) && !userEditReq.email().equals(user.getEmail())) {
+      user.setEmail(userEditReq.email());
       changedFields.add("email");
     }
-    if (userFullDataReq.locked() != null && !userFullDataReq.locked().equals(user.getLocked())) {
-      user.setLocked(userFullDataReq.locked());
-      changedFields.add(userFullDataReq.locked() ? "locked" : "unlocked");
+    if (userEditReq.locked() != null && !userEditReq.locked().equals(user.getLocked())) {
+      user.setLocked(userEditReq.locked());
+      changedFields.add(userEditReq.locked() ? "locked" : "unlocked");
     }
-    if (StringUtils.isNotEmpty(userFullDataReq.lang()) && !userFullDataReq.lang().equals(user.getLang())) {
-      user.setLang(userFullDataReq.lang());
+    if (StringUtils.isNotEmpty(userEditReq.lang()) && !userEditReq.lang().equals(user.getLang())) {
+      user.setLang(userEditReq.lang());
       changedFields.add("lang");
     }
   }
 
   /**
    * Actually change user profile data.
-   * @param userFullDataReq User data to change.
+   * @param userEditReq User data to change.
    * @param userProfile User profile entity.
    * @param changedFields Set of affected fields.
    */
-  private void updateUserProfile(IntUserEditReq userFullDataReq, UserProfile userProfile, Set<String> changedFields) {
-    if (StringUtils.isNotEmpty(userFullDataReq.profile().name()) && !userFullDataReq.profile().name().equals(userProfile.getName())) {
-      userProfile.setName(userFullDataReq.profile().name());
+  private void updateUserProfile(IntUserEditReq userEditReq, UserProfile userProfile, Set<String> changedFields) {
+    if (StringUtils.isNotEmpty(userEditReq.profile().name()) && !userEditReq.profile().name().equals(userProfile.getName())) {
+      userProfile.setName(userEditReq.profile().name());
       changedFields.add("name");
     }
-    if (StringUtils.isNotEmpty(userFullDataReq.profile().surname()) && !userFullDataReq.profile().surname().equals(userProfile.getSurname())) {
-      userProfile.setSurname(userFullDataReq.profile().surname());
+    if (StringUtils.isNotEmpty(userEditReq.profile().surname()) && !userEditReq.profile().surname().equals(userProfile.getSurname())) {
+      userProfile.setSurname(userEditReq.profile().surname());
       changedFields.add("surname");
     }
   }

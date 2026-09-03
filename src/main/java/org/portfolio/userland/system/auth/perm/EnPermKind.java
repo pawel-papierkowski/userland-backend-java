@@ -8,7 +8,7 @@ public enum EnPermKind {
   ADMIN_ONLY,
   /** Can access admin panel. */
   ACCESS_TO_ADMIN_PANEL,
-  /** Can view users.*/
+  /** Can view users. */
   USER_VIEW,
   /** Can edit users. */
   USER_EDIT

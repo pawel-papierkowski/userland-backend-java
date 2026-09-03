@@ -27,7 +27,7 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 
 /**
- * Integration test for user config table viewing.
+ * Integration test for user config table CRUD.
  */
 public class UserConfigTableApiTest extends BaseUserTest {
 
@@ -340,7 +340,7 @@ public class UserConfigTableApiTest extends BaseUserTest {
 
     UserConfigTableReq req = UserConfigTableReq.builder().userId(userToCheck.getId()).build();
 
-    // Act: Try to view table page with user history.
+    // Act: Try to view table page with user configs.
     MvcResult mvcResult = mockMvc.perform(post("/api/admin/user/configs")
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(req)))

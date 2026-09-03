@@ -3,12 +3,14 @@ package org.portfolio.userland.features.user.dto.common;
 import org.apache.commons.lang3.StringUtils;
 
 /**
- * Interface for all user edit requests. Some requests can use only some fields - unused ones must return null.
+ * Interface for all user edit requests. Contains all usable user data, but you can use only some of them.
+ * If implementation does not use some field, you need to add method that always return null for that field.
+ * Obligatory fields are exception; those must be fully implemented.
  */
 public interface IntUserEditReq {
-  /** Identifier of user. */
+  /** Identifier of user. Obligatory. */
   Long id();
-  /** Version for optimistic locking. */
+  /** Version for optimistic locking. Obligatory. */
   Long version();
 
   /** Username. Can be null. */

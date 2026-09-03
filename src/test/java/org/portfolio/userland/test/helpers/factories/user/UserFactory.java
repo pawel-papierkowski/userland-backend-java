@@ -77,6 +77,7 @@ public class UserFactory extends BaseFactory {
 
   /**
    * Generate base user.
+   * @param status User status.
    * @return User.
    */
   private User genBaseUser(EnUserStatus status) {
@@ -85,6 +86,7 @@ public class UserFactory extends BaseFactory {
 
   /**
    * Generate base user.
+   * @param status User status.
    * @param username Username.
    * @param email Email.
    * @return User.
@@ -127,6 +129,7 @@ public class UserFactory extends BaseFactory {
 
   /**
    * Generate random user that is already logged in.
+   * @param permissions Permissions to add for this user. Example: <code>Map.of("role", "admin")</code>.
    * @return User with randomized data.
    */
   public User genRandUserLogged(Map<String, String> permissions) {
@@ -180,6 +183,7 @@ public class UserFactory extends BaseFactory {
   /**
    * Add given permissions to user.
    * @param user User to modify.
+   * @param permissions Permissions to add for this user. Example: <code>Map.of("role", "admin")</code>.
    */
   private void addPermissions(User user, Map<String, String> permissions) {
     for (Map.Entry<String, String> entry : permissions.entrySet()) {

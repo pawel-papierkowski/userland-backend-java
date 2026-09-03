@@ -111,7 +111,7 @@ public class UserAssert {
         .isEqualTo(expectedConfig);
 
     assertThat(actualConfig.getId()).as(comment + ": Config["+ix+"] entry id is wrong").isGreaterThan(0L);
-    assertThat(actualConfig.getUuid()).as(comment + ": Config["+ix+"] event UUID is invalid").isNotNull();
+    assertThat(actualConfig.getUuid()).as(comment + ": Config["+ix+"] entry UUID is invalid").isNotNull();
   }
 
   //
@@ -235,11 +235,11 @@ public class UserAssert {
   private void assertPermissions(String comment, Set<UserPermission> actualPermissions, Set<UserPermission> expectedPermissions) {
     assertThat(actualPermissions.size()).as(comment + ": count of permissions is wrong").isEqualTo(expectedPermissions.size());
 
-    List<UserPermission> actualJwtsList = convert(actualPermissions, USER_PERMISSION_COMPARATOR);
-    List<UserPermission> expectedJwtsList = convert(expectedPermissions, USER_PERMISSION_COMPARATOR);
-    for (int i=0; i<actualJwtsList.size(); i++) {
-      UserPermission actualPermission = actualJwtsList.get(i);
-      UserPermission expectedPermission = expectedJwtsList.get(i);
+    List<UserPermission> actualPermissionsList = convert(actualPermissions, USER_PERMISSION_COMPARATOR);
+    List<UserPermission> expectedPermissionsList = convert(expectedPermissions, USER_PERMISSION_COMPARATOR);
+    for (int i=0; i<actualPermissionsList.size(); i++) {
+      UserPermission actualPermission = actualPermissionsList.get(i);
+      UserPermission expectedPermission = expectedPermissionsList.get(i);
       assertPermissionEntry(comment, i, actualPermission, expectedPermission);
     }
   }
@@ -253,13 +253,13 @@ public class UserAssert {
    */
   private void assertPermissionEntry(String comment, int ix, UserPermission actualPermission, UserPermission expectedPermission) {
     assertThat(actualPermission)
-        .as(comment + ": Right entry has invalid state")
+        .as(comment + ": Permission entry has invalid state")
         .usingRecursiveComparison()
         .ignoringFields(USER_PERMISSION_FIELDS_IGNORE)
         .isEqualTo(expectedPermission);
 
-    assertThat(actualPermission.getId()).as(comment + ": Right["+ix+"] entry id is wrong").isGreaterThan(0L);
-    assertThat(actualPermission.getUuid()).as(comment + ": Right["+ix+"] entry UUID is invalid").isNotNull();
+    assertThat(actualPermission.getId()).as(comment + ": Permission["+ix+"] entry id is wrong").isGreaterThan(0L);
+    assertThat(actualPermission.getUuid()).as(comment + ": Permission["+ix+"] entry UUID is invalid").isNotNull();
   }
 
   //

@@ -156,7 +156,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
   }
 
   /**
-   * Catch all uncaught exceptions to process it properly.
+   * Catch all uncaught exceptions to process them properly.
    * @param ex Exception.
    * @param request Web request.
    * @return Problem detail.

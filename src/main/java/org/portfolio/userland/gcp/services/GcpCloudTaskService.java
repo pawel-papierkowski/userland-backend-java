@@ -8,12 +8,12 @@ import org.portfolio.userland.features.email.services.EmailService;
 import org.springframework.stereotype.Service;
 
 /**
- * General GCP service.
+ * Handles GCP Cloud Tasks callbacks for email delivery
  */
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class GcpService {
+public class GcpCloudTaskService {
   private final EmailService emailService;
 
   /**

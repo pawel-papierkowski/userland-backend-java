@@ -43,12 +43,12 @@ public class RateLimitConfig {
   @Bean
   public ProxyManager<String> rateLimitProxyManager() {
     RateLimitProperties.CacheProperties cacheProps = properties.cache();
-    Duration maxIdle = Duration.ofMinutes(cacheProps.expireAfterAccess());
+    Duration duration = Duration.ofMinutes(cacheProps.expireAfterWrite());
 
     return Bucket4jCaffeine.<String>builderFor(Caffeine.newBuilder()
             .maximumSize(cacheProps.maximumSize()))
         .expirationAfterWrite(
-            ExpirationAfterWriteStrategy.basedOnTimeForRefillingBucketUpToMax(maxIdle))
+            ExpirationAfterWriteStrategy.basedOnTimeForRefillingBucketUpToMax(duration))
         .build();
   }
 }

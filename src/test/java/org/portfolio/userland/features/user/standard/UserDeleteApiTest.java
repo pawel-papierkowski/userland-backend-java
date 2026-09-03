@@ -175,7 +175,7 @@ public class UserDeleteApiTest extends BaseUserTest {
       assertThat(userConfigRepository.findAll().size()).as("User configuration should be deleted").isEqualTo(0);
       assertThat(userHistoryRepository.findAll().size()).as("User history should be deleted").isEqualTo(0);
       assertThat(userTokenRepository.findAll().size()).as("User tokens should be deleted").isEqualTo(0);
-      assertThat(userJwtRepository.findAll().size()).as("User tokens should be deleted").isEqualTo(0);
+      assertThat(userJwtRepository.findAll().size()).as("User JWTs should be deleted").isEqualTo(0);
       assertThat(userPermissionRepository.findAll().size()).as("User permissions should be deleted").isEqualTo(0);
       return null;
     });

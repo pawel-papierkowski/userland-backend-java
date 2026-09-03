@@ -19,7 +19,7 @@ import java.time.LocalDateTime;
  * <ul>
  *   <li>On frontend user must be logged. Option to change email should be on profile edit page or similar.</li>
  *   <li>Request: in payload we require both new email address and current password.</li>
- *   <li>Backend verifies password and if new email is already present. In both cases returns same error to prevent email enumeration attack.</li>
+ *   <li>Backend verifies password and if new email is already present.</li>
  *   <li>Backend creates token and sends TWO emails: warning for old account and email change confirmation link to the new account.</li>
  *   <li>Link leads to special page on frontend where user can click on button. It calls email change confirmation endpoint on backend.</li>
  *   <li>Backend ensures new email was not created in meantime, updates email of user, deletes token and sends email that confirms email change.</li>
@@ -37,7 +37,7 @@ public class UserEmailService extends BaseUserService {
    * <p>Note: this method is intentionally NOT transactional. BCrypt password verification is CPU-heavy; running it
    * outside of transaction prevents holding a database connection for its duration. All database work is done
    * transactionally by {@link UserEmailTx}.</p>
-   * <p>Note: if new email does not exist, it fails silently on production to prevent email enumeration attack. Other
+   * <p>Note: if email already exists, it fails silently on production to prevent email enumeration attack. Other
    * issues (missing/locked user, invalid token) will be reported, as they are for currently logged account only.</p>
    * @param userEmailChangeLinkReq User email change request.
    */

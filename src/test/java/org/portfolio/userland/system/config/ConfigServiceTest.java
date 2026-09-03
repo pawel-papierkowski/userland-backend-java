@@ -98,7 +98,7 @@ public class ConfigServiceTest extends BaseIntegrationTest {
   public void errUpdateMissingConfigVariable() {
     // Arrange: Nothing to arrange. We are trying to update non-existent config variable.
 
-    // Act & Arrange: Try to set config variable and make sure it threw exception.
+    // Act & Assert: Try to set config variable and make sure it threw exception.
     assertThrows(
         ConfigUnknownException.class,
         () -> configService.set("test.nonExistentVar", "test.newVal")

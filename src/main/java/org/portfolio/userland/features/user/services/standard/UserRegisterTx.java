@@ -105,7 +105,7 @@ public class UserRegisterTx extends BaseUserService {
    */
   private User createUserData(UserRegisterReq userRegisterReq, LocalDateTime nowAt, String passwordHash) {
     User user = userMapper.registerReqToUser(userRegisterReq);
-    // Simple fields like status or blocked are pre-filled already.
+    // Simple fields like status or locked are pre-filled already.
     // Note: mapper does NOT set password, hashing has to happen outside of transaction (CPU-heavy BCrypt).
     user.setPassword(passwordHash);
     user.setUuid(securityGeneratorService.uuid());

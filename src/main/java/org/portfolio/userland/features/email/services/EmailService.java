@@ -25,7 +25,7 @@ import java.util.Set;
 /**
  * Email service that handles arbitrary email. See intermediate <code>XxxEmailService</code> beans (for example
  * <code>UserSendEmailService</code>) for usage.
- * <p>Note: It should be called asynchronously via event.</p>
+ * <p>Note: callers are responsible for async behavior.</p>
  * @see UserSendEmailService
  */
 @Service
@@ -61,7 +61,7 @@ public class EmailService {
 
     // GCP Tasks ensure that emails won't be lost in case of failure.
     if (canEmailTask) gcpEmailService.queueEmailTask(emailReq);
-    else sendEmail(emailReq); // On locally run server just send synchronically.
+    else sendEmail(emailReq); // On locally run server just send synchronously.
   }
 
   /**

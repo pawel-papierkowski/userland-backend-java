@@ -28,9 +28,9 @@ public record RateLimitProperties(
   /**
    * Caffeine cache configuration for bucket storage.
    * @param maximumSize Max unique IP addresses tracked simultaneously.
-   * @param expireAfterAccess When to clean up eligible entries (write-based strategy), in minutes.
+   * @param expireAfterWrite When to clean up eligible entries (write-based strategy), in minutes.
    */
-  public record CacheProperties(long maximumSize, int expireAfterAccess) {}
+  public record CacheProperties(long maximumSize, int expireAfterWrite) {}
 
   /**
    * A named rate limit profile with its own set of bandwidth definitions.

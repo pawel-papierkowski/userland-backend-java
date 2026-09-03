@@ -25,7 +25,7 @@ import java.util.Set;
 /**
  * Multi-language config. Normally Spring expects .properties files. We want to use .yaml files instead.
  * This configuration class tells Spring to search in base directory and all subdirectories for any YAML files and treat
- * it as translation file to use.
+ * them as translation files to use.
  */
 @Configuration
 @Slf4j

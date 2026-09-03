@@ -44,7 +44,7 @@ public class JwtAuthFilterTest {
 
   @BeforeEach
   void setup() {
-    // Clear context amd reset mocks before each test.
+    // Clear context and reset mocks before each test.
     SecurityContextHolder.clearContext();
 
     jwtService = mock(JwtService.class);

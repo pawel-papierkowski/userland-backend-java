@@ -25,7 +25,7 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 
 /**
- * Integration test for user permission table viewing.
+ * Integration test for user permission table CRUD.
  */
 public class UserPermissionTableApiTest extends BaseUserTest {
 

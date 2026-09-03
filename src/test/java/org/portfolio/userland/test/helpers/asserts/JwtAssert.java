@@ -17,7 +17,7 @@ public class JwtAssert {
   protected final JwtService jwtService;
 
   /**
-   * Assert that JWT is valid.
+   * Assert that JWT's claims are valid.
    * @param jwt JWT token.
    * @param expectedClaimMap Expected claims.
    */

@@ -10,7 +10,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.portfolio.userland.features.email.dto.EmailReq;
-import org.portfolio.userland.gcp.services.GcpService;
+import org.portfolio.userland.gcp.services.GcpCloudTaskService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
@@ -28,7 +28,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "GCP", description = "Endpoints for GCP.")
 @Slf4j
 public class GcpController {
-  private final GcpService gcpService;
+  private final GcpCloudTaskService gcpCloudTaskService;
 
   /**
    * Actually sends email. Available only to GCP Tasks.
@@ -48,7 +48,7 @@ public class GcpController {
           content = @Content(schema = @Schema(hidden = true)))
   })
   public ResponseEntity<Void> processTaskEmailSend(@Valid @RequestBody EmailReq emailReq) {
-    boolean result = gcpService.processTaskEmailSend(emailReq);
+    boolean result = gcpCloudTaskService.processTaskEmailSend(emailReq);
     if (result) {
       // Returning 2xx tells GCP the task succeeded, and can be deleted from the queue.
       return new ResponseEntity<>(HttpStatus.OK);

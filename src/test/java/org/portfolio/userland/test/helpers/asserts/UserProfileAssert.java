@@ -20,7 +20,7 @@ public class UserProfileAssert {
    * @param expectedUserProfile Expected user profile.
    */
   public void assertIt(UserProfile actualUserProfile, UserProfile expectedUserProfile) {
-    assertIt("User", actualUserProfile, expectedUserProfile);
+    assertIt("UserProfile", actualUserProfile, expectedUserProfile);
   }
 
   /**
