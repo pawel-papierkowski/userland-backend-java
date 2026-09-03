@@ -26,9 +26,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
  * Note that in development environment, all errors are shown without obfuscation and with exact reason.
  */
 public class UserPasswordApiTest extends BaseUserTest {
-
-  // //////////////////////////////////////////////////////////////////////////
-
   @Test
   public void requestPasswordReset() throws Exception {
     clock.setFixedTime("2026-04-10T10:00:00Z");
@@ -68,7 +65,7 @@ public class UserPasswordApiTest extends BaseUserTest {
       return null;
     });
 
-    // Assert that the correct event was published.
+    // Assert: Correct event was published.
     assertThat(applicationEvents.stream(UserPasswordResetRequestEvent.class))
         .as("Event is invalid")
         .hasSize(1)
@@ -125,7 +122,7 @@ public class UserPasswordApiTest extends BaseUserTest {
       return null;
     });
 
-    // Assert that the correct event was published.
+    // Assert: Correct event was published.
     assertThat(applicationEvents.stream(UserPasswordResetRequestEvent.class))
         .as("Event is invalid")
         .hasSize(1)
@@ -182,7 +179,7 @@ public class UserPasswordApiTest extends BaseUserTest {
       return null;
     });
 
-    // Assert that the correct event was published.
+    // Assert: Correct event was published.
     assertThat(applicationEvents.stream(UserPasswordResetConfirmEvent.class))
         .as("Event is invalid")
         .hasSize(1)
@@ -194,6 +191,9 @@ public class UserPasswordApiTest extends BaseUserTest {
           assertThat(event.lang()).isEqualTo("en");
         });
   }
+
+  // //////////////////////////////////////////////////////////////////////////
+  // FAILURES
 
   @Test
   public void errAlreadyUsedToken() throws Exception {
@@ -214,16 +214,17 @@ public class UserPasswordApiTest extends BaseUserTest {
             .content(objectMapper.writeValueAsString(req)))
         .andReturn();
     assertThat(firstResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.NO_CONTENT.value());
+    assertThat(firstResult.getResponse().getContentAsString()).as("Response body should be empty").isEqualTo("");
 
-    // Act & Assert: Second attempt with the same token must fail. Note token is atomically consumed during first
+    // Act: Second attempt with the same token must fail. Note token is atomically consumed during first
     // reset, so by the time of the second request it no longer exists in database.
     MvcResult mvcResult = mockMvc.perform(patch("/api/users/password/confirm")
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(req)))
         .andReturn();
-    assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.NOT_FOUND.value());
 
-    // Assert: Content has correct error.
+    // Assert: Status is correct and content has correct error.
+    assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.NOT_FOUND.value());
     ProblemDetailBox expectedPdb = new ProblemDetailBox(
         HttpStatus.NOT_FOUND.value(),
         "User token is missing.",
@@ -234,17 +235,80 @@ public class UserPasswordApiTest extends BaseUserTest {
     );
     problemDetailService.assertPd(mvcResult, expectedPdb);
 
-    // Assert that password reset confirm event was published exactly once.
+    // Assert: Password reset confirm event was published exactly once (first time was successful).
     assertThat(applicationEvents.stream(UserPasswordResetConfirmEvent.class))
         .as("Password reset confirm event should be published exactly once")
         .hasSize(1);
   }
 
-  // //////////////////////////////////////////////////////////////////////////
-  // FAILURES
+  @Test
+  public void errPassResetWhenTokenExists() throws Exception {
+    clock.setFixedTime("2026-04-08T10:00:00Z");
+
+    // Arrange: create user with password reset token already present and valid.
+    User expectedUser = userFactory.genUser(EnUserStatus.ACTIVE);
+    userTokenFactory.genTokenEntry(expectedUser, EnUserTokenType.PASSWORD, null);
+    userRepository.save(expectedUser);
+
+    // Arrange: create password reset request.
+    UserPassResetLinkReq req = new UserPassResetLinkReq(expectedUser.getEmail(), null);
+
+    // Act: Try to send password reset email.
+    MvcResult mvcResult = mockMvc.perform(post("/api/users/password/link")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(req)))
+        .andReturn();
+
+    // Assert: API Response. Note on production same request will produce success.
+    assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.CONFLICT.value());
+    ProblemDetailBox expectedPdb = new ProblemDetailBox(
+        HttpStatus.CONFLICT.value(),
+        "Required token already exists.",
+        "Token of type 'PASSWORD' already exists and is still valid. You cannot do this action twice in row.",
+        "/api/users/password/link",
+        "https://api.userland.org/errors/user/token/alreadyExists",
+        Map.of("errCode", UserErrCode.TOKEN_ALREADY)
+    );
+    problemDetailService.assertPd(mvcResult, expectedPdb);
+  }
+
+  @Test
+  public void errPassResetWithMissingToken() throws Exception {
+    clock.setFixedTime("2026-04-08T10:00:00Z");
+
+    // Arrange: create user that requested password reset.
+    User expectedUser = userFactory.genUser(EnUserStatus.ACTIVE);
+    UserToken token = userTokenFactory.genTokenEntry(expectedUser, EnUserTokenType.PASSWORD, null);
+    userHistoryFactory.genHistoryEvent(expectedUser, EnUserHistoryWho.USER, EnUserHistoryWhat.PASS_RESET_REQ, "");
+    userRepository.save(expectedUser);
+
+    // Arrange: password reset confirmation request with deliberately invalid token.
+    UserPassResetConfirmReq req = new UserPassResetConfirmReq(token.getToken()+"N", "abcABC123!");
+
+    // Act: Try to set new password.
+    MvcResult mvcResult = mockMvc.perform(patch("/api/users/password/confirm")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(req)))
+        .andReturn();
+
+    // Assert: API Response.
+    assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.NOT_FOUND.value());
+    ProblemDetailBox expectedPdb = new ProblemDetailBox(
+        HttpStatus.NOT_FOUND.value(),
+        "User token is missing.",
+        "Token '"+token.getToken()+"N' does not exist.",
+        "/api/users/password/confirm",
+        "https://api.userland.org/errors/user/token/missing",
+        Map.of("errCode", UserErrCode.TOKEN_MISSING)
+    );
+    problemDetailService.assertPd(mvcResult, expectedPdb);
+  }
+
+  //
 
   @Test
   public void errPassResetForUnknownEmail() throws Exception {
+    // If not on production, we will inform about unknown email.
     clock.setFixedTime("2026-04-08T10:00:00Z");
 
     // Arrange: create password reset request.
@@ -326,71 +390,6 @@ public class UserPasswordApiTest extends BaseUserTest {
         "/api/users/password/link",
         "https://api.userland.org/errors/user/locked",
         Map.of("errCode", UserErrCode.LOCKED)
-    );
-    problemDetailService.assertPd(mvcResult, expectedPdb);
-  }
-
-  @Test
-  public void errPassResetWhenTokenExists() throws Exception {
-    clock.setFixedTime("2026-04-08T10:00:00Z");
-
-    // Arrange: create user with password reset token already present and valid.
-    User expectedUser = userFactory.genUser(EnUserStatus.ACTIVE);
-    userTokenFactory.genTokenEntry(expectedUser, EnUserTokenType.PASSWORD, null);
-    userRepository.save(expectedUser);
-
-    // Arrange: create password reset request.
-    UserPassResetLinkReq req = new UserPassResetLinkReq(expectedUser.getEmail(), null);
-
-    // Act: Try to send password reset email.
-    MvcResult mvcResult = mockMvc.perform(post("/api/users/password/link")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(req)))
-        .andReturn();
-
-    // Assert: API Response. Note on production same request will produce success.
-    assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.CONFLICT.value());
-    ProblemDetailBox expectedPdb = new ProblemDetailBox(
-        HttpStatus.CONFLICT.value(),
-        "Required token already exists.",
-        "Token of type 'PASSWORD' already exists and is still valid. You cannot do this action twice in row.",
-        "/api/users/password/link",
-        "https://api.userland.org/errors/user/token/alreadyExists",
-        Map.of("errCode", UserErrCode.TOKEN_ALREADY)
-    );
-    problemDetailService.assertPd(mvcResult, expectedPdb);
-  }
-
-  //
-
-  @Test
-  public void errPassResetWithMissingToken() throws Exception {
-    clock.setFixedTime("2026-04-08T10:00:00Z");
-
-    // Arrange: create user that requested password reset.
-    User expectedUser = userFactory.genUser(EnUserStatus.ACTIVE);
-    UserToken token = userTokenFactory.genTokenEntry(expectedUser, EnUserTokenType.PASSWORD, null);
-    userHistoryFactory.genHistoryEvent(expectedUser, EnUserHistoryWho.USER, EnUserHistoryWhat.PASS_RESET_REQ, "");
-    userRepository.save(expectedUser);
-
-    // Arrange: password reset confirmation request with deliberately invalid token.
-    UserPassResetConfirmReq req = new UserPassResetConfirmReq(token.getToken()+"N", "abcABC123!");
-
-    // Act: Try to set new password.
-    MvcResult mvcResult = mockMvc.perform(patch("/api/users/password/confirm")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(req)))
-        .andReturn();
-
-    // Assert: API Response.
-    assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.NOT_FOUND.value());
-    ProblemDetailBox expectedPdb = new ProblemDetailBox(
-        HttpStatus.NOT_FOUND.value(),
-        "User token is missing.",
-        "Token '"+token.getToken()+"N' does not exist.",
-        "/api/users/password/confirm",
-        "https://api.userland.org/errors/user/token/missing",
-        Map.of("errCode", UserErrCode.TOKEN_MISSING)
     );
     problemDetailService.assertPd(mvcResult, expectedPdb);
   }

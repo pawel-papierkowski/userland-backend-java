@@ -74,6 +74,7 @@ You can think of it as baseline for other projects, as almost any project, syste
 ### Security
 
 - Critical endpoints (subjected to brute force attempts, like `/api/users/login`) have strict rate limiting.
+- Certain endpoints (like registration or password recovery) have measures against email enumeration attacks.
 - Instant revocation of JWT (so also permission enforcement) and instant enforcement of locked user.
   Only lockdown enforcement can be slightly delayed (system config table in DB is cached with 20s TTL).
 - System uses JWT for all API requests that require security (for example, some endpoints require admin panel access permissions).
@@ -219,4 +220,6 @@ UserLand has endpoints available publicly to use by frontend, PostMan etc.
   - **JJWT**: popular JWT library
   - **MapStruct**: translate DTO to actual entities
   - **ShedLock**: prevent issues with schedulers in environment like Kubernets
+  - **Caffeine**: in-memory cache engine.
+  - **Bucket4j**: for endpoint rate limiting.
   - **Springdoc OpenAPI (Swagger UI)**: documenting API endpoints

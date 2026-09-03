@@ -111,7 +111,7 @@ public class UserConfigTest extends BaseUserTest {
     userConfigFactory.genConfig(user, "test.variable", "1");
     user = userRepository.save(user);
 
-    // Act: set config that do not exist.
+    // Act: Set config that do not exist.
     userConfigService.set(user, "other.variable", "zz");
 
     // Prepare expected state.
@@ -134,7 +134,7 @@ public class UserConfigTest extends BaseUserTest {
     userConfigFactory.genConfig(expectedUser, "test.variable", "1");
     User user = userRepository.save(expectedUser);
 
-    // Act: set config that exists.
+    // Act: Set config that exists.
     userConfigService.set(user, "test.variable", "0");
 
     // Prepare expected state.

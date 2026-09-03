@@ -7,6 +7,8 @@ import org.portfolio.userland.features.user.dto.standard.email.UserEmailChangeLi
 import org.portfolio.userland.features.user.entities.EnUserStatus;
 import org.portfolio.userland.features.user.entities.EnUserTokenType;
 import org.portfolio.userland.features.user.entities.User;
+import org.portfolio.userland.features.user.events.UserEmailChangeFailEvent;
+import org.portfolio.userland.features.user.events.UserEmailChangeRequestEvent;
 import org.portfolio.userland.test.helpers.context.WithMockCustomUser;
 import org.portfolio.userland.test.helpers.problemDetail.ProblemDetailBox;
 import org.springframework.http.HttpStatus;
@@ -21,13 +23,67 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 
 /**
  * Integration test for changing email for user account.
- * Certain errors are different or are not shown at all on production to prevent security issues like email enumeration attacks.
- * These tests ensure errors are hidden correctly on production.
+ * For production there is no difference, because it is impossible to conduct email enumeration attack via email
+ * change endpoint. Why? While you provide new email, system will always return success in response, even if email
+ * already exists in database.
  */
 @TestPropertySource(properties = "app.main.build=PROD")
 public class UserEmailProdApiTest extends BaseUserTest {
+  @Test
+  @WithMockCustomUser
+  public void requestEmailChangeForExistingEmail() throws Exception {
+    // To prevent email enumeration attack, we need to pretend everything is fine.
+    clock.setFixedTime("2026-04-08T10:00:00Z");
+
+    // Arrange: create two active users.
+    User someUser = userFactory.genUser(EnUserStatus.ACTIVE);
+    userRepository.save(someUser);
+    User otherUser = userFactory.genRandUser(EnUserStatus.ACTIVE);
+    userRepository.save(otherUser);
+
+    // Arrange: create email change request.
+    UserEmailChangeLinkReq req = new UserEmailChangeLinkReq(otherUser.getEmail(), "Password123!", null);
+
+    // Act: Try to send email change link email.
+    MvcResult mvcResult = mockMvc.perform(post("/api/users/email/link")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(req)))
+        .andReturn();
+
+    // Assert: API Response. Yes, this response is correct. This prevents email enumeration attacks.
+    assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.NO_CONTENT.value());
+    assertThat(mvcResult.getResponse().getContentAsString()).as("Response body should be empty").isEqualTo("");
+
+    // Assert: User data is unchanged.
+    transactionTemplate.execute(_ -> {
+      User expectedUser = userFactory.genUser(EnUserStatus.ACTIVE);
+      User actualUser = userRepository.findByEmail("test@example.com").orElseThrow();
+      userAssert.assertIt(actualUser, expectedUser);
+      return null;
+    });
+
+    // Assert: Email change request event was NOT published.
+    assertThat(applicationEvents.stream(UserEmailChangeRequestEvent.class))
+        .as("No event should happen")
+        .hasSize(0);
+
+    // Assert: the correct event was published.
+    assertThat(applicationEvents.stream(UserEmailChangeFailEvent.class))
+        .as("Event is invalid")
+        .hasSize(1)
+        .first()
+        .satisfies(event -> {
+          assertThat(event.id()).isGreaterThan(0L);
+          assertThat(event.username()).isEqualTo("Jane");
+          assertThat(event.email()).isEqualTo("test@example.com");
+          assertThat(event.lang()).isEqualTo("en");
+          assertThat(event.frontend()).isNull();
+          assertThat(event.newEmail()).isEqualTo(otherUser.getEmail());
+        });
+  }
 
   // //////////////////////////////////////////////////////////////////////////
+  // FAILURES
 
   @Test
   @WithMockCustomUser
@@ -58,31 +114,6 @@ public class UserEmailProdApiTest extends BaseUserTest {
         Map.of("errCode", UserErrCode.EMAIL_IN_USE)
     );
     problemDetailService.assertPd(mvcResult, expectedPdb);
-  }
-
-  @Test
-  @WithMockCustomUser
-  public void errEmailChangeToExistingEmail() throws Exception {
-    clock.setFixedTime("2026-04-08T10:00:00Z");
-
-    // Arrange: create active users.
-    User expectedUser = userFactory.genUser(EnUserStatus.ACTIVE);
-    userRepository.save(expectedUser);
-    User otherUser = userFactory.genRandUser(EnUserStatus.ACTIVE);
-    userRepository.save(otherUser);
-
-    // Arrange: create email change request. Given email belongs to already existing user.
-    UserEmailChangeLinkReq req = new UserEmailChangeLinkReq(otherUser.getEmail(), "Password123!", null);
-
-    // Act: Try to send email change link email.
-    MvcResult mvcResult = mockMvc.perform(post("/api/users/email/link")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(req)))
-        .andReturn();
-
-    // Assert: API Response. Note we pretend everything went fine.
-    assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.NO_CONTENT.value());
-    assertThat(mvcResult.getResponse().getContentAsString()).as("Response body should be empty").isEqualTo("");
   }
 
   @Test
@@ -124,7 +155,7 @@ public class UserEmailProdApiTest extends BaseUserTest {
     // Arrange: create email change request.
     UserEmailChangeLinkReq req = new UserEmailChangeLinkReq("new.email@example.com", "Password123!", null);
 
-    // Act: Try to send password reset email.
+    // Act: Try to send email change email.
     MvcResult mvcResult = mockMvc.perform(post("/api/users/email/link")
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(req)))
@@ -156,7 +187,7 @@ public class UserEmailProdApiTest extends BaseUserTest {
     // Arrange: create email change request.
     UserEmailChangeLinkReq req = new UserEmailChangeLinkReq("new.email@example.com", "Password123!", null);
 
-    // Act: Try to send password reset email.
+    // Act: Try to send email change email.
     MvcResult mvcResult = mockMvc.perform(post("/api/users/email/link")
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(req)))
@@ -188,7 +219,7 @@ public class UserEmailProdApiTest extends BaseUserTest {
     // Arrange: create email change request.
     UserEmailChangeLinkReq req = new UserEmailChangeLinkReq("new.email@example.com", "Password123!", null);
 
-    // Act: Try to send password reset email.
+    // Act: Try to send email change email.
     MvcResult mvcResult = mockMvc.perform(post("/api/users/email/link")
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(req)))

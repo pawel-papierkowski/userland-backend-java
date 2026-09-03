@@ -69,7 +69,7 @@ public class UserRegistrationApiTest extends BaseUserTest {
       return null;
     });
 
-    // Assert that the correct event was published.
+    // Assert: Correct event was published.
     assertThat(applicationEvents.stream(UserRegisteredEvent.class))
         .as("Event is invalid")
         .hasSize(1)
@@ -119,7 +119,7 @@ public class UserRegistrationApiTest extends BaseUserTest {
       return null;
     });
 
-    // Assert that the correct event was published.
+    // Assert: Correct event was published.
     assertThat(applicationEvents.stream(UserRegisteredEvent.class))
         .as("Event is invalid")
         .hasSize(1)
@@ -164,7 +164,7 @@ public class UserRegistrationApiTest extends BaseUserTest {
       return null;
     });
 
-    // Assert that the correct event was published.
+    // Assert: Correct event was published.
     assertThat(applicationEvents.stream(UserActivatedEvent.class))
         .as("Event is invalid")
         .hasSize(1)
@@ -211,7 +211,7 @@ public class UserRegistrationApiTest extends BaseUserTest {
       return null;
     });
 
-    // Assert that the correct event was published.
+    // Assert: Correct event was published.
     assertThat(applicationEvents.stream(UserRegisteredEvent.class))
         .as("Event is invalid")
         .hasSize(1)
@@ -321,14 +321,14 @@ public class UserRegistrationApiTest extends BaseUserTest {
     assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.CREATED.value());
     assertThat(mvcResult.getResponse().getContentAsString()).as("Response body should be empty").isEqualTo("");
 
-    // Assert that user data is untouched.
+    // Assert: User data is untouched.
     transactionTemplate.execute(_ -> {
       // Assert: User state.
       assertAllUser("test@example.com", expectedUser, expectedUserProfile);
       return null;
     });
 
-    // Assert that the correct event was published.
+    // Assert: Correct event was published.
     assertThat(applicationEvents.stream(UserAlreadyRegisteredEvent.class))
         .as("Event is invalid")
         .hasSize(1)
@@ -341,7 +341,7 @@ public class UserRegistrationApiTest extends BaseUserTest {
           assertThat(event.frontend()).isNull(); // will use default frontend for www link
         });
 
-    // Assert that email (warning for existing user) was sent.
+    // Assert: Email (warning for existing user) was sent.
     await().atMost(Duration.ofSeconds(3)).untilAsserted(() -> {
       ArgumentCaptor<EmailReq> captor = ArgumentCaptor.forClass(EmailReq.class);
       verify(emailService, times(1)).queueEmail(captor.capture());
@@ -384,12 +384,12 @@ public class UserRegistrationApiTest extends BaseUserTest {
       expectedUser.getHistory().get(1).setCreatedAt(clockService.getNowUTC()); // activate event happened now
       // Assert: User state.
       assertAllUser("test@example.com", expectedUser, expectedUserProfile);
-      // Assert that activate token is removed.
+      // Assert: Activate token is removed.
       assertThat(userTokenRepository.count()).as("Count of all user tokens is wrong").isEqualTo(0);
       return null;
     });
 
-    // Assert that the correct event was published.
+    // Assert: Correct event was published.
     assertThat(applicationEvents.stream(UserActivatedEvent.class))
         .as("Event is invalid")
         .hasSize(1)
@@ -402,7 +402,7 @@ public class UserRegistrationApiTest extends BaseUserTest {
           assertThat(event.frontend()).isEqualTo(EnFrontendFramework.VUE);
         });
 
-    // Assert that email (confirmation of account activation) was sent.
+    // Assert: Email (confirmation of account activation) was sent.
     await().atMost(Duration.ofSeconds(3)).untilAsserted(() -> {
       ArgumentCaptor<EmailReq> captor = ArgumentCaptor.forClass(EmailReq.class);
       verify(emailService, times(1)).queueEmail(captor.capture());
@@ -448,7 +448,7 @@ public class UserRegistrationApiTest extends BaseUserTest {
     );
     problemDetailService.assertPd(mvcResult, expectedPdb);
 
-    // Assert that only one activation event (and thus one email) was published.
+    // Assert: Only one activation event (and thus one email) was published.
     assertThat(applicationEvents.stream(UserActivatedEvent.class))
         .as("Activation event should be published exactly once")
         .hasSize(1);

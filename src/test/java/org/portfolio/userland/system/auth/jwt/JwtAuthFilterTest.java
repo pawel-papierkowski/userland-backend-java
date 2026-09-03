@@ -92,7 +92,7 @@ public class JwtAuthFilterTest {
     assertThat(authentication.isAuthenticated()).as("User should be authenticated").isTrue();
     assertThat(authentication.getPrincipal()).as("Principal should be instance of CustomUserDetails").isInstanceOf(CustomUserDetails.class);
 
-    // Assert the principal is our CustomUserDetails with authorities resolved from token claims.
+    // Assert: Principal is our CustomUserDetails with authorities resolved from token claims.
     CustomUserDetails principal = (CustomUserDetails) authentication.getPrincipal();
     assertThat(principal).isNotNull();
     assertThat(principal.getId()).isEqualTo(1L);

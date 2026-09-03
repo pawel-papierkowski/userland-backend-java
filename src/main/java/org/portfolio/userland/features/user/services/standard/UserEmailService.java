@@ -25,6 +25,7 @@ import java.time.LocalDateTime;
  *   <li>Backend ensures new email was not created in meantime, updates email of user, deletes token and sends email that confirms email change.</li>
  *   <li>Frontend shows result (success or failure).</li>
  * </ul>
+ * <p>Note: on production there are measures to prevent email enumeration attack.</p>
  */
 @Service
 @RequiredArgsConstructor
@@ -33,10 +34,11 @@ public class UserEmailService extends BaseUserService {
 
   /**
    * Creates email change token and (indirectly, via event) sends emails with warning and email change link to user.
-   * <p>Note 1: this method is intentionally NOT transactional. BCrypt password verification is CPU-heavy; running it
+   * <p>Note: this method is intentionally NOT transactional. BCrypt password verification is CPU-heavy; running it
    * outside of transaction prevents holding a database connection for its duration. All database work is done
    * transactionally by {@link UserEmailTx}.</p>
-   * <p>Note 2: on production, if email is already taken (or some other problem occurred), will return same error as bad password.</p>
+   * <p>Note: if new email does not exist, it fails silently on production to prevent email enumeration attack. Other
+   * issues (missing/locked user, invalid token) will be reported, as they are for currently logged account only.</p>
    * @param userEmailChangeLinkReq User email change request.
    */
   public void send(UserEmailChangeLinkReq userEmailChangeLinkReq) {
@@ -52,7 +54,7 @@ public class UserEmailService extends BaseUserService {
   /**
    * Actually changes email. It is verified by presence of appropriate token.
    * <p>Note: the real guard against duplicate emails is the unique constraint on <code>users.email</code>; the
-   * {@code existsByEmail} check above is only a fast path. If we lose a race against a concurrent email change (or
+   * {@code existsByEmail} check is only a fast path. If we lose a race against a concurrent email change (or
    * registration) for the same address, the constraint violation is translated into a clean
    * {@link UserEmailAlreadyExistsException}. The whole transaction rolls back in that case - including the token
    * consumption done by <code>resolveToken()</code> - so the token remains valid and can be used for another

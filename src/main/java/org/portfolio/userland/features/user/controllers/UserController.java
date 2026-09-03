@@ -141,8 +141,8 @@ public class UserController {
 
   /**
    * Sends emails about email change (warning and link).
-   * <p>Note: on production it will pretend everything is fine if email already exists or email change token already
-   * exists to prevent email enumeration attacks.</p>
+   * <p>Note: if something fails (like email already exists in database), system will return success, though internally
+   * behavior will be different.</p>
    * @param userEmailChangeLinkReq User email change link request.
    * @return Response.
    */
@@ -191,8 +191,8 @@ public class UserController {
 
   /**
    * Sends email with password reset link.
-   * <p>Note: on production it will pretend everything is fine if email is not present in database or if password reset
-   * token already exists to prevent email enumeration attacks.</p>
+   * <p>Note: on production it will pretend everything is fine if email is not present in database to prevent email
+   * enumeration attacks.</p>
    * @param userPassResetLinkReq User password link request.
    * @return Response.
    */
@@ -237,6 +237,10 @@ public class UserController {
 
   /**
    * Sends email with account deletion link.
+   * <p>Note: no difference between production and other builds is needed, because enumeration attack is impossible here:
+   * endpoint requires being logged in and sends email for logged account. Similarly, token being already present won't
+   * mean anything.
+   * enumeration attac</p>
    * @param userDeleteLinkReq User deletion link request.
    * @return Response.
    */

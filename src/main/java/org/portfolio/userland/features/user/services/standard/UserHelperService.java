@@ -174,7 +174,8 @@ public class UserHelperService {
   // //////////////////////////////////////////////////////////////////////////
 
   /**
-   * Verifies if password is correct. If it is not, throws exception.
+   * Verifies if password is correct. If it is not, throws exception. You should call it outside transaction, as BCrypt
+   * is CPU-heavy and deliberately time-consuming.
    * @param user User data.
    * @param rawPassword Given password.
    * @throws UserWrongPasswordException If given password is wrong.

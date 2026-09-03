@@ -25,9 +25,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
  * Integration test for user account deletion.
  */
 public class UserDeleteApiTest extends BaseUserTest {
-
-  // //////////////////////////////////////////////////////////////////////////
-
   @Test
   @WithMockCustomUser
   public void requestAccountDeletion() throws Exception {
@@ -68,7 +65,7 @@ public class UserDeleteApiTest extends BaseUserTest {
       return null;
     });
 
-    // Assert that the correct event was published.
+    // Assert: Correct event was published.
     assertThat(applicationEvents.stream(UserAccountDeleteRequestEvent.class))
         .as("Event is invalid")
         .hasSize(1)
@@ -126,7 +123,7 @@ public class UserDeleteApiTest extends BaseUserTest {
       return null;
     });
 
-    // Assert that the correct event was published.
+    // Assert: Correct event was published.
     assertThat(applicationEvents.stream(UserAccountDeleteRequestEvent.class))
         .as("Event is invalid")
         .hasSize(1)
@@ -171,7 +168,7 @@ public class UserDeleteApiTest extends BaseUserTest {
     assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.NO_CONTENT.value());
     assertThat(mvcResult.getResponse().getContentAsString()).as("Response body should be empty").isEqualTo("");
 
-    // Assert that user and related data is gone.
+    // Assert: User and related data is gone.
     transactionTemplate.execute(_ -> {
       assertThat(userRepository.findAll().size()).as("User should be deleted").isEqualTo(0);
       assertThat(userProfileRepository.findAll().size()).as("User profile should be deleted").isEqualTo(0);
@@ -183,7 +180,7 @@ public class UserDeleteApiTest extends BaseUserTest {
       return null;
     });
 
-    // Assert that the correct event was published.
+    // Assert: Correct event was published.
     assertThat(applicationEvents.stream(UserAccountDeleteConfirmEvent.class))
         .as("Event is invalid")
         .hasSize(1)
@@ -195,6 +192,9 @@ public class UserDeleteApiTest extends BaseUserTest {
           assertThat(event.lang()).isEqualTo("en");
         });
   }
+
+  // //////////////////////////////////////////////////////////////////////////
+  // FAILURES
 
   @Test
   @WithMockCustomUser
@@ -237,14 +237,11 @@ public class UserDeleteApiTest extends BaseUserTest {
     );
     problemDetailService.assertPd(mvcResult, expectedPdb);
 
-    // Assert that account delete confirm event was published exactly once.
+    // Assert: Account delete confirm event was published exactly once.
     assertThat(applicationEvents.stream(UserAccountDeleteConfirmEvent.class))
         .as("Account delete confirm event should be published exactly once")
         .hasSize(1);
   }
-
-  // //////////////////////////////////////////////////////////////////////////
-  // FAILURES
 
   @Test
   @WithMockCustomUser

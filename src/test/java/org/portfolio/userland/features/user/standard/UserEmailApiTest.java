@@ -26,9 +26,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
  * Integration test for changing email for user account.
  */
 public class UserEmailApiTest extends BaseUserTest {
-
-  // //////////////////////////////////////////////////////////////////////////
-
   @Test
   @WithMockCustomUser
   public void requestEmailChange() throws Exception {
@@ -69,7 +66,7 @@ public class UserEmailApiTest extends BaseUserTest {
       return null;
     });
 
-    // Assert that the correct event was published.
+    // Assert: Correct event was published.
     assertThat(applicationEvents.stream(UserEmailChangeRequestEvent.class))
         .as("Event is invalid")
         .hasSize(1)
@@ -83,59 +80,6 @@ public class UserEmailApiTest extends BaseUserTest {
           assertThat(event.newEmail()).isEqualTo("new.email@test.com");
           assertThat(event.emailChangeToken()).isEqualTo(emailChangeToken.get());
           assertThat(event.emailChangeTokenExpires()).isEqualTo(30L);
-        });
-  }
-
-  @Test
-  @WithMockCustomUser
-  public void requestEmailChangeForExistingEmail() throws Exception {
-    // To prevent email enumeration attack, we need to pretend everything is fine.
-    clock.setFixedTime("2026-04-08T10:00:00Z");
-
-    // Arrange: create two active users.
-    User someUser = userFactory.genUser(EnUserStatus.ACTIVE);
-    userRepository.save(someUser);
-    User otherUser = userFactory.genRandUser(EnUserStatus.ACTIVE);
-    userRepository.save(otherUser);
-
-    // Arrange: create email change request.
-    UserEmailChangeLinkReq req = new UserEmailChangeLinkReq(otherUser.getEmail(), "Password123!", null);
-
-    // Act: Try to send email change link email.
-    MvcResult mvcResult = mockMvc.perform(post("/api/users/email/link")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(req)))
-        .andReturn();
-
-    // Assert: API Response. Yes, this response is correct. This prevents email enumeration attacks.
-    assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.NO_CONTENT.value());
-    assertThat(mvcResult.getResponse().getContentAsString()).as("Response body should be empty").isEqualTo("");
-
-    // Assert that user data is unchanged.
-    transactionTemplate.execute(_ -> {
-      User expectedUser = userFactory.genUser(EnUserStatus.ACTIVE);
-      User actualUser = userRepository.findByEmail("test@example.com").orElseThrow();
-      userAssert.assertIt(actualUser, expectedUser);
-      return null;
-    });
-
-    // Assert that this event was NOT published.
-    assertThat(applicationEvents.stream(UserEmailChangeRequestEvent.class))
-        .as("No event should happen")
-        .hasSize(0);
-
-    // Assert that the correct event was published.
-    assertThat(applicationEvents.stream(UserEmailChangeFailEvent.class))
-        .as("Event is invalid")
-        .hasSize(1)
-        .first()
-        .satisfies(event -> {
-          assertThat(event.id()).isGreaterThan(0L);
-          assertThat(event.username()).isEqualTo("Jane");
-          assertThat(event.email()).isEqualTo("test@example.com");
-          assertThat(event.lang()).isEqualTo("en");
-          assertThat(event.frontend()).isNull();
-          assertThat(event.newEmail()).isEqualTo(otherUser.getEmail());
         });
   }
 
@@ -180,7 +124,7 @@ public class UserEmailApiTest extends BaseUserTest {
       return null;
     });
 
-    // Assert that the correct event was published.
+    // Assert: Correct event was published.
     assertThat(applicationEvents.stream(UserEmailChangeConfirmEvent.class))
         .as("Event is invalid")
         .hasSize(1)
@@ -192,6 +136,9 @@ public class UserEmailApiTest extends BaseUserTest {
           assertThat(event.lang()).isEqualTo("en");
         });
   }
+
+  // //////////////////////////////////////////////////////////////////////////
+  // FAILURES
 
   @Test
   @WithMockCustomUser
@@ -233,14 +180,11 @@ public class UserEmailApiTest extends BaseUserTest {
     );
     problemDetailService.assertPd(mvcResult, expectedPdb);
 
-    // Assert that email change confirm event was published exactly once.
+    // Assert: Email change confirm event was published exactly once.
     assertThat(applicationEvents.stream(UserEmailChangeConfirmEvent.class))
         .as("Email change confirm event should be published exactly once")
         .hasSize(1);
   }
-
-  // //////////////////////////////////////////////////////////////////////////
-  // FAILURES
 
   @Test
   @WithMockCustomUser
@@ -310,8 +254,8 @@ public class UserEmailApiTest extends BaseUserTest {
     clock.setFixedTime("2026-04-08T10:00:00Z");
 
     // Arrange: create active users.
-    User expectedUser = userFactory.genUser(EnUserStatus.ACTIVE);
-    userRepository.save(expectedUser);
+    User someUser = userFactory.genUser(EnUserStatus.ACTIVE);
+    userRepository.save(someUser);
     User otherUser = userFactory.genRandUser(EnUserStatus.ACTIVE);
     userRepository.save(otherUser);
 
@@ -324,9 +268,33 @@ public class UserEmailApiTest extends BaseUserTest {
             .content(objectMapper.writeValueAsString(req)))
         .andReturn();
 
-    // Assert: API Response. Note we pretend everything went fine.
-    assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.NO_CONTENT.value());
-    assertThat(mvcResult.getResponse().getContentAsString()).as("Response body should be empty").isEqualTo("");
+    // Assert: API Response.
+    assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.CONFLICT.value());
+    ProblemDetailBox expectedPdb = new ProblemDetailBox(
+        HttpStatus.CONFLICT.value(),
+        "User with given email already exists.",
+        "Email '"+otherUser.getEmail()+"' already exists.",
+        "/api/users/email/link",
+        "https://api.userland.org/errors/user/email/alreadyExists",
+        Map.of("errCode", UserErrCode.EMAIL_IN_USE)
+    );
+    problemDetailService.assertPd(mvcResult, expectedPdb);
+
+    // Assert: User data is unchanged.
+    transactionTemplate.execute(_ -> {
+      User expectedUser = userFactory.genUser(EnUserStatus.ACTIVE);
+      User actualUser = userRepository.findByEmail("test@example.com").orElseThrow();
+      userAssert.assertIt(actualUser, expectedUser);
+      return null;
+    });
+
+    // Assert: No event was published.
+    assertThat(applicationEvents.stream(UserEmailChangeFailEvent.class))
+        .as("Email change fail event should NOT be published")
+        .hasSize(0);
+    assertThat(applicationEvents.stream(UserEmailChangeRequestEvent.class))
+        .as("Email change request event should NOT be published")
+        .hasSize(0);
   }
 
   @Test
@@ -368,7 +336,7 @@ public class UserEmailApiTest extends BaseUserTest {
     // Arrange: create email change request.
     UserEmailChangeLinkReq req = new UserEmailChangeLinkReq("new.email@example.com", "Password123!", null);
 
-    // Act: Try to send password reset email.
+    // Act: Try to send email change email.
     MvcResult mvcResult = mockMvc.perform(post("/api/users/email/link")
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(req)))
@@ -400,7 +368,7 @@ public class UserEmailApiTest extends BaseUserTest {
     // Arrange: create email change request.
     UserEmailChangeLinkReq req = new UserEmailChangeLinkReq("new.email@example.com", "Password123!", null);
 
-    // Act: Try to send password reset email.
+    // Act: Try to send email change email.
     MvcResult mvcResult = mockMvc.perform(post("/api/users/email/link")
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(req)))
@@ -432,7 +400,7 @@ public class UserEmailApiTest extends BaseUserTest {
     // Arrange: create email change request.
     UserEmailChangeLinkReq req = new UserEmailChangeLinkReq("new.email@example.com", "Password123!", null);
 
-    // Act: Try to send password reset email.
+    // Act: Try to send email change email.
     MvcResult mvcResult = mockMvc.perform(post("/api/users/email/link")
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(req)))

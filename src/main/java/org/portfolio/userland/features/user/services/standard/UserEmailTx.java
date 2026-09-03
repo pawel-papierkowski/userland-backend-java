@@ -35,9 +35,12 @@ public class UserEmailTx extends BaseUserService {
     }
 
     if (userRepository.existsByEmail(userEmailChangeLinkReq.newEmail())) {
-      // send two emails: warning for old account and warning for existing email
+      // Email already exists. On not-production return error.
+      if (build.getTest()) throw new UserEmailAlreadyExistsException(userEmailChangeLinkReq.newEmail());
+
+      // On production send two emails: warning for old account and warning for existing email.
       triggerEmailChangeFailEvent(userEmailChangeLinkReq, user);
-      return; // pretend everything is fine, preventing email enumeration attack
+      return;
     }
 
     LocalDateTime nowAt = clockService.getNowUTC();

@@ -60,7 +60,7 @@ public class EmailServiceTemplateTest extends BaseIntegrationTest {
         null,
         "<p>Content</p>"); // filled, that means templating engine is skipped
 
-    // Act: simulate sending email.
+    // Act: Simulate sending email.
     emailService.queueEmail(emailReq);
 
     // Assert: Verify the email was actually sent to the provider.
@@ -92,7 +92,7 @@ public class EmailServiceTemplateTest extends BaseIntegrationTest {
         params,
         null); // null means system will try to use template to fill messageHtml
 
-    // Act: simulate sending email.
+    // Act: Simulate sending email.
     emailService.queueEmail(emailReq);
 
     // Assert: Verify the email was actually sent to the provider.
@@ -136,7 +136,7 @@ public class EmailServiceTemplateTest extends BaseIntegrationTest {
         params,
         null); // null means system will try to use template to fill messageHtml
 
-    // Act: simulate sending email.
+    // Act: Simulate sending email.
     emailService.queueEmail(emailReq);
 
     // Assert: capture processed request and verify escaping of username in rendered HTML.

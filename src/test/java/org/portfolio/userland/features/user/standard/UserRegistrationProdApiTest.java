@@ -65,7 +65,7 @@ public class UserRegistrationProdApiTest extends BaseUserTest {
       return null;
     });
 
-    // Assert that the correct event was published.
+    // Assert: Correct event was published.
     assertThat(applicationEvents.stream(UserRegisteredEvent.class))
         .as("Event is invalid")
         .hasSize(1)
@@ -105,14 +105,14 @@ public class UserRegistrationProdApiTest extends BaseUserTest {
     assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.CREATED.value());
     assertThat(mvcResult.getResponse().getContentAsString()).as("Response body should be empty").isEqualTo("");
 
-    // Assert that user data is untouched.
+    // Assert: User data is untouched.
     transactionTemplate.execute(_ -> {
       // Assert: User state.
       assertAllUser("test@example.com", expectedUser, expectedUserProfile);
       return null;
     });
 
-    // Assert that the correct event was published.
+    // Assert: Correct event was published.
     assertThat(applicationEvents.stream(UserAlreadyRegisteredEvent.class))
         .as("Event is invalid")
         .hasSize(1)
@@ -125,7 +125,7 @@ public class UserRegistrationProdApiTest extends BaseUserTest {
           assertThat(event.frontend()).isNull(); // will use default frontend for www link
         });
 
-    // Assert that email (warning for existing user) was sent.
+    // Assert: Email (warning for existing user) was sent.
     await().atMost(Duration.ofSeconds(3)).untilAsserted(() -> {
       ArgumentCaptor<EmailReq> captor = ArgumentCaptor.forClass(EmailReq.class);
       verify(emailService, times(1)).queueEmail(captor.capture());

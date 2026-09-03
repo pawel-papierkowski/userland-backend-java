@@ -49,7 +49,7 @@ public class EmailServicePlainTest extends BaseIntegrationTest {
         null,
         "<p>Content</p>");
 
-    // Act: send email.
+    // Act: Send email.
     emailService.queueEmail(emailReq);
 
     // Assert: that email was actually sent, and that configured system sender was used instead of the

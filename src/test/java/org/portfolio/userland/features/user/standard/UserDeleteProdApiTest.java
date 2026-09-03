@@ -21,14 +21,11 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 
 /**
  * Integration test for user account deletion.
- * Certain errors are different or are not shown at all on production to prevent security issues like email enumeration attacks.
- * These tests ensure errors are hidden correctly on production.
+ * For production there is no difference, because it is impossible to conduct email enumeration attack via account
+ * deletion endpoint.
  */
 @TestPropertySource(properties = "app.main.build=PROD")
 public class UserDeleteProdApiTest extends BaseUserTest {
-
-  // //////////////////////////////////////////////////////////////////////////
-
   @Test
   @WithMockCustomUser
   public void errAccDeleteForPendingUser() throws Exception {

@@ -21,11 +21,34 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
  */
 @TestPropertySource(properties = "app.main.build=PROD")
 public class UserPasswordProdApiTest extends BaseUserTest {
+  @Test
+  public void errPassResetWhenTokenExists() throws Exception {
+    clock.setFixedTime("2026-04-08T10:00:00Z");
 
-  // //////////////////////////////////////////////////////////////////////////
+    // Arrange: create user with password reset token already present and valid.
+    User expectedUser = userFactory.genUser(EnUserStatus.ACTIVE);
+    userTokenFactory.genTokenEntry(expectedUser, EnUserTokenType.PASSWORD, null);
+    userRepository.save(expectedUser);
+
+    // Arrange: create password reset request.
+    UserPassResetLinkReq req = new UserPassResetLinkReq(expectedUser.getEmail(), null);
+
+    // Act: Try to send password reset email.
+    MvcResult mvcResult = mockMvc.perform(post("/api/users/password/link")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(req)))
+        .andReturn();
+
+    // Assert: API Response. Yes, this response is correct.
+    assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.NO_CONTENT.value());
+    assertThat(mvcResult.getResponse().getContentAsString()).as("Response body should be empty").isEqualTo("");
+  }
+
+  //
 
   @Test
   public void errPassResetForUnknownEmail() throws Exception {
+    // On production unknown email will return success to prevent email enumeration attack.
     clock.setFixedTime("2026-04-08T10:00:00Z");
 
     // Arrange: create password reset request.
@@ -71,29 +94,6 @@ public class UserPasswordProdApiTest extends BaseUserTest {
     // Arrange: create locked user.
     User expectedUser = userFactory.genUser(EnUserStatus.ACTIVE);
     expectedUser.setLocked(true);
-    userRepository.save(expectedUser);
-
-    // Arrange: create password reset request.
-    UserPassResetLinkReq req = new UserPassResetLinkReq(expectedUser.getEmail(), null);
-
-    // Act: Try to send password reset email.
-    MvcResult mvcResult = mockMvc.perform(post("/api/users/password/link")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(req)))
-        .andReturn();
-
-    // Assert: API Response. Yes, this response is correct.
-    assertThat(mvcResult.getResponse().getStatus()).as("HTTP status is wrong").isEqualTo(HttpStatus.NO_CONTENT.value());
-    assertThat(mvcResult.getResponse().getContentAsString()).as("Response body should be empty").isEqualTo("");
-  }
-
-  @Test
-  public void errPassResetWhenTokenExists() throws Exception {
-    clock.setFixedTime("2026-04-08T10:00:00Z");
-
-    // Arrange: create user with password reset token already present and valid.
-    User expectedUser = userFactory.genUser(EnUserStatus.ACTIVE);
-    userTokenFactory.genTokenEntry(expectedUser, EnUserTokenType.PASSWORD, null);
     userRepository.save(expectedUser);
 
     // Arrange: create password reset request.

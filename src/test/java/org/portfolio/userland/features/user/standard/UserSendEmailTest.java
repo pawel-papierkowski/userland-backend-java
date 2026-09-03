@@ -54,12 +54,12 @@ public class UserSendEmailTest extends BaseUserTest {
         1440L
     );
 
-    // Act: send registration email.
+    // Act: Send registration email.
     userSendEmailService.sendRegistrationEmail(event);
 
-    // Assert that email (account registration) was sent.
+    // Assert: Email (account registration) was sent.
     await().atMost(Duration.ofSeconds(3)).untilAsserted(() -> {
-      // Assert that correct email request was sent.
+      // Assert: Correct email request was sent.
       ArgumentCaptor<EmailReq> captor = ArgumentCaptor.forClass(EmailReq.class);
       verify(emailService, times(1)).queueEmail(captor.capture());
 
@@ -98,15 +98,15 @@ public class UserSendEmailTest extends BaseUserTest {
         null
     );
 
-    // Act: send 'user activated' email.
+    // Act: Send 'user activated' email.
     userSendEmailService.sendActivatedEmail(event);
 
-    // Assert that email (confirmation of account activate) was sent.
+    // Assert: Email (confirmation of account activate) was sent.
     await().atMost(Duration.ofSeconds(3)).untilAsserted(() -> {
       ArgumentCaptor<EmailReq> captor = ArgumentCaptor.forClass(EmailReq.class);
       verify(emailService, times(1)).queueEmail(captor.capture());
 
-      // Assert that correct email request was sent.
+      // Assert: Correct email request was sent.
       Map<String, Object> params = Maps.newHashMap();
       params.put("systemName", systemName);
       params.put("username", "Jan Kowalski");
@@ -141,15 +141,15 @@ public class UserSendEmailTest extends BaseUserTest {
         null
     );
 
-    // Act: send 'already registered' email.
+    // Act: Send 'already registered' email.
     userSendEmailService.sendAlreadyRegisteredEmail(event);
 
-    // Assert that email (confirmation of account activate) was sent.
+    // Assert: Email (confirmation of account activate) was sent.
     await().atMost(Duration.ofSeconds(3)).untilAsserted(() -> {
       ArgumentCaptor<EmailReq> captor = ArgumentCaptor.forClass(EmailReq.class);
       verify(emailService, times(1)).queueEmail(captor.capture());
 
-      // Assert that correct email request was sent.
+      // Assert: Correct email request was sent.
       Map<String, Object> params = Maps.newHashMap();
       params.put("systemName", systemName);
       params.put("username", "Jan Kowalski");
@@ -189,10 +189,10 @@ public class UserSendEmailTest extends BaseUserTest {
         userHelperService.resolveExpirationTime(EnUserTokenType.EMAIL)
     );
 
-    // Act: send email change request emails. Will send two emails: warning and link.
+    // Act: Send email change request emails. Will send two emails: warning and link.
     userSendEmailService.sendEmailChangeRequest(event);
 
-    // Assert that both emails (warning about email change and link to email change page) were sent.
+    // Assert: Both emails (warning about email change and link to email change page) were sent.
     await().atMost(Duration.ofSeconds(3)).untilAsserted(() -> {
       ArgumentCaptor<EmailReq> captor = ArgumentCaptor.forClass(EmailReq.class);
       verify(emailService, times(2)).queueEmail(captor.capture());
@@ -238,7 +238,7 @@ public class UserSendEmailTest extends BaseUserTest {
           null
       );
 
-      // Assert that correct email requests were sent.
+      // Assert: Correct email requests were sent.
       assertThat(actualWarningReq).isEqualTo(expectedEmailWarningReq);
       assertThat(actualLinkReq).isEqualTo(expectedEmailLinkReq);
     });
@@ -256,10 +256,10 @@ public class UserSendEmailTest extends BaseUserTest {
         "other@example.com"
     );
 
-    // Act: send email change request emails. Will send two emails: warning and link.
+    // Act: Send email change request emails. Will send two emails: warning and link.
     userSendEmailService.sendEmailChangeFail(event);
 
-    // Assert that both emails (warning about email change and link to email change page) were sent.
+    // Assert: Both emails (warning about email change and link to email change page) were sent.
     await().atMost(Duration.ofSeconds(3)).untilAsserted(() -> {
       ArgumentCaptor<EmailReq> captor = ArgumentCaptor.forClass(EmailReq.class);
       verify(emailService, times(2)).queueEmail(captor.capture());
@@ -303,7 +303,7 @@ public class UserSendEmailTest extends BaseUserTest {
           null
       );
 
-      // Assert that correct email requests were sent.
+      // Assert: Correct email requests were sent.
       assertThat(actualWarningOldReq).isEqualTo(expectedEmailWarningOldReq);
       assertThat(actualWarningNewReq).isEqualTo(expectedEmailWarningNewReq);
     });
@@ -319,15 +319,15 @@ public class UserSendEmailTest extends BaseUserTest {
         "en"
     );
 
-    // Act: send password reset confirm email.
+    // Act: Send password reset confirm email.
     userSendEmailService.sendEmailChangeConfirm(event);
 
-    // Assert that email (password reset confirmation) was sent.
+    // Assert: Email (password reset confirmation) was sent.
     await().atMost(Duration.ofSeconds(3)).untilAsserted(() -> {
       ArgumentCaptor<EmailReq> captor = ArgumentCaptor.forClass(EmailReq.class);
       verify(emailService, times(1)).queueEmail(captor.capture());
 
-      // Assert that correct email request was sent.
+      // Assert: Correct email request was sent.
       Map<String, Object> params = Maps.newHashMap();
       params.put("systemName", systemName);
       params.put("username", "Jane");
@@ -365,15 +365,15 @@ public class UserSendEmailTest extends BaseUserTest {
         userHelperService.resolveExpirationTime(EnUserTokenType.PASSWORD)
     );
 
-    // Act: send password reset link email.
+    // Act: Send password reset link email.
     userSendEmailService.sendPasswordResetRequest(event);
 
-    // Assert that email (link to password reset page) was sent.
+    // Assert: Email (link to password reset page) was sent.
     await().atMost(Duration.ofSeconds(3)).untilAsserted(() -> {
       ArgumentCaptor<EmailReq> captor = ArgumentCaptor.forClass(EmailReq.class);
       verify(emailService, times(1)).queueEmail(captor.capture());
 
-      // Assert that correct email request was sent.
+      // Assert: Correct email request was sent.
       Map<String, Object> params = Maps.newHashMap();
       params.put("systemName", systemName);
       params.put("username", "Jane");
@@ -408,15 +408,15 @@ public class UserSendEmailTest extends BaseUserTest {
         "en"
     );
 
-    // Act: send password reset confirm email.
+    // Act: Send password reset confirm email.
     userSendEmailService.sendPasswordResetConfirm(event);
 
-    // Assert that email (password reset confirmation) was sent.
+    // Assert: Email (password reset confirmation) was sent.
     await().atMost(Duration.ofSeconds(3)).untilAsserted(() -> {
       ArgumentCaptor<EmailReq> captor = ArgumentCaptor.forClass(EmailReq.class);
       verify(emailService, times(1)).queueEmail(captor.capture());
 
-      // Assert that correct email request was sent.
+      // Assert: Correct email request was sent.
       Map<String, Object> params = Maps.newHashMap();
       params.put("systemName", systemName);
       params.put("username", "Jane");
@@ -454,15 +454,15 @@ public class UserSendEmailTest extends BaseUserTest {
         userHelperService.resolveExpirationTime(EnUserTokenType.DELETE)
     );
 
-    // Act: send account deletion link email.
+    // Act: Send account deletion link email.
     userSendEmailService.sendAccountDeleteRequest(event);
 
-    // Assert that email (link to account deletion page) was sent.
+    // Assert: Email (link to account deletion page) was sent.
     await().atMost(Duration.ofSeconds(3)).untilAsserted(() -> {
       ArgumentCaptor<EmailReq> captor = ArgumentCaptor.forClass(EmailReq.class);
       verify(emailService, times(1)).queueEmail(captor.capture());
 
-      // Assert that correct email request was sent.
+      // Assert: Correct email request was sent.
       Map<String, Object> params = Maps.newHashMap();
       params.put("systemName", systemName);
       params.put("username", "Jane");
@@ -497,15 +497,15 @@ public class UserSendEmailTest extends BaseUserTest {
         "en"
     );
 
-    // Act: send account delete confirmation email.
+    // Act: Send account delete confirmation email.
     userSendEmailService.sendAccountDeleteConfirm(event);
 
-    // Assert that email (account deletion confirmation) was sent.
+    // Assert: Email (account deletion confirmation) was sent.
     await().atMost(Duration.ofSeconds(3)).untilAsserted(() -> {
       ArgumentCaptor<EmailReq> captor = ArgumentCaptor.forClass(EmailReq.class);
       verify(emailService, times(1)).queueEmail(captor.capture());
 
-      // Assert that correct email request was sent.
+      // Assert: Correct email request was sent.
       Map<String, Object> params = Maps.newHashMap();
       params.put("systemName", systemName);
       params.put("username", "Jane");

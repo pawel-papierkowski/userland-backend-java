@@ -24,6 +24,7 @@ import org.springframework.stereotype.Service;
  * <p>Note: this class is intentionally NOT transactional. BCrypt hashing/verification is CPU-heavy; running it outside
  * of transaction prevents holding a database connection for its duration. All database work is done transactionally by
  * {@link UserPasswordTx}.</p>
+ * <p>Note: on production there are measures to prevent email enumeration attack.</p>
  */
 @Service
 @RequiredArgsConstructor
@@ -34,9 +35,8 @@ public class UserPasswordService extends BaseUserService {
   /**
    * Creates password reset token and (indirectly, via event) sends email with password reset link to user with given
    * email.
-   * <p>Note: if a valid password reset token already exists (also when the request lost against a concurrent one), it
-   * fails silently on production to prevent email enumeration attack; in test build the error is rethrown so tests
-   * can assert it.</p>
+   * <p>Note: if email does not exist (or user is unavailable for other reasons like being locked), it fails silently on
+   * production to prevent email enumeration attack. Same for token issues.</p>
    * @param userPassResetLinkReq User password reset request.
    */
   public void send(UserPassResetLinkReq userPassResetLinkReq) {
