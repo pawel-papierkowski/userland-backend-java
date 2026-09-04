@@ -17,6 +17,10 @@ import org.portfolio.userland.features.user.dto.common.EnFrontendFramework;
  * @param email User email.
  * @param password User password.
  * @param lang User language as simple language code. Example: 'pl'.
+ * @param name Name of user.
+ * @param surname Surname of user.
+ * @param activate True if we want to have user activated already, without email confirmation.
+ * @param isAdmin True if we register user with admin permissions. Only for portfolio mode.
  * @param frontend Used frontend. If null/empty, will use default. Note it is not in user data.
  */
 @Builder(toBuilder = true)

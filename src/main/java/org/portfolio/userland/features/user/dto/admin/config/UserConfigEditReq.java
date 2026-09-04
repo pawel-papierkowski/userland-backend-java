@@ -8,8 +8,8 @@ import lombok.Builder;
 
 /**
  * DTO for editing entry of user config table.
- * @param userId User identifier.
  * @param id User config entry identifier. Can be null, in this case will create new user config entry.
+ * @param userId User identifier.
  * @param name User config entry name.
  * @param value User config entry value.
  */

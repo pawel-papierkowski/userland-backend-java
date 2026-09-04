@@ -11,7 +11,7 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Asserts system history event.
+ * Asserts system history events.
  */
 @Service
 @RequiredArgsConstructor

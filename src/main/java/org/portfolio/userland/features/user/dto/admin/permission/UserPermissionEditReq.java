@@ -11,8 +11,8 @@ import java.util.Locale;
  * DTO for editing entry of user permission table.
  * <p>Note: <code>name</code> and <code>value</code> are normalized to lowercase in the compact constructor, so all
  * downstream code (duplicate check, persistence, history entries) always sees canonical lowercase data.</p>
- * @param userId User identifier.
  * @param id User permission entry identifier. Can be null, in this case will create new user permission entry.
+ * @param userId User identifier.
  * @param name User permission entry name.
  * @param value User permission entry value.
  */

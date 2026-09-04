@@ -37,21 +37,21 @@ public interface UserPermissionCustomRepository {
   UserPermissionEntryInfo findEntryInfo(Long id);
 
   /**
-   * Check if user permission with same name/value combination already exists.
+   * Check if user permission with same name/value combination already exists. Ignores permission of this user (self-exclusion).
    * @param editReq User permission entry edit request.
-   * @return True if name/value combination already exists, otherwise false.
+   * @return True if another user permission with given name/value combination already exists, otherwise false.
    */
   default boolean isRedundant(UserPermissionEditReq editReq) {
     return isRedundant(editReq.id(), editReq.userId(), editReq.name(), editReq.value());
   }
 
   /**
-   * Check if user permission with same name/value combination already exists.
+   * Check if user permission with same name/value combination already exists. Ignores permission of this user (self-exclusion).
    * @param id     User permission entry identifier. Can be null if new entry.
    * @param userId Identifier of the user owning this permission.
    * @param name   Name of the permission setting.
    * @param value  Value of the permission setting.
-   * @return True if name/value combination already exists, otherwise false.
+   * @return True if another user permission with given name/value combination already exists, otherwise false.
    */
   boolean isRedundant(Long id, Long userId, String name, String value);
 

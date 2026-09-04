@@ -175,7 +175,7 @@ public class UserPasswordApiTest extends BaseUserTest {
       User actualUser = userRepository.findByEmail("test@example.com").orElseThrow();
       userAssert.assertIt(actualUser, expectedUser);
       // ensure password hash changed
-      assertThat(actualUser.getPassword()).as("User password must different").isNotEqualTo(oldPassword);
+      assertThat(actualUser.getPassword()).as("User password must be different").isNotEqualTo(oldPassword);
       return null;
     });
 

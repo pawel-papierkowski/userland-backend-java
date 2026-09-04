@@ -109,8 +109,8 @@ public class SecurityConfig {
 
   /**
    * This specific filter chain defines secured endpoints that also require operator or administrator permissions.
-   * Note there can also be endpoints individually marked as <code>@PreAuthorize("hasAuthority('ROLE_OPERATOR')")</code>
-   * in Controllers.
+   * You can also mark additional endpoints secured in this way in controllers individually - via <code>@PreAuthorize("hasAuthority('ROLE_OPERATOR')")</code>
+   * or custom meta-annotations like <code>@HasAdminPermission</code>.
    * <p>You have access to auth data inside such endpoints:</p>
    * <pre>CustomUserDetails userDetails = AuthHelper.resolveUserDetails();</pre>
    * @param http HTTP security data.
