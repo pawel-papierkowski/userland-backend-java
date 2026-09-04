@@ -121,10 +121,10 @@ public class ProblemDetailService {
     JsonNode type = json.get("type");
     return new ProblemDetailBox(
         json.get("status").asInt(),
-        json.get("title").asText(),
-        json.get("detail").asText(),
-        json.get("instance").asText(),
-        type == null ? null : type.asText(),
+        json.get("title").asString(),
+        json.get("detail").asString(),
+        json.get("instance").asString(),
+        type == null ? null : type.asString(),
         params
     );
   }
@@ -133,7 +133,7 @@ public class ProblemDetailService {
   List<String> PD_DEFAULTS = List.of("status", "title", "detail", "instance", "type");
 
   /**
-   * Convert custom parameters for Problem Detail. Note we handle only one layer deep.
+   * Convert custom parameters for Problem Detail. Note we handle only one layer of depth.
    * @param jsonNode JSON object that represent Problem Detail.
    * @return Map of params.
    */
@@ -156,7 +156,7 @@ public class ProblemDetailService {
     JsonNodeType nodeType = jsonNode.getNodeType();
 
     return switch (nodeType) {
-      case STRING -> jsonNode.asText();
+      case STRING -> jsonNode.asString();
       case ARRAY -> null;
       case BINARY -> null;
       case BOOLEAN -> null;
@@ -168,10 +168,15 @@ public class ProblemDetailService {
     };
   }
 
+  /**
+   * Convert inner object.
+   * @param jsonNode JSON node of OBJECT type.
+   * @return Map of inner parameters.
+   */
   private Object convertInnerObject(JsonNode jsonNode) {
     Map<String, String> paramsMap = Maps.newHashMap();
     jsonNode.propertyStream()
-        .forEach(e -> paramsMap.put(e.getKey(), e.getValue().textValue()));
+        .forEach(e -> paramsMap.put(e.getKey(), e.getValue().stringValue()));
     return paramsMap;
   }
 }
